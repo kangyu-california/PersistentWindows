@@ -1,0 +1,9 @@
+﻿<Window x:Class="Ninjacrab.PersistentWindows.WpfShell.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Ninjacrab.PersistentWindows.WpfShell"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <local:DiagnosticsView />
+    </Grid>
+</Window>
