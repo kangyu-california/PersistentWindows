@@ -14,5 +14,13 @@ namespace Ninjacrab.PersistentWindows.WpfShell.Models
         {
             get { return string.Format("{0}-{1}", HWnd.ToInt64(), ApplicationName); }
         }
+
+        public bool EqualPlacement(ApplicationDisplayMetrics other)
+        {
+            return this.WindowPlacement.NormalPosition.Left == other.WindowPlacement.NormalPosition.Left
+                && this.WindowPlacement.NormalPosition.Top == other.WindowPlacement.NormalPosition.Top
+                && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
+                && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
+        }
     }
 }

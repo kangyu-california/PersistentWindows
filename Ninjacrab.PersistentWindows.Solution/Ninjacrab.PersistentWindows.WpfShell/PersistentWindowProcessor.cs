@@ -30,10 +30,12 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 switch (e.Mode)
                 {
                     case PowerModes.Suspend:
+                        Log.Info("System Suspending");
                         BeginCaptureApplicationsOnCurrentDisplays();
                         break;
 
                     case PowerModes.Resume:
+                        Log.Info("System Resuming");
                         BeginRestoreApplicationsOnCurrentDisplays();
                         break;
                 }
@@ -75,15 +77,16 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 if (!metrics.Equals(lastMetrics))
                 {
                     // since the resolution doesn't match, lets wait till it's restored
+                    Log.Info("Detected changes in display metrics, will capture once windows are restored");
                     return;
                 }
 
-                Log.Info("Capturing applications for {0}", displayKey);
                 if (!monitorApplications.ContainsKey(displayKey))
                 {
                     monitorApplications.Add(displayKey, new Dictionary<string, ApplicationDisplayMetrics>());
                 }
 
+                List<string> changeLog = new List<string>();
                 var windows = SystemWindow.AllToplevelWindows.Where(row => row.VisibilityFlag == true);
                 foreach (var window in windows)
                 {
@@ -98,14 +101,34 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                         WindowPlacement = windowPlacement
                     };
 
+                    bool addToChangeLog = false;
                     if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
                     {
                         monitorApplications[displayKey].Add(applicationDisplayMetric.Key, applicationDisplayMetric);
+                        addToChangeLog = true;
                     }
-                    else
+                    else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
                     {
                         monitorApplications[displayKey][applicationDisplayMetric.Key].WindowPlacement = applicationDisplayMetric.WindowPlacement;
+                        addToChangeLog = true;
                     }
+
+                    if (addToChangeLog)
+                    {
+                        changeLog.Add(string.Format("Capturing {0} at [{1}x{2}] size [{3}x{4}]",
+                            applicationDisplayMetric.ApplicationName,
+                            applicationDisplayMetric.WindowPlacement.NormalPosition.Left,
+                            applicationDisplayMetric.WindowPlacement.NormalPosition.Top,
+                            applicationDisplayMetric.WindowPlacement.NormalPosition.Width,
+                            applicationDisplayMetric.WindowPlacement.NormalPosition.Height
+                            ));
+                    }
+                }
+
+                if (changeLog.Count > 0)
+                {
+                    Log.Info("Capturing applications for {0}", displayKey);
+                    Log.Trace(string.Join(Environment.NewLine, changeLog));
                 }
             }
         }
