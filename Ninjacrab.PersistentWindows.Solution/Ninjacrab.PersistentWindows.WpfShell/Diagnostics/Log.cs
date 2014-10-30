@@ -19,15 +19,15 @@ namespace Ninjacrab.PersistentWindows.WpfShell.Diagnostics
             config.AddTarget("file", fileTarget);
 
             // Step 3. Set target properties 
-            consoleTarget.Layout = @"${date:format=HH\\:MM\\:ss} ${logger} ${message}";
+            consoleTarget.Layout = @"${date:format=HH\\:mm\\:ss} ${logger} ${message}";
             fileTarget.FileName = "${basedir}/PersistentWindows.Log";
-            fileTarget.Layout = "${message}";
+            fileTarget.Layout = "${date:format=HH\\:mm\\:ss} ${logger} ${message}";
 
             // Step 4. Define rules
             var rule1 = new LoggingRule("*", LogLevel.Trace, consoleTarget);
             config.LoggingRules.Add(rule1);
 
-            var rule2 = new LoggingRule("*", LogLevel.Debug, fileTarget);
+            var rule2 = new LoggingRule("*", LogLevel.Trace, fileTarget);
             config.LoggingRules.Add(rule2);
 
             // Step 5. Activate the configuration

@@ -19,12 +19,19 @@ namespace Ninjacrab.PersistentWindows.WpfShell
 
         public void Start()
         {
+            lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
+            CaptureApplicationsOnCurrentDisplays();
+
             var thread = new Thread(InternalRun);
             thread.IsBackground = true;
             thread.Name = "PersistentWindowProcessor.InternalRun()";
             thread.Start();
 
-            SystemEvents.DisplaySettingsChanged += (s, e) => BeginRestoreApplicationsOnCurrentDisplays();
+            SystemEvents.DisplaySettingsChanged += (s, e) =>
+                {
+                    Log.Info("Display settings changed");
+                    BeginRestoreApplicationsOnCurrentDisplays();
+                };
             SystemEvents.PowerModeChanged += (s, e) =>
             {
                 switch (e.Mode)
@@ -40,11 +47,9 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                         break;
                 }
             };
-            CaptureApplicationsOnCurrentDisplays();
-            lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
         }
 
-        private readonly Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
+        private readonly Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
         private readonly object displayChangeLock = new object();
 
         private void InternalRun()
@@ -83,7 +88,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
 
                 if (!monitorApplications.ContainsKey(displayKey))
                 {
-                    monitorApplications.Add(displayKey, new Dictionary<string, ApplicationDisplayMetrics>());
+                    monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
                 List<string> changeLog = new List<string>();
@@ -116,7 +121,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                     if (addToChangeLog)
                     {
                         changeLog.Add(string.Format("Capturing {0} at [{1}x{2}] size [{3}x{4}]",
-                            applicationDisplayMetric.ApplicationName,
+                            applicationDisplayMetric,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Left,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Top,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Width,
@@ -127,6 +132,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
 
                 if (changeLog.Count > 0)
                 {
+                    changeLog.Sort();
                     Log.Info("Capturing applications for {0}", displayKey);
                     Log.Trace(string.Join(Environment.NewLine, changeLog));
                 }

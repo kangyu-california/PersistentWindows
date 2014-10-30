@@ -22,5 +22,10 @@ namespace Ninjacrab.PersistentWindows.WpfShell.Models
                 && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
                 && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToInt64(), ApplicationName);
+        }
     }
 }
