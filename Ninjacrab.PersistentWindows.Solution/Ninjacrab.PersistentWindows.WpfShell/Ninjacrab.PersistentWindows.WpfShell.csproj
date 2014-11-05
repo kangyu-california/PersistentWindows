@@ -82,13 +82,16 @@
     </ApplicationDefinition>
     <Compile Include="Diagnostics\Log.cs" />
     <Compile Include="Models\ApplicationDisplayMetrics.cs" />
+    <Compile Include="Models\WindowPositionInfo.cs" />
     <Compile Include="WinApiBridge\CallWindowProcedureParam.cs" />
     <Compile Include="WinApiBridge\Display.cs" />
     <Compile Include="WinApiBridge\MonitorInfo.cs" />
+    <Compile Include="WinApiBridge\SetWindowPosFlags.cs" />
     <Compile Include="WinApiBridge\ShowWindowCommands.cs" />
     <Compile Include="WinApiBridge\User32.cs" />
     <Compile Include="WinApiBridge\WindowPlacement.cs" />
     <Compile Include="WinApiBridge\WindowsMessage.cs" />
+    <Compile Include="WinApiBridge\WindowsPosition.cs" />
     <Page Include="DiagnosticsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

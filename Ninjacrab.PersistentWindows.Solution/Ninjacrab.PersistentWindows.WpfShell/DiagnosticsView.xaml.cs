@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using Ninjacrab.PersistentWindows.WpfShell.Diagnostics;
+using NLog;
 
 namespace Ninjacrab.PersistentWindows.WpfShell
 {
@@ -18,7 +19,9 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             this.DataContext = viewModel;
             Log.LogEvent += (level, message) =>
                 {
-                    Application.Current.Dispatcher.Invoke(() => 
+                    if (level != LogLevel.Trace)
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
                         {
                             viewModel.EventLog.Add(string.Format("{0}: {1}", level, message));
                             if (viewModel.EventLog.Count > 500)
@@ -26,6 +29,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                                 viewModel.EventLog.RemoveAt(0);
                             }
                         });
+                    }
                 };
         }
     }

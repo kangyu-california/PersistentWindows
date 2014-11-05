@@ -62,25 +62,96 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             switch(callbackParam.message)
             {
                 case WindowsMessage.WINDOWPOSCHANGED:
-
-                    ApplicationDisplayMetrics appMetrics = null;
-                    if (monitorApplications != null &&
-                        monitorApplications.ContainsKey(lastMetrics.Key))
-                    {
-                        appMetrics = monitorApplications[lastMetrics.Key]
-                            .FirstOrDefault(row => row.Value.HWnd == callbackParam.hwnd)
-                            .Value;
-                    }
-
-                    Log.Info("{0} {1}", appMetrics != null ? appMetrics.Key : callbackParam.hwnd.ToInt64().ToString(), callbackParam.message);
+                    WindowPositionChangedHandler(callbackParam);
                     break;
 
                 case WindowsMessage.POWERBROADCAST:
-                    Log.Info(callbackParam.message.ToString());
+                    Log.Info("Power Broadcast - {0}    {1}", wParam, lParam);
+                    break;
+
+                case WindowsMessage.ACTIVATE:
+                case WindowsMessage.ACTIVATEAPP:
+                case WindowsMessage.CAPTURECHANGED:
+                case WindowsMessage.ENTERSIZEMOVE:
+                case WindowsMessage.ERASEBKGND:
+                case WindowsMessage.EXITSIZEMOVE:
+                case WindowsMessage.GETTEXT:
+                case WindowsMessage.GETICON:
+                case WindowsMessage.GETMINMAXINFO:
+                case WindowsMessage.HSHELL_ACTIVATESHELLWINDOW:
+                case WindowsMessage.IME_NOTIFY:
+                case WindowsMessage.IME_SETCONTEXT:
+                case WindowsMessage.KILLFOCUS:
+                case WindowsMessage.MOVING:
+                case WindowsMessage.NCACTIVATE:
+                case WindowsMessage.NCCALCSIZE:
+                case WindowsMessage.NCHITTEST:
+                case WindowsMessage.NCPAINT:
+                case WindowsMessage.NULL:
+                case WindowsMessage.SETCURSOR:
+                case WindowsMessage.SIZING:
+                case WindowsMessage.SIZE:
+                case WindowsMessage.WININICHANGE:
+                case WindowsMessage.WINDOWPOSCHANGING:
+                    break;
+
+                default:
+                    int enumValue = (int)callbackParam.message;
+                    switch(enumValue)
+                    {
+                        case 647:
+                        case 49666: 
+                            break;
+
+                        default:
+                            Log.Info(callbackParam.message.ToString());
+                            break;
+                    }
                     break;
             }
             callNext = true;
             return 0;
+        }
+
+        private void WindowPositionChangedHandler(CallWindowProcedureParam callbackParam)
+        {
+            ApplicationDisplayMetrics appMetrics = null;
+            if (monitorApplications == null ||
+                !monitorApplications.ContainsKey(lastMetrics.Key))
+            {
+                Log.Error("No definitions found for this resolution: {0}", lastMetrics.Key);
+                return;
+            }
+
+            appMetrics = monitorApplications[lastMetrics.Key]
+                .FirstOrDefault(row => row.Value.HWnd == callbackParam.hwnd)
+                .Value;
+
+            WindowPlacement windowPlacement = appMetrics.WindowPlacement;
+            WindowsPosition newPosition = (WindowsPosition)Marshal.PtrToStructure(callbackParam.lparam, typeof(WindowsPosition));
+            windowPlacement.NormalPosition.Left = newPosition.Left;
+            windowPlacement.NormalPosition.Top = newPosition.Top;
+            windowPlacement.NormalPosition.Right = newPosition.Left + newPosition.Width;
+            windowPlacement.NormalPosition.Bottom = newPosition.Top + newPosition.Height;
+
+            var key = appMetrics.Key;
+            if (monitorApplications[lastMetrics.Key].ContainsKey(key))
+            {
+                monitorApplications[lastMetrics.Key][appMetrics.Key].WindowPlacement = windowPlacement;
+            }
+            else
+            {
+                Log.Error("Hwnd {0} is not in list, we should capture", callbackParam.hwnd.ToInt64());
+                return;
+            }
+
+            Log.Info("Capturing {0} at [{1}x{2}] size [{3}x{4}]",
+                appMetrics,
+                appMetrics.WindowPlacement.NormalPosition.Left,
+                appMetrics.WindowPlacement.NormalPosition.Top,
+                appMetrics.WindowPlacement.NormalPosition.Width,
+                appMetrics.WindowPlacement.NormalPosition.Height
+                );
         }
 
         private readonly Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
@@ -90,7 +161,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
         {
             while(true)
             {
-                CaptureApplicationsOnCurrentDisplays();
+                //CaptureApplicationsOnCurrentDisplays();
                 Thread.Sleep(1000);
             }
         }
