@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using ManagedWinapi.Hooks;
 using ManagedWinapi.Windows;
 using Microsoft.Win32;
 using Ninjacrab.PersistentWindows.WpfShell.Diagnostics;
@@ -13,9 +14,10 @@ using NLog;
 
 namespace Ninjacrab.PersistentWindows.WpfShell
 {
-    public class PersistentWindowProcessor
+    public class PersistentWindowProcessor : IDisposable
     {
         private DesktopDisplayMetrics lastMetrics = null;
+        private Hook windowProcHook;
 
         public void Start()
         {
@@ -47,6 +49,38 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                         break;
                 }
             };
+
+            windowProcHook = new Hook();
+            windowProcHook.Type = HookType.WH_CALLWNDPROC;
+            windowProcHook.Callback += GlobalWindowProcCallback;
+            windowProcHook.StartHook();
+        }
+
+        int GlobalWindowProcCallback(int code, IntPtr wParam, IntPtr lParam, ref bool callNext)
+        {
+            CallWindowProcedureParam callbackParam = (CallWindowProcedureParam)Marshal.PtrToStructure(lParam, typeof(CallWindowProcedureParam));
+            switch(callbackParam.message)
+            {
+                case WindowsMessage.WINDOWPOSCHANGED:
+
+                    ApplicationDisplayMetrics appMetrics = null;
+                    if (monitorApplications != null &&
+                        monitorApplications.ContainsKey(lastMetrics.Key))
+                    {
+                        appMetrics = monitorApplications[lastMetrics.Key]
+                            .FirstOrDefault(row => row.Value.HWnd == callbackParam.hwnd)
+                            .Value;
+                    }
+
+                    Log.Info("{0} {1}", appMetrics != null ? appMetrics.Key : callbackParam.hwnd.ToInt64().ToString(), callbackParam.message);
+                    break;
+
+                case WindowsMessage.POWERBROADCAST:
+                    Log.Info(callbackParam.message.ToString());
+                    break;
+            }
+            callNext = true;
+            return 0;
         }
 
         private readonly Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
@@ -198,6 +232,14 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                             success);
                     }
                 }
+            }
+        }
+
+        public void Dispose()
+        {
+            if (windowProcHook != null)
+            {
+                windowProcHook.Dispose();
             }
         }
     }
