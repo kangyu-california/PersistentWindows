@@ -7,6 +7,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <ListBox Name="eventLogList"  ItemsSource="{Binding EventLog}" />
+        <ListBox Name="eventLogList" ItemsSource="{Binding EventLog}" />
     </Grid>
 </UserControl>

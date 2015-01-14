@@ -28,6 +28,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                             {
                                 viewModel.EventLog.RemoveAt(0);
                             }
+                            eventLogList.ScrollIntoView(viewModel.EventLog[viewModel.EventLog.Count - 1]);
                         });
                     }
                 };

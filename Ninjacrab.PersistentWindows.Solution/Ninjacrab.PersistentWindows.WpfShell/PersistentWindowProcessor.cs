@@ -16,13 +16,15 @@ namespace Ninjacrab.PersistentWindows.WpfShell
 {
     public class PersistentWindowProcessor : IDisposable
     {
+        // read and update this from a config file eventually
+        private int AppsMovedThreshold = 4;
         private DesktopDisplayMetrics lastMetrics = null;
         private Hook windowProcHook;
 
         public void Start()
         {
             lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
-            CaptureApplicationsOnCurrentDisplays();
+            CaptureApplicationsOnCurrentDisplays(initialCapture: true);
 
             var thread = new Thread(InternalRun);
             thread.IsBackground = true;
@@ -50,10 +52,10 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 }
             };
 
-            windowProcHook = new Hook();
-            windowProcHook.Type = HookType.WH_CALLWNDPROC;
-            windowProcHook.Callback += GlobalWindowProcCallback;
-            windowProcHook.StartHook();
+            //windowProcHook = new Hook();
+            //windowProcHook.Type = HookType.WH_CALLWNDPROC;
+            //windowProcHook.Callback += GlobalWindowProcCallback;
+            //windowProcHook.StartHook();
         }
 
         int GlobalWindowProcCallback(int code, IntPtr wParam, IntPtr lParam, ref bool callNext)
@@ -113,6 +115,10 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             return 0;
         }
 
+        /// <summary>
+        /// OMG this method is awful!!! but yagni
+        /// </summary>
+        /// <param name="callbackParam"></param>
         private void WindowPositionChangedHandler(CallWindowProcedureParam callbackParam)
         {
             ApplicationDisplayMetrics appMetrics = null;
@@ -126,6 +132,25 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             appMetrics = monitorApplications[lastMetrics.Key]
                 .FirstOrDefault(row => row.Value.HWnd == callbackParam.hwnd)
                 .Value;
+
+            if (appMetrics == null)
+            {
+                var newAppWindow = SystemWindow.AllToplevelWindows
+                    .FirstOrDefault(row => row.Parent.HWnd.ToInt64() == 0 
+                        && !string.IsNullOrEmpty(row.Title) 
+                        && !row.Title.Equals("Program Manager")
+                        && row.Visible
+                        && row.HWnd == callbackParam.hwnd);
+
+                if (newAppWindow == null)
+                {
+                    Log.Error("Can't find hwnd {0}", callbackParam.hwnd.ToInt64());
+                    return;
+                }
+                ApplicationDisplayMetrics applicationDisplayMetric = null;
+                AddOrUpdateWindow(lastMetrics.Key, newAppWindow, out applicationDisplayMetric);
+                return;
+            }
 
             WindowPlacement windowPlacement = appMetrics.WindowPlacement;
             WindowsPosition newPosition = (WindowsPosition)Marshal.PtrToStructure(callbackParam.lparam, typeof(WindowsPosition));
@@ -145,7 +170,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 return;
             }
 
-            Log.Info("Capturing {0} at [{1}x{2}] size [{3}x{4}]",
+            Log.Info("WPCH - Capturing {0} at [{1}x{2}] size [{3}x{4}]",
                 appMetrics,
                 appMetrics.WindowPlacement.NormalPosition.Left,
                 appMetrics.WindowPlacement.NormalPosition.Top,
@@ -161,7 +186,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
         {
             while(true)
             {
-                //CaptureApplicationsOnCurrentDisplays();
+                CaptureApplicationsOnCurrentDisplays();
                 Thread.Sleep(1000);
             }
         }
@@ -174,7 +199,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             thread.Start();
         }
 
-        private void CaptureApplicationsOnCurrentDisplays(string displayKey = null)
+        private void CaptureApplicationsOnCurrentDisplays(string displayKey = null, bool initialCapture = false)
         {            
             lock(displayChangeLock)
             {
@@ -197,41 +222,48 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 }
 
                 List<string> changeLog = new List<string>();
-                var windows = SystemWindow.AllToplevelWindows.Where(row => row.VisibilityFlag == true);
-                foreach (var window in windows)
+                var appWindows = SystemWindow.AllToplevelWindows
+                    .Where(row => row.Parent.HWnd.ToInt64() == 0 
+                        && !string.IsNullOrEmpty(row.Title) 
+                        && !row.Title.Equals("Program Manager")
+                        && row.Visible);
+
+                List<ApplicationDisplayMetrics> apps = new List<ApplicationDisplayMetrics>();
+                foreach (var window in appWindows)
                 {
-                    WindowPlacement windowPlacement = new WindowPlacement();
-                    User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
-
-                    var applicationDisplayMetric = new ApplicationDisplayMetrics
-                    {
-                        HWnd = window.HWnd,
-                        ApplicationName = window.Process.ProcessName,
-                        ProcessId = window.Process.Id,
-                        WindowPlacement = windowPlacement
-                    };
-
-                    bool addToChangeLog = false;
-                    if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
-                    {
-                        monitorApplications[displayKey].Add(applicationDisplayMetric.Key, applicationDisplayMetric);
-                        addToChangeLog = true;
-                    }
-                    else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
-                    {
-                        monitorApplications[displayKey][applicationDisplayMetric.Key].WindowPlacement = applicationDisplayMetric.WindowPlacement;
-                        addToChangeLog = true;
-                    }
+                    ApplicationDisplayMetrics applicationDisplayMetric = null;
+                    bool addToChangeLog = AddOrUpdateWindow(displayKey, window, out applicationDisplayMetric);
 
                     if (addToChangeLog)
                     {
-                        changeLog.Add(string.Format("Capturing {0} at [{1}x{2}] size [{3}x{4}]",
+                        apps.Add(applicationDisplayMetric);
+                        changeLog.Add(string.Format("CAOCD - Capturing {0,-45} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
                             applicationDisplayMetric,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Left,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Top,
                             applicationDisplayMetric.WindowPlacement.NormalPosition.Width,
-                            applicationDisplayMetric.WindowPlacement.NormalPosition.Height
+                            applicationDisplayMetric.WindowPlacement.NormalPosition.Height,
+                            window.Visible,
+                            window.Title
                             ));
+                    }
+                }
+
+                // only save the updated if it didn't seem like something moved everything
+                if ((apps.Count > 0 
+                    && apps.Count < AppsMovedThreshold) 
+                    || initialCapture)
+                {
+                    foreach(var app in apps)
+                    {
+                        if (!monitorApplications[displayKey].ContainsKey(app.Key))
+                        {
+                            monitorApplications[displayKey].Add(app.Key, app);
+                        }
+                        else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
+                        {
+                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
+                        }
                     }
                 }
 
@@ -242,6 +274,33 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                     Log.Trace(string.Join(Environment.NewLine, changeLog));
                 }
             }
+        }
+
+        private bool AddOrUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric)
+        {
+            WindowPlacement windowPlacement = new WindowPlacement();
+            User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
+
+            applicationDisplayMetric = new ApplicationDisplayMetrics
+            {
+                HWnd = window.HWnd,
+                ApplicationName = window.Process.ProcessName,
+                ProcessId = window.Process.Id,
+                WindowPlacement = windowPlacement
+            };
+
+            bool updated = false;
+            if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
+            {
+                monitorApplications[displayKey].Add(applicationDisplayMetric.Key, applicationDisplayMetric);
+                updated = true;
+            }
+            else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
+            {
+                monitorApplications[displayKey][applicationDisplayMetric.Key].WindowPlacement = applicationDisplayMetric.WindowPlacement;
+                updated = true;
+            }
+            return updated;
         }
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
@@ -267,6 +326,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 {
                     // no old profile, we're done
                     Log.Info("No old profile found for {0}", displayKey);
+                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                     return;
                 }
 
