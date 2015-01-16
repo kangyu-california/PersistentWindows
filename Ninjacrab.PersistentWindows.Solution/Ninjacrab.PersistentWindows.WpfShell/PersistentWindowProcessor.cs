@@ -221,13 +221,13 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                     monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
-                List<string> changeLog = new List<string>();
                 var appWindows = SystemWindow.AllToplevelWindows
                     .Where(row => row.Parent.HWnd.ToInt64() == 0 
                         && !string.IsNullOrEmpty(row.Title) 
                         && !row.Title.Equals("Program Manager")
                         && row.Visible);
 
+                List<string> changeLog = new List<string>();
                 List<ApplicationDisplayMetrics> apps = new List<ApplicationDisplayMetrics>();
                 foreach (var window in appWindows)
                 {
@@ -265,13 +265,9 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                             monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
                         }
                     }
-                }
-
-                if (changeLog.Count > 0)
-                {
                     changeLog.Sort();
-                    Log.Info("Capturing applications for {0}", displayKey);
-                    Log.Trace(string.Join(Environment.NewLine, changeLog));
+                    Log.Info("{0}Capturing applications for {1}", initialCapture ? "Initial " : "", displayKey);
+                    Log.Trace("{0} windows recorded{1}{2}", apps.Count, Environment.NewLine, string.Join(Environment.NewLine, changeLog));
                 }
             }
         }
@@ -292,12 +288,10 @@ namespace Ninjacrab.PersistentWindows.WpfShell
             bool updated = false;
             if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
             {
-                monitorApplications[displayKey].Add(applicationDisplayMetric.Key, applicationDisplayMetric);
                 updated = true;
             }
             else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
             {
-                monitorApplications[displayKey][applicationDisplayMetric.Key].WindowPlacement = applicationDisplayMetric.WindowPlacement;
                 updated = true;
             }
             return updated;
@@ -305,7 +299,17 @@ namespace Ninjacrab.PersistentWindows.WpfShell
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
         {
-            var thread = new Thread(() => RestoreApplicationsOnCurrentDisplays());
+            var thread = new Thread(() => 
+            {
+                try
+                {
+                    RestoreApplicationsOnCurrentDisplays();
+                }
+                catch(Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+            });
             thread.IsBackground = true;
             thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
             thread.Start();
