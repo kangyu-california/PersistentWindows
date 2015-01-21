@@ -221,11 +221,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                     monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
-                var appWindows = SystemWindow.AllToplevelWindows
-                    .Where(row => row.Parent.HWnd.ToInt64() == 0 
-                        && !string.IsNullOrEmpty(row.Title) 
-                        && !row.Title.Equals("Program Manager")
-                        && row.Visible);
+                var appWindows = CaptureWindowsOfInterest();
 
                 List<string> changeLog = new List<string>();
                 List<ApplicationDisplayMetrics> apps = new List<ApplicationDisplayMetrics>();
@@ -270,6 +266,15 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                     Log.Trace("{0} windows recorded{1}{2}", apps.Count, Environment.NewLine, string.Join(Environment.NewLine, changeLog));
                 }
             }
+        }
+
+        private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
+        {
+            return SystemWindow.AllToplevelWindows
+                                .Where(row => row.Parent.HWnd.ToInt64() == 0
+                                    && !string.IsNullOrEmpty(row.Title)
+                                    && !row.Title.Equals("Program Manager")
+                                    && row.Visible);
         }
 
         private bool AddOrUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric)
@@ -335,7 +340,7 @@ namespace Ninjacrab.PersistentWindows.WpfShell
                 }
 
                 Log.Info("Restoring applications for {0}", displayKey);
-                foreach (var window in SystemWindow.AllToplevelWindows.Where(row => row.VisibilityFlag == true))
+                foreach (var window in CaptureWindowsOfInterest())
                 {
                     string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
