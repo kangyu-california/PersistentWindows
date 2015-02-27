@@ -3,7 +3,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.Diagnostics
+namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 {
     public class Log
     {

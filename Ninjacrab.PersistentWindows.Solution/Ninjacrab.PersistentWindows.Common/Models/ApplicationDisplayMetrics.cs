@@ -1,7 +1,7 @@
 ﻿using System;
-using Ninjacrab.PersistentWindows.WpfShell.WinApiBridge;
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.Models
+namespace Ninjacrab.PersistentWindows.Common.Models
 {
     public class ApplicationDisplayMetrics
     {

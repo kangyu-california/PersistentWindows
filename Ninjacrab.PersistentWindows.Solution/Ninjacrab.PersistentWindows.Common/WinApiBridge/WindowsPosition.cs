@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.Models
+namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
-    public class WindowsPositionInfo
+    [StructLayout(LayoutKind.Sequential)]
+    public struct WindowsPosition
     {
         public IntPtr hwnd;
         public IntPtr hwndInsertAfter;

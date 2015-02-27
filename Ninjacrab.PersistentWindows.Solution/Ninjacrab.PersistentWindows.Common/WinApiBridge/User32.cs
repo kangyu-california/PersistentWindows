@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using ManagedWinapi.Windows;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.WinApiBridge
+namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
     public class User32
     {

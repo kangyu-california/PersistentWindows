@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.WinApiBridge
+namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
     /// <summary>
     /// Windows Messages

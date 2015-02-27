@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Ninjacrab.PersistentWindows.WpfShell.WinApiBridge;
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
-namespace Ninjacrab.PersistentWindows.WpfShell.Models
+namespace Ninjacrab.PersistentWindows.Common.Models
 {
     public class DesktopDisplayMetrics
     {

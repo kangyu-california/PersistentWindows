@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninjacrab.PersistentWindows.WpfShell", "Ninjacrab.PersistentWindows.WpfShell\Ninjacrab.PersistentWindows.WpfShell.csproj", "{4EA12EC8-B50F-4DEA-AA7D-85A5F4C81F83}"
 EndProject
@@ -9,6 +9,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FA5C1F
 	ProjectSection(SolutionItems) = preProject
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninjacrab.PersistentWindows.Common", "Ninjacrab.PersistentWindows.Common\Ninjacrab.PersistentWindows.Common.csproj", "{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninjacrab.PersistentWindows.SystrayShell", "Ninjacrab.PersistentWindows.SystrayShell\Ninjacrab.PersistentWindows.SystrayShell.csproj", "{A728279C-F567-4E54-8BC6-90A66DC3EF57}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +24,14 @@ Global
 		{4EA12EC8-B50F-4DEA-AA7D-85A5F4C81F83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EA12EC8-B50F-4DEA-AA7D-85A5F4C81F83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EA12EC8-B50F-4DEA-AA7D-85A5F4C81F83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A728279C-F567-4E54-8BC6-90A66DC3EF57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A728279C-F567-4E54-8BC6-90A66DC3EF57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A728279C-F567-4E54-8BC6-90A66DC3EF57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A728279C-F567-4E54-8BC6-90A66DC3EF57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

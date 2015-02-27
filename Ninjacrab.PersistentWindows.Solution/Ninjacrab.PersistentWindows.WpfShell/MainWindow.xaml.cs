@@ -7,11 +7,17 @@ namespace Ninjacrab.PersistentWindows.WpfShell
     /// </summary>
     public partial class MainWindow : Window
     {
-        public PersistentWindowProcessor Processor { get; set; }
+        public bool IsClosed { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override void OnClosed(System.EventArgs e)
+        {
+            base.OnClosed(e);
+            IsClosed = true;
         }
     }
 }

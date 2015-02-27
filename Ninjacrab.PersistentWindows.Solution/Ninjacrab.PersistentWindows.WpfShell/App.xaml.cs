@@ -10,9 +10,6 @@ namespace Ninjacrab.PersistentWindows.WpfShell
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
-            new MainWindow().Show();
-            new PersistentWindowProcessor().Start();
         }
     }
 }

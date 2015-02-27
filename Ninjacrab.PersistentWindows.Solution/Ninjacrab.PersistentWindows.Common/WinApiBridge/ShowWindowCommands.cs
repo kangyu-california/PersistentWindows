@@ -1,5 +1,4 @@
-﻿
-namespace Ninjacrab.PersistentWindows.WpfShell.WinApiBridge
+﻿namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
     public enum ShowWindowCommands
     {

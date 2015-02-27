@@ -7,12 +7,11 @@ using System.Threading;
 using ManagedWinapi.Hooks;
 using ManagedWinapi.Windows;
 using Microsoft.Win32;
-using Ninjacrab.PersistentWindows.WpfShell.Diagnostics;
-using Ninjacrab.PersistentWindows.WpfShell.Models;
-using Ninjacrab.PersistentWindows.WpfShell.WinApiBridge;
-using NLog;
+using Ninjacrab.PersistentWindows.Common.Diagnostics;
+using Ninjacrab.PersistentWindows.Common.Models;
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
-namespace Ninjacrab.PersistentWindows.WpfShell
+namespace Ninjacrab.PersistentWindows.Common
 {
     public class PersistentWindowProcessor : IDisposable
     {
