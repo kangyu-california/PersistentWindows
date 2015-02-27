@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ninjacrab.PersistentWindows.SystrayShell</RootNamespace>
-    <AssemblyName>Ninjacrab.PersistentWindows.SystrayShell</AssemblyName>
+    <AssemblyName>PersistentWindows</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>..\Resources\Oxygen-Icons.org-Oxygen-Status-media-playlist-repeat.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -91,6 +94,15 @@
       <Project>{4ea12ec8-b50f-4dea-aa7d-85a5f4c81f83}</Project>
       <Name>Ninjacrab.PersistentWindows.WpfShell</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\packages\ManagedWinapi.0.3\ManagedWinapiNativeHelper.dll">
+      <Link>ManagedWinapiNativeHelper.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Resources\Oxygen-Icons.org-Oxygen-Status-media-playlist-repeat.ico">
+      <Link>Oxygen-Icons.org-Oxygen-Status-media-playlist-repeat.ico</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

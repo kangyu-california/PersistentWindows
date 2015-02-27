@@ -42,7 +42,7 @@
             // 
             this.notifyIconMain.ContextMenuStrip = this.contextMenuStripSysTray;
             this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
-            this.notifyIconMain.Text = "notifyIconMain";
+            this.notifyIconMain.Text = "Persistent Windows";
             this.notifyIconMain.Visible = true;
             // 
             // contextMenuStripSysTray
@@ -52,24 +52,24 @@
             this.toolStripMenuItem2,
             this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
-            this.contextMenuStripSysTray.Size = new System.Drawing.Size(153, 76);
+            this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 54);
             // 
             // diagnosticsToolStripMenuItem
             // 
             this.diagnosticsToolStripMenuItem.Name = "diagnosticsToolStripMenuItem";
-            this.diagnosticsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.diagnosticsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.diagnosticsToolStripMenuItem.Text = "&Diagnostics";
             this.diagnosticsToolStripMenuItem.Click += new System.EventHandler(this.DiagnosticsToolStripMenuItemClickHandler);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(132, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.exitToolStripMenuItem.Text = "&Shutdown";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItemClickHandler);
             // 
