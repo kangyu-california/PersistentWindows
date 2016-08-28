@@ -21,10 +21,11 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WindowPlacement lpwndpl);
+        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int left, int top, int width, int height, SetWindowPosFlags uFlags);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WindowPlacement lpwndpl);
 
         #region Hooks
         [DllImport("user32.dll")]

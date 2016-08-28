@@ -12,6 +12,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public int Left { get; internal set; }
         public int Top { get; internal set; }
         public uint Flags { get; internal set; }
+        public String DeviceName { get; internal set; }
 
         public static List<Display> GetDisplays()
         {
@@ -31,6 +32,10 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
                         display.Left = monitorInfo.Monitor.Left;
                         display.Top = monitorInfo.Monitor.Top;
                         display.Flags = monitorInfo.Flags;
+
+                        int pos = monitorInfo.DeviceName.LastIndexOf("\\") + 1;
+                        display.DeviceName = monitorInfo.DeviceName.Substring(pos, monitorInfo.DeviceName.Length - pos);
+
                         displays.Add(display);
                     }
                     return true;

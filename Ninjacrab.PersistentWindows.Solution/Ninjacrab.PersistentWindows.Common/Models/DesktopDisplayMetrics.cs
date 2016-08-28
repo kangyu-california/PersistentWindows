@@ -37,9 +37,9 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         private void BuildKey()
         {
             List<string> keySegments = new List<string>();
-            foreach(var entry in monitorResolutions.OrderBy(row => row.Key))
+            foreach (var entry in monitorResolutions.OrderBy(row => row.Value.DeviceName))
             {
-                keySegments.Add(string.Format("[Id:{0} Loc:{1}x{2} Res:{3}x{4}]", entry.Key, entry.Value.Left, entry.Value.Top, entry.Value.ScreenWidth, entry.Value.ScreenHeight));
+                keySegments.Add(string.Format("[DeviceName:{0} Loc:{1}x{2} Res:{3}x{4}]", entry.Value.DeviceName, entry.Value.Left, entry.Value.Top, entry.Value.ScreenWidth, entry.Value.ScreenHeight));
             }
             key = string.Join(",", keySegments);
         }

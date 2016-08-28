@@ -281,6 +281,11 @@ namespace Ninjacrab.PersistentWindows.Common
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
+            if (windowPlacement.ShowCmd == ShowWindowCommands.Normal)
+            {
+                User32.GetWindowRect(window.HWnd, ref windowPlacement.NormalPosition);
+            }
+
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,

@@ -29,6 +29,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|AnyCPU'">
+    <OutputPath>bin\Deploy\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ManagedWinapi">
       <HintPath>..\packages\ManagedWinapi.0.3\ManagedWinapi.dll</HintPath>
