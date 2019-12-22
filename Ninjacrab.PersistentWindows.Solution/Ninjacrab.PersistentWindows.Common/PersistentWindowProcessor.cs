@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using ManagedWinapi;
 using ManagedWinapi.Hooks;
 using ManagedWinapi.Windows;
 using Microsoft.Win32;
@@ -19,10 +20,14 @@ namespace Ninjacrab.PersistentWindows.Common
         private int AppsMovedThreshold = 4;
         private DesktopDisplayMetrics lastMetrics = null;
         private Hook windowProcHook;
+        private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
+        private object displayChangeLock = null;
 
         public void Start()
         {
             lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
+            monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
+            displayChangeLock = new object();
             CaptureApplicationsOnCurrentDisplays(initialCapture: true);
 
             var thread = new Thread(InternalRun);
@@ -51,10 +56,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             };
 
-            //windowProcHook = new Hook();
-            //windowProcHook.Type = HookType.WH_CALLWNDPROC;
-            //windowProcHook.Callback += GlobalWindowProcCallback;
-            //windowProcHook.StartHook();
+            /*
+            windowProcHook = new Hook();
+            windowProcHook.Type = HookType.WH_CALLWNDPROC;
+            windowProcHook.Callback += GlobalWindowProcCallback;
+            windowProcHook.StartHook();
+            */
         }
 
         int GlobalWindowProcCallback(int code, IntPtr wParam, IntPtr lParam, ref bool callNext)
@@ -161,7 +168,7 @@ namespace Ninjacrab.PersistentWindows.Common
             var key = appMetrics.Key;
             if (monitorApplications[lastMetrics.Key].ContainsKey(key))
             {
-                monitorApplications[lastMetrics.Key][appMetrics.Key].WindowPlacement = windowPlacement;
+                monitorApplications[lastMetrics.Key][key].WindowPlacement = windowPlacement;
             }
             else
             {
@@ -178,15 +185,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 );
         }
 
-        private readonly Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
-        private readonly object displayChangeLock = new object();
-
         private void InternalRun()
         {
             while(true)
             {
+                Thread.Sleep(1500);
                 CaptureApplicationsOnCurrentDisplays();
-                Thread.Sleep(1000);
             }
         }
 
@@ -245,8 +249,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // only save the updated if it didn't seem like something moved everything
-                if ((apps.Count > 0 
-                    && apps.Count < AppsMovedThreshold) 
+                if ((apps.Count > 0 && apps.Count < AppsMovedThreshold) 
                     || initialCapture)
                 {
                     foreach(var app in apps)
@@ -272,7 +275,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return SystemWindow.AllToplevelWindows
                                 .Where(row => row.Parent.HWnd.ToInt64() == 0
                                     && !string.IsNullOrEmpty(row.Title)
-                                    && !row.Title.Equals("Program Manager")
+                                    && !row.Title.Equals("Task Manager")
                                     && row.Visible);
         }
 
@@ -289,8 +292,10 @@ namespace Ninjacrab.PersistentWindows.Common
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
-                ApplicationName = window.Process.ProcessName,
-                ProcessId = window.Process.Id,
+                //ApplicationName = window.Process.ProcessName,
+                ApplicationName = "..",
+                //ProcessId = window.Process.Id,
+                ProcessId = 0,
                 WindowPlacement = windowPlacement
             };
 
@@ -334,23 +339,36 @@ namespace Ninjacrab.PersistentWindows.Common
                     displayKey = metrics.Key;
                 }
 
-                lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
+                /// lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
                 if (!monitorApplications.ContainsKey(displayKey))
                 {
                     // no old profile, we're done
-                    Log.Info("No old profile found for {0}", displayKey);
-                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
+                    Log.Trace("No old profile found for {0}", displayKey);
+                    /// CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                     return;
                 }
 
                 Log.Info("Restoring applications for {0}", displayKey);
                 foreach (var window in CaptureWindowsOfInterest())
                 {
-                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
+                    var proc_name = window.Process.ProcessName;
+                    if (proc_name.Contains("CodeSetup"))
+                    {
+                        // prevent hang in SetWindowPlacement()
+                        continue;
+                    }
+
+                    //string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
+                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), "..");
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
                         // looks like the window is still here for us to restore
                         WindowPlacement windowPlacement = monitorApplications[displayKey][applicationKey].WindowPlacement;
+                        IntPtr hwnd = monitorApplications[displayKey][applicationKey].HWnd;
+                        if (!User32.IsWindow(hwnd))
+                        {
+                            continue;
+                        }
 
                         if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                         {
@@ -358,11 +376,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             // the window thinks it's maxxed, but does not eat all the real estate. So we'll temporarily unmaximize then
                             // re-apply that
                             windowPlacement.ShowCmd = ShowWindowCommands.Normal;
-                            User32.SetWindowPlacement(monitorApplications[displayKey][applicationKey].HWnd, ref windowPlacement);
+                            User32.SetWindowPlacement(hwnd, ref windowPlacement);
                             windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                         }
+
                         var success = User32.SetWindowPlacement(monitorApplications[displayKey][applicationKey].HWnd, ref windowPlacement);
-                        if(!success)
+                        if (!success)
                         {
                             string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                             Log.Error(error);

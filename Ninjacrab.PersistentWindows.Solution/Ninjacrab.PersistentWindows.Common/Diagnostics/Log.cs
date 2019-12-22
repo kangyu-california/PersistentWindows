@@ -70,15 +70,17 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Info(string format, params object[] args)
         {
+            /*
             var message = Format(format, args);
-            Logger.Info(Format(format, args));
+            Logger.Info(message);
             RaiseLogEvent(LogLevel.Info, message);
+            */
         }
 
         public static void Error(string format, params object[] args)
         {
             var message = Format(format, args);
-            Logger.Error(Format(format, args));
+            Logger.Error(message);
             RaiseLogEvent(LogLevel.Error, message);
         }
 

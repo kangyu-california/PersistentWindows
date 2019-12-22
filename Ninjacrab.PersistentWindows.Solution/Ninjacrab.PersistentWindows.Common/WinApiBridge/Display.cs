@@ -33,8 +33,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
                         display.Top = monitorInfo.Monitor.Top;
                         display.Flags = monitorInfo.Flags;
 
-                        int pos = monitorInfo.DeviceName.LastIndexOf("\\") + 1;
-                        display.DeviceName = monitorInfo.DeviceName.Substring(pos, monitorInfo.DeviceName.Length - pos);
+                        //int pos = monitorInfo.DeviceName.LastIndexOf("\\") + 1;
+                        //display.DeviceName = monitorInfo.DeviceName.Substring(pos, monitorInfo.DeviceName.Length - pos);
+                        display.DeviceName = "Display";
 
                         displays.Add(display);
                     }

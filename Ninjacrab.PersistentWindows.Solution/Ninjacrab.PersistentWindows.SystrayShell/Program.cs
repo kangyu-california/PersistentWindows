@@ -12,7 +12,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         [STAThread]
         static void Main()
         {
-            new PersistentWindowProcessor().Start();
+            PersistentWindowProcessor pwp = new PersistentWindowProcessor();
+            pwp.Start();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
