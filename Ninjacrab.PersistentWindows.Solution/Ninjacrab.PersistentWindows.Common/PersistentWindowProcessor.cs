@@ -294,10 +294,13 @@ namespace Ninjacrab.PersistentWindows.Common
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
+
+                // avoid cpu intensive operation
                 //ApplicationName = window.Process.ProcessName,
-                ApplicationName = "..",
                 //ProcessId = window.Process.Id,
+                ApplicationName = "",
                 ProcessId = 0,
+
                 WindowPlacement = windowPlacement
             };
 
@@ -361,7 +364,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     //string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
-                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), "..");
+                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), "");
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
                         // looks like the window is still here for us to restore
