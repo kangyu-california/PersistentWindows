@@ -143,8 +143,9 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 var newAppWindow = SystemWindow.AllToplevelWindows
                     .FirstOrDefault(row => row.Parent.HWnd.ToInt64() == 0 
-                        && !string.IsNullOrEmpty(row.Title) 
+                        && !string.IsNullOrEmpty(row.Title)
                         && !row.Title.Equals("Program Manager")
+                        && !row.Title.Contains("Task Manager")
                         && row.Visible
                         && row.HWnd == callbackParam.hwnd);
 
@@ -275,7 +276,8 @@ namespace Ninjacrab.PersistentWindows.Common
             return SystemWindow.AllToplevelWindows
                                 .Where(row => row.Parent.HWnd.ToInt64() == 0
                                     && !string.IsNullOrEmpty(row.Title)
-                                    && !row.Title.Equals("Task Manager")
+                                    && !row.Title.Equals("Program Manager")
+                                    && !row.Title.Contains("Task Manager")
                                     && row.Visible);
         }
 
