@@ -18,14 +18,12 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // read and update this from a config file eventually
         private int AppsMovedThreshold = 2;
-        private DesktopDisplayMetrics lastMetrics = null;
         private Hook windowProcHook;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
 
         public void Start()
         {
-            lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
             monitorApplications = new Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>>();
             displayChangeLock = new object();
             CaptureApplicationsOnCurrentDisplays(initialCapture: true);
@@ -56,135 +54,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             };
 
-            /*
-            windowProcHook = new Hook();
-            windowProcHook.Type = HookType.WH_CALLWNDPROC;
-            windowProcHook.Callback += GlobalWindowProcCallback;
-            windowProcHook.StartHook();
-            */
         }
 
-        int GlobalWindowProcCallback(int code, IntPtr wParam, IntPtr lParam, ref bool callNext)
-        {
-            CallWindowProcedureParam callbackParam = (CallWindowProcedureParam)Marshal.PtrToStructure(lParam, typeof(CallWindowProcedureParam));
-            switch(callbackParam.message)
-            {
-                case WindowsMessage.WINDOWPOSCHANGED:
-                    WindowPositionChangedHandler(callbackParam);
-                    break;
-
-                case WindowsMessage.POWERBROADCAST:
-                    Log.Info("Power Broadcast - {0}    {1}", wParam, lParam);
-                    break;
-
-                case WindowsMessage.ACTIVATE:
-                case WindowsMessage.ACTIVATEAPP:
-                case WindowsMessage.CAPTURECHANGED:
-                case WindowsMessage.ENTERSIZEMOVE:
-                case WindowsMessage.ERASEBKGND:
-                case WindowsMessage.EXITSIZEMOVE:
-                case WindowsMessage.GETTEXT:
-                case WindowsMessage.GETICON:
-                case WindowsMessage.GETMINMAXINFO:
-                case WindowsMessage.HSHELL_ACTIVATESHELLWINDOW:
-                case WindowsMessage.IME_NOTIFY:
-                case WindowsMessage.IME_SETCONTEXT:
-                case WindowsMessage.KILLFOCUS:
-                case WindowsMessage.MOVING:
-                case WindowsMessage.NCACTIVATE:
-                case WindowsMessage.NCCALCSIZE:
-                case WindowsMessage.NCHITTEST:
-                case WindowsMessage.NCPAINT:
-                case WindowsMessage.NULL:
-                case WindowsMessage.SETCURSOR:
-                case WindowsMessage.SIZING:
-                case WindowsMessage.SIZE:
-                case WindowsMessage.WININICHANGE:
-                case WindowsMessage.WINDOWPOSCHANGING:
-                    break;
-
-                default:
-                    int enumValue = (int)callbackParam.message;
-                    switch(enumValue)
-                    {
-                        case 647:
-                        case 49666: 
-                            break;
-
-                        default:
-                            Log.Info(callbackParam.message.ToString());
-                            break;
-                    }
-                    break;
-            }
-            callNext = true;
-            return 0;
-        }
-
-        /// <summary>
-        /// OMG this method is awful!!! but yagni
-        /// </summary>
-        /// <param name="callbackParam"></param>
-        private void WindowPositionChangedHandler(CallWindowProcedureParam callbackParam)
-        {
-            ApplicationDisplayMetrics appMetrics = null;
-            if (monitorApplications == null ||
-                !monitorApplications.ContainsKey(lastMetrics.Key))
-            {
-                Log.Error("No definitions found for this resolution: {0}", lastMetrics.Key);
-                return;
-            }
-
-            appMetrics = monitorApplications[lastMetrics.Key]
-                .FirstOrDefault(row => row.Value.HWnd == callbackParam.hwnd)
-                .Value;
-
-            if (appMetrics == null)
-            {
-                var newAppWindow = SystemWindow.AllToplevelWindows
-                    .FirstOrDefault(row => row.Parent.HWnd.ToInt64() == 0 
-                        && !string.IsNullOrEmpty(row.Title)
-                        && !row.Title.Equals("Program Manager")
-                        && !row.Title.Contains("Task Manager")
-                        && row.Visible
-                        && row.HWnd == callbackParam.hwnd);
-
-                if (newAppWindow == null)
-                {
-                    Log.Error("Can't find hwnd {0}", callbackParam.hwnd.ToInt64());
-                    return;
-                }
-                ApplicationDisplayMetrics applicationDisplayMetric = null;
-                AddOrUpdateWindow(lastMetrics.Key, newAppWindow, out applicationDisplayMetric);
-                return;
-            }
-
-            WindowPlacement windowPlacement = appMetrics.WindowPlacement;
-            WindowsPosition newPosition = (WindowsPosition)Marshal.PtrToStructure(callbackParam.lparam, typeof(WindowsPosition));
-            windowPlacement.NormalPosition.Left = newPosition.Left;
-            windowPlacement.NormalPosition.Top = newPosition.Top;
-            windowPlacement.NormalPosition.Right = newPosition.Left + newPosition.Width;
-            windowPlacement.NormalPosition.Bottom = newPosition.Top + newPosition.Height;
-
-            var key = appMetrics.Key;
-            if (monitorApplications[lastMetrics.Key].ContainsKey(key))
-            {
-                monitorApplications[lastMetrics.Key][key].WindowPlacement = windowPlacement;
-            }
-            else
-            {
-                Log.Error("Hwnd {0} is not in list, we should capture", callbackParam.hwnd.ToInt64());
-                return;
-            }
-
-            Log.Info("WPCH - Capturing {0} at [{1}x{2}] size [{3}x{4}]",
-                appMetrics,
-                appMetrics.WindowPlacement.NormalPosition.Left,
-                appMetrics.WindowPlacement.NormalPosition.Top,
-                appMetrics.WindowPlacement.NormalPosition.Width,
-                appMetrics.WindowPlacement.NormalPosition.Height
-                );
-        }
 
         private void InternalRun()
         {
@@ -213,38 +84,20 @@ namespace Ninjacrab.PersistentWindows.Common
                     displayKey = metrics.Key;
                 }
 
-                if (!metrics.Equals(lastMetrics))
-                {
-                    // since the resolution doesn't match, lets wait till it's restored
-                    Log.Info("Detected changes in display metrics, will capture once windows are restored");
-                    return;
-                }
-
                 if (!monitorApplications.ContainsKey(displayKey))
                 {
                     monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
                 List<string> changeLog = new List<string>();
+                List<ApplicationDisplayMetrics> changeApps = new List<ApplicationDisplayMetrics>();
                 var appWindows = CaptureWindowsOfInterest();
-                int changeCnt = 0;
-                int maxChangeCnt = initialCapture ? 10000 : AppsMovedThreshold;
                 foreach (var window in appWindows)
                 {
                     ApplicationDisplayMetrics app = null;
-                    bool addToChangeLog = AddOrUpdateWindow(displayKey, window, out app);
-
-                    if (addToChangeLog)
+                    if (AddOrUpdateWindow(displayKey, window, out app))
                     {
-                        if (!monitorApplications[displayKey].ContainsKey(app.Key))
-                        {
-                            monitorApplications[displayKey].Add(app.Key, app);
-                        }
-                        else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
-                        {
-                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
-                        }
-
+                        changeApps.Add(app);
                         changeLog.Add(string.Format("CAOCD - Capturing {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
                             app,
                             app.WindowPlacement.NormalPosition.Left,
@@ -254,21 +107,42 @@ namespace Ninjacrab.PersistentWindows.Common
                             window.Visible,
                             window.Title
                             ));
-
-                        changeCnt++;
-                        if (changeCnt > maxChangeCnt)
-                        {
-                            break;
-                        }
                     }
                 }
 
-                // only save the updated if it didn't seem like something moved everything
-                if (changeLog.Count > 0)
+                if (!initialCapture && changeLog.Count > AppsMovedThreshold)
                 {
-                    changeLog.Sort();
+                    // starting an rdp session may abruptly change window size/position, 
+                    // wait for BeginRestoreApplicationsOnCurrentDisplays() to undo such unwanted change
+                    return;
+                }
+
+                int maxChangeCnt = changeLog.Count;
+                if (!initialCapture && maxChangeCnt > AppsMovedThreshold)
+                {
+                    maxChangeCnt = AppsMovedThreshold;
+                }
+
+                List<string> commitChangeLog = new List<string>();
+                for (int i = 0; i < maxChangeCnt; i++)
+                {
+                    ApplicationDisplayMetrics app = changeApps[i];
+                    commitChangeLog.Add(changeLog[i]);
+                    if (!monitorApplications[displayKey].ContainsKey(app.Key))
+                    {
+                        monitorApplications[displayKey].Add(app.Key, app);
+                    }
+                    else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
+                    {
+                        monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
+                    }
+                }
+
+                if (maxChangeCnt > 0)
+                {
+                    commitChangeLog.Sort();
                     Log.Info("{0}Capturing applications for {1}", initialCapture ? "Initial " : "", displayKey);
-                    Log.Trace("{0} windows recorded{1}{2}", changeLog.Count, Environment.NewLine, string.Join(Environment.NewLine, changeLog));
+                    Log.Trace("{0} windows recorded{1}{2}", commitChangeLog.Count, Environment.NewLine, string.Join(Environment.NewLine, commitChangeLog));
                 }
             }
         }
@@ -346,12 +220,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     displayKey = metrics.Key;
                 }
 
-                /// lastMetrics = DesktopDisplayMetrics.AcquireMetrics();
                 if (!monitorApplications.ContainsKey(displayKey))
                 {
-                    // no old profile, we're done
+                    // nothing to restore since not captured yet
                     Log.Trace("No old profile found for {0}", displayKey);
-                    /// CaptureApplicationsOnCurrentDisplays(initialCapture: true);
+                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                     return;
                 }
 
