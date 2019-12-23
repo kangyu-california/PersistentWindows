@@ -17,7 +17,7 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // read and update this from a config file eventually
-        private int AppsMovedThreshold = 4;
+        private int AppsMovedThreshold = 2;
         private DesktopDisplayMetrics lastMetrics = null;
         private Hook windowProcHook;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -190,7 +190,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             while(true)
             {
-                Thread.Sleep(1500);
+                Thread.Sleep(1000);
                 CaptureApplicationsOnCurrentDisplays();
             }
         }
@@ -225,35 +225,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
-                var appWindows = CaptureWindowsOfInterest();
-
                 List<string> changeLog = new List<string>();
-                List<ApplicationDisplayMetrics> apps = new List<ApplicationDisplayMetrics>();
+                var appWindows = CaptureWindowsOfInterest();
+                int changeCnt = 0;
+                int maxChangeCnt = initialCapture ? 10000 : AppsMovedThreshold;
                 foreach (var window in appWindows)
                 {
-                    ApplicationDisplayMetrics applicationDisplayMetric = null;
-                    bool addToChangeLog = AddOrUpdateWindow(displayKey, window, out applicationDisplayMetric);
+                    ApplicationDisplayMetrics app = null;
+                    bool addToChangeLog = AddOrUpdateWindow(displayKey, window, out app);
 
                     if (addToChangeLog)
-                    {
-                        apps.Add(applicationDisplayMetric);
-                        changeLog.Add(string.Format("CAOCD - Capturing {0,-45} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
-                            applicationDisplayMetric,
-                            applicationDisplayMetric.WindowPlacement.NormalPosition.Left,
-                            applicationDisplayMetric.WindowPlacement.NormalPosition.Top,
-                            applicationDisplayMetric.WindowPlacement.NormalPosition.Width,
-                            applicationDisplayMetric.WindowPlacement.NormalPosition.Height,
-                            window.Visible,
-                            window.Title
-                            ));
-                    }
-                }
-
-                // only save the updated if it didn't seem like something moved everything
-                if ((apps.Count > 0 && apps.Count < AppsMovedThreshold) 
-                    || initialCapture)
-                {
-                    foreach(var app in apps)
                     {
                         if (!monitorApplications[displayKey].ContainsKey(app.Key))
                         {
@@ -263,10 +244,31 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
                         }
+
+                        changeLog.Add(string.Format("CAOCD - Capturing {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
+                            app,
+                            app.WindowPlacement.NormalPosition.Left,
+                            app.WindowPlacement.NormalPosition.Top,
+                            app.WindowPlacement.NormalPosition.Width,
+                            app.WindowPlacement.NormalPosition.Height,
+                            window.Visible,
+                            window.Title
+                            ));
+
+                        changeCnt++;
+                        if (changeCnt > maxChangeCnt)
+                        {
+                            break;
+                        }
                     }
+                }
+
+                // only save the updated if it didn't seem like something moved everything
+                if (changeLog.Count > 0)
+                {
                     changeLog.Sort();
                     Log.Info("{0}Capturing applications for {1}", initialCapture ? "Initial " : "", displayKey);
-                    Log.Trace("{0} windows recorded{1}{2}", apps.Count, Environment.NewLine, string.Join(Environment.NewLine, changeLog));
+                    Log.Trace("{0} windows recorded{1}{2}", changeLog.Count, Environment.NewLine, string.Join(Environment.NewLine, changeLog));
                 }
             }
         }
@@ -304,16 +306,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement = windowPlacement
             };
 
-            bool updated = false;
+            bool needUpdate = false;
             if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
             {
-                updated = true;
+                needUpdate = true;
             }
             else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
             {
-                updated = true;
+                needUpdate = true;
             }
-            return updated;
+            return needUpdate;
         }
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
