@@ -18,7 +18,7 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // read and update this from a config file eventually
         private int AppsMovedThreshold = 2;
-        private Hook windowProcHook;
+        private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
 
@@ -78,9 +78,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {            
             lock(displayChangeLock)
             {
-                DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
                 if (displayKey == null)
                 {
+                    DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
                     displayKey = metrics.Key;
                 }
 
@@ -214,17 +214,18 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock (displayChangeLock)
             {
-                DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
                 if (displayKey == null)
                 {
+                    DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
                     displayKey = metrics.Key;
                 }
 
-                if (!monitorApplications.ContainsKey(displayKey))
+                if (!monitorApplications.ContainsKey(displayKey)
+                    || monitorApplications[displayKey].Count == 0)
                 {
                     // nothing to restore since not captured yet
                     Log.Trace("No old profile found for {0}", displayKey);
-                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
+                    CaptureApplicationsOnCurrentDisplays(displayKey, initialCapture: true);
                     return;
                 }
 
