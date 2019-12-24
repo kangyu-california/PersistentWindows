@@ -17,7 +17,8 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // read and update this from a config file eventually
-        private int AppsMovedThreshold = 2;
+        private const int MaxAppsMoveUpdate = 4;
+        private int pendingUpdateTimer = 0;
         private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
@@ -33,26 +34,29 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.Name = "PersistentWindowProcessor.InternalRun()";
             thread.Start();
 
-            SystemEvents.DisplaySettingsChanged += (s, e) =>
+            SystemEvents.DisplaySettingsChanged += 
+                (s, e) =>
                 {
                     Log.Info("Display settings changed");
                     BeginRestoreApplicationsOnCurrentDisplays();
                 };
-            SystemEvents.PowerModeChanged += (s, e) =>
-            {
-                switch (e.Mode)
-                {
-                    case PowerModes.Suspend:
-                        Log.Info("System Suspending");
-                        BeginCaptureApplicationsOnCurrentDisplays();
-                        break;
 
-                    case PowerModes.Resume:
-                        Log.Info("System Resuming");
-                        BeginRestoreApplicationsOnCurrentDisplays();
-                        break;
-                }
-            };
+            SystemEvents.PowerModeChanged += 
+                (s, e) =>
+                {
+                    switch (e.Mode)
+                    {
+                        case PowerModes.Suspend:
+                            Log.Info("System Suspending");
+                            BeginCaptureApplicationsOnCurrentDisplays();
+                            break;
+
+                        case PowerModes.Resume:
+                            Log.Info("System Resuming");
+                            BeginRestoreApplicationsOnCurrentDisplays();
+                            break;
+                    }
+                };
 
         }
 
@@ -89,16 +93,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications.Add(displayKey, new SortedDictionary<string, ApplicationDisplayMetrics>());
                 }
 
-                List<string> changeLog = new List<string>();
-                List<ApplicationDisplayMetrics> changeApps = new List<ApplicationDisplayMetrics>();
+                List<string> updateLogs = new List<string>();
+                List<ApplicationDisplayMetrics> updateApps = new List<ApplicationDisplayMetrics>();
                 var appWindows = CaptureWindowsOfInterest();
                 foreach (var window in appWindows)
                 {
                     ApplicationDisplayMetrics app = null;
                     if (AddOrUpdateWindow(displayKey, window, out app))
                     {
-                        changeApps.Add(app);
-                        changeLog.Add(string.Format("CAOCD - Capturing {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
+                        updateApps.Add(app);
+                        updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
                             app,
                             app.WindowPlacement.NormalPosition.Left,
                             app.WindowPlacement.NormalPosition.Top,
@@ -110,39 +114,61 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (!initialCapture && changeLog.Count > AppsMovedThreshold)
+                if (!initialCapture && updateLogs.Count > MaxAppsMoveUpdate)
                 {
-                    // starting an rdp session may abruptly change window size/position, 
-                    // wait for BeginRestoreApplicationsOnCurrentDisplays() to undo such unwanted change
-                    return;
-                }
+                    // this is an undesirable status which could be caused by either of the following,
+                    // 1. a new rdp session attemp to move/resize ALL windows even for the same display settings.
+                    // 2. window pos/size recovery is incomplete due to lack of admin permission of this program.
+                    // 3. moving many windows using mouse too fast.
 
-                int maxChangeCnt = changeLog.Count;
-                if (!initialCapture && maxChangeCnt > AppsMovedThreshold)
-                {
-                    maxChangeCnt = AppsMovedThreshold;
-                }
-
-                List<string> commitChangeLog = new List<string>();
-                for (int i = 0; i < maxChangeCnt; i++)
-                {
-                    ApplicationDisplayMetrics app = changeApps[i];
-                    commitChangeLog.Add(changeLog[i]);
-                    if (!monitorApplications[displayKey].ContainsKey(app.Key))
+                    // The remedy for issue 1
+                    // wait up to 60 seconds to give DisplaySettingsChanged event handler a chance to recover.
+                    ++pendingUpdateTimer;
+                    if (pendingUpdateTimer < 60)
                     {
-                        monitorApplications[displayKey].Add(app.Key, app);
+                        Log.Trace("Waiting for display setting recovery");
+                        return;
                     }
-                    else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
-                    {
-                        monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
-                    }
+
+                    // the remedy for issue 2 and 3
+                    // acknowledge the status quo and proceed to recapture all windows
+                    initialCapture = true;
+                    Log.Trace("Full capture timer triggered");
                 }
 
-                if (maxChangeCnt > 0)
+                if (pendingUpdateTimer != 0)
                 {
-                    commitChangeLog.Sort();
-                    Log.Info("{0}Capturing applications for {1}", initialCapture ? "Initial " : "", displayKey);
-                    Log.Trace("{0} windows recorded{1}{2}", commitChangeLog.Count, Environment.NewLine, string.Join(Environment.NewLine, commitChangeLog));
+                    Log.Trace("pending update timer value is {0}", pendingUpdateTimer);
+                }
+
+                int maxUpdateCnt = updateLogs.Count;
+                if (!initialCapture && maxUpdateCnt > MaxAppsMoveUpdate)
+                {
+                    maxUpdateCnt = MaxAppsMoveUpdate;
+                }
+
+                if (maxUpdateCnt > 0)
+                {
+                    Log.Trace("{0}Capturing windows for display setting {1}", initialCapture ? "Initial " : "", displayKey);
+
+                    List<string> commitUpdateLog = new List<string>();
+                    for (int i = 0; i < maxUpdateCnt; i++)
+                    {
+                        ApplicationDisplayMetrics app = updateApps[i];
+                        commitUpdateLog.Add(updateLogs[i]);
+                        if (!monitorApplications[displayKey].ContainsKey(app.Key))
+                        {
+                            monitorApplications[displayKey].Add(app.Key, app);
+                        }
+                        else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
+                        {
+                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
+                        }
+                    }
+
+                    commitUpdateLog.Sort();
+                    Log.Trace("{0}{1}{2} windows captured", string.Join(Environment.NewLine, commitUpdateLog), Environment.NewLine, commitUpdateLog.Count);
+                    pendingUpdateTimer = 0;
                 }
             }
         }
@@ -171,11 +197,14 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 HWnd = window.HWnd,
 
-                // avoid cpu intensive operation
-                //ApplicationName = window.Process.ProcessName,
-                //ProcessId = window.Process.Id,
+#if DEBUG
+                // these function calls are very cpu-intensive
+                ApplicationName = window.Process.ProcessName,
+                ProcessId = window.Process.Id,
+#else
                 ApplicationName = "",
                 ProcessId = 0,
+#endif
 
                 WindowPlacement = windowPlacement
             };
@@ -223,8 +252,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!monitorApplications.ContainsKey(displayKey)
                     || monitorApplications[displayKey].Count == 0)
                 {
-                    // nothing to restore since not captured yet
-                    Log.Trace("No old profile found for {0}", displayKey);
+                    // the display setting has not been captured yet
+                    Log.Trace("Unknown display setting {0}", displayKey);
                     CaptureApplicationsOnCurrentDisplays(displayKey, initialCapture: true);
                     return;
                 }
@@ -239,8 +268,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
-                    //string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
+#if DEBUG
+                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
+#else
                     string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), "");
+#endif            
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
                         // looks like the window is still here for us to restore
@@ -276,6 +308,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             success);
                     }
                 }
+                Log.Trace("Restored windows position for display setting {0}", displayKey);
             }
         }
 

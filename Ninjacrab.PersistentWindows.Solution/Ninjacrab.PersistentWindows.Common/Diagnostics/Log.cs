@@ -63,18 +63,20 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Trace(string format, params object[] args)
         {
+#if DEBUG
             var message = Format(format, args);
             Logger.Trace(message);
             RaiseLogEvent(LogLevel.Trace, message);
+#endif
         }
 
         public static void Info(string format, params object[] args)
         {
-            /*
+#if false
             var message = Format(format, args);
             Logger.Info(message);
             RaiseLogEvent(LogLevel.Info, message);
-            */
+#endif
         }
 
         public static void Error(string format, params object[] args)
