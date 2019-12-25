@@ -1,5 +1,5 @@
 # PersistentWindows
-This is forked from http://www.ninjacrab.com/persistent-windows/ with more robust RDP support and lower cpu usage.
+This is forked from http://www.ninjacrab.com/persistent-windows/ with enhanced remote desktop support and lower cpu usage.
 
 # Original description
 ```
@@ -11,7 +11,7 @@ For those of you with multi-monitors running on a mixture of DisplayPort and any
 this tool and not have to worry about re-arranging when all is back to normal.
 
 ```
-# My description 
-- Automatically resumes previous windows layout with matching monitor setup
-- Manages multiple layout settings on the target windows machine. For example the target machine is hooked to dual monitors in the office, and you want a different windows layout when remote work from home using only one monitor or from a laptop with smaller screen.
+# Key features 
+- Manages multiple windows layout settings, and automatically resumes previous windows layout with matching monitor setup. 
+- Can be run as windows startup job
 
