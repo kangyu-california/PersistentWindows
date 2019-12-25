@@ -1,5 +1,8 @@
 # PersistentWindows
-This is forked from http://www.ninjacrab.com/persistent-windows/ with enhanced remote desktop support and lower cpu usage.
+The code is forked from http://www.ninjacrab.com/persistent-windows/ with enhanced remote desktop support and lower cpu usage.
+
+It perfectly solved a well known windows 10 issue
+https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
 
 # Original description
 ```
@@ -12,6 +15,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ```
 # Key features 
-- Manages multiple windows layout settings, and automatically resumes previous windows layout with matching monitor setup. 
+- Keeps track of window layout, automatically restores last window layout with matching monitor setup
+- Manages different monitor setups automatically (local or remote)
 - Can be run as windows startup job
 
