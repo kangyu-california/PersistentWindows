@@ -1,7 +1,7 @@
 # PersistentWindows
 The code is forked from http://www.ninjacrab.com/persistent-windows/ with enhancements on remote desktop support and cpu usage.
 
-It seems to be a perfect solution to this unresolved Windows problem
+It seems to be a perfect solution to this unsolved Windows problem since Windows 7
 https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
 
 
