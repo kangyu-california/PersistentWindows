@@ -17,7 +17,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ```
 # Key features 
 - Keeps track of windows layout, automatically restores last windows layout with matching monitor setup
-- Manages different monitor setups automatically
-- Remote desktop session also benefits from running this software on target machine, whether monitor specs match or not.
+- Manages different monitor setups automatically (dual monitor setup, single monitor setup etc)
+- Remote desktop session also benefits from running this software on target machine, whether monitor setup matches or not.
 - Can be run as Windows startup job
 
