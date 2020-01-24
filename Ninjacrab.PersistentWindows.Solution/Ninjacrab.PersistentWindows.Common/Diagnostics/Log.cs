@@ -72,7 +72,7 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Info(string format, params object[] args)
         {
-#if false
+#if DEBUG
             var message = Format(format, args);
             Logger.Info(message);
             RaiseLogEvent(LogLevel.Info, message);
@@ -81,9 +81,11 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Error(string format, params object[] args)
         {
+#if DEBUG
             var message = Format(format, args);
             Logger.Error(message);
             RaiseLogEvent(LogLevel.Error, message);
+#endif
         }
 
         /// <summary>
