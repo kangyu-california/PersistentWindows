@@ -17,10 +17,13 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         public bool EqualPlacement(ApplicationDisplayMetrics other)
         {
+            /*
             return this.WindowPlacement.NormalPosition.Left == other.WindowPlacement.NormalPosition.Left
                 && this.WindowPlacement.NormalPosition.Top == other.WindowPlacement.NormalPosition.Top
                 && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
                 && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
+            */
+            return this.WindowPlacement.Equals(other.WindowPlacement);
         }
 
         public override string ToString()

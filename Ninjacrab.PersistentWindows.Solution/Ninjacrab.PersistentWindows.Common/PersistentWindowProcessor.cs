@@ -99,7 +99,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 foreach (var window in appWindows)
                 {
                     ApplicationDisplayMetrics app = null;
-                    if (AddOrUpdateWindow(displayKey, window, out app))
+                    if (NeedUpdateWindow(displayKey, window, out app))
                     {
                         updateApps.Add(app);
                         updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
@@ -177,21 +177,24 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             return SystemWindow.AllToplevelWindows
                                 .Where(row => row.Parent.HWnd.ToInt64() == 0
-                                    && !string.IsNullOrEmpty(row.Title)
-                                    && !row.Title.Equals("Program Manager")
-                                    && !row.Title.Contains("Task Manager")
-                                    && row.Visible);
+                                    //&& !string.IsNullOrEmpty(row.Title)
+                                    //&& !row.Title.Equals("Program Manager")
+                                    //&& !row.Title.Contains("Task Manager")
+                                    && row.Visible
+                                    );
         }
 
-        private bool AddOrUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric)
         {
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
+            /*
             if (windowPlacement.ShowCmd == ShowWindowCommands.Normal)
             {
                 User32.GetWindowRect(window.HWnd, ref windowPlacement.NormalPosition);
             }
+            */
 
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
@@ -283,6 +286,14 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
+                        ApplicationDisplayMetrics app = null;
+                        if (!NeedUpdateWindow(displayKey, window, out app))
+                        {
+                            // window position has no change
+                            continue;
+                        }
+
+                        /*
                         if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                         {
                             // When restoring maximized windows, it occasionally switches res and when the maximized setting is restored
@@ -292,6 +303,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             User32.SetWindowPlacement(hwnd, ref windowPlacement);
                             windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                         }
+                        */
 
                         var success = User32.SetWindowPlacement(monitorApplications[displayKey][applicationKey].HWnd, ref windowPlacement);
                         if (!success)
