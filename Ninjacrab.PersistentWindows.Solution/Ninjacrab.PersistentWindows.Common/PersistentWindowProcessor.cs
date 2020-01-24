@@ -168,8 +168,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     commitUpdateLog.Sort();
                     Log.Trace("{0}{1}{2} windows captured", string.Join(Environment.NewLine, commitUpdateLog), Environment.NewLine, commitUpdateLog.Count);
-                    pendingUpdateTimer = 0;
                 }
+                pendingUpdateTimer = 0;
             }
         }
 
@@ -231,8 +231,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 try
                 {
                     RestoreApplicationsOnCurrentDisplays();
+                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Log.Error(ex.ToString());
                 }
@@ -257,7 +258,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // the display setting has not been captured yet
                     Log.Trace("Unknown display setting {0}", displayKey);
-                    CaptureApplicationsOnCurrentDisplays(displayKey, initialCapture: true);
                     return;
                 }
 
