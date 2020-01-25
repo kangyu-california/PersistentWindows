@@ -42,7 +42,7 @@
             // 
             this.notifyIconMain.ContextMenuStrip = this.contextMenuStripSysTray;
             this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
-            this.notifyIconMain.Text = "Persistent Windows";
+            this.notifyIconMain.Text = "Persistent Windows 2.3";
             this.notifyIconMain.Visible = true;
             // 
             // contextMenuStripSysTray
@@ -80,7 +80,7 @@
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SystrayForm";
-            this.Text = "Persistent Windows";
+            this.Text = "Persistent Windows 2.3";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 
