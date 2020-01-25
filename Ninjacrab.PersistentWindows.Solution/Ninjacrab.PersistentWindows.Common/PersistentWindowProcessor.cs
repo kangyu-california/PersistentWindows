@@ -18,13 +18,14 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // read and update this from a config file eventually
         private const int MaxAppsMoveUpdate = 4;
-        private int pendingUpdateTimer = 0;
+        private const int MaxAppsMoveDelay = 60; // accept massive app move in 60 seconds
+        private int pendingAppsMoveTimer = 0;
         private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
         private int taskbarX = 0;
         private int taskbarY = 0;
-        private const int maxTaskbarWidth = 200;
+        private const int MaxTaskbarWidth = 200;
 
         public void Start()
         {
@@ -129,8 +130,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // The remedy for issue 1
                     // wait up to 60 seconds to give DisplaySettingsChanged event handler a chance to recover.
-                    ++pendingUpdateTimer;
-                    if (pendingUpdateTimer < 60)
+                    ++pendingAppsMoveTimer;
+                    if (pendingAppsMoveTimer < MaxAppsMoveDelay)
                     {
                         Log.Trace("Waiting for display setting recovery");
                         return;
@@ -142,9 +143,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("Full capture timer triggered");
                 }
 
-                if (pendingUpdateTimer != 0)
+                if (pendingAppsMoveTimer != 0)
                 {
-                    Log.Trace("pending update timer value is {0}", pendingUpdateTimer);
+                    Log.Trace("pending update timer value is {0}", pendingAppsMoveTimer);
                 }
 
                 int maxUpdateCnt = updateLogs.Count;
@@ -175,7 +176,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     commitUpdateLog.Sort();
                     Log.Trace("{0}{1}{2} windows captured", string.Join(Environment.NewLine, commitUpdateLog), Environment.NewLine, commitUpdateLog.Count);
                 }
-                pendingUpdateTimer = 0;
+                pendingAppsMoveTimer = 0;
             }
         }
 
@@ -211,7 +212,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     if (rectW.Left != rectS.Left && rectW.Top == rectS.Top)
                     {
-                        if (Math.Abs(rectW.Left - rectS.Left) < maxTaskbarWidth)
+                        if (Math.Abs(rectW.Left - rectS.Left) < MaxTaskbarWidth)
                         {
                             //get vertical taskbar width from normal window
                             taskbarX = rectS.Left - rectW.Left;
@@ -224,7 +225,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     else if (rectW.Left == rectS.Left && rectW.Top != rectS.Top)
                     {
-                        if (Math.Abs(rectW.Top - rectS.Top) < maxTaskbarWidth)
+                        if (Math.Abs(rectW.Top - rectS.Top) < MaxTaskbarWidth)
                         {
                             //get horizontal taskbar height from normal window
                             taskbarY = rectS.Top - rectW.Top;
