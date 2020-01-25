@@ -24,7 +24,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private object displayChangeLock = null;
         private int taskbarX = 0;
         private int taskbarY = 0;
-        private const int maxTaskbarWidth = 120;
+        private const int maxTaskbarWidth = 200;
 
         public void Start()
         {
@@ -85,6 +85,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {            
             lock(displayChangeLock)
             {
+                taskbarX = 0;
+                taskbarY = 0;
+
                 if (displayKey == null)
                 {
                     DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
@@ -203,27 +206,45 @@ namespace Ninjacrab.PersistentWindows.Common
                 //IntPtr desktop = User32.GetDesktopWindow();
                 //int points = User32.MapWindowPoints(IntPtr.Zero, desktop, ref rect, 2);
 
+                bool diff = false; // found huge difference between workspace and screen coordinate, typically caused by snapped window
                 if (rectW.Width == rectS.Width && rectW.Height == rectS.Height)
                 {
-                    //get taskbar size from normal window
                     if (rectW.Left != rectS.Left && rectW.Top == rectS.Top)
                     {
                         if (Math.Abs(rectW.Left - rectS.Left) < maxTaskbarWidth)
                         {
+                            //get vertical taskbar width from normal window
                             taskbarX = rectS.Left - rectW.Left;
+                        }
+                        else
+                        {
+                            // snapped window
+                            diff = true;
                         }
                     }
                     else if (rectW.Left == rectS.Left && rectW.Top != rectS.Top)
                     {
                         if (Math.Abs(rectW.Top - rectS.Top) < maxTaskbarWidth)
                         {
+                            //get horizontal taskbar height from normal window
                             taskbarY = rectS.Top - rectW.Top;
+                        }
+                        else
+                        {
+                            // snapped window
+                            diff = true;
                         }
                     }
                 }
-                else if (taskbarX != 0 || taskbarY != 0)
+                else
                 {
-                    // update real normal position of snapped window
+                    // snapped window
+                    diff = true;
+                }
+
+                if (diff && (taskbarX != 0 || taskbarY != 0))
+                {
+                    // derive accurate normal position of snapped window using screen coordinate
                     rectS.Left -= taskbarX;
                     rectS.Right -= taskbarX;
                     rectS.Top -= taskbarY;
