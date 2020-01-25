@@ -22,6 +22,9 @@ namespace Ninjacrab.PersistentWindows.Common
         private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
+        private int taskbarX = 0;
+        private int taskbarY = 0;
+        private const int maxTaskbarWidth = 120;
 
         public void Start()
         {
@@ -177,7 +180,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             return SystemWindow.AllToplevelWindows
                                 .Where(row => row.Parent.HWnd.ToInt64() == 0
-                                    //&& !string.IsNullOrEmpty(row.Title)
+                                    && !string.IsNullOrEmpty(row.Title)
                                     //&& !row.Title.Equals("Program Manager")
                                     //&& !row.Title.Contains("Task Manager")
                                     && row.Visible
@@ -189,12 +192,45 @@ namespace Ninjacrab.PersistentWindows.Common
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
-            /*
+            // GetWindowPlacement() fail to update coordinate of snapped window
             if (windowPlacement.ShowCmd == ShowWindowCommands.Normal)
             {
-                User32.GetWindowRect(window.HWnd, ref windowPlacement.NormalPosition);
+                RECT rectW = windowPlacement.NormalPosition; // workspace coordinate
+                RECT rectS = new RECT(); // screen coordinate
+                User32.GetWindowRect(window.HWnd, ref rectS);
+
+                // not working
+                //IntPtr desktop = User32.GetDesktopWindow();
+                //int points = User32.MapWindowPoints(IntPtr.Zero, desktop, ref rect, 2);
+
+                if (rectW.Width == rectS.Width && rectW.Height == rectS.Height)
+                {
+                    //get taskbar size from normal window
+                    if (rectW.Left != rectS.Left && rectW.Top == rectS.Top)
+                    {
+                        if (Math.Abs(rectW.Left - rectS.Left) < maxTaskbarWidth)
+                        {
+                            taskbarX = rectS.Left - rectW.Left;
+                        }
+                    }
+                    else if (rectW.Left == rectS.Left && rectW.Top != rectS.Top)
+                    {
+                        if (Math.Abs(rectW.Top - rectS.Top) < maxTaskbarWidth)
+                        {
+                            taskbarY = rectS.Top - rectW.Top;
+                        }
+                    }
+                }
+                else if (taskbarX != 0 || taskbarY != 0)
+                {
+                    // update real normal position of snapped window
+                    rectS.Left -= taskbarX;
+                    rectS.Right -= taskbarX;
+                    rectS.Top -= taskbarY;
+                    rectS.Bottom -= taskbarY;
+                    windowPlacement.NormalPosition = rectS;
+                }
             }
-            */
 
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
