@@ -23,9 +23,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
-        private int taskbarX = 0;
-        private int taskbarY = 0;
-        private const int MaxTaskbarWidth = 200;
 
         public void Start()
         {
@@ -86,9 +83,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {            
             lock(displayChangeLock)
             {
-                taskbarX = 0;
-                taskbarY = 0;
-
                 if (displayKey == null)
                 {
                     DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
@@ -106,7 +100,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 foreach (var window in appWindows)
                 {
                     ApplicationDisplayMetrics app = null;
-                    if (NeedUpdateWindow(displayKey, window, out app))
+                    bool updateScreenCoord;
+                    if (NeedUpdateWindow(displayKey, window, out app, out updateScreenCoord))
                     {
                         updateApps.Add(app);
                         updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
@@ -167,9 +162,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             monitorApplications[displayKey].Add(app.Key, app);
                         }
-                        else if (!monitorApplications[displayKey][app.Key].EqualPlacement(app))
+                        else
                         {
-                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
+                            monitorApplications[displayKey][app.Key] = app;
                         }
                     }
 
@@ -191,68 +186,14 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric, out bool updateScreenCoord)
         {
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
-            // GetWindowPlacement() fail to update coordinate of snapped window
-            if (windowPlacement.ShowCmd == ShowWindowCommands.Normal)
-            {
-                RECT rectW = windowPlacement.NormalPosition; // workspace coordinate
-                RECT rectS = new RECT(); // screen coordinate
-                User32.GetWindowRect(window.HWnd, ref rectS);
-
-                // not working
-                //IntPtr desktop = User32.GetDesktopWindow();
-                //int points = User32.MapWindowPoints(IntPtr.Zero, desktop, ref rect, 2);
-
-                bool diff = false; // found huge difference between workspace and screen coordinate, typically caused by snapped window
-                if (rectW.Width == rectS.Width && rectW.Height == rectS.Height)
-                {
-                    if (rectW.Left != rectS.Left && rectW.Top == rectS.Top)
-                    {
-                        if (Math.Abs(rectW.Left - rectS.Left) < MaxTaskbarWidth)
-                        {
-                            //get vertical taskbar width from normal window
-                            taskbarX = rectS.Left - rectW.Left;
-                        }
-                        else
-                        {
-                            // snapped window
-                            diff = true;
-                        }
-                    }
-                    else if (rectW.Left == rectS.Left && rectW.Top != rectS.Top)
-                    {
-                        if (Math.Abs(rectW.Top - rectS.Top) < MaxTaskbarWidth)
-                        {
-                            //get horizontal taskbar height from normal window
-                            taskbarY = rectS.Top - rectW.Top;
-                        }
-                        else
-                        {
-                            // snapped window
-                            diff = true;
-                        }
-                    }
-                }
-                else
-                {
-                    // snapped window
-                    diff = true;
-                }
-
-                if (diff && (taskbarX != 0 || taskbarY != 0))
-                {
-                    // derive accurate normal position of snapped window using screen coordinate
-                    rectS.Left -= taskbarX;
-                    rectS.Right -= taskbarX;
-                    rectS.Top -= taskbarY;
-                    rectS.Bottom -= taskbarY;
-                    windowPlacement.NormalPosition = rectS;
-                }
-            }
+            // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
+            RECT normalPosition = new RECT();
+            User32.GetWindowRect(window.HWnd, ref normalPosition);
 
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
@@ -266,11 +207,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 ApplicationName = "",
                 ProcessId = 0,
 #endif
-
-                WindowPlacement = windowPlacement
+                WindowPlacement = windowPlacement,
+                NormalPosition = normalPosition
             };
 
             bool needUpdate = false;
+            updateScreenCoord = false;
             if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
             {
                 needUpdate = true;
@@ -279,6 +221,12 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 needUpdate = true;
             }
+            else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].NormalPosition.Equals(applicationDisplayMetric.NormalPosition))
+            {
+                updateScreenCoord = true;
+                needUpdate = true;
+            }
+
             return needUpdate;
         }
 
@@ -336,16 +284,21 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif            
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
+                        ApplicationDisplayMetrics app = monitorApplications[displayKey][applicationKey];
                         // looks like the window is still here for us to restore
-                        WindowPlacement windowPlacement = monitorApplications[displayKey][applicationKey].WindowPlacement;
-                        IntPtr hwnd = monitorApplications[displayKey][applicationKey].HWnd;
+                        WindowPlacement windowPlacement = app.WindowPlacement;
+                        IntPtr hwnd = app.HWnd;
+                        /*
                         if (!User32.IsWindow(hwnd))
                         {
+                            monitorApplications[displayKey].Remove(applicationKey);
                             continue;
                         }
+                        */
 
-                        ApplicationDisplayMetrics app = null;
-                        if (!NeedUpdateWindow(displayKey, window, out app))
+                        ApplicationDisplayMetrics appTemp = null;
+                        bool updateScreenCoord;
+                        if (!NeedUpdateWindow(displayKey, window, out appTemp, out updateScreenCoord))
                         {
                             // window position has no change
                             continue;
@@ -363,19 +316,36 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         */
 
-                        var success = User32.SetWindowPlacement(monitorApplications[displayKey][applicationKey].HWnd, ref windowPlacement);
+                        bool success;
+                        if (updateScreenCoord)
+                        {
+                            RECT rect = app.NormalPosition;
+                            success = User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, false);
+                            Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                                window.Process.ProcessName,
+                                rect.Left,
+                                rect.Top,
+                                rect.Width,
+                                rect.Height,
+                                success);
+
+                        }
+                        else
+                        {
+                            success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
+                            Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                                window.Process.ProcessName,
+                                windowPlacement.NormalPosition.Left,
+                                windowPlacement.NormalPosition.Top,
+                                windowPlacement.NormalPosition.Width,
+                                windowPlacement.NormalPosition.Height,
+                                success);
+                        }
                         if (!success)
                         {
                             string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                             Log.Error(error);
                         }
-                        Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                            window.Process.ProcessName,
-                            windowPlacement.NormalPosition.Left,
-                            windowPlacement.NormalPosition.Top,
-                            windowPlacement.NormalPosition.Width,
-                            windowPlacement.NormalPosition.Height,
-                            success);
                     }
                 }
                 Log.Trace("Restored windows position for display setting {0}", displayKey);

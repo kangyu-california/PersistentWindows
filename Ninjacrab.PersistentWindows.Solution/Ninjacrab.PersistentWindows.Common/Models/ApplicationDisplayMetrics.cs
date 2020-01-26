@@ -1,5 +1,6 @@
 ﻿using System;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
+using ManagedWinapi.Windows;
 
 namespace Ninjacrab.PersistentWindows.Common.Models
 {
@@ -9,6 +10,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public int ProcessId { get; set; }
         public string ApplicationName { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
+        public RECT NormalPosition { get; set; }
 
         public string Key
         {
@@ -23,7 +25,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
                 && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
                 && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
             */
-            return this.WindowPlacement.Equals(other.WindowPlacement);
+            return this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
         }
 
         public override string ToString()

@@ -28,6 +28,10 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern IntPtr GetDesktopWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int width, int height, bool repaint);
+
+        [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.I4)]
         public static extern int MapWindowPoints(IntPtr from, IntPtr to, ref POINT points, uint num);
 
