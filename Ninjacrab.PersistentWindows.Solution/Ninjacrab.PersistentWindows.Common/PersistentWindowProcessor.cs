@@ -339,29 +339,30 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         bool success;
                         success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
+                        Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                            window.Process.ProcessName,
+                            windowPlacement.NormalPosition.Left,
+                            windowPlacement.NormalPosition.Top,
+                            windowPlacement.NormalPosition.Width,
+                            windowPlacement.NormalPosition.Height,
+                            success);
+
                         if (updateScreenCoord)
                         {
-                            RECT rect = app.NormalPosition;
-                            success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                            Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                                window.Process.ProcessName,
-                                rect.Left,
-                                rect.Top,
-                                rect.Width,
-                                rect.Height,
-                                success);
+                            if (NeedUpdateWindow(displayKey, window, out appTemp, out updateScreenCoord))
+                            {
+                                RECT rect = app.NormalPosition;
+                                success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                                    window.Process.ProcessName,
+                                    rect.Left,
+                                    rect.Top,
+                                    rect.Width,
+                                    rect.Height,
+                                    success);
+                            }
+                        }
 
-                        }
-                        else
-                        {
-                            Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                                window.Process.ProcessName,
-                                windowPlacement.NormalPosition.Left,
-                                windowPlacement.NormalPosition.Top,
-                                windowPlacement.NormalPosition.Width,
-                                windowPlacement.NormalPosition.Height,
-                                success);
-                        }
                         if (!success)
                         {
                             string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
