@@ -86,6 +86,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SplashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SplashForm.Designer.cs">
+      <DependentUpon>SplashForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="SystrayForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -94,6 +100,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="SplashForm.resx">
+      <DependentUpon>SplashForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="SystrayForm.resx">
       <DependentUpon>SystrayForm.cs</DependentUpon>
     </EmbeddedResource>
