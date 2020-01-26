@@ -20,6 +20,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxAppsMoveUpdate = 4;
         private const int MaxAppsMoveDelay = 60; // accept massive app move in 60 seconds
         private int pendingAppsMoveTimer = 0;
+        private int pendingAppMoveSum = 0;
         private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
@@ -116,7 +117,24 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (!initialCapture && updateLogs.Count > MaxAppsMoveUpdate)
+                if (!initialCapture)
+                {
+                    if (updateLogs.Count == 0 && pendingAppMoveSum == 0)
+                    {
+                        return;
+                    }
+
+                    ++pendingAppsMoveTimer;
+                    pendingAppMoveSum += updateLogs.Count;
+
+                    if (pendingAppsMoveTimer < 3)
+                    {
+                        // wait up to 3 seconds before commit update
+                        return;
+                    }
+                }
+
+                if (!initialCapture && pendingAppMoveSum > MaxAppsMoveUpdate * pendingAppsMoveTimer)
                 {
                     // this is an undesirable status which could be caused by either of the following,
                     // 1. a new rdp session attemp to move/resize ALL windows even for the same display settings.
@@ -125,7 +143,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // The remedy for issue 1
                     // wait up to 60 seconds to give DisplaySettingsChanged event handler a chance to recover.
-                    ++pendingAppsMoveTimer;
                     if (pendingAppsMoveTimer < MaxAppsMoveDelay)
                     {
                         Log.Trace("Waiting for display setting recovery");
@@ -172,6 +189,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("{0}{1}{2} windows captured", string.Join(Environment.NewLine, commitUpdateLog), Environment.NewLine, commitUpdateLog.Count);
                 }
                 pendingAppsMoveTimer = 0;
+                pendingAppMoveSum = 0;
             }
         }
 
