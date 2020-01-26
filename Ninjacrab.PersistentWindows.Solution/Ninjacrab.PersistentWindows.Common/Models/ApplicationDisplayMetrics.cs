@@ -10,7 +10,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public int ProcessId { get; set; }
         public string ApplicationName { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
-        public RECT NormalPosition { get; set; }
+        public RECT ScreenPosition { get; set; }
 
         public string Key
         {

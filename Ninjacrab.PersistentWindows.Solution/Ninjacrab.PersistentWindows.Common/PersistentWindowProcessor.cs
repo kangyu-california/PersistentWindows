@@ -210,8 +210,8 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
-            RECT normalPosition = new RECT();
-            User32.GetWindowRect(window.HWnd, ref normalPosition);
+            RECT screenPosition = new RECT();
+            User32.GetWindowRect(window.HWnd, ref screenPosition);
 
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
@@ -226,7 +226,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = 0,
 #endif
                 WindowPlacement = windowPlacement,
-                NormalPosition = normalPosition
+                ScreenPosition = screenPosition
             };
 
             bool needUpdate = false;
@@ -237,7 +237,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
-                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].NormalPosition.Equals(applicationDisplayMetric.NormalPosition))
+                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].ScreenPosition.Equals(applicationDisplayMetric.ScreenPosition))
                 {
                     updateScreenCoord = true;
                     needUpdate = true;
@@ -351,7 +351,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             if (NeedUpdateWindow(displayKey, window, out appTemp, out updateScreenCoord))
                             {
-                                RECT rect = app.NormalPosition;
+                                RECT rect = app.ScreenPosition;
                                 success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                                     window.Process.ProcessName,
