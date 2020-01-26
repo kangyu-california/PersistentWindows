@@ -25,7 +25,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
                 && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
                 && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
             */
-            return this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
+            return this.WindowPlacement.Equals(other.WindowPlacement);
         }
 
         public override string ToString()

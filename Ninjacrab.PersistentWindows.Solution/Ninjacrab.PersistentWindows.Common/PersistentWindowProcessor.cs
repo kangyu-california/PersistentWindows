@@ -235,14 +235,17 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 needUpdate = true;
             }
-            else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
+            else
             {
-                needUpdate = true;
-            }
-            else if (!monitorApplications[displayKey][applicationDisplayMetric.Key].NormalPosition.Equals(applicationDisplayMetric.NormalPosition))
-            {
-                updateScreenCoord = true;
-                needUpdate = true;
+                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].NormalPosition.Equals(applicationDisplayMetric.NormalPosition))
+                {
+                    updateScreenCoord = true;
+                    needUpdate = true;
+                }
+                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
+                {
+                    needUpdate = true;
+                }
             }
 
             return needUpdate;
@@ -335,10 +338,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         */
 
                         bool success;
+                        success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
                         if (updateScreenCoord)
                         {
                             RECT rect = app.NormalPosition;
-                            success = User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, false);
+                            success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                             Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                                 window.Process.ProcessName,
                                 rect.Left,
@@ -350,7 +354,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
-                            success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
                             Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                                 window.Process.ProcessName,
                                 windowPlacement.NormalPosition.Left,
