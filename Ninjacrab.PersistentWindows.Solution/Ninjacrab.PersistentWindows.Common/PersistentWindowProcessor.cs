@@ -216,7 +216,7 @@ namespace Ninjacrab.PersistentWindows.Common
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
-
+                Window = window,
 #if DEBUG
                 // these function calls are very cpu-intensive
                 ApplicationName = window.Process.ProcessName,
@@ -237,14 +237,24 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
-                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].ScreenPosition.Equals(applicationDisplayMetric.ScreenPosition))
+                ApplicationDisplayMetrics app = monitorApplications[displayKey][applicationDisplayMetric.Key];
+                if (app.Window != applicationDisplayMetric.Window)
                 {
-                    updateScreenCoord = true;
+                    // key collision between dead window and new window with the same hwnd
+                    monitorApplications[displayKey].Remove(applicationDisplayMetric.Key);
                     needUpdate = true;
                 }
-                if (!monitorApplications[displayKey][applicationDisplayMetric.Key].EqualPlacement(applicationDisplayMetric))
+                else
                 {
-                    needUpdate = true;
+                    if (!app.ScreenPosition.Equals(applicationDisplayMetric.ScreenPosition))
+                    {
+                        updateScreenCoord = true;
+                        needUpdate = true;
+                    }
+                    if (!app.EqualPlacement(applicationDisplayMetric))
+                    {
+                        needUpdate = true;
+                    }
                 }
             }
 

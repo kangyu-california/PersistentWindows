@@ -7,6 +7,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
     public class ApplicationDisplayMetrics
     {
         public IntPtr HWnd { get; set; }
+        public SystemWindow Window { get; set; }
         public int ProcessId { get; set; }
         public string ApplicationName { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
@@ -14,6 +15,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         public string Key
         {
+            // in release mode, ApplicatioName is "" to reduce runtime
             get { return string.Format("{0}-{1}", HWnd.ToInt64(), ApplicationName); }
         }
 
