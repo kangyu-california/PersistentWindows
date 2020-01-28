@@ -10,22 +10,22 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static Mutex singleInstMutex = new Mutex(true, Application.ProductName);
         [STAThread]
         static void Main()
         {
+#if (!DEBUG)
+            Mutex singleInstMutex = new Mutex(true, Application.ProductName);
             if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
             {
-#if (!DEBUG)
                 MessageBox.Show($"Only one inst of {Application.ProductName} can be run!");
                 //Application.Exit();
                 return;
-#endif
             }
             else
             {
                 singleInstMutex.ReleaseMutex();
             }
+#endif
 
             StartSplashForm();
 
