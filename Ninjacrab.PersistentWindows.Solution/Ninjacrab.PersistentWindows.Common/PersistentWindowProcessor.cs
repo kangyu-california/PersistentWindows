@@ -322,13 +322,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         // looks like the window is still here for us to restore
                         WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
                         IntPtr hwnd = prevDisplayMetrics.HWnd;
-                        /*
-                        if (!User32.IsWindow(hwnd))
-                        {
-                            monitorApplications[displayKey].Remove(applicationKey);
-                            continue;
-                        }
-                        */
 
                         ApplicationDisplayMetrics curDisplayMetrics = null;
                         bool updateScreenCoord;
