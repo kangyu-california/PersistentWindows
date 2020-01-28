@@ -181,7 +181,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
-                            monitorApplications[displayKey][app.Key] = app;
+                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
+                            monitorApplications[displayKey][app.Key].ScreenPosition = app.ScreenPosition;
                         }
                     }
 
