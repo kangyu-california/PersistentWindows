@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Ninjacrab.PersistentWindows.Common;
 
@@ -11,9 +10,23 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        static Mutex singleInstMutex = new Mutex(true, Application.ProductName);
         [STAThread]
         static void Main()
         {
+            if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
+            {
+#if (!DEBUG)
+                MessageBox.Show($"Only one inst of {Application.ProductName} can be run!");
+                //Application.Exit();
+                return;
+#endif
+            }
+            else
+            {
+                singleInstMutex.ReleaseMutex();
+            }
+
             StartSplashForm();
 
             PersistentWindowProcessor pwp = new PersistentWindowProcessor();
