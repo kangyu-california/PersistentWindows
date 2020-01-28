@@ -1,8 +1,11 @@
-﻿namespace Ninjacrab.PersistentWindows.SystrayShell
+﻿using System.Windows.Forms;
+
+namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     static class Globals
     {
-        public const string Version = "2.4";
+        //use Application.ProductVersion instead
+        //public const string Version = "";
     }
 
     partial class SystrayForm
@@ -47,7 +50,7 @@
             // 
             this.notifyIconMain.ContextMenuStrip = this.contextMenuStripSysTray;
             this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
-            this.notifyIconMain.Text = $"Persistent Windows {Globals.Version}";
+            this.notifyIconMain.Text = $"Persistent Windows {Application.ProductVersion}";
             this.notifyIconMain.Visible = true;
             // 
             // contextMenuStripSysTray
@@ -85,7 +88,7 @@
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SystrayForm";
-            this.Text = $"Persistent Windows {Globals.Version}";
+            this.Text = $"Persistent Windows {Application.ProductVersion}";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 

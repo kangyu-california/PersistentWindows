@@ -1,4 +1,5 @@
-﻿
+﻿using System.Windows.Forms;
+
 namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     partial class SplashForm
@@ -46,7 +47,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.label1.Text = 
                 $"Persistent Windows" +
                 $"\n" +
-                $"Version {Globals.Version}" +
+                $"Version {Application.ProductVersion}" +
                 $"\n\n" +
                 $"Author:        Min Yong Kim" +
                 $"\n" +
