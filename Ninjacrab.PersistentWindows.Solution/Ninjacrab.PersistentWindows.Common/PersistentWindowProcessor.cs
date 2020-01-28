@@ -100,17 +100,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 var appWindows = CaptureWindowsOfInterest();
                 foreach (var window in appWindows)
                 {
-                    ApplicationDisplayMetrics app = null;
+                    ApplicationDisplayMetrics curDisplayMetrics = null;
                     bool updateScreenCoord;
-                    if (NeedUpdateWindow(displayKey, window, out app, out updateScreenCoord))
+                    if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
                     {
-                        updateApps.Add(app);
+                        updateApps.Add(curDisplayMetrics);
                         updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
-                            app,
-                            app.WindowPlacement.NormalPosition.Left,
-                            app.WindowPlacement.NormalPosition.Top,
-                            app.WindowPlacement.NormalPosition.Width,
-                            app.WindowPlacement.NormalPosition.Height,
+                            curDisplayMetrics,
+                            curDisplayMetrics.WindowPlacement.NormalPosition.Left,
+                            curDisplayMetrics.WindowPlacement.NormalPosition.Top,
+                            curDisplayMetrics.WindowPlacement.NormalPosition.Width,
+                            curDisplayMetrics.WindowPlacement.NormalPosition.Height,
                             window.Visible,
                             window.Title
                             ));
@@ -173,16 +173,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     List<string> commitUpdateLog = new List<string>();
                     for (int i = 0; i < maxUpdateCnt; i++)
                     {
-                        ApplicationDisplayMetrics app = updateApps[i];
+                        ApplicationDisplayMetrics curDisplayMetrics = updateApps[i];
                         commitUpdateLog.Add(updateLogs[i]);
-                        if (!monitorApplications[displayKey].ContainsKey(app.Key))
+                        if (!monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
                         {
-                            monitorApplications[displayKey].Add(app.Key, app);
+                            monitorApplications[displayKey].Add(curDisplayMetrics.Key, curDisplayMetrics);
                         }
                         else
                         {
-                            monitorApplications[displayKey][app.Key].WindowPlacement = app.WindowPlacement;
-                            monitorApplications[displayKey][app.Key].ScreenPosition = app.ScreenPosition;
+                            monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+                            monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
                         }
                     }
 
@@ -205,7 +205,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics applicationDisplayMetric, out bool updateScreenCoord)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetric, out bool updateScreenCoord)
         {
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
@@ -217,7 +217,7 @@ namespace Ninjacrab.PersistentWindows.Common
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
-            applicationDisplayMetric = new ApplicationDisplayMetrics
+            curDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
 #if DEBUG
@@ -234,27 +234,27 @@ namespace Ninjacrab.PersistentWindows.Common
 
             bool needUpdate = false;
             updateScreenCoord = false;
-            if (!monitorApplications[displayKey].ContainsKey(applicationDisplayMetric.Key))
+            if (!monitorApplications[displayKey].ContainsKey(curDisplayMetric.Key))
             {
                 needUpdate = true;
             }
             else
             {
-                ApplicationDisplayMetrics app = monitorApplications[displayKey][applicationDisplayMetric.Key];
-                if (app.ProcessId != applicationDisplayMetric.ProcessId)
+                ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][curDisplayMetric.Key];
+                if (prevDisplayMetrics.ProcessId != curDisplayMetric.ProcessId)
                 {
                     // key collision between dead window and new window with the same hwnd
-                    monitorApplications[displayKey].Remove(applicationDisplayMetric.Key);
+                    monitorApplications[displayKey].Remove(curDisplayMetric.Key);
                     needUpdate = true;
                 }
                 else
                 {
-                    if (!app.ScreenPosition.Equals(applicationDisplayMetric.ScreenPosition))
+                    if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetric.ScreenPosition))
                     {
                         updateScreenCoord = true;
                         needUpdate = true;
                     }
-                    if (!app.EqualPlacement(applicationDisplayMetric))
+                    if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
                     {
                         needUpdate = true;
                     }
@@ -318,10 +318,10 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif            
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
-                        ApplicationDisplayMetrics app = monitorApplications[displayKey][applicationKey];
+                        ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][applicationKey];
                         // looks like the window is still here for us to restore
-                        WindowPlacement windowPlacement = app.WindowPlacement;
-                        IntPtr hwnd = app.HWnd;
+                        WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
+                        IntPtr hwnd = prevDisplayMetrics.HWnd;
                         /*
                         if (!User32.IsWindow(hwnd))
                         {
@@ -330,9 +330,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         */
 
-                        ApplicationDisplayMetrics appTemp = null;
+                        ApplicationDisplayMetrics curDisplayMetrics = null;
                         bool updateScreenCoord;
-                        if (!NeedUpdateWindow(displayKey, window, out appTemp, out updateScreenCoord))
+                        if (!NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
                         {
                             // window position has no change
                             continue;
@@ -362,9 +362,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (updateScreenCoord)
                         {
-                            if (NeedUpdateWindow(displayKey, window, out appTemp, out updateScreenCoord))
+                            if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
                             {
-                                RECT rect = app.ScreenPosition;
+                                RECT rect = prevDisplayMetrics.ScreenPosition;
                                 success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                                     window.Process.ProcessName,
