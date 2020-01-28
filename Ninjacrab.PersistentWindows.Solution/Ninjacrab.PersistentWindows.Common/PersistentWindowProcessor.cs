@@ -213,18 +213,20 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT screenPosition = new RECT();
             User32.GetWindowRect(window.HWnd, ref screenPosition);
 
+            uint processId = 0;
+            uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+
             applicationDisplayMetric = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
-                Window = window,
 #if DEBUG
                 // these function calls are very cpu-intensive
                 ApplicationName = window.Process.ProcessName,
-                ProcessId = window.Process.Id,
 #else
                 ApplicationName = "",
-                ProcessId = 0,
 #endif
+                ProcessId = processId,
+
                 WindowPlacement = windowPlacement,
                 ScreenPosition = screenPosition
             };
@@ -238,7 +240,7 @@ namespace Ninjacrab.PersistentWindows.Common
             else
             {
                 ApplicationDisplayMetrics app = monitorApplications[displayKey][applicationDisplayMetric.Key];
-                if (app.Window != applicationDisplayMetric.Window)
+                if (app.ProcessId != applicationDisplayMetric.ProcessId)
                 {
                     // key collision between dead window and new window with the same hwnd
                     monitorApplications[displayKey].Remove(applicationDisplayMetric.Key);

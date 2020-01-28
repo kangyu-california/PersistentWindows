@@ -7,8 +7,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
     public class ApplicationDisplayMetrics
     {
         public IntPtr HWnd { get; set; }
-        public SystemWindow Window { get; set; }
-        public int ProcessId { get; set; }
+        public uint ProcessId { get; set; }
         public string ApplicationName { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
         public RECT ScreenPosition { get; set; }

@@ -28,6 +28,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern IntPtr GetDesktopWindow();
 
         [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int width, int height, bool repaint);
 
