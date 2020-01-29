@@ -26,5 +26,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             progressBar1.PerformStep();
         }
+
+        private void SplashForm_Load(object sender, EventArgs e)
+        {
+            this.label1.Text =
+    $@"
+    Persistent Windows
+    Version {Application.ProductVersion}
+                
+    Author:        Min Yong Kim
+    Contributors:  Kang Yu";
+
+        }
     }
 }

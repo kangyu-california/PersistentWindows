@@ -42,15 +42,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.label1.Font = new System.Drawing.Font("Courier New", 10F);
             this.label1.Location = new System.Drawing.Point(184, 69);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(279, 80);
+            this.label1.Text = "info"; // to be overwritten with dynamic text during form load
+            this.label1.Size = new System.Drawing.Size(0, 20);
             this.label1.TabIndex = 0;
-            this.label1.Text = 
-    $@"
-    Persistent Windows
-    Version {Application.ProductVersion}
-                
-    Author:        Min Yong Kim
-    Contributors:  Kang Yu";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
@@ -75,6 +69,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
             this.Name = "SplashForm";
+            this.Load += new System.EventHandler(this.SplashForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
