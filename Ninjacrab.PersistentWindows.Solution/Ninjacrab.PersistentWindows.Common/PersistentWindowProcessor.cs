@@ -101,15 +101,22 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics))
                     {
                         updateApps.Add(curDisplayMetrics);
-                        updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
+                        string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} ",
                             curDisplayMetrics,
+                            curDisplayMetrics.ScreenPosition.Left,
+                            curDisplayMetrics.ScreenPosition.Top,
+                            curDisplayMetrics.ScreenPosition.Width,
+                            curDisplayMetrics.ScreenPosition.Height,
+                            window.Visible,
+                            window.Title
+                            );
+                        string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} {3}",
                             curDisplayMetrics.WindowPlacement.NormalPosition.Left,
                             curDisplayMetrics.WindowPlacement.NormalPosition.Top,
                             curDisplayMetrics.WindowPlacement.NormalPosition.Width,
-                            curDisplayMetrics.WindowPlacement.NormalPosition.Height,
-                            window.Visible,
-                            window.Title
-                            ));
+                            curDisplayMetrics.WindowPlacement.NormalPosition.Height
+                            );
+                        updateLogs.Add(log + log2);
                     }
                 }
 
