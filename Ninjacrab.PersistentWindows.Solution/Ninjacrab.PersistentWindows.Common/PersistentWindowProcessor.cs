@@ -254,9 +254,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         updateScreenCoord = true;
                         needUpdate = true;
                     }
-                    if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
+                    else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
                     {
-                        needUpdate = true;
+                        // WindowPlacement.NormalPosition change must conform to ScreenPosition change
+                        Log.Error("The WindowPlacement.NormalPosition change does not conform to ScreenPosition change {0} {1} {2}",
+                            window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
                     }
                 }
             }
