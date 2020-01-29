@@ -4,8 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using ManagedWinapi;
-using ManagedWinapi.Hooks;
 using ManagedWinapi.Windows;
 using Microsoft.Win32;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
