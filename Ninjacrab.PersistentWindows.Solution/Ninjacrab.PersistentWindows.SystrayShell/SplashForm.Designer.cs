@@ -45,13 +45,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.label1.Size = new System.Drawing.Size(279, 80);
             this.label1.TabIndex = 0;
             this.label1.Text = 
-                $"Persistent Windows" +
-                $"\n" +
-                $"Version {Application.ProductVersion}" +
-                $"\n\n" +
-                $"Author:        Min Yong Kim" +
-                $"\n" +
-                $"Contributors:  Kang Yu";
+    $@"
+    Persistent Windows
+    Version {Application.ProductVersion}
+                
+    Author:        Min Yong Kim
+    Contributors:  Kang Yu";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
