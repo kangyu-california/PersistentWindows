@@ -245,18 +245,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications[displayKey].Remove(curDisplayMetric.Key);
                     needUpdate = true;
                 }
-                else
+                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetric.ScreenPosition))
                 {
-                    if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetric.ScreenPosition))
-                    {
-                        needUpdate = true;
-                    }
-                    else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
-                    {
-                        // WindowPlacement.NormalPosition change must conform to ScreenPosition change
-                        Log.Trace("The WindowPlacement.NormalPosition change does not conform to ScreenPosition change {0} {1} {2}",
-                            window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
-                    }
+                    needUpdate = true;
+                }
+                else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
+                {
+                    // WindowPlacement.NormalPosition change must conform to ScreenPosition change
+                    Log.Trace("Reject WindowPlacement.NormalPosition change if ScreenPosition does not change {0} {1} {2}",
+                        window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
                 }
             }
 
