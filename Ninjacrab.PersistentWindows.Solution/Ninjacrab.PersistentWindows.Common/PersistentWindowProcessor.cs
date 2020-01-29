@@ -14,14 +14,13 @@ using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
 namespace Ninjacrab.PersistentWindows.Common
 {
-    public class PersistentWindowProcessor : IDisposable
+    public class PersistentWindowProcessor
     {
         // read and update this from a config file eventually
         private const int MaxAppsMoveUpdate = 4;
         private const int MaxAppsMoveDelay = 60; // accept massive app move in 60 seconds
         private int pendingAppsMoveTimer = 0;
         private int pendingAppMoveSum = 0;
-        private Hook windowProcHook = null;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
 
@@ -371,12 +370,5 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        public void Dispose()
-        {
-            if (windowProcHook != null)
-            {
-                windowProcHook.Dispose();
-            }
-        }
     }
 }
