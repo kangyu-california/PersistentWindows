@@ -101,8 +101,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 foreach (var window in appWindows)
                 {
                     ApplicationDisplayMetrics curDisplayMetrics = null;
-                    bool updateScreenCoord;
-                    if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
+                    if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics))
                     {
                         updateApps.Add(curDisplayMetrics);
                         updateLogs.Add(string.Format("Captured {0,-8} at [{1,4}x{2,4}] size [{3,4}x{4,4}] V:{5} {6} ",
@@ -205,7 +204,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetric, out bool updateScreenCoord)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetric)
         {
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
@@ -233,7 +232,6 @@ namespace Ninjacrab.PersistentWindows.Common
             };
 
             bool needUpdate = false;
-            updateScreenCoord = false;
             if (!monitorApplications[displayKey].ContainsKey(curDisplayMetric.Key))
             {
                 needUpdate = true;
@@ -251,13 +249,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetric.ScreenPosition))
                     {
-                        updateScreenCoord = true;
                         needUpdate = true;
                     }
                     else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
                     {
                         // WindowPlacement.NormalPosition change must conform to ScreenPosition change
-                        Log.Error("The WindowPlacement.NormalPosition change does not conform to ScreenPosition change {0} {1} {2}",
+                        Log.Trace("The WindowPlacement.NormalPosition change does not conform to ScreenPosition change {0} {1} {2}",
                             window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
                     }
                 }
@@ -326,8 +323,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         IntPtr hwnd = prevDisplayMetrics.HWnd;
 
                         ApplicationDisplayMetrics curDisplayMetrics = null;
-                        bool updateScreenCoord;
-                        if (!NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
+                        if (!NeedUpdateWindow(displayKey, window, out curDisplayMetrics))
                         {
                             // window position has no change
                             continue;
@@ -346,6 +342,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         */
 
                         bool success;
+                        // recover NormalPosition (the workspace position prior to snap)
                         success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
                         Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                             window.Process.ProcessName,
@@ -355,21 +352,16 @@ namespace Ninjacrab.PersistentWindows.Common
                             windowPlacement.NormalPosition.Height,
                             success);
 
-                        if (updateScreenCoord)
-                        {
-                            if (NeedUpdateWindow(displayKey, window, out curDisplayMetrics, out updateScreenCoord))
-                            {
-                                RECT rect = prevDisplayMetrics.ScreenPosition;
-                                success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                                    window.Process.ProcessName,
-                                    rect.Left,
-                                    rect.Top,
-                                    rect.Width,
-                                    rect.Height,
-                                    success);
-                            }
-                        }
+                        // recover current screen position
+                        RECT rect = prevDisplayMetrics.ScreenPosition;
+                        success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                            window.Process.ProcessName,
+                            rect.Left,
+                            rect.Top,
+                            rect.Width,
+                            rect.Height,
+                            success);
 
                         if (!success)
                         {
