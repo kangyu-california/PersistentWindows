@@ -12,10 +12,18 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public WindowPlacement WindowPlacement { get; set; }
         public RECT ScreenPosition { get; set; }
 
-        public string Key
+        public static string GetKey(IntPtr hWnd, string applicationName)
         {
             // in release mode, ApplicatioName is "" to reduce runtime
-            get { return string.Format("{0}-{1}", HWnd.ToInt64(), ApplicationName); }
+#if DEBUG
+            return string.Format("{0}-{1}", hWnd.ToString("X8"), applicationName);
+#else
+            return string.Format("{0}", hWnd.ToString("X8"));
+#endif
+        }
+        public string Key
+        {
+            get { return GetKey(HWnd, ApplicationName); }
         }
 
         public bool EqualPlacement(ApplicationDisplayMetrics other)
@@ -26,12 +34,18 @@ namespace Ninjacrab.PersistentWindows.Common.Models
                 && this.WindowPlacement.NormalPosition.Width == other.WindowPlacement.NormalPosition.Width
                 && this.WindowPlacement.NormalPosition.Height == other.WindowPlacement.NormalPosition.Height;
             */
+            /*
+            bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
+            bool minmaxStateEqual = this.WindowPlacement.ShowCmd == other.WindowPlacement.ShowCmd;
+            return posEqual && minmaxStateEqual;
+            */
             return this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
+            //return this.WindowPlacement.Equals(other.WindowPlacement);
         }
 
         public override string ToString()
         {
-            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToInt64(), ApplicationName);
+            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ApplicationName);
         }
     }
 }

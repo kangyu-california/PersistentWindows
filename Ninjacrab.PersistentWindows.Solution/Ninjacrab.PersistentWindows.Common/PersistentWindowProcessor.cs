@@ -110,7 +110,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             window.Visible,
                             window.Title
                             );
-                        string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} {3}",
+                        string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
                             curDisplayMetrics.WindowPlacement.NormalPosition.Left,
                             curDisplayMetrics.WindowPlacement.NormalPosition.Top,
                             curDisplayMetrics.WindowPlacement.NormalPosition.Width,
@@ -184,7 +184,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
+                            /*
+                            // partially update Normal position part of WindowPlacement
+                            WindowPlacement wp = monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement;
+                            wp.NormalPosition = curDisplayMetrics.WindowPlacement.NormalPosition;
+                            monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = wp;
+                            */
                             monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+
                             monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
                         }
                     }
@@ -255,9 +262,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
                 {
-                    // WindowPlacement.NormalPosition change must conform to ScreenPosition change
-                    Log.Trace("Reject WindowPlacement.NormalPosition change if ScreenPosition does not change {0} {1} {2}",
+                    // WindowPlacement.NormalPosition is not expected to change without ScreenPosition change
+                    Log.Trace("Unexpected WindowPlacement.NormalPosition change if ScreenPosition keep same {0} {1} {2}",
                         window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
+
+                    // immediately recover to old status
+                    WindowPlacement prevWP = prevDisplayMetrics.WindowPlacement;
+                    User32.SetWindowPlacement(curDisplayMetric.HWnd, ref prevWP);
+                    RECT rect = prevDisplayMetrics.ScreenPosition;
+                    User32.MoveWindow(curDisplayMetric.HWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);                    
+
+                    //needUpdate = true;
                 }
             }
 
@@ -271,6 +286,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 try
                 {
                     RestoreApplicationsOnCurrentDisplays();
+                    Thread.Sleep(1000);
+                    RestoreApplicationsOnCurrentDisplays();
+
                     CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                 }
                 catch (Exception ex)
@@ -311,11 +329,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
-#if DEBUG
-                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), window.Process.ProcessName);
-#else
-                    string applicationKey = string.Format("{0}-{1}", window.HWnd.ToInt64(), "");
-#endif            
+                    string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd, window.Process.ProcessName);
+
                     if (monitorApplications[displayKey].ContainsKey(applicationKey))
                     {
                         ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][applicationKey];
@@ -376,4 +391,5 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
     }
+
 }
