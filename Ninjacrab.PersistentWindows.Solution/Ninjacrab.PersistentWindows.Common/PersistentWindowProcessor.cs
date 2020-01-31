@@ -191,12 +191,11 @@ namespace Ninjacrab.PersistentWindows.Common
                             monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = wp;
                             */
                             monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
-
                             monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
                         }
                     }
 
-                    commitUpdateLog.Sort();
+                    //commitUpdateLog.Sort();
                     Log.Trace("{0}{1}{2} windows captured", string.Join(Environment.NewLine, commitUpdateLog), Environment.NewLine, commitUpdateLog.Count);
                 }
                 pendingAppsMoveTimer = 0;
@@ -215,7 +214,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetric)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetrics)
         {
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
@@ -227,7 +226,7 @@ namespace Ninjacrab.PersistentWindows.Common
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
-            curDisplayMetric = new ApplicationDisplayMetrics
+            curDisplayMetrics = new ApplicationDisplayMetrics
             {
                 HWnd = window.HWnd,
 #if DEBUG
@@ -239,40 +238,66 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 WindowPlacement = windowPlacement,
+                RecoverWindowPlacement = true,
                 ScreenPosition = screenPosition
             };
 
             bool needUpdate = false;
-            if (!monitorApplications[displayKey].ContainsKey(curDisplayMetric.Key))
+            if (!monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
             {
                 needUpdate = true;
             }
             else
             {
-                ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][curDisplayMetric.Key];
-                if (prevDisplayMetrics.ProcessId != curDisplayMetric.ProcessId)
+                ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][curDisplayMetrics.Key];
+                if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId)
                 {
                     // key collision between dead window and new window with the same hwnd
-                    monitorApplications[displayKey].Remove(curDisplayMetric.Key);
+                    monitorApplications[displayKey].Remove(curDisplayMetrics.Key);
                     needUpdate = true;
                 }
-                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetric.ScreenPosition))
+                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
                     needUpdate = true;
                 }
-                else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetric))
+                else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
-                    // WindowPlacement.NormalPosition is not expected to change without ScreenPosition change
                     Log.Trace("Unexpected WindowPlacement.NormalPosition change if ScreenPosition keep same {0} {1} {2}",
                         window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
 
-                    // immediately recover to old status
-                    WindowPlacement prevWP = prevDisplayMetrics.WindowPlacement;
-                    User32.SetWindowPlacement(curDisplayMetric.HWnd, ref prevWP);
-                    RECT rect = prevDisplayMetrics.ScreenPosition;
-                    User32.MoveWindow(curDisplayMetric.HWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);                    
+                    string log = string.Format("prev WindowPlacement ({0}, {1}) of size {2} x {3}",
+                        prevDisplayMetrics.WindowPlacement.NormalPosition.Left,
+                        prevDisplayMetrics.WindowPlacement.NormalPosition.Top,
+                        prevDisplayMetrics.WindowPlacement.NormalPosition.Width,
+                        prevDisplayMetrics.WindowPlacement.NormalPosition.Height
+                        );
 
-                    //needUpdate = true;
+                    string log2 = string.Format("\ncur  WindowPlacement ({0}, {1}) of size {2} x {3}",
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Left,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Top,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Width,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Height
+                        );
+                    Log.Trace("{0}", log + log2);
+
+                    if (monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement)
+                    {
+                        // try recover previous placement first
+                        WindowPlacement prevWP = prevDisplayMetrics.WindowPlacement;
+                        User32.SetWindowPlacement(curDisplayMetrics.HWnd, ref prevWP);
+                        RECT rect = prevDisplayMetrics.ScreenPosition;
+                        User32.MoveWindow(curDisplayMetrics.HWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = false;
+                    }
+                    else
+                    {
+                        Log.Trace("Fail to recover NormalPosition {0} {1} {2}",
+                            window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
+                        // needUpdate = true;
+                        // immediately update WindowPlacement with current value
+                        monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+                        monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = true;
+                    }
                 }
             }
 

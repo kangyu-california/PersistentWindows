@@ -9,8 +9,10 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public IntPtr HWnd { get; set; }
         public uint ProcessId { get; set; }
         public string ApplicationName { get; set; }
-        public WindowPlacement WindowPlacement { get; set; }
         public RECT ScreenPosition { get; set; }
+        public WindowPlacement WindowPlacement { get; set; }
+        // try recover sudden WindowPlacement change when ScreenPosition remains the same
+        public bool RecoverWindowPlacement { get; set; }
 
         public static string GetKey(IntPtr hWnd, string applicationName)
         {
