@@ -285,11 +285,14 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    RestoreApplicationsOnCurrentDisplays();
-                    Thread.Sleep(1000);
-                    RestoreApplicationsOnCurrentDisplays();
+                    lock (displayChangeLock)
+                    {
+                        RestoreApplicationsOnCurrentDisplays();
+                        Thread.Sleep(1000);
+                        RestoreApplicationsOnCurrentDisplays();
 
-                    CaptureApplicationsOnCurrentDisplays(initialCapture: true);
+                        CaptureApplicationsOnCurrentDisplays(initialCapture: true);
+                    }
                 }
                 catch (Exception ex)
                 {
