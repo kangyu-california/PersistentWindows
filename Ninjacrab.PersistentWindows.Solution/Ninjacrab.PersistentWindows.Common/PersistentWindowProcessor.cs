@@ -144,7 +144,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     // 2. window pos/size recovery is incomplete due to lack of admin permission of this program.
                     // 3. moving many windows using mouse too fast.
 
-                    // The remedy for issue 1
                     // wait up to 60 seconds to give DisplaySettingsChanged event handler a chance to recover.
                     if (pendingAppsMoveTimer < MaxAppsMoveDelay)
                     {
@@ -152,7 +151,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         return;
                     }
 
-                    // the remedy for issue 2 and 3
                     // acknowledge the status quo and proceed to recapture all windows
                     initialCapture = true;
                     Log.Trace("Full capture timer triggered");
@@ -184,12 +182,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
-                            /*
-                            // partially update Normal position part of WindowPlacement
-                            WindowPlacement wp = monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement;
-                            wp.NormalPosition = curDisplayMetrics.WindowPlacement.NormalPosition;
-                            monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = wp;
-                            */
                             monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                             monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
                         }
@@ -272,13 +264,15 @@ namespace Ninjacrab.PersistentWindows.Common
                         prevDisplayMetrics.WindowPlacement.NormalPosition.Height
                         );
 
-                    string log2 = string.Format("\ncur  WindowPlacement ({0}, {1}) of size {2} x {3}",
+                    string log2 = string.Format("cur  WindowPlacement ({0}, {1}) of size {2} x {3}",
                         curDisplayMetrics.WindowPlacement.NormalPosition.Left,
                         curDisplayMetrics.WindowPlacement.NormalPosition.Top,
                         curDisplayMetrics.WindowPlacement.NormalPosition.Width,
                         curDisplayMetrics.WindowPlacement.NormalPosition.Height
                         );
-                    Log.Trace("{0}", log + log2);
+
+                    Log.Trace("{0}", log);
+                    Log.Trace("{0}", log2);
 
                     if (monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement)
                     {
@@ -396,7 +390,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             windowPlacement.NormalPosition.Height,
                             success);
 
-                        // recover current screen position
+                        // recover previous screen position
                         RECT rect = prevDisplayMetrics.ScreenPosition;
                         success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                         Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
