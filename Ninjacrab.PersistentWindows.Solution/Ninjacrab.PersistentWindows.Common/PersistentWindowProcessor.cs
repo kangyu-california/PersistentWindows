@@ -15,7 +15,7 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor
     {
         // read and update this from a config file eventually
-        private const int MaxAppsMoveUpdate = 4;
+        private const int MaxAppsMoveUpdate = 2;
         private const int MaxAppsMoveDelay = 60; // accept massive app move in 60 seconds
         private int pendingAppsMoveTimer = 0;
         private int pendingAppMoveSum = 0;
@@ -29,7 +29,7 @@ namespace Ninjacrab.PersistentWindows.Common
             CaptureApplicationsOnCurrentDisplays(initialCapture: true);
 
             var thread = new Thread(InternalRun);
-            thread.IsBackground = true;
+            thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.InternalRun()";
             thread.Start();
 
@@ -40,6 +40,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     BeginRestoreApplicationsOnCurrentDisplays();
                 };
 
+            /*
             SystemEvents.PowerModeChanged += 
                 (s, e) =>
                 {
@@ -56,6 +57,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
                     }
                 };
+            */
 
         }
 
@@ -208,19 +210,26 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool NeedUpdateWindow(string displayKey, SystemWindow window, out ApplicationDisplayMetrics curDisplayMetrics)
         {
+            if (!window.IsValid())
+            {
+                curDisplayMetrics = null;
+                return false;
+            }
+
+            IntPtr hwnd = window.HWnd;
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
             RECT screenPosition = new RECT();
-            User32.GetWindowRect(window.HWnd, ref screenPosition);
+            User32.GetWindowRect(hwnd, ref screenPosition);
 
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
-                HWnd = window.HWnd,
+                HWnd = hwnd,
 #if DEBUG
                 // these function calls are very cpu-intensive
                 ApplicationName = window.Process.ProcessName,
@@ -278,9 +287,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         // try recover previous placement first
                         WindowPlacement prevWP = prevDisplayMetrics.WindowPlacement;
-                        User32.SetWindowPlacement(curDisplayMetrics.HWnd, ref prevWP);
+                        User32.SetWindowPlacement(hwnd, ref prevWP);
                         RECT rect = prevDisplayMetrics.ScreenPosition;
-                        User32.MoveWindow(curDisplayMetrics.HWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                         monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = false;
                     }
                     else
@@ -306,10 +315,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     lock (displayChangeLock)
                     {
-                        RestoreApplicationsOnCurrentDisplays();
-                        Thread.Sleep(1000);
-                        RestoreApplicationsOnCurrentDisplays();
-
+                        for (int i = 0; i < 3 && RestoreApplicationsOnCurrentDisplays(); ++i)
+                        {
+                            // make sure unexpected WindowPlacement change by Window OS are all corrected
+                            Thread.Sleep(500);
+                        }
                         CaptureApplicationsOnCurrentDisplays(initialCapture: true);
                     }
                 }
@@ -318,13 +328,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(ex.ToString());
                 }
             });
-            thread.IsBackground = true;
+            thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
             thread.Start();
         }
 
-        private void RestoreApplicationsOnCurrentDisplays(string displayKey = null)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey = null)
         {
+            bool score = false;
             lock (displayChangeLock)
             {
                 if (displayKey == null)
@@ -338,12 +349,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // the display setting has not been captured yet
                     Log.Trace("Unknown display setting {0}", displayKey);
-                    return;
+                    return false;
                 }
 
                 Log.Info("Restoring applications for {0}", displayKey);
                 foreach (var window in CaptureWindowsOfInterest())
                 {
+                    if (!window.IsValid())
+                    {
+                        continue;
+                    }
+
                     var proc_name = window.Process.ProcessName;
                     if (proc_name.Contains("CodeSetup"))
                     {
@@ -401,6 +417,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             rect.Height,
                             success);
 
+                        score = true;
                         if (!success)
                         {
                             string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
@@ -408,8 +425,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                     }
                 }
+
                 Log.Trace("Restored windows position for display setting {0}", displayKey);
             }
+
+            return score;
         }
 
     }
