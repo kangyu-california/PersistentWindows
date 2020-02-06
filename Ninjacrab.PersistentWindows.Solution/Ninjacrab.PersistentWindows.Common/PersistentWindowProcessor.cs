@@ -12,7 +12,7 @@ using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
 namespace Ninjacrab.PersistentWindows.Common
 {
-    public class PersistentWindowProcessor
+    public class PersistentWindowProcessor : IDisposable
     {
         // read and update this from a config file eventually
         private const int MaxAppsMoveUpdate = 2;
@@ -21,6 +21,11 @@ namespace Ninjacrab.PersistentWindows.Common
         private int pendingAppMoveSum = 0;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private object displayChangeLock = null;
+
+        EventHandler displaySettingsChangedHandler;
+
+        IntPtr winEventsHookCaptureEnd;
+        User32.WinEventDelegate winEventsCaptureEndDelegate;
 
         public void Start()
         {
@@ -33,12 +38,30 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.Name = "PersistentWindowProcessor.InternalRun()";
             thread.Start();
 
-            SystemEvents.DisplaySettingsChanged += 
+            // EVENT_SYSTEM_CAPTUREEND is the magic event that tells us when a window is selected / repositioned / everything (it seems!)
+            this.winEventsCaptureEndDelegate = WinEventProc;
+
+            this.winEventsHookCaptureEnd = User32.SetWinEventHook(
+                //(uint)User32Events.EVENT_SYSTEM_CAPTUREEND,
+                //(uint)User32Events.EVENT_SYSTEM_CAPTUREEND,
+                (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
+                (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
+                //(uint)User32Events.EVENT_SYSTEM_MINIMIZEEND,
+                IntPtr.Zero,
+                this.winEventsCaptureEndDelegate,
+                0,
+                0,
+                (uint)User32Events.WINEVENT_OUTOFCONTEXT);
+
+
+            displaySettingsChangedHandler =
                 (s, e) =>
                 {
                     Log.Info("Display settings changed");
                     BeginRestoreApplicationsOnCurrentDisplays();
                 };
+
+            SystemEvents.DisplaySettingsChanged += displaySettingsChangedHandler;
 
             /*
             SystemEvents.PowerModeChanged += 
@@ -61,6 +84,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
+        private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        {
+            // Console.WriteLine("WinEvent received. Type: {0:x8}, Window: {1:x8}", eventType, hwnd.ToInt32());
+            BeginCaptureApplicationsOnCurrentDisplays();
+        }
 
         private void InternalRun()
         {
@@ -432,6 +460,41 @@ namespace Ninjacrab.PersistentWindows.Common
             return score;
         }
 
+        #region IDisposable
+        private bool isDisposed = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!isDisposed)
+            {
+                //if (disposing)
+                {
+                    if (this.displaySettingsChangedHandler != null)
+                    {
+                        SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
+                    }
+                }
+
+                if (this.winEventsHookCaptureEnd != null)
+                {
+                    User32.UnhookWinEvent(winEventsHookCaptureEnd);
+                }
+
+                isDisposed = true;
+            }
+        }
+
+        ~PersistentWindowProcessor()
+        {
+            Dispose(false);
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 
 }

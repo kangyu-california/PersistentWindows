@@ -35,7 +35,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
     Version {Application.ProductVersion}
                 
     Author:        Min Yong Kim
-    Contributors:  Kang Yu";
+    Contributors:  Kang Yu, Sean Aitken";
 
         }
     }
