@@ -20,12 +20,13 @@ namespace Ninjacrab.PersistentWindows.Common
         private int pendingAppsMoveTimer = 0;
         private int pendingAppMoveSum = 0;
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
+        private Thread pollingThread = null;
         private object displayChangeLock = null;
 
         EventHandler displaySettingsChangedHandler;
 
-        IntPtr winEventsHookCaptureEnd;
-        User32.WinEventDelegate winEventsCaptureEndDelegate;
+        //IntPtr winEventsHookCaptureEnd = IntPtr.Zero;
+        //User32.WinEventDelegate winEventsCaptureEndDelegate;
 
         public void Start()
         {
@@ -33,11 +34,12 @@ namespace Ninjacrab.PersistentWindows.Common
             displayChangeLock = new object();
             CaptureApplicationsOnCurrentDisplays(initialCapture: true);
 
-            var thread = new Thread(InternalRun);
-            thread.IsBackground = false;
-            thread.Name = "PersistentWindowProcessor.InternalRun()";
-            thread.Start();
+            pollingThread = new Thread(InternalRun);
+            pollingThread.IsBackground = false;
+            pollingThread.Name = "PersistentWindowProcessor.InternalRun()";
+            pollingThread.Start();
 
+            /*
             // EVENT_SYSTEM_CAPTUREEND is the magic event that tells us when a window is selected / repositioned / everything (it seems!)
             this.winEventsCaptureEndDelegate = WinEventProc;
 
@@ -52,6 +54,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT);
+            */
 
 
             displaySettingsChangedHandler =
@@ -92,24 +95,35 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void InternalRun()
         {
-            while(true)
+            while (true)
             {
                 Thread.Sleep(1000);
-                CaptureApplicationsOnCurrentDisplays();
+                BeginCaptureApplicationsOnCurrentDisplays();
             }
         }
 
         private void BeginCaptureApplicationsOnCurrentDisplays()
         {
-            var thread = new Thread(() => CaptureApplicationsOnCurrentDisplays());
-            thread.IsBackground = true;
+            var thread = new Thread(() =>
+            {
+                try
+                {
+                    CaptureApplicationsOnCurrentDisplays();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+
+            });
+            thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.BeginCaptureApplicationsOnCurrentDisplays()";
             thread.Start();
         }
 
         private void CaptureApplicationsOnCurrentDisplays(string displayKey = null, bool initialCapture = false)
-        {            
-            lock(displayChangeLock)
+        {
+            lock (displayChangeLock)
             {
                 if (displayKey == null)
                 {
@@ -337,7 +351,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
         {
-            var thread = new Thread(() => 
+            var thread = new Thread(() =>
             {
                 try
                 {
@@ -460,28 +474,28 @@ namespace Ninjacrab.PersistentWindows.Common
             return score;
         }
 
-        #region IDisposable
-        private bool isDisposed = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
+        public void Stop()
         {
-            if (!isDisposed)
+            if (pollingThread != null)
             {
-                //if (disposing)
-                {
-                    if (this.displaySettingsChangedHandler != null)
-                    {
-                        SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
-                    }
-                }
-
-                if (this.winEventsHookCaptureEnd != null)
-                {
-                    User32.UnhookWinEvent(winEventsHookCaptureEnd);
-                }
-
-                isDisposed = true;
+                pollingThread.Abort();
             }
+        }
+
+        #region IDisposable
+
+        public virtual void Dispose(bool disposing)
+        {
+            if (this.displaySettingsChangedHandler != null)
+            {
+                SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
+            }
+
+            //if (this.winEventsHookCaptureEnd != IntPtr.Zero)
+            //{
+            //    User32.UnhookWinEvent(winEventsHookCaptureEnd);
+            //}
+
         }
 
         ~PersistentWindowProcessor()
@@ -489,7 +503,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Dispose(false);
         }
 
-        void IDisposable.Dispose()
+        public virtual void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

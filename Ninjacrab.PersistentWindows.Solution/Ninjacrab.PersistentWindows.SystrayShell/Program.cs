@@ -10,6 +10,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        static PersistentWindowProcessor pwp;
         [STAThread]
         static void Main()
         {
@@ -29,7 +30,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             StartSplashForm();
 
-            PersistentWindowProcessor pwp = new PersistentWindowProcessor();
+            pwp = new PersistentWindowProcessor();
             pwp.Start();
 
             Application.EnableVisualStyles();
@@ -56,5 +57,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             thread.Abort();
         }
 
+        static public void Stop()
+        {
+            pwp.Stop();
+        }
     }
 }
