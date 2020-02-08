@@ -22,11 +22,10 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
         private Thread pollingThread = null;
         private object displayChangeLock = null;
+        private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
 
         EventHandler displaySettingsChangedHandler;
-
-        //IntPtr winEventsHookCaptureEnd = IntPtr.Zero;
-        //User32.WinEventDelegate winEventsCaptureEndDelegate;
+        User32.WinEventDelegate winEventsCaptureDelegate;
 
         public void Start()
         {
@@ -39,23 +38,26 @@ namespace Ninjacrab.PersistentWindows.Common
             pollingThread.Name = "PersistentWindowProcessor.InternalRun()";
             pollingThread.Start();
 
-            /*
-            // EVENT_SYSTEM_CAPTUREEND is the magic event that tells us when a window is selected / repositioned / everything (it seems!)
-            this.winEventsCaptureEndDelegate = WinEventProc;
-
-            this.winEventsHookCaptureEnd = User32.SetWinEventHook(
-                //(uint)User32Events.EVENT_SYSTEM_CAPTUREEND,
-                //(uint)User32Events.EVENT_SYSTEM_CAPTUREEND,
+            winEventsCaptureDelegate = WinEventProc;
+            // Any movements around clicking/dragging
+            this.winEventHooks.Add(User32.SetWinEventHook(
                 (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
                 (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
-                //(uint)User32Events.EVENT_SYSTEM_MINIMIZEEND,
                 IntPtr.Zero,
-                this.winEventsCaptureEndDelegate,
+                winEventsCaptureDelegate,
                 0,
                 0,
-                (uint)User32Events.WINEVENT_OUTOFCONTEXT);
-            */
+                (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
+            // This seems to cover most moves involving snaps and minmize/restore
+            this.winEventHooks.Add(User32.SetWinEventHook(
+                (uint)User32Events.EVENT_SYSTEM_FOREGROUND,
+                (uint)User32Events.EVENT_SYSTEM_FOREGROUND,
+                IntPtr.Zero,
+                winEventsCaptureDelegate,
+                0,
+                0,
+                (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
             displaySettingsChangedHandler =
                 (s, e) =>
@@ -98,7 +100,11 @@ namespace Ninjacrab.PersistentWindows.Common
             while (true)
             {
                 Thread.Sleep(1000);
-                BeginCaptureApplicationsOnCurrentDisplays();
+                if (pendingAppMoveSum > 0)
+                {
+                    // keep started tick continue to count
+                    BeginCaptureApplicationsOnCurrentDisplays();
+                }
             }
         }
 
@@ -491,11 +497,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
             }
 
-            //if (this.winEventsHookCaptureEnd != IntPtr.Zero)
-            //{
-            //    User32.UnhookWinEvent(winEventsHookCaptureEnd);
-            //}
+            foreach (var handle in this.winEventHooks)
+            {
+                User32.UnhookWinEvent(handle);
+            }
 
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         ~PersistentWindowProcessor()
@@ -503,11 +515,6 @@ namespace Ninjacrab.PersistentWindows.Common
             Dispose(false);
         }
 
-        public virtual void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
         #endregion
     }
 
