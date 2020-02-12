@@ -103,7 +103,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         #region WinEvent Hooks
 
         public delegate void WinEventDelegate(IntPtr hWinEventHook,
-            uint eventType,
+            User32Events eventType,
             IntPtr hwnd,
             int idObject,
             int idChild,
@@ -111,8 +111,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             uint dwmsEventTime);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr SetWinEventHook(uint eventMin,
-            uint eventMax,
+        public static extern IntPtr SetWinEventHook(
+            User32Events eventMin,
+            User32Events eventMax,
             IntPtr hmodWinEventProc,
             WinEventDelegate lpfnWinEventProc,
             uint idProcess,

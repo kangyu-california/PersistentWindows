@@ -21,9 +21,11 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, SortedDictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
 
         // callbacks
+        /*
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
         private EventHandler displaySettingsChangedHandler;
+        */
 
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
@@ -46,8 +48,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // captures user click, snap and minimize
             this.winEventHooks.Add(User32.SetWinEventHook(
-                (uint)User32Events.EVENT_SYSTEM_FOREGROUND,
-                (uint)User32Events.EVENT_SYSTEM_FOREGROUND,
+                User32Events.EVENT_SYSTEM_FOREGROUND,
+                User32Events.EVENT_SYSTEM_FOREGROUND,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -56,8 +58,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // captures user dragging
             this.winEventHooks.Add(User32.SetWinEventHook(
-                (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
-                (uint)User32Events.EVENT_SYSTEM_MOVESIZEEND,
+                User32Events.EVENT_SYSTEM_MOVESIZEEND,
+                User32Events.EVENT_SYSTEM_MOVESIZEEND,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -67,11 +69,11 @@ namespace Ninjacrab.PersistentWindows.Common
             // captures user restore window
             this.winEventHooks.Add(User32.SetWinEventHook(
                 /*
-                (uint)User32Events.EVENT_SYSTEM_CAPTURESTART, //before restore window?
-                (uint)User32Events.EVENT_SYSTEM_CAPTUREEND, //before minimize window?
+                User32Events.EVENT_SYSTEM_CAPTURESTART, //before restore window?
+                User32Events.EVENT_SYSTEM_CAPTUREEND, //before minimize window?
                 */
-                (uint)User32Events.EVENT_SYSTEM_MINIMIZEEND, //window restored
-                (uint)User32Events.EVENT_SYSTEM_MINIMIZEEND,
+                User32Events.EVENT_SYSTEM_MINIMIZEEND, //window restored
+                User32Events.EVENT_SYSTEM_MINIMIZEEND,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -80,8 +82,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // capture both system and user move action
             this.winEventHooks.Add(User32.SetWinEventHook(
-                (uint)User32Events.EVENT_OBJECT_LOCATIONCHANGE,
-                (uint)User32Events.EVENT_OBJECT_LOCATIONCHANGE,
+                User32Events.EVENT_OBJECT_LOCATIONCHANGE,
+                User32Events.EVENT_OBJECT_LOCATIONCHANGE,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -135,7 +137,7 @@ namespace Ninjacrab.PersistentWindows.Common
             */
         }
 
-        private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             var window = new SystemWindow(hwnd);
             if (!User32.IsTopLevelWindow(hwnd))
@@ -148,7 +150,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", eventType, hwnd.ToInt64());
+            Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
+            DateTime now = DateTime.Now;
 
             Thread capture = new Thread(() =>
             {
@@ -156,7 +159,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     lock (displayChangeLock)
                     {
-                        DateTime now = DateTime.Now;
                         CaptureWindow(window, eventType, now);
                     }
                 }
@@ -169,7 +171,7 @@ namespace Ninjacrab.PersistentWindows.Common
             capture.Start();
         }
 
-        private void CaptureWindow(SystemWindow window, uint eventType, DateTime now, string displayKey = null)
+        private void CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey = null)
         {
             if (displayKey == null)
             {
@@ -299,7 +301,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, uint eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
+        private bool NeedUpdateWindow(string displayKey, SystemWindow window, User32Events eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
         {
             if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
             {
@@ -331,7 +333,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 WindowPlacement = windowPlacement,
                 RecoverWindowPlacement = true,
-                ScreenPosition = screenPosition
+                ScreenPosition = screenPosition,
+                time = now,
+                protect = false
             };
 
             bool needUpdate = false;
@@ -519,6 +523,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void Stop()
         {
+            //stop running thread of event loop
         }
 
         #region IDisposable
@@ -528,7 +533,6 @@ namespace Ninjacrab.PersistentWindows.Common
             /*
             SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
             SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
-
             SystemEvents.PowerModeChanged -= powerModeChangedHandler;
             */
 
