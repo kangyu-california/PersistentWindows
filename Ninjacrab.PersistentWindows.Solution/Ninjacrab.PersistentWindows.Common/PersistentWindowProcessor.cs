@@ -15,7 +15,6 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // control variable
-        private bool stopUpdateWindowPos = false;
         private object displayChangeLock = null;
 
         // key data structure
@@ -89,12 +88,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
+            /*
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changing {0}", date);
-                    //stopUpdateWindowPos = true;
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -133,12 +132,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 };
 
             SystemEvents.PowerModeChanged += powerModeChangedHandler;
-
-        }
-
-        private bool IsDisplayChanging()
-        {
-            return stopUpdateWindowPos;
+            */
         }
 
         private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
@@ -155,11 +149,6 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", eventType, hwnd.ToInt64());
-
-            if (IsDisplayChanging())
-            {
-                return;
-            }
 
             Thread capture = new Thread(() =>
             {
@@ -296,7 +285,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            //commitUpdateLog.Sort();
             Log.Trace("{0} windows captured", cnt);
         }
 
@@ -537,10 +525,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public virtual void Dispose(bool disposing)
         {
+            /*
             SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
             SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
 
             SystemEvents.PowerModeChanged -= powerModeChangedHandler;
+            */
 
             foreach (var handle in this.winEventHooks)
             {
