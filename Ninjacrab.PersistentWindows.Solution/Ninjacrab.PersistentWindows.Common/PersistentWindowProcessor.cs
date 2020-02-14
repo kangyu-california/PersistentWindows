@@ -330,8 +330,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 WindowPlacement = windowPlacement,
-                ScreenPosition = screenPosition,
-                RecoverWindowPlacement = true
+                ScreenPosition = screenPosition
             };
 
             bool needUpdate = false;
@@ -374,6 +373,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("{0}", log);
                     Log.Trace("{0}", log2);
 
+                    /*
                     if (monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement)
                     {
                         Log.Trace("Try recover previous placement");
@@ -391,6 +391,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         // immediately update WindowPlacement with current value
                         monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                         monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = true;
+                    }
+                    */
+                    if (restoringWindowPos)
+                    {
+                        needUpdate = true;
                     }
                 }
                 else

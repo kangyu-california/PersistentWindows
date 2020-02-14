@@ -11,7 +11,6 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ApplicationName { get; set; }
         public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
-        public bool RecoverWindowPlacement { get; set; } // protect window position data for later recovery
 
         public static string GetKey(IntPtr hWnd, string applicationName)
         {
