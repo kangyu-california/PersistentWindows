@@ -15,8 +15,8 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int captureLatency = 1000; // microseconds to wait for window position capture
-        private const int restoreLatency = 2000; // microseconds to wait for window position recovery
+        private const int captureLatency = 2000; // microseconds to wait for window position capture
+        private const int restoreLatency = 1500; // microseconds to wait for window position recovery
 
         // key data structure
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -170,7 +170,7 @@ namespace Ninjacrab.PersistentWindows.Common
 #if DEBUG
                     RECT screenPosition = new RECT();
                     User32.GetWindowRect(hwnd, ref screenPosition);
-                    string log = string.Format("process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
+                    string log = string.Format("Defer consumption of window move message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
                         window.Process.ProcessName,
                         screenPosition.Left,
                         screenPosition.Top,
