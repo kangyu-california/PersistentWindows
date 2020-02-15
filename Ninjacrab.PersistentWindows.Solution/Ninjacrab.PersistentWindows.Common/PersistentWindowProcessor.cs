@@ -15,23 +15,30 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int captureLatency = 2000; // microseconds to wait for window position capture
-        private const int restoreLatency = 1500; // microseconds to wait for window position recovery
+        private const int restoreLatency = 1000; // microseconds to wait for second pass of window position recovery
+        private const int minCaptureLatency = 2000; // microseconds to wait for window position capture
+        private const int maxCaptureLatency = 30000; // microseconds to wait for restore before capture OS initiated move 
+        private const int maxUserMovePerSecond = 2; // estimate of number of window move/resize by human
 
-        // key data structure
+        // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
 
         // control
-        private bool betweenCaptureRestore = false; // neither capture nor restore
-        private bool restoringWindowPos = false; // about to restore
         private Timer captureTimer;
         private Timer restoreTimer;
-        private Object dataLock;
+        private Object databaseLock; // lock access to window position database
+        private string validDisplayKeyForCapture = null;
+        private int userMoves = 0;
+        private DateTime firstEventTime;
+        private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
+        private bool restoringWindowPos = false; // about to restore
+        private IntPtr curRestoreHwnd = IntPtr.Zero; // current Hwnd being restored
 
         // callbacks
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
         private EventHandler displaySettingsChangedHandler;
+        private SessionSwitchEventHandler sessionSwitchEventHandler;
 
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
@@ -39,8 +46,10 @@ namespace Ninjacrab.PersistentWindows.Common
         public void Start()
         {
             monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
-            dataLock = new object();
-            BeginCaptureApplicationsOnCurrentDisplays();
+            databaseLock = new object();
+            firstEventTime = DateTime.Now;
+            validDisplayKeyForCapture = GetDisplayKey();
+            BeginCaptureApplicationsOnCurrentDisplays(initialCapture:true);
 
             captureTimer = new Timer(state =>
             {
@@ -66,6 +75,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
+            */
 
             // captures user dragging
             this.winEventHooks.Add(User32.SetWinEventHook(
@@ -86,7 +96,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
-            */
 
             // capture both system and user move action
             this.winEventHooks.Add(User32.SetWinEventHook(
@@ -103,7 +112,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changing {0}", date);
-                    betweenCaptureRestore = true;
+                    // cancel existing capture request
+                    captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -114,9 +124,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changed {0}", date);
 
-                    restoreTimer.Change(restoreLatency, Timeout.Infinite);
-                    betweenCaptureRestore = false;
                     restoringWindowPos = true;
+                    BeginRestoreApplicationsOnCurrentDisplays();
                 };
 
             SystemEvents.DisplaySettingsChanged += this.displaySettingsChangedHandler;
@@ -128,26 +137,47 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Info("System suspending");
-                            betweenCaptureRestore = true;
+                            // cancel existing capture request
+                            captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             break;
 
                         case PowerModes.Resume:
                             Log.Info("System Resuming");
-                            //restoreTimer.Change(restoreLatency, Timeout.Infinite);
-                            betweenCaptureRestore = false;
 
                             break;
                     }
                 };
 
             SystemEvents.PowerModeChanged += powerModeChangedHandler;
+
+            sessionSwitchEventHandler = (sender, args) =>
+            {
+                switch (args.Reason)
+                {
+                    case SessionSwitchReason.SessionLock:
+                    case SessionSwitchReason.RemoteDisconnect:
+                    case SessionSwitchReason.ConsoleDisconnect:
+                        Log.Trace("Session closing: reason {0}", args.Reason);
+                        // cancel existing capture request
+                        captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                        break;
+
+                    case SessionSwitchReason.SessionUnlock:
+                    case SessionSwitchReason.RemoteConnect:
+                    case SessionSwitchReason.ConsoleConnect:
+                        Log.Trace("Session opening: reason {0}", args.Reason);
+                        break;
+                }
+            };
+
+            SystemEvents.SessionSwitch += sessionSwitchEventHandler;
         }
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            if (betweenCaptureRestore)
+            if (hwnd == this.curRestoreHwnd)
             {
-                return;
+                return; // ignore expected event to avoid message loop
             }
 
             var window = new SystemWindow(hwnd);
@@ -162,8 +192,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
+            /*
             Thread captureWindowThread = new Thread(() =>
             {
+            */
                 try
                 {
                     Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
@@ -181,33 +213,41 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace(log);
 #endif
 
+                    if (pendingCaptureWindows.Count() == 0)
+                    {
+                        firstEventTime = DateTime.Now;
+                    }
+                    pendingCaptureWindows.Add(hwnd);
+
                     if (restoringWindowPos)
                     {
+                        // a new window move is initiated by OS instead of user during restore, restart restore timer
                         restoreTimer.Change(restoreLatency, Timeout.Infinite);
                     }
                     else
                     {
-                        captureTimer.Change(captureLatency, Timeout.Infinite);
+                        if (eventType != User32Events.EVENT_OBJECT_LOCATIONCHANGE)
+                        {
+                            userMoves++;
+                        }
+                        // restart capture timer
+                        captureTimer.Change(minCaptureLatency, Timeout.Infinite);
                     }
                 }
                 catch (Exception ex)
                 {
                     Log.Error(ex.ToString());
                 }
+            /*
             });
             captureWindowThread.IsBackground = false;
             captureWindowThread.Start();
+            */
         }
 
-        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey = null)
+        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey)
         {
             bool ret = false;
-
-            if (displayKey == null)
-            {
-                DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
-                displayKey = metrics.Key;
-            }
 
             if (!monitorApplications.ContainsKey(displayKey))
             {
@@ -215,7 +255,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             ApplicationDisplayMetrics curDisplayMetrics = null;
-            if (NeedUpdateWindow(displayKey, window, eventType, now, out curDisplayMetrics))
+            if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics))
             {
                 Log.Trace("Capturing windows for display setting {0}", displayKey);
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} ",
@@ -250,15 +290,53 @@ namespace Ninjacrab.PersistentWindows.Common
             return ret;
         }
 
-        private void BeginCaptureApplicationsOnCurrentDisplays()
+        private string GetDisplayKey()
+        {
+            DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
+            return metrics.Key;
+        }
+
+        private void BeginCaptureApplicationsOnCurrentDisplays(bool initialCapture = false)
         {
             var thread = new Thread(() =>
             {
                 try
                 {
-                    lock (dataLock)
+                    string displayKey = GetDisplayKey();
+                    if (displayKey != validDisplayKeyForCapture)
+                    {
+                        // discard the capture request due to display setting change
+                        Log.Trace("Discard capture for {0}, when expecting {1}", displayKey, validDisplayKeyForCapture);
+                        return;
+                    }
+
+                    if (!initialCapture)
+                    {
+                        if (userMoves == 0 && pendingCaptureWindows.Count == 0)
+                        {
+                            // no user action
+                            return;
+                        }
+
+                        DateTime now = DateTime.Now;
+                        double elapsedMs = (now - firstEventTime).TotalMilliseconds;
+                        if (userMoves == 0
+                            && pendingCaptureWindows.Count > 0
+                            && elapsedMs < maxUserMovePerSecond * pendingCaptureWindows.Count * 1000
+                            && elapsedMs < maxCaptureLatency)
+                        {
+                            // most likely these are OS initiated moves instead of human
+                            // postpone capture to give restore a chance
+                            captureTimer.Change(minCaptureLatency, Timeout.Infinite);
+                            return;
+                        }
+                    }
+
+                    lock (databaseLock)
                     {
                         CaptureApplicationsOnCurrentDisplays();
+                        pendingCaptureWindows.Clear();
+                        userMoves = 0;
                     }
                 }
                 catch (Exception ex)
@@ -276,16 +354,24 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             var appWindows = CaptureWindowsOfInterest();
             int cnt = 0;
+            if (displayKey == null)
+            {
+                displayKey = GetDisplayKey();
+            }
+
             foreach (var window in appWindows)
             {
                 DateTime now = DateTime.Now;
-                if (CaptureWindow(window, 0, now, null))
+                if (CaptureWindow(window, 0, now, displayKey))
                 {
                     cnt++;
                 }
             }
 
-            Log.Trace("{0} windows captured", cnt);
+            if (cnt > 0)
+            {
+                Log.Trace("{0} windows captured", cnt);
+            }
         }
 
         private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
@@ -299,7 +385,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     );
         }
 
-        private bool NeedUpdateWindow(string displayKey, SystemWindow window, User32Events eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
+        private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
         {
             if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
             {
@@ -393,10 +479,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = true;
                     }
                     */
-                    if (restoringWindowPos)
-                    {
-                        needUpdate = true;
-                    }
+                    monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                 }
                 else
                 {
@@ -413,9 +496,11 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    lock (dataLock)
+                    lock (databaseLock)
                     {
-                        RestoreApplicationsOnCurrentDisplays();
+                        validDisplayKeyForCapture = GetDisplayKey();
+                        restoringWindowPos = true; // this might trigger repeated restore if not handled carefully
+                        RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                         restoringWindowPos = false;
                     }
                 }
@@ -429,21 +514,16 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.Start();
         }
 
-        private bool RestoreApplicationsOnCurrentDisplays(string displayKey = null, SystemWindow sWindow = null)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, SystemWindow sWindow = null)
         {
-            int score = 0;
-            if (displayKey == null)
-            {
-                DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
-                displayKey = metrics.Key;
-            }
+            bool succeed = true;
 
             if (!monitorApplications.ContainsKey(displayKey)
                 || monitorApplications[displayKey].Count == 0)
             {
                 // the display setting has not been captured yet
                 Log.Trace("Unknown display setting {0}", displayKey);
-                return false;
+                return succeed;
             }
 
             Log.Info("Restoring applications for {0}", displayKey);
@@ -482,11 +562,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     IntPtr hwnd = prevDisplayMetrics.HWnd;
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
-                    if (!NeedUpdateWindow(displayKey, window, 0, DateTime.Now, out curDisplayMetrics))
+                    if (!IsWindowMoved(displayKey, window, 0, DateTime.Now, out curDisplayMetrics))
                     {
                         // window position has no change
                         continue;
                     }
+
+                    // block capture for current hwnd
+                    this.curRestoreHwnd = hwnd;
 
                     bool success;
                     // recover NormalPosition (the workspace position prior to snap)
@@ -501,7 +584,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // recover previous screen position
                     RECT rect = prevDisplayMetrics.ScreenPosition;
-                    success |= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         rect.Left,
@@ -510,12 +593,12 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Height,
                         success);
 
-                    if (success)
+                    // unblock capture
+                    this.curRestoreHwnd = IntPtr.Zero;
+
+                    if (!success)
                     {
-                        score++;
-                    }
-                    else
-                    {
+                        succeed = false;
                         string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                         Log.Error(error);
                     }
@@ -524,7 +607,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
-            return score > 0;
+            return succeed;
         }
 
         public void Stop()
@@ -538,6 +621,7 @@ namespace Ninjacrab.PersistentWindows.Common
             SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
             SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
             SystemEvents.PowerModeChanged -= powerModeChangedHandler;
+            SystemEvents.SessionSwitch -= sessionSwitchEventHandler;
 
             foreach (var handle in this.winEventHooks)
             {
