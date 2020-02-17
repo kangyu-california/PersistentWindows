@@ -15,8 +15,8 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int restoreLatency = 1000; // microseconds to wait for second pass of window position recovery
-        private const int minCaptureLatency = 2000; // microseconds to wait for window position capture
+        private const int restoreLatency = 750; // microseconds to wait for second pass of window position recovery
+        private const int minCaptureLatency = 3000; // microseconds to wait for window position capture, should be at least 3 times bigger than restoreLatency
         private const int maxCaptureLatency = 30000; // microseconds to wait for restore before capture OS initiated move 
         private const int maxUserMovePerSecond = 2; // estimate of number of window move/resize by human
 
