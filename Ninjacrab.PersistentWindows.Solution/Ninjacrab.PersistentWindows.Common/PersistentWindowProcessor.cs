@@ -118,8 +118,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changing {0}", date);
-                    // cancel existing capture request
-                    captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    CancelCaptureTimer();
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -130,6 +129,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changed {0}", date);
 
+                    CancelCaptureTimer();
                     restoringWindowPos = true;
                     BeginRestoreApplicationsOnCurrentDisplays();
                 };
@@ -143,12 +143,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Info("System suspending");
-                            // cancel existing capture request
-                            captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                            CancelCaptureTimer();
                             break;
 
                         case PowerModes.Resume:
                             Log.Info("System Resuming");
+                            CancelCaptureTimer();
 
                             break;
                     }
@@ -164,14 +164,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         Log.Trace("Session closing: reason {0}", args.Reason);
-                        // cancel existing capture request
-                        captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                        CancelCaptureTimer();
                         break;
 
                     case SessionSwitchReason.SessionUnlock:
                     case SessionSwitchReason.RemoteConnect:
                     case SessionSwitchReason.ConsoleConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
+                        CancelCaptureTimer();
                         break;
                 }
             };
@@ -238,13 +238,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Trace("os move detected. user moves :{0}, total moved windows : {1}, elapsed milliseconds {2}",
                             userMoves, pendingCaptureWindows.Count, elapsedMs);
                     }
-                    else if (userMoves > 0)
-                    {
-                        osMove = false;
-                    }
 
                     if (restoringWindowPos)
                     {
+                        CancelCaptureTimer();
                         // a new window move is initiated by OS instead of user during restore, restart restore timer
                         restoreTimer.Change(restoreLatency, Timeout.Infinite);
                     }
@@ -255,11 +252,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             userMoves++;
                         }
 
-                        if (userMoves > 0)
-                            osMove = false;
-
-                        // restart capture timer
-                        captureTimer.Change(minCaptureLatency, Timeout.Infinite);
+                        StartCaptureTimer();
                     }
                 }
                 catch (Exception ex)
@@ -324,6 +317,18 @@ namespace Ninjacrab.PersistentWindows.Common
             return metrics.Key;
         }
 
+        private void StartCaptureTimer()
+        {
+            // restart capture timer
+            captureTimer.Change(minCaptureLatency, Timeout.Infinite);
+        }
+
+        private void CancelCaptureTimer()
+        {
+            // restart capture timer
+            captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
         private void BeginCaptureApplicationsOnCurrentDisplays(bool initialCapture = false)
         {
             var thread = new Thread(() =>
@@ -350,7 +355,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (osMove)
                         {
                             // postpone capture to wait for restore
-                            captureTimer.Change(minCaptureLatency, Timeout.Infinite);
+                            StartCaptureTimer();
                             return;
                         }
                     }
