@@ -15,8 +15,8 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int restoreLatency = 750; // milliseconds to wait for second pass of window position recovery
-        private const int minCaptureLatency = 3000; // milliseconds to wait for window position capture, should be at least 3 times bigger than restoreLatency
+        private const int restoreLatency = 1000; // milliseconds to wait for second pass of window position recovery
+        private const int minCaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than restoreLatency
         private const int maxCaptureLatency = 30000; // milliseconds to wait for restore before capture OS initiated move 
         private const int maxUserMovePerSecond = 4; // maximum speed of window move/resize by human
         private const int minOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
@@ -71,8 +71,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             winEventsCaptureDelegate = WinEventProc;
 
-            /*
-            // captures user click, snap and minimize
+            // captures new window, user click, snap and minimize
             this.winEventHooks.Add(User32.SetWinEventHook(
                 User32Events.EVENT_SYSTEM_FOREGROUND,
                 User32Events.EVENT_SYSTEM_FOREGROUND,
@@ -81,7 +80,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
-            */
 
             // captures user dragging
             this.winEventHooks.Add(User32.SetWinEventHook(
@@ -130,8 +128,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Info("Display settings changed {0}", date);
 
                     CancelCaptureTimer();
+
                     restoringWindowPos = true;
-                    BeginRestoreApplicationsOnCurrentDisplays();
+                    StartRestoreTimer();
                 };
 
             SystemEvents.DisplaySettingsChanged += this.displaySettingsChangedHandler;
@@ -241,9 +240,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (restoringWindowPos)
                     {
+                        if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
+                        {
+                            return;
+                        }
                         CancelCaptureTimer();
                         // a new window move is initiated by OS instead of user during restore, restart restore timer
-                        restoreTimer.Change(restoreLatency, Timeout.Infinite);
+                        StartRestoreTimer();
                     }
                     else
                     {
@@ -327,6 +330,11 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        private void StartRestoreTimer()
+        {
+            restoreTimer.Change(restoreLatency, Timeout.Infinite);
         }
 
         private void BeginCaptureApplicationsOnCurrentDisplays(bool initialCapture = false)
