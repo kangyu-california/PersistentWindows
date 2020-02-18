@@ -613,6 +613,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     bool success;
                     // recover NormalPosition (the workspace position prior to snap)
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
+                    {
+                        // When restoring maximized windows, it occasionally switches res and when the maximized setting is restored
+                        // the window thinks it's maximized, but does not eat all the real estate. So we'll temporarily unmaximize then
+                        // re-apply that
+                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        User32.SetWindowPlacement(hwnd, ref windowPlacement);
+                        windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
+                    }
                     success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
@@ -632,7 +641,20 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Top,
                         rect.Width,
                         rect.Height,
-                        (uint)(SetWindowPosFlags.IgnoreZOrder | SetWindowPosFlags.AsynchronousWindowPosition));
+                        SetWindowPosFlags.DoNotActivate |
+                        SetWindowPosFlags.DoNotChangeOwnerZOrder |
+                        SetWindowPosFlags.AsynchronousWindowPosition);
+
+                    success &= User32.SetWindowPos(
+                        window.HWnd,
+                        IntPtr.Zero,
+                        rect.Left,
+                        rect.Top,
+                        rect.Width,
+                        rect.Height,
+                        SetWindowPosFlags.DoNotActivate |
+                        SetWindowPosFlags.DoNotChangeOwnerZOrder);
+
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         rect.Left,
