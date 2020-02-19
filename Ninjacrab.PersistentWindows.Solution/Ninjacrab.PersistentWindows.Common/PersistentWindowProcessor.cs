@@ -15,11 +15,11 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int restoreLatency = 1000; // milliseconds to wait for second pass of window position recovery
-        private const int minCaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than restoreLatency
-        private const int maxCaptureLatency = 30000; // milliseconds to wait for restore before capture OS initiated move 
-        private const int maxUserMovePerSecond = 4; // maximum speed of window move/resize by human
-        private const int minOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
+        private const int RestoreLatency = 1000; // milliseconds to wait for second pass of window position recovery
+        private const int MinCaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than restoreLatency
+        private const int MaxCaptureLatency = 30000; // milliseconds to wait for restore before capture OS initiated move 
+        private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
+        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -229,9 +229,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     // figure out if all pending capture moves are OS initiated
                     double elapsedMs = (now - firstEventTime).TotalMilliseconds;
                     if (userMoves == 0
-                        && pendingCaptureWindows.Count >= minOsMoveWindows
-                        && elapsedMs * maxUserMovePerSecond / 1000 < pendingCaptureWindows.Count
-                        && elapsedMs < maxCaptureLatency)
+                        && pendingCaptureWindows.Count >= MinOsMoveWindows
+                        && elapsedMs * MaxUserMovePerSecond / 1000 < pendingCaptureWindows.Count
+                        && elapsedMs < MaxCaptureLatency)
                     {
                         osMove = true;
                         Log.Trace("os move detected. user moves :{0}, total moved windows : {1}, elapsed milliseconds {2}",
@@ -323,7 +323,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void StartCaptureTimer()
         {
             // restart capture timer
-            captureTimer.Change(minCaptureLatency, Timeout.Infinite);
+            captureTimer.Change(MinCaptureLatency, Timeout.Infinite);
         }
 
         private void CancelCaptureTimer()
@@ -334,7 +334,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void StartRestoreTimer()
         {
-            restoreTimer.Change(restoreLatency, Timeout.Infinite);
+            restoreTimer.Change(RestoreLatency, Timeout.Infinite);
         }
 
         private void BeginCaptureApplicationsOnCurrentDisplays(bool initialCapture = false)
