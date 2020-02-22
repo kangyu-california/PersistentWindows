@@ -460,6 +460,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 WindowPlacement = windowPlacement,
+                NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition
             };
 
@@ -475,10 +476,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // key collision between dead window and new window with the same hwnd
                     monitorApplications[displayKey].Remove(curDisplayMetrics.Key);
-                    needUpdate = true;
-                }
-                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
-                {
                     needUpdate = true;
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
@@ -524,6 +521,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     */
                     //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+                    curDisplayMetrics.NeedUpdateWindowPlacement = true;
+                    needUpdate = true;
+                }
+                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
+                {
                     needUpdate = true;
                 }
                 else
@@ -617,7 +619,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     // block capture for current hwnd
                     this.curRestoreHwnd = hwnd;
 
-                    bool success;
+                    bool success = true;
                     // recover NormalPosition (the workspace position prior to snap)
                     if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                     {
@@ -628,18 +630,22 @@ namespace Ninjacrab.PersistentWindows.Common
                         User32.SetWindowPlacement(hwnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
-                    success = User32.SetWindowPlacement(hwnd, ref windowPlacement);
-                    Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        window.Process.ProcessName,
-                        windowPlacement.NormalPosition.Left,
-                        windowPlacement.NormalPosition.Top,
-                        windowPlacement.NormalPosition.Width,
-                        windowPlacement.NormalPosition.Height,
-                        success);
+                    if (curDisplayMetrics.NeedUpdateWindowPlacement)
+                    {
+                        success &= User32.SetWindowPlacement(hwnd, ref windowPlacement);
+                        Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                            window.Process.ProcessName,
+                            windowPlacement.NormalPosition.Left,
+                            windowPlacement.NormalPosition.Top,
+                            windowPlacement.NormalPosition.Width,
+                            windowPlacement.NormalPosition.Height,
+                            success);
+                    }
 
                     // recover previous screen position
                     RECT rect = prevDisplayMetrics.ScreenPosition;
-                    //success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    /*
                     success &= User32.SetWindowPos(
                         window.HWnd,
                         IntPtr.Zero,
@@ -660,6 +666,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Height,
                         SetWindowPosFlags.DoNotActivate |
                         SetWindowPosFlags.DoNotChangeOwnerZOrder);
+                    */
 
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,

@@ -11,6 +11,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ApplicationName { get; set; }
         public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
+        public bool NeedUpdateWindowPlacement { get; set; }
 
         public static string GetKey(IntPtr hWnd, string applicationName)
         {
