@@ -439,6 +439,11 @@ namespace Ninjacrab.PersistentWindows.Common
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
             RECT screenPosition = new RECT();
             User32.GetWindowRect(hwnd, ref screenPosition);
+            if (screenPosition.Top < 0 && screenPosition.Top > -15)
+            {
+                // automatically fix small negative y coordinate to avoid repeated recovery failure
+                screenPosition.Top = 0;
+            }
 
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
@@ -518,7 +523,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = true;
                     }
                     */
-                    monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+                    //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
+                    needUpdate = true;
                 }
                 else
                 {
