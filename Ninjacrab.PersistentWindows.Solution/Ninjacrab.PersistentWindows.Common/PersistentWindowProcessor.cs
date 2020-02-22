@@ -38,7 +38,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // restore control
         private bool restoringWindowPos = false; // about to restore
-        private IntPtr curRestoreHwnd = IntPtr.Zero; // current Hwnd being restored
 
         // callbacks
         private PowerModeChangedEventHandler powerModeChangedHandler;
@@ -180,11 +179,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            if (hwnd == this.curRestoreHwnd)
-            {
-                return; // ignore expected event to avoid message loop
-            }
-
             var window = new SystemWindow(hwnd);
             if (!User32.IsTopLevelWindow(hwnd))
             {
@@ -548,6 +542,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         validDisplayKeyForCapture = GetDisplayKey();
                         restoringWindowPos = true; // this might trigger repeated restore if not handled carefully
                         RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
+                        Thread.Sleep(500);
                         restoringWindowPos = false;
                         osMove = false; // avoid capture timer loop
                     }
@@ -616,9 +611,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
-                    // block capture for current hwnd
-                    this.curRestoreHwnd = hwnd;
-
                     bool success = true;
                     // recover NormalPosition (the workspace position prior to snap)
                     if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
@@ -645,7 +637,19 @@ namespace Ninjacrab.PersistentWindows.Common
                     // recover previous screen position
                     RECT rect = prevDisplayMetrics.ScreenPosition;
                     success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+
                     /*
+                    success &= User32.SetWindowPos(
+                        window.HWnd,
+                        IntPtr.Zero,
+                        rect.Left,
+                        rect.Top,
+                        rect.Width,
+                        rect.Height,
+                        SetWindowPosFlags.DoNotRedraw |
+                        SetWindowPosFlags.DoNotActivate |
+                        SetWindowPosFlags.DoNotChangeOwnerZOrder);
+
                     success &= User32.SetWindowPos(
                         window.HWnd,
                         IntPtr.Zero,
@@ -656,16 +660,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         SetWindowPosFlags.DoNotActivate |
                         SetWindowPosFlags.DoNotChangeOwnerZOrder |
                         SetWindowPosFlags.AsynchronousWindowPosition);
-
-                    success &= User32.SetWindowPos(
-                        window.HWnd,
-                        IntPtr.Zero,
-                        rect.Left,
-                        rect.Top,
-                        rect.Width,
-                        rect.Height,
-                        SetWindowPosFlags.DoNotActivate |
-                        SetWindowPosFlags.DoNotChangeOwnerZOrder);
                     */
 
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
@@ -675,9 +669,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Width,
                         rect.Height,
                         success);
-
-                    // unblock capture
-                    this.curRestoreHwnd = IntPtr.Zero;
 
                     if (!success)
                     {
