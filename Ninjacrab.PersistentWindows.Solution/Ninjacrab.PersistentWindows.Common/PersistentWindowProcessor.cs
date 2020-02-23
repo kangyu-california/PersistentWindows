@@ -17,7 +17,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // constant
         private const int RestoreLatency = 500; // milliseconds to wait for second pass of window position recovery
         private const int MinCaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
-        private const int MaxCaptureLatency = 10000; // milliseconds to wait during restore to avoid capture OS initiated move
+        private const int MaxCaptureLatency = 15000; // milliseconds to wait during restore to avoid capture OS initiated move
         private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
         private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
         private const int MaxRestoreTimes = 6;
@@ -41,7 +41,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool restoringWindowPos = false; // about to restore
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
-        private bool restoreFinished = false;
 
         // callbacks
         private PowerModeChangedEventHandler powerModeChangedHandler;
@@ -96,8 +95,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // captures user restore window
             this.winEventHooks.Add(User32.SetWinEventHook(
+                User32Events.EVENT_SYSTEM_MINIMIZESTART,
                 User32Events.EVENT_SYSTEM_MINIMIZEEND, //window restored
-                User32Events.EVENT_SYSTEM_MINIMIZEEND,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -133,7 +132,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     CancelCaptureTimer();
 
                     restoringWindowPos = true;
-                    restoreFinished = false;
                     BeginRestoreApplicationsOnCurrentDisplays();
                 };
 
@@ -246,10 +244,22 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (restoringWindowPos)
                     {
-                        if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
+                        switch (eventType)
                         {
-                            return;
+                            case User32Events.EVENT_SYSTEM_FOREGROUND:
+                                // if user opened new window, don't abort restore, as new window is not affected by restore anyway
+                                return;
+                            case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                                break;
+                            case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                            case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                            case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                                Log.Trace("User aborted restore by actively maneuver window");
+                                StartCaptureApplicationsOnCurrentDisplays();
+                                return;
                         }
+                            
                         CancelCaptureTimer();
                         // a new window move is initiated by OS instead of user during restore, restart restore timer
                         StartRestoreTimer();
@@ -377,7 +387,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (osMove)
                         {
                             // postpone capture to wait for restore
-                            //StartCaptureTimer(MaxCaptureLatency);
+                            StartCaptureTimer(MaxCaptureLatency);
                             return;
                         }
                     }
@@ -574,8 +584,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             var thread = new Thread(() =>
             {
-                if (restoreFinished || restoreNestLevel > 1)
+                if (restoreNestLevel > 1)
                 {
+                    // avoid overloading CPU due to too many restore threads ready to run
                     return;
                 }
                 restoreNestLevel++;
@@ -590,11 +601,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             validDisplayKeyForCapture = GetDisplayKey();
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
+
+                            // postpone capture to wait for recovery from more OS moves
                             StartCaptureTimer(MaxCaptureLatency);
                         }
                         else
                         {
-                            restoreFinished = true;
+                            // restore finished
                             StartCaptureApplicationsOnCurrentDisplays();
                         }
                     }
