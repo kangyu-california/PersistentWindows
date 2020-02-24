@@ -30,6 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Timer captureTimer;
         private Timer restoreTimer;
         private Object databaseLock; // lock access to window position database
+        private Object controlLock = new Object();
         private string validDisplayKeyForCapture = null;
 
         // capture control: window move/resize activity
@@ -611,12 +612,15 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             var thread = new Thread(() =>
             {
-                if (restoreNestLevel > 1)
+                lock (controlLock)
                 {
-                    // avoid overloading CPU due to too many restore threads ready to run
-                    return;
+                    if (restoreNestLevel > 1)
+                    {
+                        // avoid overloading CPU due to too many restore threads ready to run
+                        return;
+                    }
+                    restoreNestLevel++;
                 }
-                restoreNestLevel++;
 
                 try
                 {
@@ -644,7 +648,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(ex.ToString());
                 }
 
-                restoreNestLevel--;
+                lock (controlLock)
+                {
+                    restoreNestLevel--;
+                }
             });
             thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
