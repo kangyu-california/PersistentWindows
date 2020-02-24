@@ -34,14 +34,16 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control: window move/resize activity
         private int userMoves = 0; // user initiated window move/resize events
-        private bool osMove = false; // window move/resize is initiated by OS
         private DateTime firstEventTime;
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
 
         // restore control
         private bool restoringWindowPos = false; // about to restore
+        private bool osMove = false; // window move/resize is initiated by OS
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
+
+        // session control
         private bool remoteSession = false;
 
         // callbacks
@@ -120,7 +122,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changing {0}", date);
-                    CancelCaptureTimer();
+                    ResetState();
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -131,7 +133,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     DateTime date = DateTime.Now;
                     Log.Info("Display settings changed {0}", date);
 
-                    CancelCaptureTimer();
+                    ResetState();
 
                     restoringWindowPos = true;
                     BeginRestoreApplicationsOnCurrentDisplays();
@@ -146,13 +148,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Info("System suspending");
-                            CancelCaptureTimer();
+                            ResetState();
                             break;
 
                         case PowerModes.Resume:
                             Log.Info("System Resuming");
-                            CancelCaptureTimer();
-
+                            ResetState();
                             break;
                     }
                 };
@@ -164,12 +165,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 switch (args.Reason)
                 {
                     case SessionSwitchReason.RemoteDisconnect:
-                        remoteSession = false;
-                        goto case SessionSwitchReason.SessionLock;
                     case SessionSwitchReason.SessionLock:
                     case SessionSwitchReason.ConsoleDisconnect:
                         Log.Trace("Session closing: reason {0}", args.Reason);
-                        CancelCaptureTimer();
+                        ResetState();
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
@@ -428,19 +427,27 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.Start();
         }
 
-        private void StartCaptureApplicationsOnCurrentDisplays()
+        private void ResetState()
         {
             // end of restore period
             CancelRestoreTimer();
-            restoringWindowPos = false;
             restoreTimes = 0;
+            restoreNestLevel = 0;
 
             // reset capture statistics for next capture period
             CancelCaptureTimer();
             pendingCaptureWindows.Clear();
             userMoves = 0;
-            osMove = false;
 
+            // session control
+            remoteSession = false;
+        }
+
+        private void StartCaptureApplicationsOnCurrentDisplays()
+        {
+            restoringWindowPos = false;
+            osMove = false;
+            ResetState();
             CaptureApplicationsOnCurrentDisplays();
         }
 
