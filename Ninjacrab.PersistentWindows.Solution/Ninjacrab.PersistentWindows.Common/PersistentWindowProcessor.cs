@@ -20,7 +20,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxCaptureLatency = 15000; // milliseconds to wait during restore to avoid capture OS initiated move
         private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
         private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
-        private const int MaxRestoreTimes = 6;
+        private const int MaxRestoreTimes = 4;
+        private const int MaxRestoreTimesRemote = 12;
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -41,6 +42,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool restoringWindowPos = false; // about to restore
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
+        private bool remoteSession = false;
 
         // callbacks
         private PowerModeChangedEventHandler powerModeChangedHandler;
@@ -161,15 +163,19 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 switch (args.Reason)
                 {
-                    case SessionSwitchReason.SessionLock:
                     case SessionSwitchReason.RemoteDisconnect:
+                        remoteSession = false;
+                        goto case SessionSwitchReason.SessionLock;
+                    case SessionSwitchReason.SessionLock:
                     case SessionSwitchReason.ConsoleDisconnect:
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         CancelCaptureTimer();
                         break;
 
-                    case SessionSwitchReason.SessionUnlock:
                     case SessionSwitchReason.RemoteConnect:
+                        remoteSession = true;
+                        goto case SessionSwitchReason.SessionUnlock;
+                    case SessionSwitchReason.SessionUnlock:
                     case SessionSwitchReason.ConsoleConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         CancelCaptureTimer();
@@ -256,7 +262,21 @@ namespace Ninjacrab.PersistentWindows.Common
                             case User32Events.EVENT_SYSTEM_MOVESIZESTART:
                             case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                                 Log.Trace("User aborted restore by actively maneuver window");
-                                StartCaptureApplicationsOnCurrentDisplays();
+                                var thread = new Thread(() =>
+                                {
+                                    try
+                                    {
+                                        lock (databaseLock)
+                                        {
+                                            StartCaptureApplicationsOnCurrentDisplays();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Log.Error(ex.ToString());
+                                    }
+                                });
+                                thread.Start();
                                 return;
                         }
                             
@@ -596,7 +616,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     lock (databaseLock)
                     {
                         CancelCaptureTimer();
-                        if (restoreTimes < MaxRestoreTimes)
+                        if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimes))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
