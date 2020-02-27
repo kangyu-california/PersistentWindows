@@ -24,9 +24,10 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Installation
 - Download latest zip file from https://github.com/kangyu-california/PersistentWindows/releases
 - Unzip the file into any directory, do NOT choose C:\Program Files\ unless you want to run the program with admin privilege.
-- Optionally create a shortcut to PersistentWindows.exe in C:\Users<your user>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup to automatically start the program when computer powers up.
+- Optionally create a shortcut to PersistentWindows.exe in C:\Users\\<your_user_id>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup to automatically start the program when computer powers up.
 
 # Use instructions
 - Run PersistentWindows.exe, a splash window will pop up, indicating the program has started successfully.
 - PersistentWindows will automatically save window positions and restore them when monitor setup is changed or when user login to previous session.
-- There will be an icon in the system tray area on task bar. Right click the icon and select "ShutDown" to exit the program. Please ignore other menu options which is intended for DEBUG purpose only. 
+- There will be an icon in the systray area on task bar. Right click the icon and select "ShutDown" to exit the program. Please ignore other menu options which is intended for DEBUG purpose only.
+- In the rare case of failed window restoration, please immediately sleep the computer and wake it up again (or immediately restart remote desktop session) to trigger automated restore process again. Do not maneuver any window during the critical period to improve the chance of successful rescue.
