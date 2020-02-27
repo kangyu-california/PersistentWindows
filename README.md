@@ -21,3 +21,12 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Remote desktop session also benefits from running this software on target machine, whether monitor setup matches or not.
 - Can be run as Windows startup job
 
+# Installation
+- Download latest zip file from https://github.com/kangyu-california/PersistentWindows/releases
+- Unzip the file into any directory, do NOT choose C:\Program Files\ unless you want to run the program with admin privilege.
+- Optionally create a shortcut to PersistentWindows.exe in C:\Users<your user>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup to automatically start the program when computer powers up.
+
+# Use instructions
+- Run PersistentWindows.exe, a splash window will pop up, indicating the program has started successfully.
+- PersistentWindows will automatically save window positions and restore them when monitor setup is changed or when user login to previous session.
+- There will be an icon in the system tray area on task bar. Right click the icon and select "ShutDown" to exit the program. Please ignore other menu options which is intended for DEBUG purpose only. 
