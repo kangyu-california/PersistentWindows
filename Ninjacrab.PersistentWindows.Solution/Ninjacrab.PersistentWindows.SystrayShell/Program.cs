@@ -28,10 +28,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
 #endif
 
-            StartSplashForm();
-
             pwp = new PersistentWindowProcessor();
             pwp.Start();
+
+            StartSplashForm();
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

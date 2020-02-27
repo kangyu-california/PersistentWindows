@@ -15,13 +15,14 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        private const int RestoreLatency = 500; // milliseconds to wait for second pass of window position recovery
-        private const int MinCaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
-        private const int MaxCaptureLatency = 15000; // milliseconds to wait during restore to avoid capture OS initiated move
-        private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
-        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
+        private const int RestoreLatency = 500; // milliseconds to wait for next pass of window position recovery
+        private const int MaxRestoreLatency = 15000; // max milliseconds to wait after previous restore pass to tell if restore is finished
         private const int MaxRestoreTimes = 4;
         private const int MaxRestoreTimesRemote = 12;
+
+        private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
+        private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
+        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -29,6 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // control shared by capture and restore
         private Timer captureTimer;
         private Timer restoreTimer;
+        private Timer restoreFinishedTimer;
         private Object databaseLock; // lock access to window position database
         private Object controlLock = new Object();
         private string validDisplayKeyForCapture = null;
@@ -60,9 +62,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
             databaseLock = new object();
-            firstEventTime = DateTime.Now;
-            validDisplayKeyForCapture = GetDisplayKey();
-            BeginCaptureApplicationsOnCurrentDisplays(initialCapture:true);
 
             captureTimer = new Timer(state =>
             {
@@ -70,10 +69,22 @@ namespace Ninjacrab.PersistentWindows.Common
                 BeginCaptureApplicationsOnCurrentDisplays();
             });
 
+            firstEventTime = DateTime.Now;
+            validDisplayKeyForCapture = GetDisplayKey();
+            StartCaptureTimer(); //initial capture
+
             restoreTimer = new Timer(state =>
             {
                 Log.Trace("Restore timer expired");
                 BeginRestoreApplicationsOnCurrentDisplays();
+            });
+
+            restoreFinishedTimer = new Timer(state =>
+            {
+                Log.Trace("Restore Finished");
+                restoringWindowPos = false;
+                osMove = false;
+                ResetState();
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -176,7 +187,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         remoteSession = true;
                         goto case SessionSwitchReason.SessionUnlock;
                     case SessionSwitchReason.SessionUnlock:
+                        Log.Trace("Session opening: reason {0}", args.Reason);
+                        CancelCaptureTimer();
+                        break;
+
                     case SessionSwitchReason.ConsoleConnect:
+                        // session control
+                        remoteSession = false;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         CancelCaptureTimer();
                         break;
@@ -359,7 +376,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return metrics.Key;
         }
 
-        private void StartCaptureTimer(int milliSeconds = MinCaptureLatency)
+        private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
             // restart capture timer
             captureTimer.Change(milliSeconds, Timeout.Infinite);
@@ -381,7 +398,12 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void BeginCaptureApplicationsOnCurrentDisplays(bool initialCapture = false)
+        private void StartRestoreFinishedTimer(int milliSecond)
+        {
+            restoreFinishedTimer.Change(milliSecond, Timeout.Infinite);
+        }
+
+        private void BeginCaptureApplicationsOnCurrentDisplays()
         {
             var thread = new Thread(() =>
             {
@@ -395,21 +417,20 @@ namespace Ninjacrab.PersistentWindows.Common
                         return;
                     }
 
-                    if (!initialCapture)
+                    if (restoringWindowPos && userMoves == 0 && pendingCaptureWindows.Count == 0)
                     {
-                        if (userMoves == 0 && pendingCaptureWindows.Count == 0)
-                        {
-                            osMove = false;
-                            // avoid trigger capture timer repeatedly
-                            return;
-                        }
+                        return;
+                    }
 
-                        if (osMove)
+                    if (osMove)
+                    {
+                        // postpone capture to wait for restore
+                        osMove = false;
+                        if (!restoringWindowPos)
                         {
-                            // postpone capture to wait for restore
-                            StartCaptureTimer(MaxCaptureLatency);
-                            return;
+                            StartCaptureTimer(MaxRestoreLatency);
                         }
+                        return;
                     }
 
                     lock (databaseLock)
@@ -439,9 +460,6 @@ namespace Ninjacrab.PersistentWindows.Common
             CancelCaptureTimer();
             pendingCaptureWindows.Clear();
             userMoves = 0;
-
-            // session control
-            remoteSession = false;
         }
 
         private void StartCaptureApplicationsOnCurrentDisplays()
@@ -502,11 +520,6 @@ namespace Ninjacrab.PersistentWindows.Common
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
-            //if (window.Position.Height == 0 || window.Position.Width == 0)
-            //{
-            //    return false;
-            //}
-
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
             RECT screenPosition = new RECT();
             User32.GetWindowRect(hwnd, ref screenPosition);
@@ -535,10 +548,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 ScreenPosition = screenPosition
             };
 
-            bool needUpdate = false;
+            bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
             {
-                needUpdate = true;
+                moved = true;
             }
             else
             {
@@ -547,10 +560,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // key collision between dead window and new window with the same hwnd
                     monitorApplications[displayKey].Remove(curDisplayMetrics.Key);
-                    needUpdate = true;
+                    moved = true;
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
+                    /*
                     Log.Trace("Unexpected WindowPlacement.NormalPosition change if ScreenPosition keep same {0} {1} {2}",
                         window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
 
@@ -571,7 +585,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("{0}", log);
                     Log.Trace("{0}", log2);
 
-                    /*
                     if (monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement)
                     {
                         Log.Trace("Try recover previous placement");
@@ -593,11 +606,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     */
                     //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
-                    needUpdate = true;
+                    moved = true;
                 }
                 else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
-                    needUpdate = true;
+                    moved = true;
                 }
                 else
                 {
@@ -605,7 +618,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            return needUpdate;
+            return moved;
         }
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
@@ -633,13 +646,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
 
-                            // postpone capture to wait for recovery from more OS moves
-                            StartCaptureTimer(MaxCaptureLatency);
+                            // schedule finish restore
+                            StartRestoreFinishedTimer(MaxRestoreLatency);
                         }
                         else
                         {
-                            // restore finished
-                            StartCaptureApplicationsOnCurrentDisplays();
+                            // immediately finish restore
+                            StartRestoreFinishedTimer(0);
                         }
                     }
                 }
