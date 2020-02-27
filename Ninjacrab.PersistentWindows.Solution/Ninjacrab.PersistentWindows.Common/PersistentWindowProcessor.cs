@@ -646,6 +646,19 @@ namespace Ninjacrab.PersistentWindows.Common
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
 
+                            // force next restore, as Windows OS might not send expected message during restore
+                            if (restoreTimes < MaxRestoreTimes)
+                            {
+                                if (remoteSession)
+                                {
+                                    StartRestoreTimer(1000);
+                                }
+                                else
+                                {
+                                    StartRestoreTimer();
+                                }
+                            }
+
                             // schedule finish restore
                             StartRestoreFinishedTimer(MaxRestoreLatency);
                         }
