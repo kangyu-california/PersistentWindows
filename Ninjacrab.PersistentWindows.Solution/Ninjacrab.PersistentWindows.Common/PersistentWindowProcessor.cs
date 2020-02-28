@@ -21,6 +21,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 12;
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
+        private const int MaxCaptureLatency = 30000; // max latency to capture OS moves, needed for slow RDP session
         private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
         private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
@@ -428,7 +429,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         osMove = false;
                         if (!restoringWindowPos)
                         {
-                            StartCaptureTimer(MaxRestoreLatency);
+                            StartCaptureTimer(MaxCaptureLatency);
                         }
                         return;
                     }
