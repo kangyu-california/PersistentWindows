@@ -17,11 +17,12 @@ namespace Ninjacrab.PersistentWindows.Common
         // constant
         private const int RestoreLatency = 500; // milliseconds to wait for next pass of window position recovery
         private const int MaxRestoreLatency = 15000; // max milliseconds to wait after previous restore pass to tell if restore is finished
-        private const int MaxRestoreTimes = 4;
-        private const int MaxRestoreTimesRemote = 12;
+        private const int MinRestoreTimes = 4; // restores with fixed RestoreLatency
+        private const int MaxRestoreTimesLocal = 6; // Max restores activated by further window event for local console session
+        private const int MaxRestoreTimesRemote = 10; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
-        private const int MaxCaptureLatency = 30000; // max latency to capture OS moves, needed for slow RDP session
+        private const int MaxCaptureLatency = 15000; // max latency to capture OS moves, needed for slow RDP session
         private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
         private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
@@ -218,112 +219,109 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            /*
-            Thread captureWindowThread = new Thread(() =>
+            try
             {
-            */
-                try
-                {
 #if DEBUG
-                if (window.Title.Contains("Microsoft Visual Studio") 
-                    && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE 
-                        || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
-                {
-                    return;
-                }
+            if (window.Title.Contains("Microsoft Visual Studio") 
+                && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE 
+                    || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
+            {
+                return;
+            }
 #endif                
-                Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
+            Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 #if DEBUG
-                    RECT screenPosition = new RECT();
-                    User32.GetWindowRect(hwnd, ref screenPosition);
-                    string log = string.Format("Defer consumption of window move message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
-                        window.Process.ProcessName,
-                        screenPosition.Left,
-                        screenPosition.Top,
-                        screenPosition.Width,
-                        screenPosition.Height,
-                        window.Title
-                        );
-                    Log.Trace(log);
+                RECT screenPosition = new RECT();
+                User32.GetWindowRect(hwnd, ref screenPosition);
+                string log = string.Format("Defer consumption of window move message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
+                    window.Process.ProcessName,
+                    screenPosition.Left,
+                    screenPosition.Top,
+                    screenPosition.Width,
+                    screenPosition.Height,
+                    window.Title
+                    );
+                Log.Trace(log);
 #endif
 
-                    DateTime now = DateTime.Now;
+                DateTime now = DateTime.Now;
 
-                    if (pendingCaptureWindows.Count() == 0)
-                    {
-                        firstEventTime = now;
-                    }
-                    pendingCaptureWindows.Add(hwnd);
-
-                    // figure out if all pending capture moves are OS initiated
-                    double elapsedMs = (now - firstEventTime).TotalMilliseconds;
-                    if (userMoves == 0
-                        && pendingCaptureWindows.Count >= MinOsMoveWindows
-                        && elapsedMs * MaxUserMovePerSecond / 1000 < pendingCaptureWindows.Count)
-                    {
-                        osMove = true;
-                        Log.Trace("os move detected. user moves :{0}, total moved windows : {1}, elapsed milliseconds {2}",
-                            userMoves, pendingCaptureWindows.Count, elapsedMs);
-                    }
-
-                    if (restoringWindowPos)
-                    {
-                        switch (eventType)
-                        {
-                            case User32Events.EVENT_SYSTEM_FOREGROUND:
-                                // if user opened new window, don't abort restore, as new window is not affected by restore anyway
-                                return;
-                            case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
-                                break;
-                            case User32Events.EVENT_SYSTEM_MINIMIZESTART:
-                            case User32Events.EVENT_SYSTEM_MINIMIZEEND:
-                            case User32Events.EVENT_SYSTEM_MOVESIZESTART:
-                            case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                                Log.Trace("User aborted restore by actively maneuver window");
-                                var thread = new Thread(() =>
-                                {
-                                    try
-                                    {
-                                        lock (databaseLock)
-                                        {
-                                            StartCaptureApplicationsOnCurrentDisplays();
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Log.Error(ex.ToString());
-                                    }
-                                });
-                                thread.Start();
-                                return;
-                        }
-                            
-                        CancelCaptureTimer();
-                        // a new window move is initiated by OS instead of user during restore, restart restore timer
-                        StartRestoreTimer();
-                    }
-                    else
-                    {
-                        if (eventType != User32Events.EVENT_OBJECT_LOCATIONCHANGE)
-                        {
-                            userMoves++;
-                        }
-
-                        if (userMoves > 0)
-                        {
-                            StartCaptureTimer();
-                        }
-                    }
-                }
-                catch (Exception ex)
+                if (pendingCaptureWindows.Count() == 0)
                 {
-                    Log.Error(ex.ToString());
+                    firstEventTime = now;
                 }
-            /*
-            });
-            captureWindowThread.IsBackground = false;
-            captureWindowThread.Start();
-            */
+                pendingCaptureWindows.Add(hwnd);
+
+                // figure out if all pending capture moves are OS initiated
+                double elapsedMs = (now - firstEventTime).TotalMilliseconds;
+                if (userMoves == 0
+                    && pendingCaptureWindows.Count >= MinOsMoveWindows
+                    && elapsedMs * MaxUserMovePerSecond / 1000 < pendingCaptureWindows.Count)
+                {
+                    osMove = true;
+                    Log.Trace("os move detected. user moves :{0}, total moved windows : {1}, elapsed milliseconds {2}",
+                        userMoves, pendingCaptureWindows.Count, elapsedMs);
+                }
+
+                if (restoringWindowPos)
+                {
+                    switch (eventType)
+                    {
+                        case User32Events.EVENT_SYSTEM_FOREGROUND:
+                            // if user opened new window, don't abort restore, as new window is not affected by restore anyway
+                            return;
+                        case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            break;
+                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                        case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                            Log.Trace("User aborted restore by actively maneuver window");
+                            var thread = new Thread(() =>
+                            {
+                                try
+                                {
+                                    lock (databaseLock)
+                                    {
+                                        StartCaptureApplicationsOnCurrentDisplays();
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error(ex.ToString());
+                                }
+                            });
+                            thread.Start();
+                            return;
+                    }
+                            
+                    CancelCaptureTimer();
+                    lock(controlLock)
+                    {
+                        if (restoreTimes >= MinRestoreTimes)
+                        {
+                            // a new window move is initiated by OS instead of user during restore, restart restore timer
+                            StartRestoreTimer();
+                        }
+                    }
+                }
+                else
+                {
+                    if (eventType != User32Events.EVENT_OBJECT_LOCATIONCHANGE)
+                    {
+                        userMoves++;
+                    }
+
+                    if (userMoves > 0)
+                    {
+                        StartCaptureTimer();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
         }
 
         private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey)
@@ -389,9 +387,13 @@ namespace Ninjacrab.PersistentWindows.Common
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void StartRestoreTimer(int milliSecond = RestoreLatency)
+        private void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false)
         {
             restoreTimer.Change(milliSecond, Timeout.Infinite);
+            if (wait)
+            {
+                Thread.Sleep(milliSecond);
+            }
         }
 
         private void CancelRestoreTimer()
@@ -402,6 +404,11 @@ namespace Ninjacrab.PersistentWindows.Common
         private void StartRestoreFinishedTimer(int milliSecond)
         {
             restoreFinishedTimer.Change(milliSecond, Timeout.Infinite);
+        }
+
+        private void CancelRestoreFinishedTimer(int milliSecond)
+        {
+            restoreFinishedTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
         private void BeginCaptureApplicationsOnCurrentDisplays()
@@ -624,50 +631,46 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BeginRestoreApplicationsOnCurrentDisplays()
         {
+            lock (controlLock)
+            {
+                CancelCaptureTimer();
+
+                if (restoreNestLevel > 1)
+                {
+                    // avoid overloading CPU due to too many restore threads ready to run
+                    Log.Trace("restore busy");
+                    return;
+                }
+                restoreNestLevel++;
+            }
+
             var thread = new Thread(() =>
             {
-                lock (controlLock)
-                {
-                    if (restoreNestLevel > 1)
-                    {
-                        // avoid overloading CPU due to too many restore threads ready to run
-                        return;
-                    }
-                    restoreNestLevel++;
-                }
-
                 try
                 {
-                    lock (databaseLock)
+                    CancelRestoreFinishedTimer(MaxRestoreLatency);
+                    if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                     {
-                        CancelCaptureTimer();
-                        if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimes))
+                        lock (databaseLock)
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
 
-                            // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < MaxRestoreTimes)
-                            {
-                                if (remoteSession)
-                                {
-                                    StartRestoreTimer(1000);
-                                }
-                                else
-                                {
-                                    StartRestoreTimer();
-                                }
-                            }
-
                             // schedule finish restore
                             StartRestoreFinishedTimer(MaxRestoreLatency);
+
+                            // force next restore, as Windows OS might not send expected message during restore
+                            if (restoreTimes < MinRestoreTimes)
+                            {
+                                StartRestoreTimer(wait: remoteSession);
+                            }
                         }
-                        else
-                        {
-                            // immediately finish restore
-                            StartRestoreFinishedTimer(0);
-                        }
+                    }
+                    else
+                    {
+                        // immediately finish restore
+                        StartRestoreFinishedTimer(0);
                     }
                 }
                 catch (Exception ex)
@@ -740,7 +743,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     bool success = true;
-                    if (curDisplayMetrics.NeedUpdateWindowPlacement)
+                    if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                     {
                         // recover NormalPosition (the workspace position prior to snap)
                         if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
