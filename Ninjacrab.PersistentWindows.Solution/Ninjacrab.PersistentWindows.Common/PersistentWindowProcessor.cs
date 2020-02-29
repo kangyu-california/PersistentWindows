@@ -17,9 +17,9 @@ namespace Ninjacrab.PersistentWindows.Common
         // constant
         private const int RestoreLatency = 500; // milliseconds to wait for next pass of window position recovery
         private const int MaxRestoreLatency = 5000; // max milliseconds to wait after previous restore pass to tell if restore is finished
-        private const int MinRestoreTimes = 4; // restores with fixed RestoreLatency
-        private const int MaxRestoreTimesLocal = 6; // Max restores activated by further window event for local console session
-        private const int MaxRestoreTimesRemote = 10; // for remote session
+        private const int MinRestoreTimes = 2; // restores with fixed RestoreLatency
+        private const int MaxRestoreTimesLocal = 4; // Max restores activated by further window event for local console session
+        private const int MaxRestoreTimesRemote = 6; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
         private const int MaxCaptureLatency = 15000; // max latency to capture OS moves, needed for slow RDP session
@@ -150,7 +150,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     ResetState();
 
                     restoringWindowPos = true;
-                    BeginRestoreApplicationsOnCurrentDisplays();
+                    StartRestoreTimer();
                 };
 
             SystemEvents.DisplaySettingsChanged += this.displaySettingsChangedHandler;
