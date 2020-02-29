@@ -16,7 +16,7 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // constant
         private const int RestoreLatency = 500; // milliseconds to wait for next pass of window position recovery
-        private const int MaxRestoreLatency = 15000; // max milliseconds to wait after previous restore pass to tell if restore is finished
+        private const int MaxRestoreLatency = 5000; // max milliseconds to wait after previous restore pass to tell if restore is finished
         private const int MinRestoreTimes = 4; // restores with fixed RestoreLatency
         private const int MaxRestoreTimesLocal = 6; // Max restores activated by further window event for local console session
         private const int MaxRestoreTimesRemote = 10; // for remote session
@@ -222,14 +222,14 @@ namespace Ninjacrab.PersistentWindows.Common
             try
             {
 #if DEBUG
-            if (window.Title.Contains("Microsoft Visual Studio") 
-                && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE 
-                    || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
-            {
-                return;
-            }
-#endif                
-            Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
+                if (window.Title.Contains("Microsoft Visual Studio")
+                    && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
+                        || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
+                {
+                    return;
+                }
+#endif
+                Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 #if DEBUG
                 RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
@@ -294,9 +294,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             thread.Start();
                             return;
                     }
-                            
+
                     CancelCaptureTimer();
-                    lock(controlLock)
+                    lock (controlLock)
                     {
                         if (restoreTimes >= MinRestoreTimes)
                         {
@@ -459,15 +459,18 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void ResetState()
         {
-            // end of restore period
-            CancelRestoreTimer();
-            restoreTimes = 0;
-            restoreNestLevel = 0;
+            lock(controlLock)
+            {
+                // end of restore period
+                CancelRestoreTimer();
+                restoreTimes = 0;
+                restoreNestLevel = 0;
 
-            // reset capture statistics for next capture period
-            CancelCaptureTimer();
-            pendingCaptureWindows.Clear();
-            userMoves = 0;
+                // reset capture statistics for next capture period
+                CancelCaptureTimer();
+                pendingCaptureWindows.Clear();
+                userMoves = 0;
+            }
         }
 
         private void StartCaptureApplicationsOnCurrentDisplays()
@@ -653,10 +656,10 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    CancelRestoreFinishedTimer(MaxRestoreLatency);
-                    if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
+                    lock (databaseLock)
                     {
-                        lock (databaseLock)
+                        CancelRestoreFinishedTimer(MaxRestoreLatency);
+                        if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
@@ -671,11 +674,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreTimer(wait: remoteSession);
                             }
                         }
-                    }
-                    else
-                    {
-                        // immediately finish restore
-                        StartRestoreFinishedTimer(0);
+                        else
+                        {
+                            // immediately finish restore
+                            StartRestoreFinishedTimer(0);
+                        }
                     }
                 }
                 catch (Exception ex)
