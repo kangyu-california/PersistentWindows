@@ -336,7 +336,6 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics curDisplayMetrics = null;
             if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics))
             {
-                Log.Trace("Capturing windows for display setting {0}", displayKey);
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} ",
                     curDisplayMetrics,
                     curDisplayMetrics.ScreenPosition.Left,
@@ -490,6 +489,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 displayKey = GetDisplayKey();
             }
 
+            Log.Trace("Capturing windows for display setting {0}", displayKey);
             foreach (var window in appWindows)
             {
                 DateTime now = DateTime.Now;
@@ -509,7 +509,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             return SystemWindow.AllToplevelWindows
                                 .Where(row => row.Parent.HWnd.ToInt64() == 0
-                                    && !string.IsNullOrEmpty(row.Title)
+                                    //&& !string.IsNullOrEmpty(row.Title)
                                     //&& !row.Title.Equals("Program Manager")
                                     //&& !row.Title.Contains("Task Manager")
                                     //&& row.Position.Height != 0
@@ -523,6 +523,16 @@ namespace Ninjacrab.PersistentWindows.Common
             curDisplayMetrics = null;
 
             if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
+            {
+                return false;
+            }
+
+            if (window.ClassName.Contains("Shell_TrayWnd"))
+            {
+                // capture task bar
+                int i = 0;
+            }
+            else if (string.IsNullOrEmpty(window.Title))
             {
                 return false;
             }
