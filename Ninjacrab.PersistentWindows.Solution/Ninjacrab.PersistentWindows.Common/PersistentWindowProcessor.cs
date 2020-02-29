@@ -633,6 +633,11 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock (controlLock)
             {
+                if (!restoringWindowPos)
+                {
+                    return;
+                }
+
                 CancelCaptureTimer();
 
                 if (restoreNestLevel > 1)
