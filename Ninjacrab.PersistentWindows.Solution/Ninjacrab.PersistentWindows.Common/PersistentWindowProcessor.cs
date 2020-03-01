@@ -22,9 +22,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 6; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
-        private const int MaxCaptureLatency = 15000; // max latency to capture OS moves, needed for slow RDP session
-        private const int MaxUserMovePerSecond = 4; // maximum speed of window move/resize by human
-        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -37,14 +34,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private Object controlLock = new Object();
         private string validDisplayKeyForCapture = null;
 
-        // capture control: window move/resize activity
-        private int userMoves = 0; // user initiated window move/resize events
-        private DateTime firstEventTime;
-        private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
-
         // restore control
         private bool restoringWindowPos = false; // about to restore
-        private bool osMove = false; // window move/resize is initiated by OS
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
 
@@ -71,7 +62,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 BeginCaptureApplicationsOnCurrentDisplays();
             });
 
-            firstEventTime = DateTime.Now;
             validDisplayKeyForCapture = GetDisplayKey();
             StartCaptureTimer(); //initial capture
 
@@ -85,7 +75,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 Log.Trace("Restore Finished");
                 restoringWindowPos = false;
-                osMove = false;
                 ResetState();
             });
 
@@ -244,25 +233,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace(log);
 #endif
 
-                DateTime now = DateTime.Now;
-
-                if (pendingCaptureWindows.Count() == 0)
-                {
-                    firstEventTime = now;
-                }
-                pendingCaptureWindows.Add(hwnd);
-
-                // figure out if all pending capture moves are OS initiated
-                double elapsedMs = (now - firstEventTime).TotalMilliseconds;
-                if (userMoves == 0
-                    && pendingCaptureWindows.Count >= MinOsMoveWindows
-                    && elapsedMs * MaxUserMovePerSecond / 1000 < pendingCaptureWindows.Count)
-                {
-                    osMove = true;
-                    Log.Trace("os move detected. user moves :{0}, total moved windows : {1}, elapsed milliseconds {2}",
-                        userMoves, pendingCaptureWindows.Count, elapsedMs);
-                }
-
                 if (restoringWindowPos)
                 {
                     switch (eventType)
@@ -271,6 +241,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // if user opened new window, don't abort restore, as new window is not affected by restore anyway
                             return;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            // let it trigger next restore
                             break;
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
@@ -283,7 +254,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     lock (databaseLock)
                                     {
-                                        StartCaptureApplicationsOnCurrentDisplays();
+                                        string displayKey = GetDisplayKey();
+                                        CaptureWindow(window, eventType, DateTime.Now, displayKey);
                                     }
                                 }
                                 catch (Exception ex)
@@ -307,6 +279,34 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
+                    switch (eventType)
+                    {
+                        case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            break;
+                        case User32Events.EVENT_SYSTEM_FOREGROUND:
+                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                        case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                            var thread = new Thread(() =>
+                            {
+                                try
+                                {
+                                    lock (databaseLock)
+                                    {
+                                        string displayKey = GetDisplayKey();
+                                        CaptureWindow(window, eventType, DateTime.Now, displayKey);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Log.Error(ex.ToString());
+                                }
+                            });
+                            thread.Start();
+                            break;
+                    }
+
+                    /*
                     if (eventType != User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
                         userMoves++;
@@ -316,6 +316,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         StartCaptureTimer();
                     }
+                    */
                 }
             }
             catch (Exception ex)
@@ -424,22 +425,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         return;
                     }
 
-                    if (restoringWindowPos && userMoves == 0 && pendingCaptureWindows.Count == 0)
-                    {
-                        return;
-                    }
-
-                    if (osMove)
-                    {
-                        // postpone capture to wait for restore
-                        osMove = false;
-                        if (!restoringWindowPos)
-                        {
-                            StartCaptureTimer(MaxCaptureLatency);
-                        }
-                        return;
-                    }
-
                     lock (databaseLock)
                     {
                         StartCaptureApplicationsOnCurrentDisplays();
@@ -467,15 +452,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 // reset capture statistics for next capture period
                 CancelCaptureTimer();
-                pendingCaptureWindows.Clear();
-                userMoves = 0;
             }
         }
 
         private void StartCaptureApplicationsOnCurrentDisplays()
         {
             restoringWindowPos = false;
-            osMove = false;
             ResetState();
             CaptureApplicationsOnCurrentDisplays();
         }
