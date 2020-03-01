@@ -21,20 +21,24 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesLocal = 4; // Max restores activated by further window event for local console session
         private const int MaxRestoreTimesRemote = 6; // for remote session
 
-        private const int CaptureLatency = 3000; // milliseconds to wait for window position capture, should be bigger than RestoreLatency
+        private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
+        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
 
         // control shared by capture and restore
-        private Timer captureTimer;
-        private Timer restoreTimer;
-        private Timer restoreFinishedTimer;
         private Object databaseLock; // lock access to window position database
         private Object controlLock = new Object();
+
+        // capture control
+        private Timer captureTimer;
         private string validDisplayKeyForCapture = null;
+        private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
 
         // restore control
+        private Timer restoreTimer;
+        private Timer restoreFinishedTimer;
         private bool restoringWindowPos = false; // about to restore
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
@@ -63,7 +67,7 @@ namespace Ninjacrab.PersistentWindows.Common
             });
 
             validDisplayKeyForCapture = GetDisplayKey();
-            StartCaptureTimer(); //initial capture
+            BeginCaptureApplicationsOnCurrentDisplays();
 
             restoreTimer = new Timer(state =>
             {
@@ -196,12 +200,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            var window = new SystemWindow(hwnd);
             if (!User32.IsTopLevelWindow(hwnd))
             {
                 return;
             }
 
+            var window = new SystemWindow(hwnd);
             if (window.Parent.HWnd.ToInt64() != 0 || !window.Visible || string.IsNullOrEmpty(window.Title))
             {
                 // only track top level visible windows
@@ -233,21 +237,23 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace(log);
 #endif
 
+                DateTime now = DateTime.Now;
+                
                 if (restoringWindowPos)
                 {
                     switch (eventType)
                     {
-                        case User32Events.EVENT_SYSTEM_FOREGROUND:
-                            // if user opened new window, don't abort restore, as new window is not affected by restore anyway
-                            return;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             // let it trigger next restore
                             break;
+
+                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                            return;
+
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
-                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                            Log.Trace("User aborted restore by actively maneuver window");
+                        case User32Events.EVENT_SYSTEM_FOREGROUND:
                             var thread = new Thread(() =>
                             {
                                 try
@@ -255,7 +261,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     lock (databaseLock)
                                     {
                                         string displayKey = GetDisplayKey();
-                                        CaptureWindow(window, eventType, DateTime.Now, displayKey);
+                                        CaptureWindow(window, eventType, now, displayKey);
                                     }
                                 }
                                 catch (Exception ex)
@@ -264,7 +270,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                             });
                             thread.Start();
-                            return;
+                            break;
                     }
 
                     CancelCaptureTimer();
@@ -282,19 +288,48 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (eventType)
                     {
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            lock (controlLock)
+                            {
+                                // can not tell if this event is caused by user snap operation or OS initiated closing session
+                                pendingCaptureWindows.Add(hwnd);
+                                // wait for other user move events until capture timer expires
+                                if (pendingCaptureWindows.Count < MinOsMoveWindows)
+                                {
+                                    StartCaptureTimer();
+                                }
+                            }
                             break;
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                            lock (controlLock)
+                            {
+                                // reset capture statistics for next capture
+                                CancelCaptureTimer();
+                                if (pendingCaptureWindows.Count >= MinOsMoveWindows)
+                                {
+                                    // too many windows changed location, this must be caused by OS move due to closing session
+                                    // stop capture any window move until restored
+                                    break;
+                                }
+                                pendingCaptureWindows.Clear();
+                            }
+
+                            string displayKey = GetDisplayKey();
+                            if (displayKey != validDisplayKeyForCapture)
+                            {
+                                Log.Trace("Discard capture for {0}, when expecting {1}", displayKey, validDisplayKeyForCapture);
+                                break;
+                            }
+
                             var thread = new Thread(() =>
                             {
                                 try
                                 {
                                     lock (databaseLock)
                                     {
-                                        string displayKey = GetDisplayKey();
-                                        CaptureWindow(window, eventType, DateTime.Now, displayKey);
+                                        CaptureWindow(window, eventType, now, displayKey);
                                     }
                                 }
                                 catch (Exception ex)
@@ -305,18 +340,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             thread.Start();
                             break;
                     }
-
-                    /*
-                    if (eventType != User32Events.EVENT_OBJECT_LOCATIONCHANGE)
-                    {
-                        userMoves++;
-                    }
-
-                    if (userMoves > 0)
-                    {
-                        StartCaptureTimer();
-                    }
-                    */
                 }
             }
             catch (Exception ex)
@@ -427,7 +450,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (databaseLock)
                     {
-                        StartCaptureApplicationsOnCurrentDisplays();
+                        CaptureApplicationsOnCurrentDisplays(displayKey);
                     }
                 }
                 catch (Exception ex)
@@ -452,25 +475,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 // reset capture statistics for next capture period
                 CancelCaptureTimer();
+                pendingCaptureWindows.Clear();
             }
         }
 
-        private void StartCaptureApplicationsOnCurrentDisplays()
-        {
-            restoringWindowPos = false;
-            ResetState();
-            CaptureApplicationsOnCurrentDisplays();
-        }
-
-        private void CaptureApplicationsOnCurrentDisplays(string displayKey = null)
+        private void CaptureApplicationsOnCurrentDisplays(string displayKey)
         {
             var appWindows = CaptureWindowsOfInterest();
             int cnt = 0;
-            if (displayKey == null)
-            {
-                displayKey = GetDisplayKey();
-            }
-
             Log.Trace("Capturing windows for display setting {0}", displayKey);
             foreach (var window in appWindows)
             {
@@ -539,11 +551,12 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 HWnd = hwnd,
 #if DEBUG
-                // these function calls are very cpu-intensive
+                // these function calls are very CPU-intensive
                 ApplicationName = window.Process.ProcessName,
 #else
                 ApplicationName = "",
 #endif
+                ClassName = window.ClassName,
                 ProcessId = processId,
 
                 WindowPlacement = windowPlacement,
@@ -559,11 +572,17 @@ namespace Ninjacrab.PersistentWindows.Common
             else
             {
                 ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][curDisplayMetrics.Key];
-                if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId)
+                if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
+                    || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
                 {
                     // key collision between dead window and new window with the same hwnd
                     monitorApplications[displayKey].Remove(curDisplayMetrics.Key);
                     moved = true;
+                }
+                else if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
+                {
+                    // when close/reopen session, OS/user may activate existing window (possibly with different position)
+                    // just ignore it
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
