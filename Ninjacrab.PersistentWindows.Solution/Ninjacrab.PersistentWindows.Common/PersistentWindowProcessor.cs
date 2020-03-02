@@ -55,19 +55,32 @@ namespace Ninjacrab.PersistentWindows.Common
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
 
+#if DEBUG
+        private void DebugInterval()
+        {
+            ;
+        }
+#endif
         public void Start()
         {
             monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
             databaseLock = new object();
+            validDisplayKeyForCapture = GetDisplayKey();
+            BeginCaptureApplicationsOnCurrentDisplays();
+
+#if DEBUG
+            var debugTimer = new Timer(state =>
+            {
+                DebugInterval();
+            });
+            debugTimer.Change(2000, 2000);
+#endif            
 
             captureTimer = new Timer(state =>
             {
                 Log.Trace("Capture timer expired");
                 BeginCaptureApplicationsOnCurrentDisplays();
             });
-
-            validDisplayKeyForCapture = GetDisplayKey();
-            BeginCaptureApplicationsOnCurrentDisplays();
 
             restoreTimer = new Timer(state =>
             {
@@ -183,14 +196,12 @@ namespace Ninjacrab.PersistentWindows.Common
                         goto case SessionSwitchReason.SessionUnlock;
                     case SessionSwitchReason.SessionUnlock:
                         Log.Trace("Session opening: reason {0}", args.Reason);
-                        CancelCaptureTimer();
                         break;
 
                     case SessionSwitchReason.ConsoleConnect:
                         // session control
                         remoteSession = false;
                         Log.Trace("Session opening: reason {0}", args.Reason);
-                        CancelCaptureTimer();
                         break;
                 }
             };
@@ -270,10 +281,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                             });
                             thread.Start();
-                            break;
+                            return;
                     }
 
-                    CancelCaptureTimer();
                     lock (controlLock)
                     {
                         if (restoreTimes >= MinRestoreTimes)
@@ -291,12 +301,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             lock (controlLock)
                             {
                                 // can not tell if this event is caused by user snap operation or OS initiated closing session
-                                pendingCaptureWindows.Add(hwnd);
                                 // wait for other user move events until capture timer expires
-                                if (pendingCaptureWindows.Count < MinOsMoveWindows)
+                                if (pendingCaptureWindows.Count == 0)
                                 {
                                     StartCaptureTimer();
                                 }
+                                pendingCaptureWindows.Add(hwnd);
                             }
                             break;
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
@@ -305,15 +315,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             lock (controlLock)
                             {
-                                // reset capture statistics for next capture
-                                CancelCaptureTimer();
+                                // OS might bring mstsc.exe(rdp) window to foreground when closing session
                                 if (pendingCaptureWindows.Count >= MinOsMoveWindows)
                                 {
                                     // too many windows changed location, this must be caused by OS move due to closing session
                                     // stop capture any window move until restored
                                     break;
                                 }
-                                pendingCaptureWindows.Clear();
                             }
 
                             string displayKey = GetDisplayKey();
@@ -327,10 +335,21 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 try
                                 {
+                                    CancelCaptureTimer();
                                     lock (databaseLock)
                                     {
                                         CaptureWindow(window, eventType, now, displayKey);
                                     }
+
+                                    lock (controlLock)
+                                    {
+                                        pendingCaptureWindows.Remove(hwnd);
+                                        if (pendingCaptureWindows.Count > 0)
+                                        {
+                                            StartCaptureTimer();
+                                        }
+                                    }
+
                                 }
                                 catch (Exception ex)
                                 {
@@ -474,7 +493,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreNestLevel = 0;
 
                 // reset capture statistics for next capture period
-                CancelCaptureTimer();
                 pendingCaptureWindows.Clear();
             }
         }
@@ -486,6 +504,19 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Capturing windows for display setting {0}", displayKey);
             foreach (var window in appWindows)
             {
+                lock (controlLock)
+                {
+                    if (pendingCaptureWindows.Count > 0)
+                    {
+                        // only capture windows that event handler has missed
+                        if (!pendingCaptureWindows.Contains(window.HWnd))
+                        {
+                            continue;
+                        }
+                        pendingCaptureWindows.Remove(window.HWnd);
+                    }
+                }
+
                 DateTime now = DateTime.Now;
                 if (CaptureWindow(window, 0, now, displayKey))
                 {
@@ -651,8 +682,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     return;
                 }
-
-                CancelCaptureTimer();
 
                 if (restoreNestLevel > 1)
                 {
