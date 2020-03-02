@@ -22,7 +22,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 6; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
-        private const int MinOsMoveWindows = 5; // minimum number of moving windows to measure in order to recognize OS initiated move
+        private const int MinOsMoveWindows = 4; // minimum number of moving windows to measure in order to recognize OS initiated move
 
         // window position database
         private Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>> monitorApplications = null;
@@ -32,6 +32,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Object controlLock = new Object();
 
         // capture control
+        private bool disableCapture = false;
         private Timer captureTimer;
         private string validDisplayKeyForCapture = null;
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
@@ -78,6 +79,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
+                if (disableCapture)
+                {
+                    return;
+                }
                 Log.Trace("Capture timer expired");
                 BeginCaptureApplicationsOnCurrentDisplays();
             });
@@ -189,6 +194,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.ConsoleDisconnect:
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         ResetState();
+                        disableCapture = true;
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
@@ -493,6 +499,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreNestLevel = 0;
 
                 // reset capture statistics for next capture period
+                disableCapture = false;
                 pendingCaptureWindows.Clear();
             }
         }
