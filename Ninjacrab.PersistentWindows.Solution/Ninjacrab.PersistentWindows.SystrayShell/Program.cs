@@ -12,8 +12,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// </summary>
         static PersistentWindowProcessor pwp;
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            bool no_splash = false;
+            foreach (var arg in args)
+            {
+                switch(arg)
+                {
+                    case "-silent":
+                        no_splash = true;
+                        break;
+                }
+            }
+
 #if (!DEBUG)
             Mutex singleInstMutex = new Mutex(true, Application.ProductName);
             if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
@@ -31,7 +42,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp = new PersistentWindowProcessor();
             pwp.Start();
 
-            StartSplashForm();
+            if (!no_splash)
+            {
+                StartSplashForm();
+            }
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
