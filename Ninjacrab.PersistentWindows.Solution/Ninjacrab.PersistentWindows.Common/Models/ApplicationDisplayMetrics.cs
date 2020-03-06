@@ -10,6 +10,10 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public uint ProcessId { get; set; }
         public string ClassName { get; set; }
         public string ApplicationName { get; set; }
+
+        public bool IsTaskbar { get; set; }
+        public Shell32.APP_BAR_DATA TaskBarPos { get; set; }
+
         public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only

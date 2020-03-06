@@ -64,6 +64,20 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public void Start()
         {
+            /*
+            RECT screenPosition = new RECT();
+            //IntPtr hTaskMan = User32.FindWindowA(null, "Untitled - Notepad");
+            IntPtr hTaskMan = User32.FindWindowA(null, "Task Manager");
+            User32.GetWindowRect(hTaskMan, ref screenPosition);
+            User32.SetCursorPos(screenPosition.Left + 200, screenPosition.Top + 20);
+            User32.SetForegroundWindow(hTaskMan);
+            User32.SetActiveWindow(hTaskMan);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(1000); // wait to be activated
+            User32.SetCursorPos(screenPosition.Left + 200, screenPosition.Top - 100);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+            */
+
             monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
             databaseLock = new object();
             validDisplayKeyForCapture = GetDisplayKey();
@@ -406,6 +420,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     monitorApplications[displayKey].Add(curDisplayMetrics.Key, curDisplayMetrics);
                 }
+                else if (curDisplayMetrics.IsTaskbar)
+                {
+                    monitorApplications[displayKey][curDisplayMetrics.Key].TaskBarPos = curDisplayMetrics.TaskBarPos;
+                }
                 else
                 {
                     monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
@@ -540,14 +558,16 @@ namespace Ninjacrab.PersistentWindows.Common
         private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
         {
             return SystemWindow.AllToplevelWindows
-                                .Where(row => row.Parent.HWnd.ToInt64() == 0
+                                .Where(row =>
+                                {
+                                    return row.Parent.HWnd.ToInt64() == 0
                                     //&& !string.IsNullOrEmpty(row.Title)
                                     //&& !row.Title.Equals("Program Manager")
                                     //&& !row.Title.Contains("Task Manager")
                                     //&& row.Position.Height != 0
                                     //&& row.Position.Width != 0
-                                    && row.Visible
-                                    );
+                                    && row.Visible;
+                                  });
         }
 
         private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
@@ -559,10 +579,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
+            bool isTaskBar = false;
+            Shell32.APP_BAR_DATA abd = new Shell32.APP_BAR_DATA();
             if (window.ClassName.Contains("Shell_TrayWnd"))
             {
                 // capture task bar
-                int i = 0;
+                isTaskBar = true;
+                abd.cbSize = (uint)Marshal.SizeOf(abd);
+                abd.hWnd = window.HWnd;
+                Shell32.SHAppBarMessage(Shell32.ABM_GETTASKBARPOS, ref abd);
             }
             else if (string.IsNullOrEmpty(window.Title))
             {
@@ -597,11 +622,31 @@ namespace Ninjacrab.PersistentWindows.Common
                 ClassName = window.ClassName,
                 ProcessId = processId,
 
+                IsTaskbar = isTaskBar,
+                TaskBarPos = abd,
+
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition
             };
 
+            if (isTaskBar)
+            {
+                IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
+                User32.GetWindowRect(hReBar, ref screenPosition);
+                //User32.SetCursorPos(screenPosition.Left + 50, screenPosition.Top + 1650);
+                User32.SetCursorPos(screenPosition.Left + 3, screenPosition.Top + 3);
+                User32.SetForegroundWindow(hReBar);
+                User32.SetActiveWindow(hReBar);
+                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
+                    0, 0, 0, UIntPtr.Zero);
+                Thread.Sleep(2000); // wait to be activated
+                User32.SetCursorPos(screenPosition.Left + 200, - (screenPosition.Top + 3));
+                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
+                    0, 0, 0, UIntPtr.Zero);
+
+                int i = 0;
+            }
             bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
             {
@@ -621,6 +666,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // when close/reopen session, OS/user may activate existing window (possibly with different position)
                     // just ignore it
+                }
+                else if (isTaskBar)
+                {
+                    return !prevDisplayMetrics.TaskBarPos.Equals(curDisplayMetrics.TaskBarPos);
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
@@ -767,6 +816,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 sWindows = CaptureWindowsOfInterest();
             }
+
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -798,6 +848,40 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     bool success = true;
+                    if (curDisplayMetrics.IsTaskbar)
+                    {
+                        // simulate mouse drag, assuming taskbar is unlocked
+                        /*
+                            ControlGetPos x, y, w, h, MSTaskListWClass1, ahk_class Shell_TrayWnd
+                            MouseMove x+1, y+1
+                            MouseClickDrag Left, x+1, y+1, targetX, targetY, 10
+                        */
+                        IntPtr hTaskBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "MSTaskListWClass1", "Running applications");
+                        
+                        /*
+                        Shell32.APP_BAR_DATA abd = prevDisplayMetrics.TaskBarPos;
+                        abd.cbSize = (uint)Marshal.SizeOf(abd);
+                        //abd.hWnd = window.HWnd;
+                        //abd.uEdge = Shell32.ABE_TOP;
+                        UIntPtr result = Shell32.SHAppBarMessage(Shell32.ABM_SETPOS, ref abd);
+                        Log.Info("Set TaskBar pos ({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                        window.Process.ProcessName,
+                        abd.rc.Left,
+                        abd.rc.Top,
+                        abd.rc.Width,
+                        abd.rc.Height,
+                        result);
+
+                        User32.SetWindowPos(hwnd, IntPtr.Zero, abd.rc.Left, abd.rc.Top, abd.rc.Width, abd.rc.Height,
+                            //SWP_NOSENDCHANGING);
+                            SetWindowPosFlags.DoNotSendChangingEvent);
+
+                        User32.ShowWindow(hwnd, 5); //SW_SHOW
+                        User32.UpdateWindow(hwnd);
+                        */
+                        continue;
+                    }
+
                     if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                     {
                         // recover NormalPosition (the workspace position prior to snap)

@@ -49,6 +49,18 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         WINEVENT_INCONTEXT = 0x0004
     }
 
+    public enum MouseAction : uint
+    {
+        MOUSEEVENTF_ABSOLUTE = 0x8000,
+
+        MOUSEEVENTF_LEFTDOWN = 0x0002,
+        MOUSEEVENTF_LEFTUP = 0x0004,
+        MOUSEEVENTF_RIGHTDOWN = 0x0008,
+        MOUSEEVENTF_RIGHTUP = 0x0010,
+
+        MOUSEEVENTF_MOVE = 0x0001,
+    }
+
     public class User32
     {
         #region EnumDisplayMonitors
@@ -98,7 +110,34 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowWindow(IntPtr hWnd, int cmd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool UpdateWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsTopLevelWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowA(string lpClassName, string lpWindowName);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className,  string windowTitle);
+
+        [DllImport("user32.dll")]
+        public static extern void mouse_event(MouseAction dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetCursorPos(int x, int y);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow (IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError=true)]
+        public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         #region Hooks
         [DllImport("user32.dll")]
@@ -129,5 +168,37 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
         #endregion
+    }
+
+    public class Shell32
+    {
+        [DllImport("Shell32.dll", CharSet = CharSet.Auto)]
+        public static extern UIntPtr SHAppBarMessage(int dwMessage, ref APP_BAR_DATA abd);
+
+        public const int ABM_NEW = 0x00;
+        public const int ABM_REMOVE = 0x01;
+        public const int ABM_QUERYPOS = 0x02;
+        public const int ABM_SETPOS = 0x03;
+        public const int ABM_GETTASKBARPOS = 0x05;
+        public const int ABM_SETAUTOHIDEBAR = 0x08;
+        public const int ABM_SETSTATE = 0x0000000a;
+        public const int ABE_LEFT = 0;
+        public const int ABE_TOP = 1;
+        public const int ABE_RIGHT = 2;
+        public const int ABE_BOTTOM = 3;
+        public const int ABS_AUTOHIDE = 0x01;
+        public const int ABS_ALWAYSONTOP = 0x02;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct APP_BAR_DATA
+        {
+            public uint cbSize;
+            public IntPtr hWnd;
+            public int uCallbackMessage;
+            public int uEdge;
+            public RECT rc;
+            public IntPtr lParam;
+        }
+
     }
 }
