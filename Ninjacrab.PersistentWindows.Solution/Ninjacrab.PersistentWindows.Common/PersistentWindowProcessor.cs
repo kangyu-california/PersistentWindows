@@ -64,18 +64,10 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public void Start()
         {
-            /*
-            RECT screenPosition = new RECT();
-            //IntPtr hTaskMan = User32.FindWindowA(null, "Untitled - Notepad");
-            IntPtr hTaskMan = User32.FindWindowA(null, "Task Manager");
-            User32.GetWindowRect(hTaskMan, ref screenPosition);
-            User32.SetCursorPos(screenPosition.Left + 200, screenPosition.Top + 20);
-            User32.SetForegroundWindow(hTaskMan);
-            User32.SetActiveWindow(hTaskMan);
-            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN, 0, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(1000); // wait to be activated
-            User32.SetCursorPos(screenPosition.Left + 200, screenPosition.Top - 100);
-            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+            /* test move taskbar function
+            Thread.Sleep(3000);
+            IntPtr hwnd = User32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null);
+            MoveTaskBar(hwnd, 300, 15);
             */
 
             monitorApplications = new Dictionary<string, Dictionary<string, ApplicationDisplayMetrics>>();
@@ -422,7 +414,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsTaskbar)
                 {
-                    monitorApplications[displayKey][curDisplayMetrics.Key].TaskBarPos = curDisplayMetrics.TaskBarPos;
+                    monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
                 }
                 else
                 {
@@ -561,13 +553,13 @@ namespace Ninjacrab.PersistentWindows.Common
                                 .Where(row =>
                                 {
                                     return row.Parent.HWnd.ToInt64() == 0
-                                    //&& !string.IsNullOrEmpty(row.Title)
+                                    && (!string.IsNullOrEmpty(row.Title) || IsTaskBar(row))
                                     //&& !row.Title.Equals("Program Manager")
                                     //&& !row.Title.Contains("Task Manager")
                                     //&& row.Position.Height != 0
                                     //&& row.Position.Width != 0
                                     && row.Visible;
-                                  });
+                                });
         }
 
         private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime now, out ApplicationDisplayMetrics curDisplayMetrics)
@@ -579,22 +571,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
+            IntPtr hwnd = window.HWnd;
             bool isTaskBar = false;
-            Shell32.APP_BAR_DATA abd = new Shell32.APP_BAR_DATA();
-            if (window.ClassName.Contains("Shell_TrayWnd"))
+            if (IsTaskBar(window))
             {
                 // capture task bar
                 isTaskBar = true;
-                abd.cbSize = (uint)Marshal.SizeOf(abd);
-                abd.hWnd = window.HWnd;
-                Shell32.SHAppBarMessage(Shell32.ABM_GETTASKBARPOS, ref abd);
+                //RestoreTaskBar(hwnd);
             }
             else if (string.IsNullOrEmpty(window.Title))
             {
                 return false;
             }
 
-            IntPtr hwnd = window.HWnd;
             WindowPlacement windowPlacement = new WindowPlacement();
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
@@ -623,30 +612,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 IsTaskbar = isTaskBar,
-                TaskBarPos = abd,
 
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition
             };
 
-            if (isTaskBar)
-            {
-                IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
-                User32.GetWindowRect(hReBar, ref screenPosition);
-                //User32.SetCursorPos(screenPosition.Left + 50, screenPosition.Top + 1650);
-                User32.SetCursorPos(screenPosition.Left + 3, screenPosition.Top + 3);
-                User32.SetForegroundWindow(hReBar);
-                User32.SetActiveWindow(hReBar);
-                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
-                    0, 0, 0, UIntPtr.Zero);
-                Thread.Sleep(2000); // wait to be activated
-                User32.SetCursorPos(screenPosition.Left + 200, - (screenPosition.Top + 3));
-                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
-                    0, 0, 0, UIntPtr.Zero);
-
-                int i = 0;
-            }
             bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
             {
@@ -669,7 +640,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (isTaskBar)
                 {
-                    return !prevDisplayMetrics.TaskBarPos.Equals(curDisplayMetrics.TaskBarPos);
+                    moved = !prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition);
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
@@ -790,6 +761,46 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
             thread.Start();
+        }
+
+        private bool IsTaskBar(SystemWindow window)
+        {
+            return window.ClassName.Equals("Shell_TrayWnd");
+        }
+
+        private void MoveTaskBar(IntPtr hwnd, int x, int y)
+        {
+            RECT screenPosition = new RECT();
+            IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
+            User32.GetWindowRect(hReBar, ref screenPosition);
+            int dx;
+            int dy;
+            if (screenPosition.Width > screenPosition.Height)
+            {
+                //horizontal
+                dx = 1;
+                dy = screenPosition.Height / 2;
+            }
+            else
+            {
+                dx = screenPosition.Width / 2;
+                dy = 1;
+            }
+            IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
+            hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
+            User32.GetWindowRect(hTaskBar, ref screenPosition);
+            User32.SetCursorPos(screenPosition.Left + dx, screenPosition.Top + dy);
+            User32.SetForegroundWindow(hwnd);
+            User32.SetActiveWindow(hwnd);
+            Thread.Sleep(1000); // wait to be activated
+            User32.SetForegroundWindow(hTaskBar);
+            User32.SetActiveWindow(hTaskBar);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
+                0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(2500); // wait to be activated
+            User32.SetCursorPos(x, y);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
         }
 
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, SystemWindow sWindow = null)

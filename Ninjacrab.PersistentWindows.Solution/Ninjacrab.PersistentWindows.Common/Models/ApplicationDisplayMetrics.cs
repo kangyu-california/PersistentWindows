@@ -12,7 +12,6 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ApplicationName { get; set; }
 
         public bool IsTaskbar { get; set; }
-        public Shell32.APP_BAR_DATA TaskBarPos { get; set; }
 
         public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
