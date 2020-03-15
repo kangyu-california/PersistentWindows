@@ -553,7 +553,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 .Where(row =>
                                 {
                                     return row.Parent.HWnd.ToInt64() == 0
-                                    && (!string.IsNullOrEmpty(row.Title) || IsTaskBar(row))
+                                    //&& (!string.IsNullOrEmpty(row.Title)
                                     //&& !row.Title.Equals("Program Manager")
                                     //&& !row.Title.Contains("Task Manager")
                                     //&& row.Position.Height != 0
@@ -577,7 +577,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 // capture task bar
                 isTaskBar = true;
-                //RestoreTaskBar(hwnd);
             }
             else if (string.IsNullOrEmpty(window.Title))
             {
@@ -770,6 +769,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
         {
+            // simulate mouse drag, assuming taskbar is unlocked
+            /*
+                ControlGetPos x, y, w, h, MSTaskListWClass1, ahk_class Shell_TrayWnd
+                MouseMove x+1, y+1
+                MouseClickDrag Left, x+1, y+1, targetX, targetY, 10
+            */
+
             RECT screenPosition = new RECT();
             IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             User32.GetWindowRect(hReBar, ref screenPosition);
@@ -847,6 +853,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (monitorApplications[displayKey].ContainsKey(applicationKey))
                 {
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][applicationKey];
+                    RECT rect = prevDisplayMetrics.ScreenPosition;
                     // looks like the window is still here for us to restore
                     WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
                     IntPtr hwnd = prevDisplayMetrics.HWnd;
@@ -861,35 +868,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     bool success = true;
                     if (curDisplayMetrics.IsTaskbar)
                     {
-                        // simulate mouse drag, assuming taskbar is unlocked
-                        /*
-                            ControlGetPos x, y, w, h, MSTaskListWClass1, ahk_class Shell_TrayWnd
-                            MouseMove x+1, y+1
-                            MouseClickDrag Left, x+1, y+1, targetX, targetY, 10
-                        */
-                        IntPtr hTaskBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "MSTaskListWClass1", "Running applications");
-                        
-                        /*
-                        Shell32.APP_BAR_DATA abd = prevDisplayMetrics.TaskBarPos;
-                        abd.cbSize = (uint)Marshal.SizeOf(abd);
-                        //abd.hWnd = window.HWnd;
-                        //abd.uEdge = Shell32.ABE_TOP;
-                        UIntPtr result = Shell32.SHAppBarMessage(Shell32.ABM_SETPOS, ref abd);
-                        Log.Info("Set TaskBar pos ({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        window.Process.ProcessName,
-                        abd.rc.Left,
-                        abd.rc.Top,
-                        abd.rc.Width,
-                        abd.rc.Height,
-                        result);
-
-                        User32.SetWindowPos(hwnd, IntPtr.Zero, abd.rc.Left, abd.rc.Top, abd.rc.Width, abd.rc.Height,
-                            //SWP_NOSENDCHANGING);
-                            SetWindowPosFlags.DoNotSendChangingEvent);
-
-                        User32.ShowWindow(hwnd, 5); //SW_SHOW
-                        User32.UpdateWindow(hwnd);
-                        */
+                        MoveTaskBar(hwnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                         continue;
                     }
 
@@ -917,7 +896,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     // recover previous screen position
-                    RECT rect = prevDisplayMetrics.ScreenPosition;
                     success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
 
                     /*
