@@ -415,11 +415,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 else if (curDisplayMetrics.IsTaskbar)
                 {
                     monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
+                    monitorApplications[displayKey][curDisplayMetrics.Key].CaptureTime = curDisplayMetrics.CaptureTime;
                 }
                 else
                 {
                     monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                     monitorApplications[displayKey][curDisplayMetrics.Key].ScreenPosition = curDisplayMetrics.ScreenPosition;
+                    monitorApplications[displayKey][curDisplayMetrics.Key].CaptureTime = curDisplayMetrics.CaptureTime;
                 }
                 ret = true;
             }
@@ -611,7 +613,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 IsTaskbar = isTaskBar,
-
+                CaptureTime = now,
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition

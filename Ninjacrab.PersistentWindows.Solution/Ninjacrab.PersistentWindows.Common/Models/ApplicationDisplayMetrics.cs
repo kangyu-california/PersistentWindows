@@ -11,6 +11,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ClassName { get; set; }
         public string ApplicationName { get; set; }
 
+        public DateTime CaptureTime { get; set; }
         public bool IsTaskbar { get; set; }
 
         public RECT ScreenPosition { get; set; }
