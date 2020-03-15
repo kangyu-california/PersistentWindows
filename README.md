@@ -29,5 +29,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Use instructions
 - Run PersistentWindows.exe, a splash window will pop up, indicating the program has started successfully.
 - PersistentWindows will automatically save window positions and restore them when monitor setup is changed or when user login to previous session.
-- There will be an icon in the systray area on task bar. Right click the icon and select "ShutDown" to exit the program. Please ignore other menu options which is intended for DEBUG purpose only.
-- In the rare case of failed window restoration, please immediately sleep the computer and wake it up again (or immediately restart remote desktop session) to trigger automated restore process again. Do not maneuver any window during the critical period to improve the chance of successful rescue.
+- There will be an icon in the systray area on task bar.
+- To capture taskbar position change, right click the icon and select "Capture" 
+- If automated window recovery fails, right click the icon and select "Restore" to do window recovery again, do NOT move mouse in the next few seconds to help taskbar recovery. 
