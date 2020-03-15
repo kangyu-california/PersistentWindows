@@ -13,6 +13,16 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             InitializeComponent();
         }
 
+        private void CaptureWindowClickHandler(object sender, EventArgs e)
+        {
+            Program.Capture();
+        }
+
+        private void RestoreWindowClickHandler(object sender, EventArgs e)
+        {
+            Program.Restore();
+        }
+
         private void DiagnosticsToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
             bool shouldShow = false;

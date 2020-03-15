@@ -71,9 +71,20 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             thread.Abort();
         }
 
+        static public void Capture()
+        {
+            pwp.BeginCaptureApplicationsOnCurrentDisplays();
+        }
+
+        static public void Restore()
+        {
+            pwp.BeginRestoreApplicationsOnCurrentDisplays();
+        }
+
         static public void Stop()
         {
             pwp.Stop();
         }
+
     }
 }

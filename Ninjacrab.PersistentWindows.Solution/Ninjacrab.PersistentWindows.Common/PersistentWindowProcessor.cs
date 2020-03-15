@@ -469,7 +469,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreFinishedTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void BeginCaptureApplicationsOnCurrentDisplays()
+        public void BeginCaptureApplicationsOnCurrentDisplays()
         {
             var thread = new Thread(() =>
             {
@@ -700,7 +700,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return moved;
         }
 
-        private void BeginRestoreApplicationsOnCurrentDisplays()
+        public void BeginRestoreApplicationsOnCurrentDisplays()
         {
             lock (controlLock)
             {
