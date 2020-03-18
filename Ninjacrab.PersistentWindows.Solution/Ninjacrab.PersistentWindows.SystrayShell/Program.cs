@@ -73,13 +73,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void Capture()
         {
-            pwp.BeginCaptureApplicationsOnCurrentDisplays();
+            pwp.BatchCaptureApplicationsOnCurrentDisplays();
         }
 
         static public void Restore()
         {
             Thread.Sleep(2000); // let mouse settle still for taskbar restoration
-            pwp.BeginRestoreApplicationsOnCurrentDisplays();
+            pwp.BatchRestoreApplicationsOnCurrentDisplays();
         }
 
         static public void Stop()
