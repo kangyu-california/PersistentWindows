@@ -887,9 +887,17 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             // determine the time to be restored
-            DateTime restoreTime = eolTime[displayKey];
-            TimeSpan ts = new TimeSpan((CaptureLatency + 1000) * TimeSpan.TicksPerMillisecond);
-            restoreTime = restoreTime.Subtract(ts);
+            DateTime restoreTime;
+            if (eolTime.ContainsKey(displayKey))
+            {
+                restoreTime = eolTime[displayKey];
+                TimeSpan ts = new TimeSpan((CaptureLatency + 1000) * TimeSpan.TicksPerMillisecond);
+                restoreTime = restoreTime.Subtract(ts);
+            }
+            else
+            {
+                restoreTime = DateTime.Now;
+            }
             Log.Trace("Restore time {0}", restoreTime);
 
             foreach (var window in sWindows)
