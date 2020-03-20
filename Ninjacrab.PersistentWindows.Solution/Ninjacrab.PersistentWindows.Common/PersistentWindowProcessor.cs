@@ -16,6 +16,7 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // constant
         private const int RestoreLatency = 500; // milliseconds to wait for next pass of window position recovery
+        private const int DefaultRestoreLatency = 2000; // restore latency in case display changed event is not generated
         private const int MaxRestoreLatency = 5000; // max milliseconds to wait after previous restore pass to tell if restore is finished
         private const int MinRestoreTimes = 2; // restores with fixed RestoreLatency
         private const int MaxRestoreTimesLocal = 4; // Max restores activated by further window event for local console session
@@ -47,6 +48,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // session control
         private bool remoteSession = false;
+        private bool sessionLocked = false; //requires password to unlock
 
         // last session
         private Dictionary<string, DateTime> eolTime = new Dictionary<string, DateTime>(); //time when end of life
@@ -168,7 +170,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     DateTime time = DateTime.Now;
                     Log.Info("Display settings changing {0}", time);
-                    ResetState();
+                    EndDisplaySession();
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -179,10 +181,17 @@ namespace Ninjacrab.PersistentWindows.Common
                     DateTime time = DateTime.Now;
                     Log.Info("Display settings changed {0}", time);
 
-                    ResetState();
-
-                    restoringWindowPos = true;
-                    StartRestoreTimer();
+                    if (sessionLocked)
+                    {
+                        //wait for session unlock to start restore
+                    }
+                    else
+                    {
+                        // change display on the fly
+                        ResetState();
+                        restoringWindowPos = true;
+                        StartRestoreTimer();
+                    }
                 };
 
             SystemEvents.DisplaySettingsChanged += this.displaySettingsChangedHandler;
@@ -194,10 +203,20 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Info("System suspending");
+                            if (!sessionLocked)
+                            {
+                                EndDisplaySession();
+                            }
                             break;
 
                         case PowerModes.Resume:
                             Log.Info("System Resuming");
+                            if (!sessionLocked)
+                            {
+                                // force restore in case OS does not generate display changed event
+                                restoringWindowPos = true;
+                                StartRestoreTimer(milliSecond: DefaultRestoreLatency);
+                            }
                             break;
                     }
                 };
@@ -208,23 +227,29 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 switch (args.Reason)
                 {
-                    case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.SessionLock:
+                        Log.Trace("Session closing: reason {0}", args.Reason);
+                        sessionLocked = true;
+                        EndDisplaySession();
+                        break;
+                    case SessionSwitchReason.SessionUnlock:
+                        Log.Trace("Session opening: reason {0}", args.Reason);
+                        sessionLocked = false;
+                        // force restore in case OS does not generate display changed event
+                        restoringWindowPos = true;
+                        StartRestoreTimer(milliSecond: DefaultRestoreLatency);
+                        break;
+
+                    case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         Log.Trace("Session closing: reason {0}", args.Reason);
-                        ResetState();
-                        RecordBatchCaptureTime(DateTime.Now);
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
-                        remoteSession = true;
-                        goto case SessionSwitchReason.SessionUnlock;
-                    case SessionSwitchReason.SessionUnlock:
                         Log.Trace("Session opening: reason {0}", args.Reason);
+                        remoteSession = true;
                         break;
-
                     case SessionSwitchReason.ConsoleConnect:
-                        // session control
                         remoteSession = false;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
@@ -502,6 +527,13 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.IsBackground = false;
             thread.Name = "PersistentWindowProcessor.BeginCaptureApplicationsOnCurrentDisplays()";
             thread.Start();
+        }
+
+        private void EndDisplaySession()
+        {
+            CancelCaptureTimer();
+            ResetState();
+            RecordBatchCaptureTime(DateTime.Now);
         }
 
         private void ResetState()
