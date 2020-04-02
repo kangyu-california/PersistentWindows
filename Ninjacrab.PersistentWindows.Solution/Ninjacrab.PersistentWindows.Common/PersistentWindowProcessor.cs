@@ -9,6 +9,7 @@ using ManagedWinapi.Windows;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.Models;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
+using LiteDB;
 
 namespace Ninjacrab.PersistentWindows.Common
 {
