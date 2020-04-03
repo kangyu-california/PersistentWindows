@@ -71,12 +71,6 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public void Start()
         {
-            /* test move taskbar function
-            Thread.Sleep(3000);
-            IntPtr hwnd = User32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null);
-            MoveTaskBar(hwnd, 300, 15);
-            */
-
             monitorApplications = new Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>>();
             databaseLock = new object();
             validDisplayKeyForCapture = GetDisplayKey();
@@ -283,9 +277,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     return;
                 }
-#endif
+
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
-#if DEBUG
+
                 RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
@@ -312,32 +306,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         default:
                             // no capture during restore
                             return;
-                            /*
-                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
-                            return;
-
-                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
-                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
-                        case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                        case User32Events.EVENT_SYSTEM_FOREGROUND:
-                            var thread = new Thread(() =>
-                            {
-                                try
-                                {
-                                    lock (databaseLock)
-                                    {
-                                        string displayKey = GetDisplayKey();
-                                        CaptureWindow(window, eventType, now, displayKey);
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Error(ex.ToString());
-                                }
-                            });
-                            thread.Start();
-                            return;
-                            */
                     }
 
                     lock (controlLock)
@@ -382,7 +350,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 try
                                 {
-                                    //CancelCaptureTimer();
                                     lock (databaseLock)
                                     {
                                         CaptureWindow(window, eventType, now, displayKey);
@@ -408,7 +375,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey)
+        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveDB = false)
         {
             bool ret = false;
 
@@ -499,7 +466,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreFinishedTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        public void BatchCaptureApplicationsOnCurrentDisplays()
+        public void BatchCaptureApplicationsOnCurrentDisplays(bool saveDB = false)
         {
             var thread = new Thread(() =>
             {
@@ -516,7 +483,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (databaseLock)
                     {
-                        CaptureApplicationsOnCurrentDisplays(displayKey);
+                        CaptureApplicationsOnCurrentDisplays(displayKey, saveDB);
                     }
                 }
                 catch (Exception ex)
@@ -580,7 +547,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
-        private void CaptureApplicationsOnCurrentDisplays(string displayKey)
+        private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveDB = false)
         {
             var appWindows = CaptureWindowsOfInterest();
             DateTime now = DateTime.Now;
@@ -588,7 +555,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Capturing windows for display setting {0}", displayKey);
             foreach (var window in appWindows)
             {
-                if (CaptureWindow(window, 0, now, displayKey))
+                if (CaptureWindow(window, 0, now, displayKey, saveDB))
                 {
                     cnt++;
                 }
@@ -728,46 +695,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
-                    /*
-                    Log.Trace("Unexpected WindowPlacement.NormalPosition change if ScreenPosition keep same {0} {1} {2}",
-                        window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
-
-                    string log = string.Format("prev WindowPlacement ({0}, {1}) of size {2} x {3}",
-                        prevDisplayMetrics.WindowPlacement.NormalPosition.Left,
-                        prevDisplayMetrics.WindowPlacement.NormalPosition.Top,
-                        prevDisplayMetrics.WindowPlacement.NormalPosition.Width,
-                        prevDisplayMetrics.WindowPlacement.NormalPosition.Height
-                        );
-
-                    string log2 = string.Format("cur  WindowPlacement ({0}, {1}) of size {2} x {3}",
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Left,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Top,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Width,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Height
-                        );
-
-                    Log.Trace("{0}", log);
-                    Log.Trace("{0}", log2);
-
-                    if (monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement)
-                    {
-                        Log.Trace("Try recover previous placement");
-                        WindowPlacement prevWP = prevDisplayMetrics.WindowPlacement;
-                        User32.SetWindowPlacement(hwnd, ref prevWP);
-                        RECT rect = prevDisplayMetrics.ScreenPosition;
-                        User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                        monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = false;
-                    }
-                    else
-                    {
-                        Log.Trace("Fail to recover NormalPosition {0} {1} {2}",
-                            window.Process.ProcessName, processId, window.HWnd.ToString("X8"));
-                        // needUpdate = true;
-                        // immediately update WindowPlacement with current value
-                        monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
-                        monitorApplications[displayKey][curDisplayMetrics.Key].RecoverWindowPlacement = true;
-                    }
-                    */
                     //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
                     moved = true;
@@ -785,7 +712,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return moved;
         }
 
-        public void BatchRestoreApplicationsOnCurrentDisplays()
+        public void BatchRestoreApplicationsOnCurrentDisplays(bool restoreDB = false)
         {
             lock (controlLock)
             {
@@ -813,7 +740,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
-                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
+                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture, restoreDB);
                             restoreTimes++;
 
                             // schedule finish restore
@@ -850,6 +777,13 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool IsTaskBar(SystemWindow window)
         {
             return window.ClassName.Equals("Shell_TrayWnd");
+        }
+
+        private void TestMoveTaskBar()
+        {
+            Thread.Sleep(3000);
+            IntPtr hwnd = User32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null);
+            MoveTaskBar(hwnd, 300, 15);
         }
 
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
@@ -894,7 +828,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
         }
 
-        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, SystemWindow sWindow = null)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, bool restoreDB = false, SystemWindow sWindow = null)
         {
             bool succeed = false;
 
@@ -996,30 +930,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // recover previous screen position
                     success &= User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-
-                    /*
-                    success &= User32.SetWindowPos(
-                        window.HWnd,
-                        IntPtr.Zero,
-                        rect.Left,
-                        rect.Top,
-                        rect.Width,
-                        rect.Height,
-                        SetWindowPosFlags.DoNotRedraw |
-                        SetWindowPosFlags.DoNotActivate |
-                        SetWindowPosFlags.DoNotChangeOwnerZOrder);
-
-                    success &= User32.SetWindowPos(
-                        window.HWnd,
-                        IntPtr.Zero,
-                        rect.Left,
-                        rect.Top,
-                        rect.Width,
-                        rect.Height,
-                        SetWindowPosFlags.DoNotActivate |
-                        SetWindowPosFlags.DoNotChangeOwnerZOrder |
-                        SetWindowPosFlags.AsynchronousWindowPosition);
-                    */
 
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
