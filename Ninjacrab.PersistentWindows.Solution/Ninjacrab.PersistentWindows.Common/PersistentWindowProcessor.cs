@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -10,6 +11,7 @@ using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.Models;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 using LiteDB;
+
 
 namespace Ninjacrab.PersistentWindows.Common
 {
@@ -29,6 +31,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // window position database
         private Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>> monitorApplications = null;
+        private LiteDatabase persistDB;
 
         // control shared by capture and restore
         private Object databaseLock; // lock access to window position database
@@ -51,7 +54,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
 
-        // last session
+        // last session cut-off time
         private Dictionary<string, DateTime> eolTime = new Dictionary<string, DateTime>(); //time when end of life
 
         // callbacks
@@ -71,6 +74,9 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public void Start()
         {
+            string tempFolderPath = Path.GetTempPath();
+            persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.db");
+
             monitorApplications = new Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>>();
             databaseLock = new object();
             validDisplayKeyForCapture = GetDisplayKey();
@@ -375,7 +381,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveDB = false)
+        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveToDB = false)
         {
             bool ret = false;
 
@@ -421,6 +427,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 ret = true;
             }
 
+            if (saveToDB)
+            {
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                db.Insert(curDisplayMetrics);
+            }
             return ret;
         }
 
@@ -466,7 +477,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreFinishedTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        public void BatchCaptureApplicationsOnCurrentDisplays(bool saveDB = false)
+        public void BatchCaptureApplicationsOnCurrentDisplays(bool saveToDB = false)
         {
             var thread = new Thread(() =>
             {
@@ -483,7 +494,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (databaseLock)
                     {
-                        CaptureApplicationsOnCurrentDisplays(displayKey, saveDB);
+                        CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB);
                     }
                 }
                 catch (Exception ex)
@@ -547,7 +558,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
-        private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveDB = false)
+        private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false)
         {
             var appWindows = CaptureWindowsOfInterest();
             DateTime now = DateTime.Now;
@@ -555,7 +566,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Capturing windows for display setting {0}", displayKey);
             foreach (var window in appWindows)
             {
-                if (CaptureWindow(window, 0, now, displayKey, saveDB))
+                if (CaptureWindow(window, 0, now, displayKey, saveToDB))
                 {
                     cnt++;
                 }
@@ -621,13 +632,12 @@ namespace Ninjacrab.PersistentWindows.Common
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
                 HWnd = hwnd,
-#if DEBUG
-                // these function calls are very CPU-intensive
-                ApplicationName = window.Process.ProcessName,
-#else
-                ApplicationName = "",
-#endif
+
+                // this function call is very CPU-intensive
+                ProcessName = window.Process.ProcessName,
+
                 ClassName = window.ClassName,
+                Title = window.Title,
                 ProcessId = processId,
 
                 IsTaskbar = isTaskBar,
@@ -712,7 +722,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return moved;
         }
 
-        public void BatchRestoreApplicationsOnCurrentDisplays(bool restoreDB = false)
+        public void BatchRestoreApplicationsOnCurrentDisplays(bool restoreFromDB = false)
         {
             lock (controlLock)
             {
@@ -740,7 +750,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
-                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture, restoreDB);
+                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture, restoreFromDB);
                             restoreTimes++;
 
                             // schedule finish restore
@@ -828,7 +838,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
         }
 
-        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, bool restoreDB = false, SystemWindow sWindow = null)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, bool restoreFromDB = false, SystemWindow sWindow = null)
         {
             bool succeed = false;
 
@@ -838,6 +848,14 @@ namespace Ninjacrab.PersistentWindows.Common
                 // the display setting has not been captured yet
                 Log.Trace("Unknown display setting {0}", displayKey);
                 return succeed;
+            }
+
+            ILiteCollection<ApplicationDisplayMetrics> db = null;
+            if (restoreFromDB)
+            {
+                db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                db.EnsureIndex(x => x.ProcessName);
+                db.EnsureIndex(x => x.Title); //sort according to window title
             }
 
             Log.Info("Restoring applications for {0}", displayKey);
@@ -874,18 +892,50 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
-                var proc_name = window.Process.ProcessName;
-                if (proc_name.Contains("CodeSetup"))
+                var ProcessName = window.Process.ProcessName;
+                if (ProcessName.Contains("CodeSetup"))
                 {
                     // prevent hang in SetWindowPlacement()
                     continue;
                 }
 
-                string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd, window.Process.ProcessName);
+                string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd, ProcessName);
 
                 if (monitorApplications[displayKey].ContainsKey(applicationKey))
                 {
                     ApplicationDisplayMetrics curDisplayMetrics = null;
+                    if (restoreFromDB)
+                    {
+                        curDisplayMetrics = db.FindOne(x => x.Title == window.Title);
+                        if (curDisplayMetrics == null)
+                        {
+                            curDisplayMetrics = db.FindOne(x => x.ProcessName == ProcessName);
+                        }
+
+                        if (curDisplayMetrics == null)
+                        {
+                            continue;
+                        }
+
+                        if (curDisplayMetrics.ClassName != window.ClassName)
+                        {
+                            continue;
+                        }
+
+                        curDisplayMetrics.HWnd = window.HWnd;
+                        uint processId = 0;
+                        uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+                        curDisplayMetrics.ProcessId = processId;
+                        curDisplayMetrics.CaptureTime = restoreTime;
+
+                        if (monitorApplications[displayKey][curDisplayMetrics.Key].Count == MaxHistoryQueueLength)
+                        {
+                            // limit length of capture history
+                            monitorApplications[displayKey][curDisplayMetrics.Key].Dequeue();
+                        }
+                        monitorApplications[displayKey][curDisplayMetrics.Key].Enqueue(curDisplayMetrics);
+                    }
+
                     if (!IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics))
                     {
                         // window position has no change

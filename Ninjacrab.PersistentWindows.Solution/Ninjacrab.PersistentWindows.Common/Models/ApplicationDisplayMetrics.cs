@@ -9,7 +9,8 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public IntPtr HWnd { get; set; }
         public uint ProcessId { get; set; }
         public string ClassName { get; set; }
-        public string ApplicationName { get; set; }
+        public string ProcessName { get; set; }
+        public string Title { get; set; }
 
         public DateTime CaptureTime { get; set; }
         public bool IsTaskbar { get; set; }
@@ -29,7 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         }
         public string Key
         {
-            get { return GetKey(HWnd, ApplicationName); }
+            get { return GetKey(HWnd, ProcessName); }
         }
 
         public bool EqualPlacement(ApplicationDisplayMetrics other)
@@ -50,7 +51,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         public override string ToString()
         {
-            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ApplicationName);
+            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ProcessName);
         }
     }
 }
