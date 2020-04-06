@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -20,7 +21,12 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
             // Step 3. Set target properties 
             consoleTarget.Layout = @"${date:format=HH\\:mm\\:ss} ${logger} ${message}";
+#if DEBUG
             fileTarget.FileName = "${basedir}/PersistentWindows.Log";
+#else
+            string tempFolderPath = Path.GetTempPath();
+            fileTarget.FileName = $"{tempFolderPath}/PersistentWindows.Log";
+#endif
             fileTarget.Layout = "${date:format=HH\\:mm\\:ss} ${logger} ${message}";
 
             // Step 4. Define rules

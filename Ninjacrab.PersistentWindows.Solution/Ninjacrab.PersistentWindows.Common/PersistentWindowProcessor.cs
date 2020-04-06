@@ -75,6 +75,9 @@ namespace Ninjacrab.PersistentWindows.Common
         public void Start()
         {
             string tempFolderPath = Path.GetTempPath();
+#if DEBUG
+            tempFolderPath = "."; //avoid db path conflict with release version
+#endif
             persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.db");
 
             monitorApplications = new Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>>();

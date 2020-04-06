@@ -87,7 +87,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.captureToolStripMenuItem.Name = "capture";
             this.captureToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.captureToolStripMenuItem.Text = "&Capture windows";
+            this.captureToolStripMenuItem.Text = "&Capture windows to disk";
             this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowClickHandler);
             // 
             // toolStripMenuItem
@@ -99,7 +99,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.restoreToolStripMenuItem.Name = "restore";
             this.restoreToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.restoreToolStripMenuItem.Text = "&Restore windows";
+            this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
             // 
             // toolStripMenuItem
