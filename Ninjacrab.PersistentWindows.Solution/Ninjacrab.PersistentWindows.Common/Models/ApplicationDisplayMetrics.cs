@@ -10,6 +10,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public uint ProcessId { get; set; }
         public string ClassName { get; set; }
         public string ProcessName { get; set; }
+        public string ProcessExePath { get; set; }
         public string Title { get; set; }
 
         public DateTime CaptureTime { get; set; }

@@ -431,10 +431,20 @@ namespace Ninjacrab.PersistentWindows.Common
                 ret = true;
             }
 
-            if (saveToDB)
+            if (saveToDB && curDisplayMetrics != null && monitorApplications[displayKey].ContainsKey(curDisplayMetrics.Key))
             {
-                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                db.Insert(curDisplayMetrics);
+                try
+                {
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                    IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
+                    curDisplayMetrics.ProcessExePath = GetProcExePath(hProcess);
+                    db.Insert(curDisplayMetrics);
+                    Kernel32.CloseHandle(hProcess);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
             }
             return ret;
         }
@@ -568,6 +578,12 @@ namespace Ninjacrab.PersistentWindows.Common
             DateTime now = DateTime.Now;
             int cnt = 0;
             Log.Trace("Capturing windows for display setting {0}", displayKey);
+            if (saveToDB)
+            {
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                db.DeleteAll();
+            }
+
             foreach (var window in appWindows)
             {
                 if (CaptureWindow(window, 0, now, displayKey, saveToDB))
@@ -636,13 +652,13 @@ namespace Ninjacrab.PersistentWindows.Common
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
                 HWnd = hwnd,
+                ProcessId = processId,
 
                 // this function call is very CPU-intensive
                 ProcessName = window.Process.ProcessName,
 
                 ClassName = window.ClassName,
                 Title = window.Title,
-                ProcessId = processId,
 
                 IsTaskbar = isTaskBar,
                 CaptureTime = time,
@@ -858,8 +874,6 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoreFromDB)
             {
                 db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                db.EnsureIndex(x => x.ProcessName);
-                db.EnsureIndex(x => x.Title); //sort according to window title
             }
 
             Log.Info("Restoring applications for {0}", displayKey);
@@ -910,9 +924,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     if (restoreFromDB)
                     {
+                        db.EnsureIndex(x => x.Title); //sort according to window title
                         curDisplayMetrics = db.FindOne(x => x.Title == window.Title);
                         if (curDisplayMetrics == null)
                         {
+                            db.EnsureIndex(x => x.ProcessName);
                             curDisplayMetrics = db.FindOne(x => x.ProcessName == ProcessName);
                         }
 
