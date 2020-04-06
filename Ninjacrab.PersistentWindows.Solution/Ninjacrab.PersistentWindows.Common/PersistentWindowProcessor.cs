@@ -54,8 +54,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
 
-        // last session cut-off time
-        private Dictionary<string, DateTime> eolTime = new Dictionary<string, DateTime>(); //time when end of life
+        // display session end time
+        private Dictionary<string, DateTime> sessionEndTime = new Dictionary<string, DateTime>();
 
         // callbacks
         private PowerModeChangedEventHandler powerModeChangedHandler;
@@ -537,14 +537,14 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock (controlLock)
             {
-                if (!eolTime.ContainsKey(validDisplayKeyForCapture))
+                if (!sessionEndTime.ContainsKey(validDisplayKeyForCapture))
                 {
-                    eolTime.Add(validDisplayKeyForCapture, time);
+                    sessionEndTime.Add(validDisplayKeyForCapture, time);
                     Log.Trace("Capture time {0}", time);
                 }
                 else if (force)
                 {
-                    eolTime[validDisplayKeyForCapture] = time;
+                    sessionEndTime[validDisplayKeyForCapture] = time;
                 }
             }
         }
@@ -553,9 +553,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock(controlLock)
             {
-                if (eolTime.ContainsKey(validDisplayKeyForCapture))
+                if (sessionEndTime.ContainsKey(validDisplayKeyForCapture))
                 {
-                    eolTime.Remove(validDisplayKeyForCapture);
+                    sessionEndTime.Remove(validDisplayKeyForCapture);
                 }
             }
 
@@ -876,9 +876,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // determine the time to be restored
             DateTime restoreTime;
-            if (eolTime.ContainsKey(displayKey))
+            if (sessionEndTime.ContainsKey(displayKey))
             {
-                restoreTime = eolTime[displayKey];
+                restoreTime = sessionEndTime[displayKey];
                 TimeSpan ts = new TimeSpan((CaptureLatency + 1000) * TimeSpan.TicksPerMillisecond);
                 restoreTime = restoreTime.Subtract(ts);
             }
