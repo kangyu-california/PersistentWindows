@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Runtime.InteropServices;
 using ManagedWinapi.Windows;
 
@@ -168,6 +169,12 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
 
         #endregion
+    }
+
+    public class Kernel32
+    {
+        [DllImport("kernel32.dll", SetLastError=true)]
+        public static extern bool QueryFullProcessImageName([In]IntPtr hProcess, [In]int dwFlags, [Out]StringBuilder lpExeName, ref int lpdwSize);
     }
 
     public class Shell32

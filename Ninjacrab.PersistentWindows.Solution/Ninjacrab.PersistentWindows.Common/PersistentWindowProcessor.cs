@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -1004,6 +1005,28 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
             return succeed;
+        }
+
+        private string GetProcExePath(IntPtr hProc)
+        {
+            string pathToExe = string.Empty;
+
+            int nChars = 4096;
+            StringBuilder buf = new StringBuilder((int)nChars);
+
+            bool success = Kernel32.QueryFullProcessImageName(hProc, 0, buf, ref nChars);
+
+            if (success)
+            {
+                pathToExe = buf.ToString();
+            }
+            else
+            {
+                int error = Marshal.GetLastWin32Error();
+                pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
+            }
+
+            return pathToExe;
         }
 
         public void Stop()
