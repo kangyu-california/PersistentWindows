@@ -31,8 +31,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxHistoryQueueLength = 20;
 
         // window position database
-        private Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>> monitorApplications = null;
-        private LiteDatabase persistDB;
+        private Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>> monitorApplications = null; //in-memory database
+        private LiteDatabase persistDB; //on-disk database
 
         // control shared by capture and restore
         private Object databaseLock; // lock access to window position database
@@ -170,6 +170,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
+            // capture window close
+            this.winEventHooks.Add(User32.SetWinEventHook(
+                User32Events.EVENT_OBJECT_DESTROY,
+                User32Events.EVENT_OBJECT_DESTROY,
+                IntPtr.Zero,
+                winEventsCaptureDelegate,
+                0,
+                0,
+                (uint)User32Events.WINEVENT_OUTOFCONTEXT));
+
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
@@ -275,6 +285,21 @@ namespace Ninjacrab.PersistentWindows.Common
             if (window.Parent.HWnd.ToInt64() != 0 || !window.Visible || string.IsNullOrEmpty(window.Title))
             {
                 // only track top level visible windows
+                return;
+            }
+
+            if (eventType == User32Events.EVENT_OBJECT_DESTROY)
+            {
+                string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd, window.Process.ProcessName);
+
+                foreach (var item in monitorApplications)
+                {
+                    string displayKey = item.Key;
+                    if (monitorApplications[displayKey].ContainsKey(applicationKey))
+                    {
+                        monitorApplications[displayKey].Remove(applicationKey);
+                    }
+                }
                 return;
             }
 

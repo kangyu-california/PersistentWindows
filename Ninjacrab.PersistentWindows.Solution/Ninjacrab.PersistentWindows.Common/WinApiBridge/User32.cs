@@ -42,6 +42,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         EVENT_SYSTEM_IME_KEY_NOTIFICATION = 0x0029,
         EVENT_SYSTEM_END = 0x00FF,
 
+        EVENT_OBJECT_DESTROY = 0x8001,
         EVENT_OBJECT_LOCATIONCHANGE = 0x800B,
 
         WINEVENT_OUTOFCONTEXT = 0x0000,
