@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using Ninjacrab.PersistentWindows.WpfShell;
 
@@ -7,6 +8,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
     public partial class SystrayForm : Form
     {
         public MainWindow MainView { get; set; }
+        public static readonly string ProjectUrl = "https://github.com/kangyu-california/PersistentWindows";
 
         public SystrayForm()
         {
@@ -37,6 +39,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 this.MainView.Show();
             }
+        }
+
+        private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
+        {
+            Process.Start(ProjectUrl);
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
