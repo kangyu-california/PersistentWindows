@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -463,6 +464,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
                     curDisplayMetrics.ProcessExePath = GetProcExePath(hProcess);
+                    curDisplayMetrics.DbMatchWindow = false;
                     db.Insert(curDisplayMetrics);
                     Kernel32.CloseHandle(hProcess);
                 }
@@ -771,7 +773,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock (controlLock)
             {
-                if (!restoringWindowPos)
+                if (!restoringWindowPos && !restoreFromDB)
                 {
                     return;
                 }
@@ -949,16 +951,37 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     if (restoreFromDB)
                     {
-                        db.EnsureIndex(x => x.Title); //sort according to window title
-                        curDisplayMetrics = db.FindOne(x => x.Title == window.Title);
-                        if (curDisplayMetrics == null)
+                        if (!string.IsNullOrEmpty(window.Title))
                         {
-                            db.EnsureIndex(x => x.ProcessName);
-                            curDisplayMetrics = db.FindOne(x => x.ProcessName == ProcessName);
+                            //db.EnsureIndex(x => x.Title); //sort according to window title
+                            curDisplayMetrics = db.FindOne(x => x.Title == window.Title);
+                        }
+
+                        if (curDisplayMetrics != null)
+                        {
+                            Log.Trace("restore window position with matching title {0}", curDisplayMetrics.Title);
+                        }
+                        else
+                        {
+                            db.EnsureIndex(x => x.ClassName);
+                            var results = db.Find(x => x.ClassName == window.ClassName);
+                            //db.EnsureIndex(x => x.ProcessName);
+                            //var results = db.Find(x => x.ProcessName == ProcessName);
+                            foreach (var result in results)
+                            {
+                                if (!result.DbMatchWindow)
+                                {
+                                    // map to the first matching db entry
+                                    curDisplayMetrics = result;
+                                    Log.Trace("restore window position with matching process name {0}", curDisplayMetrics.ProcessName);
+                                    break;
+                                }
+                            }
                         }
 
                         if (curDisplayMetrics == null)
                         {
+                            // no db data to restore
                             continue;
                         }
 
@@ -967,9 +990,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
+                        curDisplayMetrics.DbMatchWindow = true;
+                        db.Update(curDisplayMetrics);
+
+                        // update stale window/process id
                         curDisplayMetrics.HWnd = window.HWnd;
                         uint processId = 0;
-                        uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+                        uint threadId = User32.GetWindowThreadProcessId(curDisplayMetrics.HWnd, out processId);
                         curDisplayMetrics.ProcessId = processId;
                         curDisplayMetrics.CaptureTime = restoreTime;
 
@@ -1044,6 +1071,41 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
+
+            if (restoreFromDB)
+            {
+                // launch process in db
+                var multiwindowProcess = new Dictionary<string, int>()
+                {
+                    // avoid launch process multiple times
+                    { "chrome", 0},
+                    { "firefox", 0 },
+                    { "opera", 0},
+                };
+
+                var results = db.Find(x => x.DbMatchWindow == false); // find process not yet started
+                foreach (var curDisplayMetrics in results)
+                {
+                    if (curDisplayMetrics.HWnd == IntPtr.Zero)
+                    {
+                        continue;
+                    }
+
+                    if (multiwindowProcess.ContainsKey(curDisplayMetrics.ProcessName))
+                    {
+                        if (multiwindowProcess[curDisplayMetrics.ProcessName] > 0)
+                        {
+                            // already launched
+                            continue;
+                        }
+                        multiwindowProcess[curDisplayMetrics.ProcessName]++;
+                    }
+
+                    Log.Trace("launch process {0}", curDisplayMetrics.ProcessExePath);
+                    System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
+                    Thread.Sleep(1000);
+                }
+            }
 
             return succeed;
         }
