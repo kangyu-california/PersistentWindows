@@ -32,11 +32,12 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxHistoryQueueLength = 20;
 
         // window position database
-        private Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>> monitorApplications = null; //in-memory database
+        private Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>> monitorApplications  //in-memory database
+            = new Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>>();
         private LiteDatabase persistDB; //on-disk database
 
         // control shared by capture and restore
-        private Object databaseLock; // lock access to window position database
+        private Object databaseLock = new Object(); // lock access to window position database
         private Object controlLock = new Object();
 
         // capture control
@@ -51,6 +52,14 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool restoringWindowPos = false; // about to restore
         private int restoreTimes = 0;
         private int restoreNestLevel = 0; // nested call level
+        private bool nextRestoreFromDb = false;
+        private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
+            {
+                // avoid launch process multiple times
+                { "chrome", 0},
+                { "firefox", 0 },
+                { "opera", 0},
+            };
 
         // session control
         private bool remoteSession = false;
@@ -82,8 +91,6 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
             persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.db");
 
-            monitorApplications = new Dictionary<string, Dictionary<string, Queue<ApplicationDisplayMetrics>>>();
-            databaseLock = new object();
             validDisplayKeyForCapture = GetDisplayKey();
             BatchCaptureApplicationsOnCurrentDisplays();
 
@@ -97,7 +104,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
-                lock(controlLock)
+                lock (controlLock)
                 {
                     if (disableBatchCapture)
                     {
@@ -118,7 +125,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreTimer = new Timer(state =>
             {
                 Log.Trace("Restore timer expired");
-                BatchRestoreApplicationsOnCurrentDisplays();
+                BatchRestoreApplicationsOnCurrentDisplays(nextRestoreFromDb);
             });
 
             restoreFinishedTimer = new Timer(state =>
@@ -127,6 +134,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoringWindowPos = false;
                 ResetState();
                 RemoveBatchCaptureTime();
+
+                // clear DbMatchWindow flag in db
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(validDisplayKeyForCapture);
+                var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
+                foreach (var curDisplayMetrics in results)
+                {
+                    curDisplayMetrics.DbMatchWindow = false;
+                    db.Update(curDisplayMetrics);
+                }
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -330,7 +346,7 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
 
                 DateTime now = DateTime.Now;
-                
+
                 if (restoringWindowPos)
                 {
                     switch (eventType)
@@ -494,8 +510,9 @@ namespace Ninjacrab.PersistentWindows.Common
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false)
+        private void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false, bool restoreFromDb = false)
         {
+            nextRestoreFromDb = restoreFromDb;
             restoreTimer.Change(milliSecond, Timeout.Infinite);
             if (wait)
             {
@@ -558,12 +575,25 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void ResetState()
         {
-            lock(controlLock)
+            lock (controlLock)
             {
                 // end of restore period
                 CancelRestoreTimer();
                 restoreTimes = 0;
                 restoreNestLevel = 0;
+                nextRestoreFromDb = false;
+
+                // reset counter of multiwindowProcess
+                var keys = new List<string>();
+                foreach (var key in multiwindowProcess.Keys)
+                {
+                    keys.Add(key);
+                }
+
+                foreach (var key in keys)
+                {
+                    multiwindowProcess[key] = 0;
+                }
 
                 // reset capture statistics for next capture period
                 disableBatchCapture = false;
@@ -589,7 +619,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void RemoveBatchCaptureTime()
         {
-            lock(controlLock)
+            lock (controlLock)
             {
                 if (sessionEndTime.ContainsKey(validDisplayKeyForCapture))
                 {
@@ -806,7 +836,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < MinRestoreTimes)
                             {
-                                StartRestoreTimer(wait: remoteSession);
+                                StartRestoreTimer(wait: remoteSession, restoreFromDb: restoreFromDB);
                             }
                         }
                         else
@@ -885,6 +915,22 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
         }
 
+        private ApplicationDisplayMetrics SearchDb(ILiteCollection<ApplicationDisplayMetrics> db, 
+            IEnumerable<ApplicationDisplayMetrics> results)
+        { 
+            foreach (var result in results)
+            {
+                if (!result.DbMatchWindow)
+                {
+                    // map to the first matching db entry
+                    Log.Trace("restore window position with matching process name {0}", result.ProcessName);
+                    return result;
+                }
+            }
+
+            return null;
+        }
+
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, bool restoreFromDB = false, SystemWindow sWindow = null)
         {
             bool succeed = false;
@@ -944,6 +990,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
+                uint processId = 0;
+                uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+
                 string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd, ProcessName);
 
                 if (monitorApplications[displayKey].ContainsKey(applicationKey))
@@ -953,30 +1002,20 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (!string.IsNullOrEmpty(window.Title))
                         {
-                            //db.EnsureIndex(x => x.Title); //sort according to window title
-                            curDisplayMetrics = db.FindOne(x => x.Title == window.Title);
+                            var results = db.Find(x => x.Title == window.Title && x.ProcessName == ProcessName && x.ProcessId == processId);
+                            curDisplayMetrics = SearchDb(db, results);
+
+                            if (curDisplayMetrics == null)
+                            {
+                                results = db.Find(x => x.Title == window.Title && x.ProcessName == ProcessName);
+                                curDisplayMetrics = SearchDb(db, results);
+                            }
                         }
 
-                        if (curDisplayMetrics != null)
+                        if (curDisplayMetrics == null)
                         {
-                            Log.Trace("restore window position with matching title {0}", curDisplayMetrics.Title);
-                        }
-                        else
-                        {
-                            db.EnsureIndex(x => x.ClassName);
                             var results = db.Find(x => x.ClassName == window.ClassName);
-                            //db.EnsureIndex(x => x.ProcessName);
-                            //var results = db.Find(x => x.ProcessName == ProcessName);
-                            foreach (var result in results)
-                            {
-                                if (!result.DbMatchWindow)
-                                {
-                                    // map to the first matching db entry
-                                    curDisplayMetrics = result;
-                                    Log.Trace("restore window position with matching process name {0}", curDisplayMetrics.ProcessName);
-                                    break;
-                                }
-                            }
+                            curDisplayMetrics = SearchDb(db, results);
                         }
 
                         if (curDisplayMetrics == null)
@@ -985,19 +1024,17 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
-                        if (curDisplayMetrics.ClassName != window.ClassName)
+                        if (curDisplayMetrics.ProcessName != ProcessName)
                         {
                             continue;
                         }
 
+                        // update stale window/process id
+                        curDisplayMetrics.HWnd = window.HWnd;
+                        curDisplayMetrics.ProcessId = processId;
                         curDisplayMetrics.DbMatchWindow = true;
                         db.Update(curDisplayMetrics);
 
-                        // update stale window/process id
-                        curDisplayMetrics.HWnd = window.HWnd;
-                        uint processId = 0;
-                        uint threadId = User32.GetWindowThreadProcessId(curDisplayMetrics.HWnd, out processId);
-                        curDisplayMetrics.ProcessId = processId;
                         curDisplayMetrics.CaptureTime = restoreTime;
 
                         if (monitorApplications[displayKey][curDisplayMetrics.Key].Count == MaxHistoryQueueLength)
@@ -1075,21 +1112,15 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoreFromDB)
             {
                 // launch process in db
-                var multiwindowProcess = new Dictionary<string, int>()
-                {
-                    // avoid launch process multiple times
-                    { "chrome", 0},
-                    { "firefox", 0 },
-                    { "opera", 0},
-                };
-
                 var results = db.Find(x => x.DbMatchWindow == false); // find process not yet started
                 foreach (var curDisplayMetrics in results)
                 {
-                    if (curDisplayMetrics.HWnd == IntPtr.Zero)
+#if DEBUG
+                    if (curDisplayMetrics.Title.Contains("Microsoft Visual Studio"))
                     {
                         continue;
                     }
+#endif
 
                     if (multiwindowProcess.ContainsKey(curDisplayMetrics.ProcessName))
                     {

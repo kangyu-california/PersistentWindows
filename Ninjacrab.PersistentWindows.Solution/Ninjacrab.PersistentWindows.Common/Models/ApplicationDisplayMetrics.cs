@@ -6,16 +6,16 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 {
     public class ApplicationDisplayMetrics
     {
-        // for LiteDB
-        //public int Id { get; set; }
+        // for LiteDB use only
+        public int Id { get; set; }
         public bool DbMatchWindow { get; set; }
-
-        // window info
-        public IntPtr HWnd { get; set; }
         public uint ProcessId { get; set; }
+        public string ProcessExePath { get; set; }
+
+        // general window info
+        public IntPtr HWnd { get; set; }
         public string ClassName { get; set; }
         public string ProcessName { get; set; }
-        public string ProcessExePath { get; set; }
         public string Title { get; set; }
         public bool IsTaskbar { get; set; }
 
