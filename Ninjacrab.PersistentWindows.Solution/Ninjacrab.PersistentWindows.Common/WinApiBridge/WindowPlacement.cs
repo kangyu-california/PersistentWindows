@@ -3,7 +3,7 @@ using ManagedWinapi.Windows;
 
 namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
-    [StructLayout(LayoutKind.Sequential)]
+    //[StructLayout(LayoutKind.Sequential)]
     public struct WindowPlacement
     {
         /// <summary>
@@ -12,32 +12,32 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         /// GetWindowPlacement and SetWindowPlacement fail if this member is not set correctly.
         /// </para>
         /// </summary>
-        public int Length;
+        public int Length { get; set; }
 
         /// <summary>
         /// Specifies flags that control the position of the minimized window and the method by which the window is restored.
         /// </summary>
-        public int Flags;
+        public int Flags { get; set; }
 
         /// <summary>
         /// The current show state of the window.
         /// </summary>
-        public ShowWindowCommands ShowCmd;
+        public ShowWindowCommands ShowCmd { get; set; }
 
         /// <summary>
         /// The coordinates of the window's upper-left corner when the window is minimized.
         /// </summary>
-        public POINT MinPosition;
+        public POINT MinPosition { get; set; }
 
         /// <summary>
         /// The coordinates of the window's upper-left corner when the window is maximized.
         /// </summary>
-        public POINT MaxPosition;
+        public POINT MaxPosition { get; set; }
 
         /// <summary>
         /// The window's coordinates when the window is in the restored position.
         /// </summary>
-        public RECT NormalPosition;
+        public RECT2 NormalPosition { get; set; }
 
         /// <summary>
         /// Gets the default (empty) value.

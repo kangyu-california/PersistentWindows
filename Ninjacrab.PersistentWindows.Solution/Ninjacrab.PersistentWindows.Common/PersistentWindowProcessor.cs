@@ -316,7 +316,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
-                RECT screenPosition = new RECT();
+                RECT2 screenPosition = new RECT2();
                 User32.GetWindowRect(hwnd, ref screenPosition);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
                     window.Process.ProcessName,
@@ -665,7 +665,7 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
-            RECT screenPosition = new RECT();
+            RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
             if (screenPosition.Top < 0 && screenPosition.Top > -15)
             {
@@ -852,7 +852,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 MouseClickDrag Left, x+1, y+1, targetX, targetY, 10
             */
 
-            RECT screenPosition = new RECT();
+            RECT2 screenPosition = new RECT2();
             IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             User32.GetWindowRect(hReBar, ref screenPosition);
             int dx;
@@ -1016,7 +1016,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     ApplicationDisplayMetrics[] captureHisotry = monitorApplications[displayKey][applicationKey].ToArray();
                     ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
-                    RECT rect = prevDisplayMetrics.ScreenPosition;
+                    RECT2 rect = prevDisplayMetrics.ScreenPosition;
                     WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
                     IntPtr hwnd = prevDisplayMetrics.HWnd;
 

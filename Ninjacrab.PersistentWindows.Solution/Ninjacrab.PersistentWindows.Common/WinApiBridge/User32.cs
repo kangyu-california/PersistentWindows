@@ -80,7 +80,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
+        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT2 lpRect);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.SysInt)]
