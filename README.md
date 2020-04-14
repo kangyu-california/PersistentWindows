@@ -19,7 +19,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Keeps track of window position change in memory for each monitor setup, and automatically restores window layout with matching monitor setup.
 - Support remote desktop session(s) with different virtual monitor resolution(s) as well. 
 - Can be run as Windows startup job.
-- Starting from V4.0, window position data can be manually saved to persist database on disk, making it possible to revert unsatisfactory window moves by user, or event restore last window session from ground zero after computer reboots.
+- Starting from V4.0, window position can be manually saved to persistent database on disk, making it possible to revert unsatisfactory window moves by user, or event restore last window session from ground zero after computer reboots.
 
 # Installation
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
@@ -30,6 +30,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully.
 - Some applications do require admin privilege to move window, such as TaskMgr, WSL console etc. 
 - The program is then minimized to an icon in the systray area on task bar.
-- To save current display session to persist storage, or if you need to capture taskbar position change, right click the icon and select "Capture windows to disk" 
-- To recover window layout from persist storage, or to recover last saved session after computer reboot, right click the icon and select "Restore windows from disk"
+- To save current display session to persistent storage, or if you need to capture taskbar position change, right click the icon and select "Capture windows to disk" 
+- To recover window layout from persistent storage, or to recover last saved session after computer reboot, right click the icon and select "Restore windows from disk"
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
