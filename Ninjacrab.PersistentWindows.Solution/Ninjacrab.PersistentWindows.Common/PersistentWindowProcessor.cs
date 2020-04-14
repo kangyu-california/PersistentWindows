@@ -25,7 +25,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreLatency = 5000; // max milliseconds to wait after previous restore pass to tell if restore is finished
         private const int MinRestoreTimes = 2; // restores with fixed RestoreLatency
         private const int MaxRestoreTimesLocal = 4; // Max restores activated by further window event for local console session
-        private const int MaxRestoreTimesRemote = 6; // for remote session
+        private const int MaxRestoreTimesRemote = 8; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
         private const int MinOsMoveWindows = 4; // minimum number of moving windows to measure in order to recognize OS initiated move
@@ -836,7 +836,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < MinRestoreTimes)
                             {
-                                StartRestoreTimer(wait: remoteSession, restoreFromDb: restoreFromDB);
+                                StartRestoreTimer(restoreFromDb: restoreFromDB);
                             }
                         }
                         else
