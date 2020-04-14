@@ -1,5 +1,5 @@
 # PersistentWindows
-The code is forked from http://www.ninjacrab.com/persistent-windows/ with enhancements on more robust remote desktop support and much lower cpu usage.
+The code is forked from http://www.ninjacrab.com/persistent-windows/ with massive enhancements to achieve more reliable user experience.
 
 It seems to be a perfect solution to this unsolved Windows problem since Windows 7 era
 https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
@@ -16,19 +16,20 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ```
 # Key features 
-- Keeps track of windows layout, automatically restores last windows layout with matching monitor setup
-- Manages different monitor setups automatically (dual monitor setup, single monitor setup etc)
-- Remote desktop session also benefits from running this software on target machine, whether monitor setup matches or not.
-- Can be run as Windows startup job
+- Keeps track of window position change in memory for each monitor setup, and automatically restores window layout with matching monitor setup.
+- Support remote desktop session(s) with different virtual monitor resolution(s) as well. 
+- Can be run as Windows startup job.
+- Starting from V4.0, window position data can be manually saved to persist database on disk, making it possible to revert unsatisfactory window moves by user, or event restore last window session from ground zero after computer reboots.
 
 # Installation
-- Download latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
-- Unzip the file into any directory, do NOT choose C:\Program Files\ unless you want to run the program with admin privilege.
+- Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
+- Unzip the file into any directory
 - Optionally create a shortcut to PersistentWindows.exe in C:\Users\\<your_user_id>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup to automatically start the program when computer powers up.
 
 # Use instructions
-- Run PersistentWindows.exe, a splash window will pop up, indicating the program has started successfully.
-- PersistentWindows will automatically save window positions and restore them when monitor setup is changed or when user login to previous session.
-- There will be an icon in the systray area on task bar.
-- To capture taskbar position change, right click the icon and select "Capture" 
-- If automated window recovery fails, right click the icon and select "Restore" to do window recovery again, do NOT move mouse in the next few seconds to help taskbar recovery. 
+- Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully.
+- Some applications do require admin privilege to move window, such as TaskMgr, WSL console etc. 
+- The program is then minimized to an icon in the systray area on task bar.
+- To save current display session to persist storage, or if you need to capture taskbar position change, right click the icon and select "Capture windows to disk" 
+- To recover window layout from persist storage, or to recover last saved session after computer reboot, right click the icon and select "Restore windows from disk"
+- To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
