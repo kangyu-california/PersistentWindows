@@ -900,9 +900,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 dx = screenPosition.Width / 2;
                 dy = 1;
             }
+
             IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
             hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
             User32.GetWindowRect(hTaskBar, ref screenPosition);
+
+            // avoid unnecessary move
+            double x_ratio = Math.Abs(screenPosition.Left + dx - x) / x;
+            double y_ratio = Math.Abs(screenPosition.Top + dy - y) / y;
+            if (x_ratio < 0.5 && y_ratio < 0.5)
+            {
+                return;
+            }
+
             User32.SetCursorPos(screenPosition.Left + dx, screenPosition.Top + dy);
             User32.SetForegroundWindow(hwnd);
             User32.SetActiveWindow(hwnd);
