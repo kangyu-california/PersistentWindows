@@ -307,7 +307,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
-                string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd, window.Process.ProcessName);
+                string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd);
 
                 foreach (var item in monitorApplications)
                 {
@@ -481,6 +481,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
                     curDisplayMetrics.ProcessExePath = GetProcExePath(hProcess);
                     curDisplayMetrics.DbMatchWindow = false;
+                    curDisplayMetrics.ProcessName = window.Process.ProcessName;
                     db.Insert(curDisplayMetrics);
                     Kernel32.CloseHandle(hProcess);
                 }
@@ -712,7 +713,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessId = processId,
 
                 // this function call is very CPU-intensive
-                ProcessName = window.Process.ProcessName,
+                //ProcessName = window.Process.ProcessName,
+                ProcessName = "",
 
                 ClassName = window.ClassName,
                 Title = window.Title,
@@ -983,23 +985,25 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
-                var ProcessName = window.Process.ProcessName;
+                /*
                 if (ProcessName.Contains("CodeSetup"))
                 {
                     // prevent hang in SetWindowPlacement()
                     continue;
                 }
+                */
 
                 uint processId = 0;
                 uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
-                string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd, ProcessName);
+                string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd);
 
                 if (monitorApplications[displayKey].ContainsKey(applicationKey))
                 {
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     if (restoreFromDB)
                     {
+                        var ProcessName = window.Process.ProcessName;
                         if (!string.IsNullOrEmpty(window.Title))
                         {
                             var results = db.Find(x => x.Title == window.Title && x.ProcessName == ProcessName && x.ProcessId == processId);

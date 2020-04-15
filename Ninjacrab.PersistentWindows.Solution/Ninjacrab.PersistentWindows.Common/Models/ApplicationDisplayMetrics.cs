@@ -27,13 +27,14 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only
 
-        public static string GetKey(IntPtr hWnd, string applicationName)
+        public static string GetKey(IntPtr hWnd)
         {
-            return string.Format("{0}-{1}", hWnd.ToString("X8"), applicationName);
+            //return string.Format("{0}-{1}", hWnd.ToString("X8"), applicationName);
+            return string.Format("{0}", hWnd.ToString("X8"));
         }
         public string Key
         {
-            get { return GetKey(HWnd, ProcessName); }
+            get { return GetKey(HWnd); }
         }
 
         public bool EqualPlacement(ApplicationDisplayMetrics other)
