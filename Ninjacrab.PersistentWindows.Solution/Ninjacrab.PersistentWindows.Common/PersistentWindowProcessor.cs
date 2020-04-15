@@ -1013,15 +1013,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     if (restoreFromDB)
                     {
-                        var ProcessName = window.Process.ProcessName;
+                        var processName = window.Process.ProcessName;
                         if (!string.IsNullOrEmpty(window.Title))
                         {
-                            var results = db.Find(x => x.Title == window.Title && x.ProcessName == ProcessName && x.ProcessId == processId);
+                            var results = db.Find(x => x.Title == window.Title && x.ProcessName == processName && x.ProcessId == processId);
                             curDisplayMetrics = SearchDb(db, results);
 
                             if (curDisplayMetrics == null)
                             {
-                                results = db.Find(x => x.Title == window.Title && x.ProcessName == ProcessName);
+                                results = db.Find(x => x.Title == window.Title && x.ProcessName == processName);
                                 curDisplayMetrics = SearchDb(db, results);
                             }
                         }
@@ -1038,7 +1038,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
-                        if (curDisplayMetrics.ProcessName != ProcessName)
+                        if (curDisplayMetrics.ProcessName != processName)
                         {
                             continue;
                         }
