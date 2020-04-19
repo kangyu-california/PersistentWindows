@@ -17,9 +17,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ```
 # Key features 
 - Keeps track of window position change in real time for each monitor setup, and automatically restores window layout with matching monitor setup.
-- Support remote desktop session(s) with different virtual monitor resolution(s) as well. 
+- Support remote desktop session with multiple virtual monitor resolutions.
 - Can be run as Windows startup job.
-- Starting from V4.0, window position can be manually saved to persistent database on disk, making it possible to revert window moves by user, or even restore closed windows after reboot.
+- Starting from V4.1, window position can be manually saved to persistent database on hard drive, making it possible to revert unintended or temporary window moves, or restore closed windows even after reboot.
 
 # Installation
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
