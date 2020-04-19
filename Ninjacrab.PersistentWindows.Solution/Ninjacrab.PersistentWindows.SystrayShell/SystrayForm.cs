@@ -13,6 +13,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public SystrayForm()
         {
             InitializeComponent();
+            this.aboutToolStripMenuItem.Text = $"About ({Application.ProductVersion})";
         }
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)

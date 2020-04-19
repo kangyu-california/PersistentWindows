@@ -66,7 +66,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.notifyIconMain.ContextMenuStrip = this.contextMenuStripSysTray;
             this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
-            this.notifyIconMain.Text = $"Persistent Windows {Application.ProductVersion}";
+            this.notifyIconMain.Text = "Persistent Windows";
             this.notifyIconMain.Visible = true;
             // 
             // contextMenuStripSysTray
@@ -141,7 +141,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SystrayForm";
-            this.Text = $"Persistent Windows {Application.ProductVersion}";
+            this.Text = "Persistent Windows";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 
