@@ -488,7 +488,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     string procPath = GetProcExePath(hProcess);
                     if (!String.IsNullOrEmpty(procPath))
                     {
-                        windowTitle[window.HWnd] = window.Title;
+                        windowTitle[window.HWnd] = curDisplayMetrics.Title;
 
                         curDisplayMetrics.ProcessExePath = procPath;
                         curDisplayMetrics.DbMatchWindow = false;
@@ -729,7 +729,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessName = "",
 
                 ClassName = window.ClassName,
-                Title = window.Title,
+                Title = isTaskBar ? "$taskbar$" : window.Title,
 
                 IsTaskbar = isTaskBar,
                 CaptureTime = time,
@@ -1027,14 +1027,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (restoreFromDB)
                     {
                         var processName = window.Process.ProcessName;
-                        if (!IsTaskBar(window) && windowTitle.ContainsKey(hWnd))
+                        if (windowTitle.ContainsKey(hWnd))
                         {
-                            var results = db.Find(x => x.Title == windowTitle[hWnd] && x.ProcessName == processName && x.ProcessId == processId);
+                            string title = windowTitle[hWnd];
+                            var results = db.Find(x => x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
                             curDisplayMetrics = SearchDb(db, results);
 
                             if (curDisplayMetrics == null)
                             {
-                                results = db.Find(x => x.Title == windowTitle[hWnd] && x.ProcessName == processName);
+                                results = db.Find(x => x.Title == title && x.ProcessName == processName);
                                 curDisplayMetrics = SearchDb(db, results);
                             }
                         }
