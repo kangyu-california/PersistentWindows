@@ -45,6 +45,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool disableBatchCapture = false;
         private string validDisplayKeyForCapture = null;
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
+        private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
 
         // restore control
         private Timer restoreTimer;
@@ -309,13 +310,18 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd);
 
-                foreach (var item in monitorApplications)
+                lock (databaseLock)
                 {
-                    string displayKey = item.Key;
-                    if (monitorApplications[displayKey].ContainsKey(applicationKey))
+                    foreach (var item in monitorApplications)
                     {
-                        monitorApplications[displayKey].Remove(applicationKey);
+                        string displayKey = item.Key;
+                        if (monitorApplications[displayKey].ContainsKey(applicationKey))
+                        {
+                            monitorApplications[displayKey].Remove(applicationKey);
+                        }
                     }
+
+                    windowTitle.Remove(hwnd);
                 }
                 return;
             }
@@ -479,10 +485,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
-                    curDisplayMetrics.ProcessExePath = GetProcExePath(hProcess);
-                    curDisplayMetrics.DbMatchWindow = false;
-                    curDisplayMetrics.ProcessName = window.Process.ProcessName;
-                    db.Insert(curDisplayMetrics);
+                    string procPath = GetProcExePath(hProcess);
+                    if (!String.IsNullOrEmpty(procPath))
+                    {
+                        windowTitle[window.HWnd] = window.Title;
+
+                        curDisplayMetrics.ProcessExePath = procPath;
+                        curDisplayMetrics.DbMatchWindow = false;
+                        curDisplayMetrics.ProcessName = window.Process.ProcessName;
+                        db.Insert(curDisplayMetrics);
+                    }
                     Kernel32.CloseHandle(hProcess);
                 }
                 catch (Exception ex)
@@ -1003,10 +1015,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 */
 
+                IntPtr hWnd = window.HWnd;
                 uint processId = 0;
-                uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+                uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
 
-                string applicationKey = ApplicationDisplayMetrics.GetKey(window.HWnd);
+                string applicationKey = ApplicationDisplayMetrics.GetKey(hWnd);
 
                 if (monitorApplications[displayKey].ContainsKey(applicationKey))
                 {
@@ -1014,21 +1027,21 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (restoreFromDB)
                     {
                         var processName = window.Process.ProcessName;
-                        if (!string.IsNullOrEmpty(window.Title))
+                        if (!IsTaskBar(window) && windowTitle.ContainsKey(hWnd))
                         {
-                            var results = db.Find(x => x.Title == window.Title && x.ProcessName == processName && x.ProcessId == processId);
+                            var results = db.Find(x => x.Title == windowTitle[hWnd] && x.ProcessName == processName && x.ProcessId == processId);
                             curDisplayMetrics = SearchDb(db, results);
 
                             if (curDisplayMetrics == null)
                             {
-                                results = db.Find(x => x.Title == window.Title && x.ProcessName == processName);
+                                results = db.Find(x => x.Title == windowTitle[hWnd] && x.ProcessName == processName);
                                 curDisplayMetrics = SearchDb(db, results);
                             }
                         }
 
                         if (curDisplayMetrics == null)
                         {
-                            var results = db.Find(x => x.ClassName == window.ClassName);
+                            var results = db.Find(x => x.ClassName == window.ClassName && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(db, results);
                         }
 
@@ -1038,14 +1051,10 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
-                        if (curDisplayMetrics.ProcessName != processName)
-                        {
-                            continue;
-                        }
-
                         // update stale window/process id
                         curDisplayMetrics.HWnd = window.HWnd;
                         curDisplayMetrics.ProcessId = processId;
+                        curDisplayMetrics.ProcessName = processName;
                         curDisplayMetrics.DbMatchWindow = true;
                         db.Update(curDisplayMetrics);
 
@@ -1168,11 +1177,14 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 pathToExe = buf.ToString();
             }
+            /*
             else
             {
+                // fail to get taskmgr process path, need admin privilege
                 int error = Marshal.GetLastWin32Error();
                 pathToExe = ("Error = " + error + " when calling GetProcessImageFileName");
             }
+            */
 
             return pathToExe;
         }

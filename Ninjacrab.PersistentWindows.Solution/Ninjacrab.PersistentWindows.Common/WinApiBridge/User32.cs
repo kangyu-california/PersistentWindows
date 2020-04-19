@@ -44,6 +44,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         EVENT_OBJECT_DESTROY = 0x8001,
         EVENT_OBJECT_LOCATIONCHANGE = 0x800B,
+        EVENT_OBJECT_NAMECHANGE = 0x800C,
 
         WINEVENT_OUTOFCONTEXT = 0x0000,
         WINEVENT_SKIPOWNTHREAD = 0x0001,
