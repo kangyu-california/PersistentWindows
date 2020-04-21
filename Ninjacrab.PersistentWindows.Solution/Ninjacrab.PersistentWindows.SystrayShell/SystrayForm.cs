@@ -51,7 +51,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             this.notifyIconMain.Visible = false;
             this.notifyIconMain.Icon = null;
-            Program.Stop();
             Application.Exit();
         }
 

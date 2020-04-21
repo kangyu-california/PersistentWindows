@@ -141,7 +141,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SystrayForm";
-            //this.Text = "Persistent Windows";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 

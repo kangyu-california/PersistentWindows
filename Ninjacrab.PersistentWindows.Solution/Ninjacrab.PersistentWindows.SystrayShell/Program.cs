@@ -11,7 +11,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// The main entry point for the application.
         /// </summary>
         static PersistentWindowProcessor pwp;
-        [STAThread]
+        //[STAThread]
         static void Main(string[] args)
         {
             bool no_splash = false;
@@ -80,11 +80,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             Thread.Sleep(2000); // let mouse settle still for taskbar restoration
             pwp.BatchRestoreApplicationsOnCurrentDisplays(restoreFromDB : true);
-        }
-
-        static public void Stop()
-        {
-            pwp.Stop();
         }
 
     }

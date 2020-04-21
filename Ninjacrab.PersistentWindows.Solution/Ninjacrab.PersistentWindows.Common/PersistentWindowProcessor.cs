@@ -300,29 +300,44 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             var window = new SystemWindow(hwnd);
-            if (window.Parent.HWnd.ToInt64() != 0 || !window.Visible || string.IsNullOrEmpty(window.Title))
+            if (window.Parent.HWnd.ToInt64() != 0)
             {
-                // only track top level visible windows
+                // only track top level windows
                 return;
             }
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
-                string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd);
+                if (idObject != 0)
+                {
+                    // ignore non-window object (caret etc)
+                    return;
+                }
 
                 lock (databaseLock)
                 {
+                    string applicationKey = ApplicationDisplayMetrics.GetKey(hwnd);
                     foreach (var item in monitorApplications)
                     {
                         string displayKey = item.Key;
-                        if (monitorApplications[displayKey].ContainsKey(applicationKey))
-                        {
-                            monitorApplications[displayKey].Remove(applicationKey);
-                        }
+                        monitorApplications[displayKey].Remove(applicationKey);
                     }
 
                     windowTitle.Remove(hwnd);
                 }
+
+                return;
+            }
+
+            // only track visible windows
+            if (!window.Visible)
+            {
+                return;
+            }
+
+            // auto track taskbar
+            if (string.IsNullOrEmpty(window.Title) && !IsTaskBar(window))
+            {
                 return;
             }
 
@@ -630,14 +645,15 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private void RemoveBatchCaptureTime()
+        private void RemoveBatchCaptureTime(bool force = true)
         {
             lock (controlLock)
             {
-                if (sessionEndTime.ContainsKey(validDisplayKeyForCapture))
+                if (!force && sessionEndTime.ContainsKey(validDisplayKeyForCapture))
                 {
-                    sessionEndTime.Remove(validDisplayKeyForCapture);
+                    return;
                 }
+                sessionEndTime.Remove(validDisplayKeyForCapture);
             }
 
         }
@@ -1190,7 +1206,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return pathToExe;
         }
 
-        public void Stop()
+        public void StopRunningThreads()
         {
             //stop running thread of event loop
         }
@@ -1198,6 +1214,8 @@ namespace Ninjacrab.PersistentWindows.Common
 #region IDisposable
         public virtual void Dispose(bool disposing)
         {
+            StopRunningThreads();
+
             SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
             SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
             SystemEvents.PowerModeChanged -= powerModeChangedHandler;
@@ -1207,6 +1225,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 User32.UnhookWinEvent(handle);
             }
+
+            persistDB.Dispose();
         }
 
         public void Dispose()
