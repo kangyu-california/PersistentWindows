@@ -22,9 +22,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private System.Windows.Forms.ToolStripMenuItem diagnosticsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem0;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+        private System.Windows.Forms.ToolStripSeparator[] toolStripMenuItem = new System.Windows.Forms.ToolStripSeparator[3];
 
         /// <summary>
         /// Clean up any resources being used.
@@ -55,9 +53,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem0 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+            for (int i = 0; i < 3; ++i)
+            {
+                this.toolStripMenuItem[i] = new System.Windows.Forms.ToolStripSeparator();
+                this.toolStripMenuItem[i].Name = $"toolStripMenuItem{i}";
+                this.toolStripMenuItem[i].Size = new System.Drawing.Size(132, 6);
+            }
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripSysTray.SuspendLayout();
             this.SuspendLayout();
@@ -73,12 +74,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.contextMenuStripSysTray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 this.captureToolStripMenuItem,
-                this.toolStripMenuItem0,
+                this.toolStripMenuItem[0],
                 this.restoreToolStripMenuItem,
-                this.toolStripMenuItem1,
+                this.toolStripMenuItem[1],
                 this.diagnosticsToolStripMenuItem,
                 this.aboutToolStripMenuItem,
-                this.toolStripMenuItem2,
+                this.toolStripMenuItem[2],
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
             this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
@@ -89,11 +90,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.captureToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.captureToolStripMenuItem.Text = "&Capture windows to disk";
             this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowClickHandler);
-            // 
-            // toolStripMenuItem
-            // 
-            this.toolStripMenuItem0.Name = "toolStripMenuItem0";
-            this.toolStripMenuItem0.Size = new System.Drawing.Size(132, 6);
 
             // restore
             // 
@@ -101,11 +97,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
-            // 
-            // toolStripMenuItem
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(132, 6);
 
             // 
             // diagnosticsToolStripMenuItem
@@ -121,11 +112,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClickHandler);
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(132, 6);
+
             // 
             // exitToolStripMenuItem
             // 

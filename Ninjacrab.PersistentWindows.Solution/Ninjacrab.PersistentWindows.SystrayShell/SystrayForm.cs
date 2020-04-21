@@ -8,12 +8,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
     public partial class SystrayForm : Form
     {
         public MainWindow MainView { get; set; }
-        public static readonly string ProjectUrl = "https://github.com/kangyu-california/PersistentWindows";
 
         public SystrayForm()
         {
             InitializeComponent();
-            this.aboutToolStripMenuItem.Text = "About";
         }
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)
@@ -44,7 +42,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
-            Process.Start(ProjectUrl);
+            Process.Start(Program.ProjectUrl);
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)

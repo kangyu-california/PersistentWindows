@@ -11,6 +11,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// The main entry point for the application.
         /// </summary>
         static PersistentWindowProcessor pwp;
+        public static readonly string ProjectUrl = "https://github.com/kangyu-california/PersistentWindows";
         //[STAThread]
         static void Main(string[] args)
         {

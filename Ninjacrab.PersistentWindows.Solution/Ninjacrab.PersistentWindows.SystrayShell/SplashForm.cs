@@ -19,7 +19,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void label1_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/kangyu-california/PersistentWindows");
+            System.Diagnostics.Process.Start(Program.ProjectUrl);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
