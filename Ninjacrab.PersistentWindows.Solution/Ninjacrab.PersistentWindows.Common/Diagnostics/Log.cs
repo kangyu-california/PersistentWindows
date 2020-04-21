@@ -22,11 +22,15 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
             // Step 3. Set target properties 
             consoleTarget.Layout = @"${date:format=HH\\:mm\\:ss} ${logger} ${message}";
 #if DEBUG
-            fileTarget.FileName = "${basedir}/PersistentWindows.Log";
+            //string fileName = "${basedir}/PersistentWindows.Log";
+            string fileName = "PersistentWindows.Log";
 #else
             string tempFolderPath = Path.GetTempPath();
-            fileTarget.FileName = $"{tempFolderPath}/PersistentWindows.Log";
+            string fileName = $"{tempFolderPath}/PersistentWindows.Log";
 #endif
+            File.Delete(fileName);
+            fileTarget.FileName = fileName;
+
             fileTarget.Layout = "${date:format=HH\\:mm\\:ss} ${logger} ${message}";
 
             // Step 4. Define rules
