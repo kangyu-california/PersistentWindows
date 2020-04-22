@@ -44,7 +44,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 #endif
 
             pwp = new PersistentWindowProcessor();
-            pwp.shownRestoreTip = ShowRestoreTip;
+            pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.Start();
 

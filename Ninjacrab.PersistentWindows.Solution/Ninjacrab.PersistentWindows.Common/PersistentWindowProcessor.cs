@@ -73,7 +73,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // callbacks
         public delegate void CallBack();
-        public CallBack shownRestoreTip;
+        public CallBack showRestoreTip;
         public CallBack hideRestoreTip;
 
         private PowerModeChangedEventHandler powerModeChangedHandler;
@@ -840,7 +840,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (!restoreFromDB && restoreTimes == 0)
             {
-                shownRestoreTip();
+                showRestoreTip();
             }
 
             lock (controlLock)
