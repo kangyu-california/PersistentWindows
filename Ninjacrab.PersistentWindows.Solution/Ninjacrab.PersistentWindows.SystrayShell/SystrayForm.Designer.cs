@@ -14,7 +14,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.NotifyIcon notifyIconMain;
+        public System.Windows.Forms.NotifyIcon notifyIconMain;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
 
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;

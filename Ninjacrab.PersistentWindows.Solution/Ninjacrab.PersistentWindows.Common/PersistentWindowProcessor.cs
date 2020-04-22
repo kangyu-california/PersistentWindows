@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,12 +6,15 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+
 using Microsoft.Win32;
+
+using LiteDB;
 using ManagedWinapi.Windows;
+
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.Models;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
-using LiteDB;
 
 
 namespace Ninjacrab.PersistentWindows.Common
@@ -70,6 +72,10 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, DateTime> sessionEndTime = new Dictionary<string, DateTime>();
 
         // callbacks
+        public delegate void CallBack();
+        public CallBack shownRestoreTip;
+        public CallBack hideRestoreTip;
+
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
         private EventHandler displaySettingsChangedHandler;
@@ -144,6 +150,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.DbMatchWindow = false;
                     db.Update(curDisplayMetrics);
                 }
+
+                hideRestoreTip();
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -830,6 +838,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void BatchRestoreApplicationsOnCurrentDisplays(bool restoreFromDB = false)
         {
+            if (!restoreFromDB && restoreTimes == 0)
+            {
+                shownRestoreTip();
+            }
+
             lock (controlLock)
             {
                 if (!restoringWindowPos && !restoreFromDB)
