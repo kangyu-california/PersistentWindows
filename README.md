@@ -28,8 +28,8 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 # Use instructions
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully.
-- Some applications do require admin privilege to move window, such as TaskMgr, WSL console etc. 
-- The program is then minimized to an icon in the systray area on task bar.
-- To save current display session to persistent storage, or if you need to capture taskbar position change, right click the icon and select "Capture windows to disk" 
-- To recover window layout from persistent storage, or to recover last saved session after computer reboot, right click the icon and select "Restore windows from disk"
+- Some applications (such as Task Manager, WSL console etc) do require running PersistentWindows with admin privilege in order to be movable.
+- PersistentWindows minimizes itself as an icon in the systray area on task bar.
+- To save current window layout to persistent storage, right click the icon and select "Capture windows to disk" 
+- To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
