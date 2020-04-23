@@ -967,8 +967,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
         }
 
-        private ApplicationDisplayMetrics SearchDb(ILiteCollection<ApplicationDisplayMetrics> db, 
-            IEnumerable<ApplicationDisplayMetrics> results)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
         { 
             foreach (var result in results)
             {
@@ -1049,19 +1048,19 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             string title = windowTitle[hWnd];
                             var results = db.Find(x => x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
-                            curDisplayMetrics = SearchDb(db, results);
+                            curDisplayMetrics = SearchDb(results);
 
                             if (curDisplayMetrics == null)
                             {
                                 results = db.Find(x => x.Title == title && x.ProcessName == processName);
-                                curDisplayMetrics = SearchDb(db, results);
+                                curDisplayMetrics = SearchDb(results);
                             }
                         }
 
                         if (curDisplayMetrics == null)
                         {
                             var results = db.Find(x => x.ClassName == window.ClassName && x.ProcessName == processName);
-                            curDisplayMetrics = SearchDb(db, results);
+                            curDisplayMetrics = SearchDb(results);
                         }
 
                         if (curDisplayMetrics == null)
