@@ -61,7 +61,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void ShowRestoreTip()
         {
-            systrayForm.notifyIconMain.ShowBalloonTip(30000, "", "Please wait while restoring windows", ToolTipIcon.Info);
+            var thread = new Thread(() =>
+            {
+                systrayForm.notifyIconMain.Visible = true;
+                systrayForm.notifyIconMain.ShowBalloonTip(30000, "", "Please wait while restoring windows", ToolTipIcon.Info);
+            });
+
+            thread.IsBackground = false;
+            thread.Start();
         }
 
         static void HideRestoreTip()
@@ -74,6 +81,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             var thread = new Thread(() => TimedSplashForm());
             thread.IsBackground = false;
+            thread.Priority = ThreadPriority.Highest;
             thread.Name = "StartSplashForm";
             thread.Start();
         }
@@ -95,8 +103,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void Restore()
         {
-            ShowRestoreTip();
-            Thread.Sleep(2000); // let mouse settle still for taskbar restoration
             pwp.BatchRestoreApplicationsOnCurrentDisplays(restoreFromDB : true);
         }
 
