@@ -67,6 +67,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             //this.notifyIconMain.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIconMain.Icon")));
             this.notifyIconMain.Icon = Properties.Resources.pwIcon;
             this.notifyIconMain.Text = $"Persistent Windows {Application.ProductVersion}";
+            this.notifyIconMain.BalloonTipTitle = "";
+            this.notifyIconMain.BalloonTipText = "Please wait while restoring windows";
+            this.notifyIconMain.BalloonTipIcon = ToolTipIcon.Info;
             this.notifyIconMain.Visible = true;
             // 
             // contextMenuStripSysTray

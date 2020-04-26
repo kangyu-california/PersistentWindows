@@ -64,7 +64,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             var thread = new Thread(() =>
             {
                 systrayForm.notifyIconMain.Visible = true;
-                systrayForm.notifyIconMain.ShowBalloonTip(30000, "", "Please wait while restoring windows", ToolTipIcon.Info);
+                systrayForm.notifyIconMain.ShowBalloonTip(30000);
             });
 
             thread.IsBackground = false;
