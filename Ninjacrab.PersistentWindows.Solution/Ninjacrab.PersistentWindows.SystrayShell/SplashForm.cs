@@ -25,6 +25,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void timer1_Tick(object sender, EventArgs e)
         {
             progressBar1.PerformStep();
+            if (progressBar1.Value == progressBar1.Maximum)
+            {
+                this.Close();
+            }
         }
 
         private void SplashForm_Load(object sender, EventArgs e)

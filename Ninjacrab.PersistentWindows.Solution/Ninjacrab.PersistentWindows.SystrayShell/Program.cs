@@ -79,21 +79,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void StartSplashForm()
         {
-            var thread = new Thread(() => TimedSplashForm());
+            var thread = new Thread(() =>
+            {
+                Application.Run(new SplashForm());
+            });
             thread.IsBackground = false;
             thread.Priority = ThreadPriority.Highest;
             thread.Name = "StartSplashForm";
             thread.Start();
-        }
-
-        static void TimedSplashForm()
-        {
-            var thread = new Thread(() => Application.Run(new SplashForm()));
-            thread.IsBackground = false;
-            thread.Name = "TimedSplashForm";
-            thread.Start();
-            Thread.Sleep(5000);
-            thread.Abort();
         }
 
         static public void Capture()
