@@ -1266,8 +1266,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 User32.UnhookWinEvent(handle);
             }
-
-            persistDB.Dispose();
         }
 
         public void Dispose()
