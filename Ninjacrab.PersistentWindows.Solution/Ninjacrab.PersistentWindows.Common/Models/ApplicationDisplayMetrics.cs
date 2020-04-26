@@ -17,7 +17,6 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ClassName { get; set; }
         public string ProcessName { get; set; }
         public string Title { get; set; }
-        public bool IsTaskbar { get; set; }
 
         // for restore window position to display session end time
         public DateTime CaptureTime { get; set; }

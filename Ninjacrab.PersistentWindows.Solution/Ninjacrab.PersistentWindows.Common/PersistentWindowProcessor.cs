@@ -775,7 +775,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 ClassName = window.ClassName,
                 Title = isTaskBar ? "$taskbar$" : window.Title,
 
-                IsTaskbar = isTaskBar,
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
@@ -1142,7 +1141,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
                 bool success = true;
-                if (curDisplayMetrics.IsTaskbar)
+                if (IsTaskBar(window))
                 {
                     MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                     continue;
