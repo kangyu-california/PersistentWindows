@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
+using System.Reflection;
 
 using Microsoft.Win32;
 
@@ -97,7 +98,26 @@ namespace Ninjacrab.PersistentWindows.Common
 #if DEBUG
             tempFolderPath = "."; //avoid db path conflict with release version
 #endif
-            persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.db");
+            // remove outdated db files
+            var dir = new DirectoryInfo(tempFolderPath);
+            var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            foreach (var file in dir.EnumerateFiles($@"{System.Windows.Forms.Application.ProductName}*.db"))
+            {
+                var fname = file.Name;
+                if (!fname.Contains(db_version))
+                {
+                    try
+                    {
+                        file.Delete();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                    }
+                }
+            }
+
+            persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.{db_version}.db");
 
             validDisplayKeyForCapture = GetDisplayKey();
             BatchCaptureApplicationsOnCurrentDisplays();
