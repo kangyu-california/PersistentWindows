@@ -495,7 +495,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.ScreenPosition.Width,
                     curDisplayMetrics.ScreenPosition.Height,
                     window.Visible,
-                    window.Title
+                    curDisplayMetrics.Title
                     );
                 string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
                     curDisplayMetrics.WindowPlacement.NormalPosition.Left,
@@ -835,10 +835,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // when close/reopen session, OS/user may activate existing window (possibly with different position)
                     // just ignore it
-                }
-                else if (isTaskBar)
-                {
-                    moved = !prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition);
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
