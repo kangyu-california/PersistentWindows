@@ -15,7 +15,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
 
-        //[STAThread]
+        [STAThread]
         static void Main(string[] args)
         {
             bool no_splash = false;
