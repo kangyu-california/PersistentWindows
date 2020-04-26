@@ -31,6 +31,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SplashForm));
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -42,9 +43,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.label1.Font = new System.Drawing.Font("Courier New", 10F);
             this.label1.Location = new System.Drawing.Point(184, 69);
             this.label1.Name = "label1";
-            this.label1.Text = "info"; // to be overwritten with dynamic text during form load
-            this.label1.Size = new System.Drawing.Size(0, 20);
+            this.label1.Size = new System.Drawing.Size(49, 20);
             this.label1.TabIndex = 0;
+            this.label1.Text = "info";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
@@ -68,6 +69,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(671, 353);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SplashForm";
             this.Load += new System.EventHandler(this.SplashForm_Load);
             this.ResumeLayout(false);

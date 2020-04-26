@@ -19,7 +19,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem diagnosticsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator[] toolStripMenuItem = new System.Windows.Forms.ToolStripSeparator[3];
@@ -49,7 +48,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SystrayForm));
             this.notifyIconMain = new System.Windows.Forms.NotifyIcon(this.components);
             this.contextMenuStripSysTray = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.diagnosticsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,7 +76,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 this.toolStripMenuItem[0],
                 this.restoreToolStripMenuItem,
                 this.toolStripMenuItem[1],
-                this.diagnosticsToolStripMenuItem,
                 this.aboutToolStripMenuItem,
                 this.toolStripMenuItem[2],
                 this.exitToolStripMenuItem});
@@ -99,13 +96,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
 
-            // 
-            // diagnosticsToolStripMenuItem
-            // 
-            this.diagnosticsToolStripMenuItem.Name = "diagnosticsToolStripMenuItem";
-            this.diagnosticsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.diagnosticsToolStripMenuItem.Text = "&Diagnostics";
-            this.diagnosticsToolStripMenuItem.Click += new System.EventHandler(this.DiagnosticsToolStripMenuItemClickHandler);
             // 
             // aboutToolStripMenuItem
             // 
@@ -128,7 +118,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            //this.Icon = Properties.Resources.pwIcon;
             this.Name = "SystrayForm";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);

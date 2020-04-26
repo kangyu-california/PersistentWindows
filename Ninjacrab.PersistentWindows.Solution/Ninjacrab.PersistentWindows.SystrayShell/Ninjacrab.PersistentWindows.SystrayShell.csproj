@@ -125,10 +125,6 @@
       <Project>{4cc8b3fb-214b-42ab-8aae-e7dc5e266ef0}</Project>
       <Name>Ninjacrab.PersistentWindows.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Ninjacrab.PersistentWindows.WpfShell\Ninjacrab.PersistentWindows.WpfShell.csproj">
-      <Project>{4ea12ec8-b50f-4dea-aa7d-85a5f4c81f83}</Project>
-      <Name>Ninjacrab.PersistentWindows.WpfShell</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="..\Resources\Oxygen-Icons.org-Oxygen-Status-media-playlist-repeat.ico">
