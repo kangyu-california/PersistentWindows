@@ -785,7 +785,9 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 //newly created window
+#if DEBUG
                 Debug.Assert(!windowTitle.ContainsKey(hwnd), "unexpected hwnd entry");
+#endif
                 windowTitle[hwnd] = curDisplayMetrics.Title;
                 moved = true;
             }
