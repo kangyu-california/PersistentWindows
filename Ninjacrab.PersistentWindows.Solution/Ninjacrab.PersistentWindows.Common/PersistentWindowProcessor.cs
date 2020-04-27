@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+//using System.Windows.Forms;
 
 using Microsoft.Win32;
 
@@ -92,8 +93,9 @@ namespace Ninjacrab.PersistentWindows.Common
             ;
         }
 #endif
-        public void Start()
+        public bool Start()
         {
+            string productName = System.Windows.Forms.Application.ProductName;
             string tempFolderPath = Path.GetTempPath();
 #if DEBUG
             tempFolderPath = "."; //avoid db path conflict with release version
@@ -101,7 +103,7 @@ namespace Ninjacrab.PersistentWindows.Common
             // remove outdated db files
             var dir = new DirectoryInfo(tempFolderPath);
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            foreach (var file in dir.EnumerateFiles($@"{System.Windows.Forms.Application.ProductName}*.db"))
+            foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
             {
                 var fname = file.Name;
                 if (!fname.Contains(db_version))
@@ -117,7 +119,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            persistDB = new LiteDatabase($@"{tempFolderPath}/{System.Windows.Forms.Application.ProductName}.{db_version}.db");
+            try
+            {
+                persistDB = new LiteDatabase($@"{tempFolderPath}/{productName}.{db_version}.db");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Forms.MessageBox.Show($"Only one instance of {productName} can be run!");
+                return false;
+            }
 
             validDisplayKeyForCapture = GetDisplayKey();
             BatchCaptureApplicationsOnCurrentDisplays();
@@ -319,6 +329,8 @@ namespace Ninjacrab.PersistentWindows.Common
             };
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
+
+            return true;
         }
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)

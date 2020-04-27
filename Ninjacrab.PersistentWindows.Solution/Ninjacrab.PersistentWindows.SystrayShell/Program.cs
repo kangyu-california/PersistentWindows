@@ -29,7 +29,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
-#if (!DEBUG)
+/*
             Mutex singleInstMutex = new Mutex(true, Application.ProductName);
             if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
             {
@@ -41,12 +41,16 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 singleInstMutex.ReleaseMutex();
             }
-#endif
+*/
 
             pwp = new PersistentWindowProcessor();
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
-            pwp.Start();
+
+            if (!pwp.Start())
+            {
+                return;
+            }
 
             if (!no_splash)
             {
