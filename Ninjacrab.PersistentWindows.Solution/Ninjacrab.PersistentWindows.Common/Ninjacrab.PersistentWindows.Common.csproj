@@ -36,10 +36,6 @@
     <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="ManagedWinapi">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\ManagedWinapi.0.3\ManagedWinapi.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -49,6 +45,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ManagedWinapi">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(NuGetPackageRoot)\managedwinapi\0.3.0\ManagedWinapi.dll</HintPath>
+    </Reference>
+
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics\Log.cs" />
@@ -70,6 +71,9 @@
   <ItemGroup>
     <PackageReference Include="LiteDB">
       <Version>5.0.5</Version>
+    </PackageReference>
+    <PackageReference Include="ManagedWinapi">
+      <Version>0.3.0</Version>
     </PackageReference>
     <PackageReference Include="NLog">
       <Version>4.6.8</Version>
