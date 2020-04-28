@@ -100,7 +100,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void Restore()
         {
-            pwp.BatchRestoreApplicationsOnCurrentDisplays(restoreFromDB : true);
+            pwp.restoreFromDB = true;
+            pwp.BatchRestoreApplicationsOnCurrentDisplays();
         }
 
     }
