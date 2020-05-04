@@ -107,6 +107,86 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy,
             SetWindowPosFlags uFlags);
 
+        [DllImport("user32.dll")]
+        public static extern IntPtr BeginDeferWindowPos(int nNumWindows);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr DeferWindowPos(IntPtr hWinPosInfo, IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int cx, int cy,
+            DeferWindowPosCommands uFlags);
+
+        public enum DeferWindowPosCommands : uint
+        {
+            SWP_DRAWFRAME = 0x0020,
+            SWP_FRAMECHANGED = 0x0020,
+            SWP_HIDEWINDOW = 0x0080,
+            SWP_NOACTIVATE = 0x0010,
+            SWP_NOCOPYBITS = 0x0100,
+            SWP_NOMOVE = 0x0002,
+            SWP_NOOWNERZORDER = 0x0200,
+            SWP_NOREDRAW = 0x0008,
+            SWP_NOREPOSITION = 0x0200,
+            SWP_NOSENDCHANGING = 0x0400,
+            SWP_NOSIZE = 0x0001,
+            SWP_NOZORDER = 0x0004,
+            SWP_SHOWWINDOW = 0x0040
+        };
+
+        [DllImport("user32.dll")]
+        public static extern bool EndDeferWindowPos(IntPtr hWinPosInfo);
+
+        public enum RedrawWindowFlags : uint
+        {
+            /// <summary>
+            /// Invalidates the rectangle or region that you specify in lprcUpdate or hrgnUpdate.
+            /// You can set only one of these parameters to a non-NULL value. If both are NULL, RDW_INVALIDATE invalidates the entire window.
+            /// </summary>
+            Invalidate = 0x1,
+
+            /// <summary>Causes the OS to post a WM_PAINT message to the window regardless of whether a portion of the window is invalid.</summary>
+            InternalPaint = 0x2,
+
+            /// <summary>
+            /// Causes the window to receive a WM_ERASEBKGND message when the window is repainted.
+            /// Specify this value in combination with the RDW_INVALIDATE value; otherwise, RDW_ERASE has no effect.
+            /// </summary>
+            Erase = 0x4,
+
+            /// <summary>
+            /// Validates the rectangle or region that you specify in lprcUpdate or hrgnUpdate.
+            /// You can set only one of these parameters to a non-NULL value. If both are NULL, RDW_VALIDATE validates the entire window.
+            /// This value does not affect internal WM_PAINT messages.
+            /// </summary>
+            Validate = 0x8,
+
+            NoInternalPaint = 0x10,
+
+            /// <summary>Suppresses any pending WM_ERASEBKGND messages.</summary>
+            NoErase = 0x20,
+
+            /// <summary>Excludes child windows, if any, from the repainting operation.</summary>
+            NoChildren = 0x40,
+
+            /// <summary>Includes child windows, if any, in the repainting operation.</summary>
+            AllChildren = 0x80,
+
+            /// <summary>Causes the affected windows, which you specify by setting the RDW_ALLCHILDREN and RDW_NOCHILDREN values, to receive WM_ERASEBKGND and WM_PAINT messages before the RedrawWindow returns, if necessary.</summary>
+            UpdateNow = 0x100,
+
+            /// <summary>
+            /// Causes the affected windows, which you specify by setting the RDW_ALLCHILDREN and RDW_NOCHILDREN values, to receive WM_ERASEBKGND messages before RedrawWindow returns, if necessary.
+            /// The affected windows receive WM_PAINT messages at the ordinary time.
+            /// </summary>
+            EraseNow = 0x200,
+
+            Frame = 0x400,
+
+            NoFrame = 0x800
+        }
+        [DllImport("user32.dll")]
+        public static extern bool RedrawWindow(IntPtr hWnd, 
+            IntPtr lprcUpdate, //[In] ref RECT lprcUpdate, 
+            IntPtr hrgnUpdate, RedrawWindowFlags flags);
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindow(IntPtr hWnd);

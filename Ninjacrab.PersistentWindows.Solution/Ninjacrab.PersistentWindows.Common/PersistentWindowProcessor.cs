@@ -123,7 +123,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 persistDB = new LiteDatabase($@"{tempFolderPath}/{productName}.{db_version}.db");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 System.Windows.Forms.MessageBox.Show($"Only one instance of {productName} can be run!");
                 return false;
@@ -1174,7 +1174,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 ApplicationDisplayMetrics curDisplayMetrics = null;
                 if (!IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics))
                 {
-                    // window position has no change
                     continue;
                 }
 
@@ -1183,13 +1182,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
-                bool success = true;
                 if (IsTaskBar(window))
                 {
                     MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                     continue;
                 }
 
+                bool success = true;
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
@@ -1214,7 +1213,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, false);
 
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                     window.Process.ProcessName,
@@ -1231,6 +1230,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(error);
                 }
             }
+
+            User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
