@@ -1275,7 +1275,7 @@ namespace Ninjacrab.PersistentWindows.Common
             string pathToExe = string.Empty;
 
             int nChars = 4096;
-            StringBuilder buf = new StringBuilder((int)nChars);
+            StringBuilder buf = new StringBuilder(nChars);
 
             bool success = Kernel32.QueryFullProcessImageName(hProc, 0, buf, ref nChars);
 
