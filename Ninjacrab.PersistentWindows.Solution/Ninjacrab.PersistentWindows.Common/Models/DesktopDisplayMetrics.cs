@@ -11,6 +11,23 @@ namespace Ninjacrab.PersistentWindows.Common.Models
             DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
 
             var displays = Display.GetDisplays();
+
+            displays.Sort(delegate (Display dp1, Display dp2)
+                {
+                    if (dp1.Left != dp2.Left)
+                    {
+                        return dp1.Left.CompareTo(dp2.Left);
+                    }
+
+                    if (dp1.Top != dp2.Top)
+                    {
+                        return dp1.Top.CompareTo(dp2.Top);
+                    }
+
+                    return 0;
+                }
+            );
+
             int displayId = 0;
             foreach (var display in displays)
             {
