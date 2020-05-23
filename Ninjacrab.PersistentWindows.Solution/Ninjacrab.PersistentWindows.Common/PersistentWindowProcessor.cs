@@ -242,7 +242,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     DateTime time = DateTime.Now;
                     Log.Info("Display settings changing {0}", time);
-                    EndDisplaySession();
+                    lock (controlLock)
+                    {
+                        EndDisplaySession();
+                    }
                 };
 
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -253,16 +256,19 @@ namespace Ninjacrab.PersistentWindows.Common
                     DateTime time = DateTime.Now;
                     Log.Info("Display settings changed {0}", time);
 
-                    if (sessionLocked)
+                    lock (controlLock)
                     {
-                        //wait for session unlock to start restore
-                    }
-                    else
-                    {
-                        // change display on the fly
-                        ResetState();
-                        restoringWindowPos = true;
-                        StartRestoreTimer();
+                        if (sessionLocked)
+                        {
+                            //wait for session unlock to start restore
+                        }
+                        else
+                        {
+                            // change display on the fly
+                            ResetState();
+                            restoringWindowPos = true;
+                            StartRestoreTimer();
+                        }
                     }
                 };
 
@@ -275,19 +281,25 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Info("System suspending");
-                            if (!sessionLocked)
+                            lock (controlLock)
                             {
-                                EndDisplaySession();
+                                if (!sessionLocked)
+                                {
+                                    EndDisplaySession();
+                                }
                             }
                             break;
 
                         case PowerModes.Resume:
                             Log.Info("System Resuming");
-                            if (!sessionLocked)
+                            lock (controlLock)
                             {
-                                // force restore in case OS does not generate display changed event
-                                restoringWindowPos = true;
-                                StartRestoreTimer();
+                                if (!sessionLocked)
+                                {
+                                    // force restore in case OS does not generate display changed event
+                                    restoringWindowPos = true;
+                                    StartRestoreTimer();
+                                }
                             }
                             break;
                     }
@@ -301,15 +313,21 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     case SessionSwitchReason.SessionLock:
                         Log.Trace("Session closing: reason {0}", args.Reason);
-                        sessionLocked = true;
-                        EndDisplaySession();
+                        lock (controlLock)
+                        {
+                            sessionLocked = true;
+                            EndDisplaySession();
+                        }
                         break;
                     case SessionSwitchReason.SessionUnlock:
                         Log.Trace("Session opening: reason {0}", args.Reason);
-                        sessionLocked = false;
-                        // force restore in case OS does not generate display changed event
-                        restoringWindowPos = true;
-                        StartRestoreTimer();
+                        lock (controlLock)
+                        {
+                            sessionLocked = false;
+                            // force restore in case OS does not generate display changed event
+                            restoringWindowPos = true;
+                            StartRestoreTimer();
+                        }
                         break;
 
                     case SessionSwitchReason.RemoteDisconnect:
