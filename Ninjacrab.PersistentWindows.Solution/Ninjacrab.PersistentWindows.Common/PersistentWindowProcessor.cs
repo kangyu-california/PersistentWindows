@@ -829,14 +829,7 @@ namespace Ninjacrab.PersistentWindows.Common
             bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
-                //newly created window
-
-                //Debug.Assert(!windowTitle.ContainsKey(hwnd), "unexpected hwnd entry");
-                if (windowTitle.ContainsKey(hwnd))
-                {
-                    Log.Trace("unexpected hwnd entry with title {0}", windowTitle[hwnd]);
-                }
-
+                //newly created or not recorded window
                 windowTitle[hwnd] = curDisplayMetrics.Title;
                 moved = true;
             }
