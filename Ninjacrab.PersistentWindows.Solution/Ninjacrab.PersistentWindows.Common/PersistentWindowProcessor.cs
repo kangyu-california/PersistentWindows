@@ -536,7 +536,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications[displayKey].Add(hWnd, new Queue<ApplicationDisplayMetrics>());
                     monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
                 }
-                else
+                else if (!sessionEndTime.ContainsKey(displayKey))
+                    //no capture when session is inactive to avoid queue overflow
                 {
                     if (monitorApplications[displayKey][hWnd].Count == MaxHistoryQueueLength)
                     {
