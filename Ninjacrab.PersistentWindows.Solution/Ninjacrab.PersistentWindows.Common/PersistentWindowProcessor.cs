@@ -298,7 +298,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     // force restore in case OS does not generate display changed event
                                     restoringWindowPos = true;
-                                    StartRestoreTimer();
+                                    StartRestoreTimer(milliSecond : DefaultRestoreLatency);
                                 }
                             }
                             break;
@@ -626,7 +626,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void StartRestoreFinishedTimer(int milliSecond = DefaultRestoreLatency)
+        private void StartRestoreFinishedTimer(int milliSecond)
         {
             restoreFinishedTimer.Change(milliSecond, Timeout.Infinite);
         }
