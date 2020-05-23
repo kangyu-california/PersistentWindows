@@ -240,8 +240,8 @@ namespace Ninjacrab.PersistentWindows.Common
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
-                    DateTime time = DateTime.Now;
-                    Log.Info("Display settings changing {0}", time);
+                    string displayKey = GetDisplayKey();
+                    Log.Info("Display settings changing {0}", displayKey);
                     lock (controlLock)
                     {
                         EndDisplaySession();
@@ -253,8 +253,8 @@ namespace Ninjacrab.PersistentWindows.Common
             this.displaySettingsChangedHandler =
                 (s, e) =>
                 {
-                    DateTime time = DateTime.Now;
-                    Log.Info("Display settings changed {0}", time);
+                    string displayKey = GetDisplayKey();
+                    Log.Info("Display settings changed {0}", displayKey);
 
                     lock (controlLock)
                     {
