@@ -576,7 +576,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private string GetDisplayKey()
         {
-            DesktopDisplayMetrics metrics = DesktopDisplayMetrics.AcquireMetrics();
+            DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
+            metrics.AcquireMetrics();
             return metrics.Key;
         }
 
