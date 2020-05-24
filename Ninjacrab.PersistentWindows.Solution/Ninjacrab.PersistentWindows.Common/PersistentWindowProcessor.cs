@@ -949,10 +949,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             validDisplayKeyForCapture = GetDisplayKey();
                             if (!RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture))
                             {
-                                // new display config
-                                BatchCaptureApplicationsOnCurrentDisplays();
-                                //StartRestoreFinishedTimer(0);
-                                return;
+                                if (restoringWindowPos)
+                                {
+                                    // new display config
+                                    BatchCaptureApplicationsOnCurrentDisplays();
+                                    //StartRestoreFinishedTimer(0);
+                                }
                             }
                             restoreTimes++;
 
