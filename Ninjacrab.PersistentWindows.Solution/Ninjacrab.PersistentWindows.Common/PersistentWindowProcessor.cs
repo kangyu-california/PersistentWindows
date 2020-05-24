@@ -829,8 +829,11 @@ namespace Ninjacrab.PersistentWindows.Common
             bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
-                //newly created or not recorded window
-                windowTitle[hwnd] = curDisplayMetrics.Title;
+                //newly created window or new display setting
+                if (!windowTitle.ContainsKey(hwnd))
+                {
+                    windowTitle[hwnd] = curDisplayMetrics.Title;
+                }
                 moved = true;
             }
             else
@@ -939,9 +942,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             validDisplayKeyForCapture = GetDisplayKey();
                             if (!RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture))
                             {
-                                // new display config, immediately finish restore
+                                // new display config
                                 BatchCaptureApplicationsOnCurrentDisplays();
-                                StartRestoreFinishedTimer(0);
+                                //StartRestoreFinishedTimer(0);
                                 return;
                             }
                             restoreTimes++;
