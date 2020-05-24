@@ -35,7 +35,8 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         public override string ToString()
         {
-            return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ProcessName);
+            //return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ProcessName);
+            return string.Format("{0}.{1:x8} {2}", ProcessId, HWnd.ToInt64(), ProcessName);
         }
     }
 }

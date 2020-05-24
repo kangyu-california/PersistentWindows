@@ -386,11 +386,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
+            /*
             // only track visible windows
             if (!window.Visible)
             {
                 return;
             }
+            */
 
             // auto track taskbar
             if (string.IsNullOrEmpty(window.Title) && !IsTaskBar(window))
@@ -523,6 +525,11 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             bool ret = false;
             IntPtr hWnd = window.HWnd;
+
+            if (!window.Visible)
+            {
+                return false;
+            }
 
             if (!monitorApplications.ContainsKey(displayKey))
             {
