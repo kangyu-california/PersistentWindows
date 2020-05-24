@@ -937,7 +937,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
-                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
+                            if (!RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture))
+                            {
+                                // new display config, immediately finish restore
+                                BatchCaptureApplicationsOnCurrentDisplays();
+                                StartRestoreFinishedTimer(0);
+                                return;
+                            }
                             restoreTimes++;
 
                             // schedule finish restore
