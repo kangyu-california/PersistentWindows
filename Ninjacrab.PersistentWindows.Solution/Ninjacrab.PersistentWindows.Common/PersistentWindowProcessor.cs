@@ -947,15 +947,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
                             validDisplayKeyForCapture = GetDisplayKey();
-                            if (!RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture))
-                            {
-                                if (restoringWindowPos)
-                                {
-                                    // new display config
-                                    BatchCaptureApplicationsOnCurrentDisplays();
-                                    //StartRestoreFinishedTimer(0);
-                                }
-                            }
+                            RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
 
                             // schedule finish restore
@@ -1097,6 +1089,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 // the display setting has not been captured yet
                 Log.Trace("Unknown display setting {0}", displayKey);
+                // new display config
+                BatchCaptureApplicationsOnCurrentDisplays();
                 return succeed;
             }
 
