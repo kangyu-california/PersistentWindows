@@ -1264,7 +1264,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
-            if (restoreFromDB)
+            if (restoreFromDB && restoreTimes == 0)
             {
                 // launch process in db
                 var results = db.Find(x => x.DbMatchWindow == false); // find process not yet started
