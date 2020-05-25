@@ -47,7 +47,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        private bool disableBatchCapture = false;
         private string validDisplayKeyForCapture = null;
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
@@ -144,11 +143,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 lock (controlLock)
                 {
-                    if (disableBatchCapture)
-                    {
-                        return;
-                    }
-
                     if (pendingCaptureWindows.Count > MinOsMoveWindows)
                     {
                         RecordBatchCaptureTime(DateTime.Now);
@@ -481,20 +475,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                            string displayKey = GetDisplayKey();
-                            if (displayKey != validDisplayKeyForCapture)
-                            {
-                                disableBatchCapture = true;
-                                Log.Trace("Discard capture for {0}, when expecting {1}", displayKey, validDisplayKeyForCapture);
-                                break;
-                            }
-
                             var thread = new Thread(() =>
                             {
                                 try
                                 {
                                     lock (databaseLock)
                                     {
+                                        string displayKey = GetDisplayKey();
                                         CaptureWindow(window, eventType, now, displayKey);
                                         if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND)
                                         {
@@ -561,10 +548,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications[displayKey].Add(hWnd, new Queue<ApplicationDisplayMetrics>());
                     monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
                 }
-                else if (!sessionEndTime.ContainsKey(displayKey))
-                    //no capture when session is inactive to avoid queue overflow
+                else
                 {
-                    if (monitorApplications[displayKey][hWnd].Count == MaxHistoryQueueLength)
+                    if (!sessionEndTime.ContainsKey(displayKey)
+                        && monitorApplications[displayKey][hWnd].Count >= MaxHistoryQueueLength)
                     {
                         // limit length of capture history
                         monitorApplications[displayKey][hWnd].Dequeue();
@@ -649,17 +636,9 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    string displayKey = GetDisplayKey();
-                    if (displayKey != validDisplayKeyForCapture)
-                    {
-                        disableBatchCapture = true;
-                        // discard the capture request due to display setting change
-                        Log.Trace("Discard capture for {0}, when expecting {1}", displayKey, validDisplayKeyForCapture);
-                        return;
-                    }
-
                     lock (databaseLock)
                     {
+                        string displayKey = GetDisplayKey();
                         CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB);
                     }
                 }
@@ -704,7 +683,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // reset capture statistics for next capture period
-                disableBatchCapture = false;
                 pendingCaptureWindows.Clear();
             }
         }
