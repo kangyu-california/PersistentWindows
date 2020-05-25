@@ -508,6 +508,15 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        private void TrimQueue(string displayKey, IntPtr hwnd)
+        {
+            if (monitorApplications[displayKey][hwnd].Count >= MaxHistoryQueueLength)
+            {
+                // limit length of capture history
+                monitorApplications[displayKey][hwnd].Dequeue();
+            }
+        }
+
         private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveToDB = false)
         {
             bool ret = false;
@@ -550,11 +559,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
-                    if (!sessionEndTime.ContainsKey(displayKey)
-                        && monitorApplications[displayKey][hWnd].Count >= MaxHistoryQueueLength)
+                    if (!sessionEndTime.ContainsKey(displayKey))
                     {
-                        // limit length of capture history
-                        monitorApplications[displayKey][hWnd].Dequeue();
+                        TrimQueue(displayKey, hWnd);
                     }
                     monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
                 }
@@ -1156,11 +1163,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     curDisplayMetrics.CaptureTime = restoreTime;
 
-                    if (monitorApplications[displayKey][hWnd].Count == MaxHistoryQueueLength)
-                    {
-                        // limit length of capture history
-                        monitorApplications[displayKey][hWnd].Dequeue();
-                    }
+                    TrimQueue(displayKey, hWnd);
                     monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
                 }
             }
