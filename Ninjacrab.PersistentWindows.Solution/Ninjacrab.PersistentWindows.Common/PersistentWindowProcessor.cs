@@ -170,12 +170,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 RemoveBatchCaptureTime();
 
                 // clear DbMatchWindow flag in db
-                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(validDisplayKeyForCapture);
-                var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
-                foreach (var curDisplayMetrics in results)
+                if (persistDB.CollectionExists(validDisplayKeyForCapture))
                 {
-                    curDisplayMetrics.DbMatchWindow = false;
-                    db.Update(curDisplayMetrics);
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(validDisplayKeyForCapture);
+                    var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
+                    foreach (var curDisplayMetrics in results)
+                    {
+                        curDisplayMetrics.DbMatchWindow = false;
+                        db.Update(curDisplayMetrics);
+                    }
                 }
 
                 hideRestoreTip();
