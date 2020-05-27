@@ -968,6 +968,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsTaskBar(SystemWindow window)
         {
+            if (!window.IsValid() || !window.Visible || string.IsNullOrEmpty(window.ClassName))
+            {
+                return false;
+            }
+
             return window.ClassName.Equals("Shell_TrayWnd");
         }
 
