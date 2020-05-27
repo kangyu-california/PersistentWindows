@@ -162,6 +162,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreFinishedTimer = new Timer(state =>
             {
+                User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
+
                 Log.Trace("Restore Finished");
                 restoringWindowPos = false;
                 ResetState();
@@ -1246,7 +1248,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
+            //User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
