@@ -34,7 +34,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
         private const int MinOsMoveWindows = 4; // minimum number of moving windows to measure in order to recognize OS initiated move
-        private const int MaxHistoryQueueLength = 20;
+        private const int NormHistoryQueueLength = 20;
+        private const int MaxHistoryQueueLength = 40;
 
         // window position database
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications  //in-memory database
@@ -515,7 +516,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void TrimQueue(string displayKey, IntPtr hwnd)
         {
-            if (monitorApplications[displayKey][hwnd].Count >= MaxHistoryQueueLength)
+            if (monitorApplications[displayKey][hwnd].Count >= NormHistoryQueueLength)
             {
                 // limit length of capture history
                 monitorApplications[displayKey][hwnd].Dequeue();
@@ -568,7 +569,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         TrimQueue(displayKey, hWnd);
                     }
-                    monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
+
+                    if (monitorApplications[displayKey][hWnd].Count < MaxHistoryQueueLength)
+                    {
+                        monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
+                    }
                 }
                 ret = true;
             }
