@@ -54,6 +54,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
             }
 
             string key = string.Join("__", keySegments);
+            key.Replace('-', 'M'); //liteDb does not accept minus char
             return key;
         }
 
