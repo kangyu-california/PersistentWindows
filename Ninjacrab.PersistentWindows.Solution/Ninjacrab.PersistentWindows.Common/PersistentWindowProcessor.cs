@@ -942,9 +942,20 @@ namespace Ninjacrab.PersistentWindows.Common
                     lock (databaseLock)
                     {
                         CancelRestoreFinishedTimer();
-                        if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
+                        string displayKey = GetDisplayKey();
+                        if (restoreTimes == 0)
                         {
-                            validDisplayKeyForCapture = GetDisplayKey();
+                            validDisplayKeyForCapture = displayKey;
+                        }
+
+                        if (!displayKey.Equals(validDisplayKeyForCapture))
+                        {
+                            Log.Trace("display changes during restore, wait for event");
+                            // immediately finish restore
+                            StartRestoreFinishedTimer(0);
+                        }
+                        else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
+                        {
                             RestoreApplicationsOnCurrentDisplays(validDisplayKeyForCapture);
                             restoreTimes++;
 
