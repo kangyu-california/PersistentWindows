@@ -1215,6 +1215,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
+                /*
                 if (!sessionReconnect)
                 {
                     // the change of screen resolution might be triggered by resuming to or switching from game mode
@@ -1229,6 +1230,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
                 }
+                */
 
                 bool success = true;
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
