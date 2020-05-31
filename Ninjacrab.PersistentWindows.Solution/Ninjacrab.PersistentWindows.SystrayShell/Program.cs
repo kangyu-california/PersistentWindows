@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+
 using Ninjacrab.PersistentWindows.Common;
+using Ninjacrab.PersistentWindows.Common.Diagnostics;
 
 namespace Ninjacrab.PersistentWindows.SystrayShell
 {
@@ -19,12 +21,18 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static void Main(string[] args)
         {
             bool no_splash = false;
+            bool dry_run = false;
             foreach (var arg in args)
             {
                 switch(arg)
                 {
                     case "-silent":
                         no_splash = true;
+                        break;
+
+                    case "-dry_run":
+                        Log.Trace("dry_run mode");
+                        dry_run = true;
                         break;
                 }
             }
@@ -44,6 +52,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 */
 
             pwp = new PersistentWindowProcessor();
+            pwp.dryRun = dry_run;
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
 

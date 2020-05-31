@@ -53,6 +53,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
 
         // restore control
+        public bool dryRun; // only capturre, no actual restore
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
         private bool restoringWindowPos = false; // about to restore
@@ -1211,7 +1212,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (IsTaskBar(window))
                 {
-                    MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                    if (!dryRun)
+                    {
+                        MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                    }
                     continue;
                 }
 
@@ -1236,7 +1240,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun)
                     {
                         // When restoring maximized windows, it occasionally switches res and when the maximized setting is restored
                         // the window thinks it's maximized, but does not eat all the real estate. So we'll temporarily unmaximize then
@@ -1246,7 +1250,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
 
-                    success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                    if (!dryRun)
+                    {
+                        success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                    }
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         windowPlacement.NormalPosition.Left,
@@ -1257,7 +1264,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                if (!dryRun)
+                {
+                    success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                }
 
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                     window.Process.ProcessName,
@@ -1305,8 +1315,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!String.IsNullOrEmpty(curDisplayMetrics.ProcessExePath))
                     {
                         Log.Trace("launch process {0}", curDisplayMetrics.ProcessExePath);
-                        System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
-                        Thread.Sleep(1000);
+                        if (!dryRun)
+                        {
+                            System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
+                            Thread.Sleep(1000);
+                        }
                     }
                 }
             }
