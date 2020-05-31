@@ -164,8 +164,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreFinishedTimer = new Timer(state =>
             {
-                User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
-
                 Log.Trace("Restore Finished");
                 restoringWindowPos = false;
                 sessionReconnect = false;
@@ -1257,7 +1255,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, false);
+                success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
 
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                     window.Process.ProcessName,
