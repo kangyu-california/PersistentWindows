@@ -70,6 +70,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // session control
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
+        private bool sessionReconnect = false;
 
         // display session end time
         private Dictionary<string, DateTime> sessionEndTime = new Dictionary<string, DateTime>();
@@ -167,6 +168,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 Log.Trace("Restore Finished");
                 restoringWindowPos = false;
+                sessionReconnect = false;
                 ResetState();
                 RemoveBatchCaptureTime();
 
@@ -338,9 +340,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         remoteSession = true;
+                        sessionReconnect = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
                         remoteSession = false;
+                        sessionReconnect = true;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                 }
@@ -1211,6 +1215,21 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                     continue;
+                }
+
+                if (!sessionReconnect)
+                {
+                    // the change of screen resolution might be triggered by resuming to or switching from game mode
+                    // simply ignore such event wihout restore to previous position
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize
+                        && curDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
+                        ||
+                        windowPlacement.ShowCmd == ShowWindowCommands.Minimize
+                        && curDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Maximize
+                        )
+                    {
+                        continue;
+                    }
                 }
 
                 bool success = true;
