@@ -950,7 +950,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (!displayKey.Equals(validDisplayKeyForCapture))
                         {
-                            Log.Trace("display changes during restore, wait for event");
+                            Log.Trace("display setting changes during restore, wait for event");
                             // immediately finish restore
                             StartRestoreFinishedTimer(0);
                         }
@@ -1102,7 +1102,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 || monitorApplications[displayKey].Count == 0)
             {
                 // the display setting has not been captured yet
-                Log.Trace("Unknown display setting {0}", displayKey);
+                Log.Trace("Restoring new display setting {0}", displayKey);
                 // new display config
                 BatchCaptureApplicationsOnCurrentDisplays();
                 RecordBatchCaptureTime(DateTime.Now);
