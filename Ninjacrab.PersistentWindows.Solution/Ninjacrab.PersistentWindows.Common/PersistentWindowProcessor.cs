@@ -245,7 +245,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Info("Display settings changing {0}", displayKey);
                     lock (controlLock)
                     {
-                        EndDisplaySession();
+                        if (!restoringWindowPos)
+                        {
+                            EndDisplaySession();
+                        }
                     }
                 };
 
@@ -263,12 +266,16 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             //wait for session unlock to start restore
                         }
-                        else
+                        else if (!restoringWindowPos)
                         {
                             // change display on the fly
                             ResetState();
                             restoringWindowPos = true;
                             StartRestoreTimer();
+                        }
+                        else
+                        {
+                            Log.Trace("restore busy, discard display setting change event");
                         }
                     }
                 };
