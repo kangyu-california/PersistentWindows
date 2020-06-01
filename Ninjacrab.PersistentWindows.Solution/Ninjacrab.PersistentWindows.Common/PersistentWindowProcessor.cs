@@ -1105,6 +1105,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("Unknown display setting {0}", displayKey);
                 // new display config
                 BatchCaptureApplicationsOnCurrentDisplays();
+                RecordBatchCaptureTime(DateTime.Now);
                 return succeed;
             }
 
