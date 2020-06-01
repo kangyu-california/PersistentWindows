@@ -55,6 +55,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // restore control
         public bool dryRun; // only capturre, no actual restore
         private bool restoreInterrupted = false;
+        private bool sameDisplay = true;
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
         private bool restoringWindowPos = false; // about to restore
@@ -174,9 +175,14 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     restoreInterrupted = false;
                     // keep capture time unchanged
+                    if (!sameDisplay)
+                    {
+                        StartRestoreTimer(); // do restore again
+                    }
                 }
                 else
                 {
+                    sameDisplay = true;
                     RemoveBatchCaptureTime();
                     // clear DbMatchWindow flag in db
                     if (persistDB.CollectionExists(validDisplayKeyForCapture))
@@ -189,9 +195,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             db.Update(curDisplayMetrics);
                         }
                     }
-                    hideRestoreTip();
                 }
-
+                hideRestoreTip();
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -255,9 +260,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (restoringWindowPos)
                         {
-                            if (!displayKey.Equals(validDisplayKeyForCapture))
+                            sameDisplay = displayKey.Equals(validDisplayKeyForCapture);
+                            if (!sameDisplay)
                             {
                                 restoreInterrupted = true;
+                                Log.Trace("restore interrupted, discard display setting change event");
                             }
                         }
                         else
@@ -283,10 +290,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoringWindowPos)
                         {
-                            if (!displayKey.Equals(validDisplayKeyForCapture))
-                            {
-                                Log.Trace("restore interrupted, discard display setting change event");
-                            }
                         }
                         else
                         {
@@ -971,13 +974,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes == 0)
                         {
                             validDisplayKeyForCapture = displayKey;
+                            sameDisplay = true;
                         }
 
-                        if (restoreInterrupted || !displayKey.Equals(validDisplayKeyForCapture))
+                        if (!sameDisplay || !displayKey.Equals(validDisplayKeyForCapture))
                         {
-                            Log.Trace("display setting changes during restore, wait for event");
+                            Log.Trace("display setting changes during restore, start new restore again after current restore finished");
                             // immediately finish restore
-                            StartRestoreFinishedTimer(0);
+                            //StartRestoreFinishedTimer(0);
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
@@ -1249,7 +1253,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (IsTaskBar(window))
                 {
-                    if (!dryRun && !restoreInterrupted)
+                    if (!dryRun && sameDisplay)
                     {
                         MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                     }
@@ -1277,7 +1281,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun && !restoreInterrupted)
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun && sameDisplay)
                     {
                         // When restoring maximized windows, it occasionally switches res and when the maximized setting is restored
                         // the window thinks it's maximized, but does not eat all the real estate. So we'll temporarily unmaximize then
@@ -1287,7 +1291,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
 
-                    if (!dryRun && !restoreInterrupted)
+                    if (!dryRun && sameDisplay)
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
@@ -1301,7 +1305,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                if (!dryRun && !restoreInterrupted)
+                if (!dryRun && sameDisplay)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                 }
