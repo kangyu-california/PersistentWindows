@@ -186,15 +186,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("");
                 restoringWindowPos = false;
                 ResetState();
-                if (restoreInterrupted && !sessionReconnect)
+                if (restoreInterrupted)
                 {
                     restoreInterrupted = false;
 
                     // do restore again
                     // keep capture time unchanged
-                    StartRestoreTimer(MaxRestoreLatency);
+                    //StartRestoreTimer(MaxRestoreLatency);
                 }
-                else
+                //else
                 {
                     RemoveBatchCaptureTime();
                     // clear DbMatchWindow flag in db
@@ -1014,9 +1014,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (!displayKey.Equals(validDisplayKeyForCapture))
                         {
                             Log.Trace("display setting changes during restore, start new restore again after current restore finished");
-                            // immediately finish restore
                             restoreInterrupted = true;
-                            StartRestoreFinishedTimer(0);
+                            // immediately finish restore
+                            //StartRestoreFinishedTimer(0);
+
+                            // keep trying restore assuming the display mode change is transient by game
+                            StartRestoreTimer();
+                            StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
@@ -1362,7 +1366,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (gameWindows.Contains(hWnd))
                 {
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
+                    //if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                     {
                         // stop recover right after game window
                         break;
