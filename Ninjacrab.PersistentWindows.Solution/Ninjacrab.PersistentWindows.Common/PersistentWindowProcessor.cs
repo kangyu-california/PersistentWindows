@@ -51,6 +51,9 @@ namespace Ninjacrab.PersistentWindows.Common
         private string validDisplayKeyForCapture = null;
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
+        private HashSet<IntPtr> gameWindows = new HashSet<IntPtr>();
+        private IntPtr lastNewWindow = IntPtr.Zero;
+        private DateTime lastNewWindowTime = DateTime.Now;
 
         // restore control
         public bool dryRun; // only capturre, no actual restore
@@ -300,6 +303,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (controlLock)
                     {
+                        TimeSpan ts = new TimeSpan(10000 * TimeSpan.TicksPerMillisecond);
+                        DateTime now = DateTime.Now;
+                        if (now < lastNewWindowTime.Add(ts))
+                        {
+                            // the display mode change is caused by game window
+                            Log.Trace("new game window");
+                            gameWindows.Add(lastNewWindow);
+                        }
+
                         if (sessionLocked)
                         {
                             EndDisplaySession();
@@ -436,6 +448,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     windowTitle.Remove(hwnd);
+                    gameWindows.Remove(hwnd);
                 }
 
                 return;
@@ -890,6 +903,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!windowTitle.ContainsKey(hwnd))
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
+                    lastNewWindow = hwnd;
+                    lastNewWindowTime = time;
                 }
                 moved = true;
             }
@@ -1343,6 +1358,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                     Log.Error(error);
+                }
+
+                if (gameWindows.Contains(hWnd))
+                {
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
+                    {
+                        // stop recover right after game window
+                        break;
+                    }
                 }
             }
 
