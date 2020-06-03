@@ -33,6 +33,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 8; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
+        private const int GameResolutionLatency = 6000; // max delay (in milliseconds) from game window show up to display resolution change
         private const int MinOsMoveWindows = 4; // minimum number of moving windows to measure in order to recognize OS initiated move
         private const int NormHistoryQueueLength = 20;
         private const int MaxHistoryQueueLength = 40;
@@ -75,7 +76,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // session control
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
-        private bool sessionReconnect = false;
+        private bool sessionActive = false;
 
         // display session end time
         private Dictionary<string, DateTime> sessionEndTime = new Dictionary<string, DateTime>();
@@ -212,8 +213,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     hideRestoreTip();
                 }
 
-                sessionReconnect = false;
-
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -303,13 +302,16 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (controlLock)
                     {
-                        TimeSpan ts = new TimeSpan(10000 * TimeSpan.TicksPerMillisecond);
-                        DateTime now = DateTime.Now;
-                        if (now < lastNewWindowTime.Add(ts))
+                        if (sessionActive)
                         {
-                            // the display mode change is caused by game window
-                            Log.Trace("new game window");
-                            gameWindows.Add(lastNewWindow);
+                            TimeSpan ts = new TimeSpan(GameResolutionLatency * TimeSpan.TicksPerMillisecond);
+                            DateTime now = DateTime.Now;
+                            if (now < lastNewWindowTime.Add(ts))
+                            {
+                                // the display mode change is caused by game window
+                                Log.Trace("new game window");
+                                gameWindows.Add(lastNewWindow);
+                            }
                         }
 
                         if (sessionLocked)
@@ -381,6 +383,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         lock (controlLock)
                         {
                             sessionLocked = true;
+                            sessionActive = false;
                             EndDisplaySession();
                         }
                         break;
@@ -389,6 +392,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         lock (controlLock)
                         {
                             sessionLocked = false;
+                            sessionActive = true;
                             // force restore in case OS does not generate display changed event
                             restoringWindowPos = true;
                             StartRestoreTimer();
@@ -397,17 +401,18 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
+                        sessionActive = false;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         remoteSession = true;
-                        sessionReconnect = true;
+                        sessionActive = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
                         remoteSession = false;
-                        sessionReconnect = true;
+                        sessionActive = true;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                 }
