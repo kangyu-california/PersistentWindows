@@ -986,6 +986,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 showRestoreTip();
                 if (restoreFromDB)
                 {
+                    RecordBatchCaptureTime(DateTime.Now);
                     Thread.Sleep(2000); // let mouse settle still for taskbar restoration
                 }
             }
@@ -1411,8 +1412,15 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Trace("launch process {0}", curDisplayMetrics.ProcessExePath);
                         if (!dryRun)
                         {
-                            System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
-                            Thread.Sleep(1000);
+                            try
+                            {
+                                System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
+                                Thread.Sleep(1000);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex.ToString());
+                            }
                         }
                     }
                 }
