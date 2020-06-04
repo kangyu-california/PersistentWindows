@@ -187,6 +187,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("Restore finished");
                 Log.Trace("");
                 Log.Trace("");
+
+                // clear DbMatchWindow flag in db
+                if (restoreFromDB && persistDB.CollectionExists(curDisplayKey))
+                {
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
+                    var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
+                    foreach (var curDisplayMetrics in results)
+                    {
+                        curDisplayMetrics.DbMatchWindow = false;
+                        db.Update(curDisplayMetrics);
+                    }
+                }
+
                 restoringWindowPos = false;
                 ResetState();
                 if (restoreFails)
@@ -205,17 +218,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     RemoveBatchCaptureTime();
                 }
 
-                // clear DbMatchWindow flag in db
-                if (persistDB.CollectionExists(curDisplayKey))
-                {
-                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
-                    var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
-                    foreach (var curDisplayMetrics in results)
-                    {
-                        curDisplayMetrics.DbMatchWindow = false;
-                        db.Update(curDisplayMetrics);
-                    }
-                }
                 hideRestoreTip();
 
             });
