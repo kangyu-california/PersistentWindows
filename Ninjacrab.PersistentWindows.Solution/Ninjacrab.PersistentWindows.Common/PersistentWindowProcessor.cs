@@ -1025,10 +1025,19 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (!displayKey.Equals(curDisplayKey))
                         {
-                            Log.Trace("abort restore due to unexpected display setting change in pass {0}", restoreTimes);
-                            restoreFails = true;
-                            // immediately finish restore
-                            StartRestoreFinishedTimer(0);
+                            if (restoreTimes < 5)
+                            {
+                                Log.Trace("wait for display setting to stablize {0}", restoreTimes);
+                                restoreTimes++;
+                                StartRestoreTimer();
+                            }
+                            else
+                            {
+                                Log.Trace("abort restore due to unstable display setting");
+                                restoreFails = true;
+                                // immediately finish restore
+                                StartRestoreFinishedTimer(0);
+                            }
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
