@@ -198,24 +198,25 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayKey = GetDisplayKey();
                     Log.Trace("restart restore for {0}", curDisplayKey);
                     restoringWindowPos = true;
-                    StartRestoreTimer();
+                    StartRestoreTimer(milliSecond: SlowRestoreLatency);
                 }
                 else
                 {
                     RemoveBatchCaptureTime();
-                    // clear DbMatchWindow flag in db
-                    if (persistDB.CollectionExists(curDisplayKey))
-                    {
-                        var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
-                        var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
-                        foreach (var curDisplayMetrics in results)
-                        {
-                            curDisplayMetrics.DbMatchWindow = false;
-                            db.Update(curDisplayMetrics);
-                        }
-                    }
-                    hideRestoreTip();
                 }
+
+                // clear DbMatchWindow flag in db
+                if (persistDB.CollectionExists(curDisplayKey))
+                {
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
+                    var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
+                    foreach (var curDisplayMetrics in results)
+                    {
+                        curDisplayMetrics.DbMatchWindow = false;
+                        db.Update(curDisplayMetrics);
+                    }
+                }
+                hideRestoreTip();
 
             });
 
