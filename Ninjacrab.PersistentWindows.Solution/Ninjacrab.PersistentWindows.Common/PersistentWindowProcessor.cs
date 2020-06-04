@@ -211,7 +211,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayKey = GetDisplayKey();
                     Log.Trace("restart restore for {0}", curDisplayKey);
                     restoringWindowPos = true;
-                    StartRestoreTimer(milliSecond: SlowRestoreLatency);
+                    StartRestoreTimer();
                 }
                 else
                 {
@@ -1319,9 +1319,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (gameWindows.Contains(hWnd))
                 {
+                    //no auto restore for game window to avoid failure to switch resolution
                     //if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                     {
-                        //continue;
+                        continue;
                     }
                 }
 
