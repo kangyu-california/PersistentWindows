@@ -87,6 +87,9 @@ namespace Ninjacrab.PersistentWindows.Common
         public CallBack showRestoreTip;
         public CallBack hideRestoreTip;
 
+        public delegate void CallBackBool(bool en);
+        public CallBackBool enableRestoreMenu;
+
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
         private EventHandler displaySettingsChangedHandler;
@@ -138,6 +141,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             curDisplayKey = GetDisplayKey();
+            enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
             changingDisplayKey = curDisplayKey;
             BatchCaptureApplicationsOnCurrentDisplays();
 
@@ -215,6 +219,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
+                    enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     RemoveBatchCaptureTime();
                 }
 

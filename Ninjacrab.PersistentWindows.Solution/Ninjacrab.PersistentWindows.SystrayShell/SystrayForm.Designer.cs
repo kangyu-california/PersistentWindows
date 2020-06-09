@@ -18,7 +18,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
 
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator[] toolStripMenuItem = new System.Windows.Forms.ToolStripSeparator[3];

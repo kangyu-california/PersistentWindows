@@ -37,24 +37,29 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
-/*
-            Mutex singleInstMutex = new Mutex(true, Application.ProductName);
-            if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
-            {
-                MessageBox.Show($"Only one inst of {Application.ProductName} can be run!");
-                //Application.Exit();
-                return;
-            }
-            else
-            {
-                singleInstMutex.ReleaseMutex();
-            }
-*/
+            /*
+                        Mutex singleInstMutex = new Mutex(true, Application.ProductName);
+                        if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
+                        {
+                            MessageBox.Show($"Only one inst of {Application.ProductName} can be run!");
+                            //Application.Exit();
+                            return;
+                        }
+                        else
+                        {
+                            singleInstMutex.ReleaseMutex();
+                        }
+            */
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            systrayForm = new SystrayForm();
 
             pwp = new PersistentWindowProcessor();
             pwp.dryRun = dry_run;
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
+            pwp.enableRestoreMenu = EnableRestoreMenu;
 
             if (!pwp.Start())
             {
@@ -66,9 +71,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 StartSplashForm();
             }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            systrayForm = new SystrayForm();
             Application.Run();
         }
 
@@ -88,6 +90,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
+        }
+
+        static void EnableRestoreMenu(bool enable)
+        {
+            systrayForm.restoreToolStripMenuItem.Enabled = enable;
         }
 
         static void StartSplashForm()
