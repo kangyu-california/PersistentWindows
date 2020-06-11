@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
-//using System.Windows.Forms;
 
 using Microsoft.Win32;
 
@@ -465,7 +464,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            /*
+            /* need invisible window event to detect session cut-off
             // only track visible windows
             if (!window.Visible)
             {
@@ -848,11 +847,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                 .Where(row =>
                                 {
                                     return row.Parent.HWnd.ToInt64() == 0
-                                    //&& (!string.IsNullOrEmpty(row.Title)
-                                    //&& !row.Title.Equals("Program Manager")
-                                    //&& !row.Title.Contains("Task Manager")
-                                    //&& row.Position.Height != 0
-                                    //&& row.Position.Width != 0
                                     && row.Visible;
                                 });
         }
@@ -1165,10 +1159,6 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             User32.SetCursorPos(screenPosition.Left + dx, screenPosition.Top + dy);
-            //User32.SetForegroundWindow(hwnd);
-            //User32.SetActiveWindow(hwnd);
-            //Thread.Sleep(1000); // wait to be activated
-            //User32.SetForegroundWindow(hTaskBar);
             User32.SetActiveWindow(hTaskBar);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
                 0, 0, 0, UIntPtr.Zero);
@@ -1325,10 +1315,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (gameWindows.Contains(hWnd))
                 {
                     //no auto restore for game window to avoid failure to switch resolution
-                    //if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
-                    {
-                        continue;
-                    }
+                    continue;
                 }
 
                 if (IsTaskBar(window))
@@ -1339,23 +1326,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     continue;
                 }
-
-                /*
-                if (!sessionReconnect)
-                {
-                    // the change of screen resolution might be triggered by resuming to or switching from game mode
-                    // simply ignore such event wihout restore to previous position
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize
-                        && curDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
-                        ||
-                        windowPlacement.ShowCmd == ShowWindowCommands.Minimize
-                        && curDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Maximize
-                        )
-                    {
-                        continue;
-                    }
-                }
-                */
 
                 bool success = true;
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)

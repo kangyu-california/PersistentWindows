@@ -37,12 +37,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         public void SetMonitor(int id, Display display)
         {
-            //if (!monitorResolutions.ContainsKey(id) ||
-            //    monitorResolutions[id].ScreenWidth != display.ScreenWidth ||
-            //    monitorResolutions[id].ScreenHeight != display.ScreenHeight)
-            {
-                monitorResolutions.Add(id, display);
-            }
+            monitorResolutions.Add(id, display);
         }
 
         private string BuildKey()

@@ -37,20 +37,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
-            /*
-                        Mutex singleInstMutex = new Mutex(true, Application.ProductName);
-                        if (!singleInstMutex.WaitOne(TimeSpan.Zero, true))
-                        {
-                            MessageBox.Show($"Only one inst of {Application.ProductName} can be run!");
-                            //Application.Exit();
-                            return;
-                        }
-                        else
-                        {
-                            singleInstMutex.ReleaseMutex();
-                        }
-            */
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             systrayForm = new SystrayForm();
