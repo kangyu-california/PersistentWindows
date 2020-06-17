@@ -99,6 +99,12 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
         public static void Error(string format, params object[] args)
         {
             var message = Format(format, args);
+            if (message.Contains("Cannot create a file when that file already exists"))
+            {
+                // ignore trivial error
+                return;
+            }
+
 #if DEBUG
             Logger.Error(message);
             RaiseLogEvent(LogLevel.Error, message);
