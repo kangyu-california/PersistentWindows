@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
+
 using NLog;
 using NLog.Config;
 using NLog.Targets;
@@ -8,8 +10,13 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 {
     public class Log
     {
+        static EventLog eventLog;
         static Log()
         {
+            eventLog = new EventLog("Application");
+            //eventLog.Source = System.Windows.Forms.Application.ProductName;
+            eventLog.Source = "Application";
+
             var config = new LoggingConfiguration();
 
             // Step 2. Create targets and add them to the configuration 
@@ -98,6 +105,12 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 #endif
         }
 
+        public static void Event(string format, params object[] args)
+        {
+            var message = Format(format, args);
+            eventLog.WriteEntry(message, EventLogEntryType.Information, 101, 0);
+        }
+
         /// <summary>
         /// Since string.Format doesn't like args being null or having no entries.
         /// </summary>
@@ -108,5 +121,6 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
         {
             return args == null || args.Length == 0 ? format : string.Format(format, args);
         }
+
     }
 }
