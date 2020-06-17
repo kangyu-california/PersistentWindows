@@ -98,17 +98,18 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Error(string format, params object[] args)
         {
-#if DEBUG
             var message = Format(format, args);
+#if DEBUG
             Logger.Error(message);
             RaiseLogEvent(LogLevel.Error, message);
 #endif
+            eventLog.WriteEntry(message, EventLogEntryType.Information, 9999, 0);
         }
 
         public static void Event(string format, params object[] args)
         {
             var message = Format(format, args);
-            eventLog.WriteEntry(message, EventLogEntryType.Information, 101, 0);
+            eventLog.WriteEntry(message, EventLogEntryType.Information, 9990, 0);
         }
 
         /// <summary>
