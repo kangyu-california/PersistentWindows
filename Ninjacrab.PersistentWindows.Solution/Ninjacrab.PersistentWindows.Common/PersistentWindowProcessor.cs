@@ -51,6 +51,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string curDisplayKey = null;  // stable value
         private string changingDisplayKey = null; // dynamically modified by event handler
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
+        private int hiddenWindowLocChanges = 0;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
         private HashSet<IntPtr> gameWindows = new HashSet<IntPtr>();
         private IntPtr lastNewWindow = IntPtr.Zero;
@@ -187,7 +188,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreFinishedTimer = new Timer(state =>
             {
-                Log.Trace("Restore finished");
+                Log.Event("Restore finished for display setting {0}", curDisplayKey);
+                Log.Trace("Restore finished for display setting {0}", curDisplayKey);
                 Log.Trace("");
                 Log.Trace("");
 
@@ -480,6 +482,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
+                RECT2 screenPosition = new RECT2();
+                User32.GetWindowRect(hwnd, ref screenPosition);
 #if DEBUG
                 if (window.Title.Contains("Microsoft Visual Studio")
                     && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
@@ -490,8 +494,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
-                RECT2 screenPosition = new RECT2();
-                User32.GetWindowRect(hwnd, ref screenPosition);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
                     window.Process.ProcessName,
                     screenPosition.Left,
@@ -549,9 +551,21 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     // can not tell if this event is caused by user snap operation or OS initiated closing session
                                     // wait for other user move events until capture timer expires
-                                    if (pendingCaptureWindows.Count == 0)
+                                    //if (pendingCaptureWindows.Count == 0)
                                     {
+                                        // continuously delayed capture
                                         StartCaptureTimer();
+                                    }
+
+                                    if (screenPosition.Height <= 1 && screenPosition.Width <= 1)
+                                    {
+                                        ++hiddenWindowLocChanges;
+
+                                        if (hiddenWindowLocChanges > MinOsMoveWindows)
+                                        {
+                                            // early termination of current display session
+                                            RecordBatchCaptureTime(DateTime.Now);
+                                        }
                                     }
                                     pendingCaptureWindows.Add(hwnd);
                                 }
@@ -568,6 +582,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     lock (databaseLock)
                                     {
+                                        hiddenWindowLocChanges = 0;
+
                                         string displayKey = GetDisplayKey();
                                         CaptureWindow(window, eventType, now, displayKey);
                                         if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND)
@@ -737,6 +753,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     lock (databaseLock)
                     {
                         string displayKey = GetDisplayKey();
+                        if (!displayKey.Equals(curDisplayKey))
+                        {
+                            Log.Trace("Ignore capture request for non-current display setting {0}", displayKey);
+                            return;
+                        }
                         CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB);
                     }
                 }
@@ -793,6 +814,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     sessionEndTime.Add(curDisplayKey, time);
                     Log.Trace("Capture time {0}", time);
+                    Log.Event("Mark final window position at {0} for display setting {1}", time, curDisplayKey);
                 }
                 else if (force)
                 {
@@ -1194,7 +1216,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("Restoring new display setting {0}", displayKey);
                 // new display config
                 BatchCaptureApplicationsOnCurrentDisplays();
-                RecordBatchCaptureTime(DateTime.Now);
                 return succeed;
             }
 
@@ -1225,6 +1246,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreTime = DateTime.Now;
             }
             Log.Trace("Restore time {0}", restoreTime);
+            if (restoreTimes == 0)
+            {
+                Log.Event("Restore window position to {0} for display setting {1}", restoreTime, curDisplayKey);
+            }
 
             ILiteCollection<ApplicationDisplayMetrics> db = null;
             if (restoreFromDB)
