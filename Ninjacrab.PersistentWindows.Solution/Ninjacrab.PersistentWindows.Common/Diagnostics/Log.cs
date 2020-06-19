@@ -105,6 +105,11 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
                 return;
             }
 
+            if (message.Contains("Access is denied"))
+            {
+                // ignore window move failure due to lack of admin privilege
+                return;
+            }
 #if DEBUG
             Logger.Error(message);
             RaiseLogEvent(LogLevel.Error, message);
