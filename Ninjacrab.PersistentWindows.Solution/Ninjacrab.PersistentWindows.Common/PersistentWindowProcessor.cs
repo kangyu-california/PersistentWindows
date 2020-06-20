@@ -189,7 +189,6 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreFinishedTimer = new Timer(state =>
             {
                 Log.Event("Restore finished for display setting {0}", curDisplayKey);
-                Log.Trace("Restore finished for display setting {0}", curDisplayKey);
                 Log.Trace("");
                 Log.Trace("");
 
@@ -327,7 +326,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (!displayKey.Equals(changingDisplayKey))
                             {
                                 changingDisplayKey = displayKey;
-                                Log.Trace("restore interrupted, restart");
+                                Log.Event("restore interrupted by display setting change");
                                 CancelRestoreTimer();
                                 CancelRestoreFinishedTimer();
                                 restoreTimes = 0;
@@ -1047,21 +1046,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             // display resolution changes ahead of event handler
                             // wait for event handler
                         }
-                        else if (!displayKey.Equals(curDisplayKey))
+                        else if (restoreTimes > 0 && !displayKey.Equals(curDisplayKey))
                         {
-                            if (restoreTimes < 5)
-                            {
-                                Log.Trace("wait for display setting to stablize {0}", restoreTimes);
-                                restoreTimes++;
-                                StartRestoreTimer();
-                            }
-                            else
-                            {
-                                Log.Trace("abort restore due to unstable display setting");
-                                restoreFails = true;
-                                // immediately finish restore
-                                StartRestoreFinishedTimer(0);
-                            }
+                            Log.Error("restore failed due to unstable display setting");
+                            restoreFails = true;
+                            // immediately finish restore
+                            StartRestoreFinishedTimer(0);
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
