@@ -305,6 +305,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (sessionLocked)
                         {
                             EndDisplaySession();
+                            curDisplayKey = displayKey;
                             //wait for session unlock to start restore
                         }
                         else if (restoringWindowPos)
