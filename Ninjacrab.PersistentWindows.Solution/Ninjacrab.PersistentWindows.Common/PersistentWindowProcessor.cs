@@ -169,18 +169,6 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreTimer = new Timer(state =>
             {
                 Log.Trace("Restore timer expired");
-                if (!restoringWindowPos && !restoreFromDB)
-                {
-                    string displayKey = GetDisplayKey();
-                    if (curDisplayKey.Equals(displayKey))
-                    {
-                        return;
-                    }
-
-                    Log.Trace("do restore again {0}", displayKey);
-                    curDisplayKey = displayKey;
-                    restoringWindowPos = true;
-                }
                 BatchRestoreApplicationsOnCurrentDisplays();
             });
 
@@ -807,7 +795,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     sessionEndTime.Add(curDisplayKey, time);
                     Log.Trace("Capture time {0}", time);
-                    Log.Event("Mark final window position at {0} for display setting {1}", time, curDisplayKey);
+                    Log.Event("Mark final window position for display setting {0}", curDisplayKey);
                 }
                 else if (force)
                 {
@@ -1041,6 +1029,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             ++restoreHaltTimes;
                             if (restoreHaltTimes > 5)
                             {
+                                restoreHaltTimes = 0;
                                 // immediately finish restore
                                 StartRestoreFinishedTimer(0);
                             }
