@@ -49,7 +49,6 @@ namespace Ninjacrab.PersistentWindows.Common
         // capture control
         private Timer captureTimer;
         private string curDisplayKey = null;  // stable value
-        private string changingDisplayKey = null; // dynamically modified by event handler
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
         private int hiddenWindowLocChanges = 0;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
@@ -59,11 +58,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // restore control
         public bool dryRun; // only capturre, no actual restore
-        private bool restoreFails = false;
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
         private bool restoringWindowPos = false; // about to restore
         private int restoreTimes = 0;
+        private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested call level
         public bool restoreFromDB = false;
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
@@ -142,7 +141,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             curDisplayKey = GetDisplayKey();
             enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
-            changingDisplayKey = curDisplayKey;
             BatchCaptureApplicationsOnCurrentDisplays();
 
 #if DEBUG
@@ -206,14 +204,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 restoringWindowPos = false;
                 ResetState();
-                if (restoreFails)
+                string displayKey = GetDisplayKey();
+                if (!displayKey.Equals(curDisplayKey))
                 {
-                    restoreFails = false;
-                    Log.Trace("restore failed for {0}", curDisplayKey);
+                    Log.Error("restore aborted for {0}", curDisplayKey);
 
                     // do restore again, while keeping previous keep capture time unchanged
-                    curDisplayKey = GetDisplayKey();
-                    Log.Trace("restart restore for {0}", curDisplayKey);
+                    curDisplayKey = displayKey;
+                    Log.Event("restart restore for {0}", curDisplayKey);
                     restoringWindowPos = true;
                     StartRestoreTimer();
                 }
@@ -221,9 +219,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     RemoveBatchCaptureTime();
+                    hideRestoreTip();
                 }
 
-                hideRestoreTip();
 
             });
 
@@ -323,23 +321,18 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoringWindowPos)
                         {
-                            if (!displayKey.Equals(changingDisplayKey))
+                            if (!displayKey.Equals(curDisplayKey))
                             {
-                                changingDisplayKey = displayKey;
-                                Log.Event("restore interrupted by display setting change");
-                                CancelRestoreTimer();
-                                CancelRestoreFinishedTimer();
-                                restoreTimes = 0;
-                                StartRestoreTimer(milliSecond: SlowRestoreLatency);
+                                Log.Event("restore halted due to new display setting change {0}", displayKey);
                             }
                         }
                         else
                         {
-                            changingDisplayKey = displayKey;
                             EndDisplaySession();
                             // change display on the fly
                             ResetState();
                             restoringWindowPos = true;
+                            curDisplayKey = displayKey;
                             StartRestoreTimer();
                         }
                     }
@@ -785,6 +778,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 // end of restore period
                 //CancelRestoreTimer();
                 restoreTimes = 0;
+                restoreHaltTimes = 0;
                 restoreNestLevel = 0;
                 restoreFromDB = false;
 
@@ -1041,26 +1035,23 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         CancelRestoreFinishedTimer();
                         string displayKey = GetDisplayKey();
-                        if (!displayKey.Equals(changingDisplayKey))
+                        if (!displayKey.Equals(curDisplayKey))
                         {
-                            // display resolution changes ahead of event handler
-                            // wait for event handler
-                        }
-                        else if (restoreTimes > 0 && !displayKey.Equals(curDisplayKey))
-                        {
-                            Log.Error("restore failed due to unstable display setting");
-                            restoreFails = true;
-                            // immediately finish restore
-                            StartRestoreFinishedTimer(0);
+                            // display resolution changes during restore
+                            ++restoreHaltTimes;
+                            if (restoreHaltTimes > 5)
+                            {
+                                // immediately finish restore
+                                StartRestoreFinishedTimer(0);
+                            }
+                            else
+                            {
+                                restoreTimes = 0;
+                                StartRestoreTimer();
+                            }
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
-                            if (restoreTimes == 0)
-                            {
-                                Log.Trace("curDisplayKey = {0}", displayKey);
-                                curDisplayKey = displayKey;
-                            }
-
                             RestoreApplicationsOnCurrentDisplays(displayKey);
                             restoreTimes++;
 
