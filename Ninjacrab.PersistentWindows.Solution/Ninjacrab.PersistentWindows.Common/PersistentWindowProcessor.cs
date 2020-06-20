@@ -174,10 +174,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreFinishedTimer = new Timer(state =>
             {
-                Log.Event("Restore finished for display setting {0}", curDisplayKey);
-                Log.Trace("");
-                Log.Trace("");
-
                 // clear DbMatchWindow flag in db
                 if (restoreFromDB && persistDB.CollectionExists(curDisplayKey))
                 {
@@ -195,21 +191,24 @@ namespace Ninjacrab.PersistentWindows.Common
                 string displayKey = GetDisplayKey();
                 if (!displayKey.Equals(curDisplayKey))
                 {
-                    Log.Error("restore aborted for {0}", curDisplayKey);
+                    Log.Error("Restore aborted for {0}", curDisplayKey);
 
-                    // do restore again, while keeping previous keep capture time unchanged
+                    // do restore again, while keeping previous capture time unchanged
                     curDisplayKey = displayKey;
-                    Log.Event("restart restore for {0}", curDisplayKey);
+                    Log.Event("Restart restore for {0}", curDisplayKey);
                     restoringWindowPos = true;
                     StartRestoreTimer();
                 }
                 else
                 {
+                    Log.Event("Restore finished for display setting {0}", curDisplayKey);
+                    Log.Trace("");
+                    Log.Trace("");
+
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     RemoveBatchCaptureTime();
                     hideRestoreTip();
                 }
-
 
             });
 
@@ -312,7 +311,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             if (!displayKey.Equals(curDisplayKey))
                             {
-                                Log.Event("restore halted due to new display setting change {0}", displayKey);
+                                Log.Event("Restore halted due to new display setting change {0}", displayKey);
                             }
                         }
                         else
