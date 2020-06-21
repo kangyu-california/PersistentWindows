@@ -192,6 +192,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 restoringWindowPos = false;
                 ResetState();
+                Log.Trace("");
+                Log.Trace("");
                 string displayKey = GetDisplayKey();
                 if (!displayKey.Equals(curDisplayKey))
                 {
@@ -206,8 +208,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     Log.Event("Restore finished for display setting {0}", curDisplayKey);
-                    Log.Trace("");
-                    Log.Trace("");
 
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
@@ -574,12 +574,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                         //hiddenWindowLocChanges = 0;
 
                                         string displayKey = GetDisplayKey();
-                                        if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND && displayKey.Equals(curDisplayKey))
+                                        bool isNewMovedWindow = CaptureWindow(window, eventType, now, displayKey);
+                                        if (isNewMovedWindow && displayKey.Equals(curDisplayKey))
                                         {
-                                            if (CaptureWindow(window, eventType, now, displayKey))
-                                            {
-                                                RecordBatchCaptureTime(time: now, force: true);
-                                            }
+                                            RecordBatchCaptureTime(time: now, force: true);
+                                            //Log.Event("one window captured");
                                         }
                                         /*
                                         if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND)
@@ -749,6 +748,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     lock (databaseLock)
                     {
+                        if (restoringWindowPos)
+                        {
+                            return;
+                        }
+
                         string displayKey = GetDisplayKey();
                         if (!displayKey.Equals(curDisplayKey))
                         {
