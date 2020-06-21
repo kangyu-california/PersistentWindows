@@ -8,7 +8,7 @@ using NLog.Targets;
 
 namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 {
-    public class Log
+    public class Log : IDisposable
     {
         static EventLog eventLog;
         static Log()
@@ -136,5 +136,9 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
             return args == null || args.Length == 0 ? format : string.Format(format, args);
         }
 
+        public void Dispose()
+        {
+            eventLog.Dispose();
+        }
     }
 }
