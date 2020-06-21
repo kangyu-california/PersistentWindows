@@ -49,8 +49,10 @@ namespace Ninjacrab.PersistentWindows.Common
         // capture control
         private Timer captureTimer;
         private string curDisplayKey = null;  // stable value
+        /*
         private HashSet<IntPtr> pendingCaptureWindows = new HashSet<IntPtr>();
         private int hiddenWindowLocChanges = 0;
+        */
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
         private HashSet<IntPtr> gameWindows = new HashSet<IntPtr>();
         private IntPtr lastNewWindow = IntPtr.Zero;
@@ -153,6 +155,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
+                /*
                 lock (controlLock)
                 {
                     if (pendingCaptureWindows.Count > MinOsMoveWindows)
@@ -161,6 +164,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     pendingCaptureWindows.Clear();
                 }
+                */
 
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
@@ -205,8 +209,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("");
                     Log.Trace("");
 
+                    sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
-                    RemoveBatchCaptureTime();
+                    //RemoveBatchCaptureTime();
                     hideRestoreTip();
                 }
 
@@ -337,6 +342,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             Log.Info("System suspending");
                             lock (controlLock)
                             {
+                                sessionActive = false;
                                 if (!sessionLocked)
                                 {
                                     EndDisplaySession();
@@ -537,6 +543,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                         StartCaptureTimer();
                                     }
 
+                                    /*
                                     if (screenPosition.Height <= 1 && screenPosition.Width <= 1)
                                     {
                                         ++hiddenWindowLocChanges;
@@ -548,8 +555,10 @@ namespace Ninjacrab.PersistentWindows.Common
                                         }
                                     }
                                     pendingCaptureWindows.Add(hwnd);
+                                    */
                                 }
                             }
+
                             break;
 
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
@@ -562,10 +571,17 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     lock (databaseLock)
                                     {
-                                        hiddenWindowLocChanges = 0;
+                                        //hiddenWindowLocChanges = 0;
 
                                         string displayKey = GetDisplayKey();
-                                        CaptureWindow(window, eventType, now, displayKey);
+                                        if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND && displayKey.Equals(curDisplayKey))
+                                        {
+                                            if (CaptureWindow(window, eventType, now, displayKey))
+                                            {
+                                                RecordBatchCaptureTime(time: now, force: true);
+                                            }
+                                        }
+                                        /*
                                         if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND)
                                         {
                                             if (!restoreFromDB)
@@ -573,6 +589,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                                 RemoveBatchCaptureTime();
                                             }
                                         }
+                                        */
                                     }
                                 }
                                 catch (Exception ex)
@@ -783,7 +800,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // reset capture statistics for next capture period
+                /*
                 pendingCaptureWindows.Clear();
+                hiddenWindowLocChanges = 0;
+                */
             }
         }
 
@@ -795,11 +815,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     sessionEndTime.Add(curDisplayKey, time);
                     Log.Trace("Capture time {0}", time);
-                    Log.Event("Mark final window position for display setting {0}", curDisplayKey);
                 }
                 else if (force)
                 {
                     sessionEndTime[curDisplayKey] = time;
+                    Log.Trace("Capture time {0}", time);
                 }
             }
         }
@@ -840,6 +860,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (cnt > 0)
             {
+                RecordBatchCaptureTime(time: now, force: true);
                 Log.Trace("{0} windows captured", cnt);
             }
         }
@@ -1208,11 +1229,14 @@ namespace Ninjacrab.PersistentWindows.Common
             if (sessionEndTime.ContainsKey(displayKey))
             {
                 restoreTime = sessionEndTime[displayKey];
+                /*
                 TimeSpan ts = new TimeSpan((CaptureLatency + 1000) * TimeSpan.TicksPerMillisecond);
                 restoreTime = restoreTime.Subtract(ts);
+                */
             }
             else
             {
+                Log.Error("Missing session cut-off time for display setting {0}", displayKey);
                 restoreTime = DateTime.Now;
             }
             Log.Trace("Restore time {0}", restoreTime);
