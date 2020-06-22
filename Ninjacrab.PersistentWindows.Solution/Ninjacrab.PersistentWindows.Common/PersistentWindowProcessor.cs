@@ -1439,6 +1439,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 ApplicationDisplayMetrics curDisplayMetrics = null;
                 if (!IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics))
                 {
+                    if (restoreTimes > 0 && curDisplayMetrics.ScreenPosition.Height > 100)
+                    {
+                        RestoreZorder(hWnd, displayKey);
+                    }
                     continue;
                 }
 
