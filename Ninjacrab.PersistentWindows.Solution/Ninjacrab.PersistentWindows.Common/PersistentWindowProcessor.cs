@@ -41,6 +41,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications  //in-memory database
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>();
         private LiteDatabase persistDB; //on-disk database
+        private Dictionary<IntPtr, IntPtr> nextZorderWnd = new Dictionary<IntPtr, IntPtr>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -440,13 +441,30 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 lock (databaseLock)
                 {
-                    foreach (var displayKey in monitorApplications.Keys)
+                    foreach (var key in monitorApplications.Keys)
                     {
-                        monitorApplications[displayKey].Remove(hwnd);
+                        monitorApplications[key].Remove(hwnd);
                     }
 
                     windowTitle.Remove(hwnd);
                     gameWindows.Remove(hwnd);
+
+                    nextZorderWnd.Remove(hwnd);
+                    IntPtr h = IntPtr.Zero;
+                    foreach (var w in nextZorderWnd.Keys)
+                    {
+                        if (nextZorderWnd[w] == hwnd)
+                        {
+                            h = w;
+                            break;
+                        }
+                    }
+
+                    if (h != IntPtr.Zero)
+                    {
+                        string displayKey = GetDisplayKey();
+                        CaptureZorder(h, displayKey);
+                    }
                 }
 
                 return;
@@ -574,6 +592,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                         //hiddenWindowLocChanges = 0;
 
                                         string displayKey = GetDisplayKey();
+                                        if (window.Visible)
+                                        {
+                                            CaptureZorder(hwnd, displayKey);
+                                        }
+
                                         bool isNewMovedWindow = CaptureWindow(window, eventType, now, displayKey);
                                         if (isNewMovedWindow && displayKey.Equals(curDisplayKey))
                                         {
@@ -614,6 +637,88 @@ namespace Ninjacrab.PersistentWindows.Common
                 // limit length of capture history
                 monitorApplications[displayKey][hwnd].Dequeue();
             }
+        }
+
+        private void CaptureZorder(IntPtr hWnd, string displayKey)
+        {
+            if (!monitorApplications[displayKey].ContainsKey(hWnd))
+            {
+                return;
+            }
+
+            IntPtr tmpWnd = hWnd;
+            while (true)
+            {
+                IntPtr next = User32.GetWindow(tmpWnd, 2);
+                if (next == tmpWnd || next == IntPtr.Zero)
+                {
+                    return;
+                }
+
+                if (monitorApplications[displayKey].ContainsKey(next))
+                {
+                    nextZorderWnd[hWnd] = next;
+                    hWnd = next;
+                }
+
+                tmpWnd = next;
+            }
+        }
+
+        private IntPtr GetNextZorderWindow(IntPtr hWnd, string displayKey)
+        {
+            IntPtr next = hWnd;
+            while (true)
+            {
+                next = User32.GetWindow(next, 2);
+                if (next == IntPtr.Zero)
+                {
+                    break;
+                }
+
+                if (monitorApplications[displayKey].ContainsKey(next))
+                {
+                    return next;
+                }
+            }
+
+            return IntPtr.Zero;
+        }
+
+        private bool RestoreZorder(IntPtr hWnd, string displayKey)
+        {
+            if (!nextZorderWnd.ContainsKey(hWnd))
+            {
+                return false;
+            }
+
+            IntPtr next = nextZorderWnd[hWnd];
+            IntPtr realNext = GetNextZorderWindow(hWnd, displayKey);
+            if (next == realNext)
+            {
+                return false;
+            }
+
+            Log.Event("restore zorder for {0} above {1}", hWnd, next);
+
+            User32.SetWindowPos(
+                hWnd,
+                next,
+                0, //rect.Left,
+                0, //rect.Top,
+                0, //rect.Width,
+                0, //rect.Height,
+                0
+                //| SetWindowPosFlags.DoNotChangeOwnerZOrder
+                //| SetWindowPosFlags.IgnoreZOrder
+                //| SetWindowPosFlags.DoNotRedraw
+                //| SetWindowPosFlags.DoNotSendChangingEvent
+                //| SetWindowPosFlags.DoNotActivate
+                | SetWindowPosFlags.IgnoreMove
+                | SetWindowPosFlags.IgnoreResize
+            );
+
+            return true;
         }
 
         private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveToDB = false)
@@ -854,10 +959,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 db.DeleteAll();
             }
 
+            HashSet<SystemWindow> capturedWindows = new HashSet<SystemWindow>();
             foreach (var window in appWindows)
             {
                 if (CaptureWindow(window, 0, now, displayKey, saveToDB))
                 {
+                    capturedWindows.Add(window);
                     cnt++;
                 }
             }
@@ -866,6 +973,11 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 RecordBatchCaptureTime(time: now, force: true);
                 Log.Trace("{0} windows captured", cnt);
+            }
+
+            foreach (var window in capturedWindows)
+            {
+                CaptureZorder(window.HWnd, displayKey);
             }
         }
 
@@ -1381,6 +1493,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                }
+
+                if (restoreTimes > 0)
+                {
+                    RestoreZorder(hWnd, displayKey);
                 }
 
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",

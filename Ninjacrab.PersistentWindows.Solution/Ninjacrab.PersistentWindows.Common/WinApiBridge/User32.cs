@@ -106,6 +106,23 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy,
             SetWindowPosFlags uFlags);
+        /// <summary>
+        
+        /// Retrieves a handle to a window that has the specified relationship (Z-Order or owner) to the specified window.
+        /// </summary>
+        /// <remarks>The EnumChildWindows function is more reliable than calling GetWindow in a loop. An application that
+        /// calls GetWindow to perform this task risks being caught in an infinite loop or referencing a handle to a window
+        /// that has been destroyed.</remarks>
+        /// <param name="hWnd">A handle to a window. The window handle retrieved is relative to this window, based on the
+        /// value of the uCmd parameter.</param>
+        /// <param name="uCmd">The relationship between the specified window and the window whose handle is to be
+        /// retrieved.</param>
+        /// <returns>
+        /// If the function succeeds, the return value is a window handle. If no window exists with the specified relationship
+        /// to the specified window, the return value is NULL. To get extended error information, call GetLastError.
+        /// </returns>
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
         [DllImport("user32.dll")]
         public static extern IntPtr BeginDeferWindowPos(int nNumWindows);
