@@ -32,7 +32,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 8; // for remote session
 
         private const int CaptureLatency = 3000; // milliseconds to wait for window position capture
-        private const int GameResolutionLatency = 6000; // max delay (in milliseconds) from game window show up to display resolution change
         private const int MinOsMoveWindows = 4; // minimum number of moving windows to measure in order to recognize OS initiated move
         private const int NormHistoryQueueLength = 20;
         private const int MaxHistoryQueueLength = 40;
@@ -55,9 +54,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private int hiddenWindowLocChanges = 0;
         */
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>();
-        private HashSet<IntPtr> gameWindows = new HashSet<IntPtr>();
-        private IntPtr lastNewWindow = IntPtr.Zero;
-        private DateTime lastNewWindowTime = DateTime.Now;
 
         // restore control
         public bool dryRun; // only capturre, no actual restore
@@ -299,18 +295,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (controlLock)
                     {
-                        if (sessionActive)
-                        {
-                            TimeSpan ts = new TimeSpan(GameResolutionLatency * TimeSpan.TicksPerMillisecond);
-                            DateTime now = DateTime.Now;
-                            if (now < lastNewWindowTime.Add(ts))
-                            {
-                                // the display mode change is caused by game window
-                                Log.Event("new game window");
-                                gameWindows.Add(lastNewWindow);
-                            }
-                        }
-
                         if (sessionLocked)
                         {
                             EndDisplaySession();
@@ -448,7 +432,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     windowTitle.Remove(hwnd);
-                    gameWindows.Remove(hwnd);
 
                     nextZorderWnd.Remove(hwnd);
                     if (sessionActive)
@@ -518,11 +501,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (restoreTimes >= MinRestoreTimes)
                         {
-                            if (!gameWindows.Contains(hwnd))
-                            {
-                                // a new window move is initiated by OS instead of user during restore, restart restore timer
-                                StartRestoreTimer();
-                            }
+                            // a new window move is initiated by OS instead of user during restore, restart restore timer
+                            StartRestoreTimer();
                         }
                     }
                 }
@@ -1038,8 +1018,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!windowTitle.ContainsKey(hwnd))
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
-                    lastNewWindow = hwnd;
-                    lastNewWindowTime = time;
                 }
                 moved = true;
             }
@@ -1436,12 +1414,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
-
-                if (gameWindows.Contains(hWnd))
-                {
-                    //no auto restore for game window to avoid failure to switch resolution
-                    continue;
-                }
 
                 if (IsTaskBar(window))
                 {
