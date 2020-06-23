@@ -140,7 +140,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
             curDisplayKey = GetDisplayKey();
             enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
-            BatchCaptureApplicationsOnCurrentDisplays();
+            //BatchCaptureApplicationsOnCurrentDisplays();
+            CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+            RecordBatchCaptureTime(DateTime.Now);
+            CaptureZorder(curDisplayKey);
 
 #if DEBUG
             var debugTimer = new Timer(state =>
@@ -670,9 +673,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
-            Log.Event("restore zorder for {0} above {1}", hWnd.ToString("X8"), next.ToString("X8"));
 
-            User32.SetWindowPos(
+            bool ok = User32.SetWindowPos(
                 hWnd,
                 next,
                 0, //rect.Left,
@@ -688,6 +690,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 | SetWindowPosFlags.IgnoreMove
                 | SetWindowPosFlags.IgnoreResize
             );
+
+            if (ok)
+                Log.Event("restore zorder success for {0} above {1}", hWnd.ToString("X8"), next.ToString("X8"));
+            else
+                Log.Error("restore zorder failed for {0} above {1}", hWnd.ToString("X8"), next.ToString("X8"));
 
             return true;
         }
@@ -943,8 +950,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 RecordBatchCaptureTime(time: now, force: true);
             }
 
-            if (cnt > 10)
             CaptureZorder(displayKey);
+
             Log.Trace("{0} windows captured", cnt);
         }
 
@@ -1288,6 +1295,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("Restoring new display setting {0}", displayKey);
                 // new display config
                 CaptureApplicationsOnCurrentDisplays(displayKey);
+                RecordBatchCaptureTime(DateTime.Now);
+                CaptureZorder(displayKey);
                 return succeed;
             }
 
@@ -1388,8 +1397,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            IntPtr hWinPosInfo;
-            hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count());
+            //IntPtr hWinPosInfo;
+            //hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count());
 
             foreach (var window in sWindows)
             {
@@ -1412,6 +1421,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
+                /*
                 if (hWinPosInfo != IntPtr.Zero)
                 {
                     hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, nextZorderWnd[hWnd],
@@ -1425,6 +1435,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     int i = 0;
                 }
+                */
+
+                RestoreZorder(hWnd, curDisplayKey);
 
                 if (!moved)
                 {
@@ -1490,7 +1503,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             }
 
-            User32.EndDeferWindowPos(hWinPosInfo);
+            //User32.EndDeferWindowPos(hWinPosInfo);
             //User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
