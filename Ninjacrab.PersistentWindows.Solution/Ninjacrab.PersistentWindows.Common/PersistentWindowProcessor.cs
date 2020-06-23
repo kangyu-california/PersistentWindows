@@ -616,15 +616,16 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             IntPtr tmpWnd = hWnd;
+            //return User32.GetWindow(tmpWnd, 2);
+
             while (true)
             {
                 IntPtr next = User32.GetWindow(tmpWnd, 2);
+                tmpWnd = next;
                 if (next == IntPtr.Zero)
                 {
-                    return IntPtr.Zero;
+                    break;
                 }
-
-                tmpWnd = next;
 
                 if (monitorApplications[displayKey].ContainsKey(next))
                 {                    
@@ -632,7 +633,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            return tmpWnd;
+            return tmpWnd == IntPtr.Zero ? User32.GetWindow(hWnd, 2) : tmpWnd;
         }
 
         private void CaptureZorder(string displayKey)
@@ -1387,6 +1388,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
+            IntPtr hWinPosInfo;
+            hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count());
+
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1401,19 +1405,27 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 ApplicationDisplayMetrics curDisplayMetrics = null;
-                if (!IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics))
-                {
-                    if (restoreTimes > 0)
-                    {
-                        RestoreZorder(hWnd, displayKey);
-                    }
-                    continue;
-                }
+                bool moved = IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics);
 
                 ApplicationDisplayMetrics[] captureHisotry = monitorApplications[displayKey][hWnd].ToArray();
                 ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
+
+                if (hWinPosInfo != IntPtr.Zero)
+                {
+                    hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, nextZorderWnd[hWnd],
+                            rect.Left, rect.Top, rect.Width, rect.Height,
+                        0
+                        | User32.DeferWindowPosCommands.SWP_NOMOVE
+                        | User32.DeferWindowPosCommands.SWP_NOSIZE
+                        );
+                }
+
+                if (!moved)
+                {
+                    continue;
+                }
 
                 if (IsTaskBar(window))
                 {
@@ -1457,11 +1469,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                 }
 
-                if (restoreTimes > 0)
-                {
-                    RestoreZorder(hWnd, displayKey);
-                }
-
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                     window.Process.ProcessName,
                     rect.Left,
@@ -1479,6 +1486,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             }
 
+            User32.EndDeferWindowPos(hWinPosInfo);
             //User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
