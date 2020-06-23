@@ -938,14 +938,14 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            CaptureZorder(displayKey);
-
-            if (cnt > 0)
+            if (cnt > 0 && cnt < MinOsMoveWindows)
             {
                 RecordBatchCaptureTime(time: now, force: true);
-                Log.Trace("{0} windows captured", cnt);
             }
 
+            if (cnt > 10)
+            CaptureZorder(displayKey);
+            Log.Trace("{0} windows captured", cnt);
         }
 
         private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
@@ -1420,6 +1420,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         | User32.DeferWindowPosCommands.SWP_NOMOVE
                         | User32.DeferWindowPosCommands.SWP_NOSIZE
                         );
+                }
+                else
+                {
+                    int i = 0;
                 }
 
                 if (!moved)
