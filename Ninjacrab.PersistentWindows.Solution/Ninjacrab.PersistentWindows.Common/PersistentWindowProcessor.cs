@@ -79,7 +79,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // session control
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
-        private bool sessionActive = false;
+        private bool sessionActive = true;
 
         // display session end time
         private Dictionary<string, DateTime> sessionEndTime = new Dictionary<string, DateTime>();
@@ -306,7 +306,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (now < lastNewWindowTime.Add(ts))
                             {
                                 // the display mode change is caused by game window
-                                Log.Trace("new game window");
+                                Log.Event("new game window");
                                 gameWindows.Add(lastNewWindow);
                             }
                         }
@@ -390,7 +390,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         lock (controlLock)
                         {
                             sessionLocked = false;
-                            sessionActive = true;
                             // force restore in case OS does not generate display changed event
                             restoringWindowPos = true;
                             StartRestoreTimer();
@@ -406,11 +405,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         remoteSession = true;
-                        sessionActive = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
                         remoteSession = false;
-                        sessionActive = true;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                 }
