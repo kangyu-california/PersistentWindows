@@ -146,6 +146,8 @@ namespace Ninjacrab.PersistentWindows.Common
             CaptureZorder(curDisplayKey);
 
 #if DEBUG
+            TestSetWindowPos();
+
             var debugTimer = new Timer(state =>
             {
                 DebugInterval();
@@ -1576,6 +1578,45 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             return pathToExe;
+        }
+
+        private List<IntPtr> GetWindows(string procName)
+        {
+            List<IntPtr> result = new List<IntPtr>();
+            foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+            {
+                SystemWindow window = new SystemWindow(hwnd);
+                string pName = window.Process.ProcessName;
+                if (pName.Equals(procName))
+                {
+                    result.Add(hwnd);
+                }
+            }
+
+            return result;
+        }
+
+        private void TestSetWindowPos()
+        {
+            IntPtr[] w = GetWindows("notepad").ToArray();
+            if (w.Length < 2)
+                return;
+
+            bool ok = User32.SetWindowPos(
+                w[0],
+                w[1],
+                0, //rect.Left,
+                0, //rect.Top,
+                0, //rect.Width,
+                0, //rect.Height,
+                0
+                //| SetWindowPosFlags.DoNotChangeOwnerZOrder
+                //| SetWindowPosFlags.DoNotRedraw
+                //| SetWindowPosFlags.DoNotSendChangingEvent
+                | SetWindowPosFlags.DoNotActivate
+                | SetWindowPosFlags.IgnoreMove
+                | SetWindowPosFlags.IgnoreResize
+            );
         }
 
         public void StopRunningThreads()
