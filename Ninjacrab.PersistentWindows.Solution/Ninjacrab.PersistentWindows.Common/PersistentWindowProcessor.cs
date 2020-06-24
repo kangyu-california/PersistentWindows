@@ -40,7 +40,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications  //in-memory database
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>();
         private LiteDatabase persistDB; //on-disk database
-        private Dictionary<IntPtr, IntPtr> nextZorderWnd = new Dictionary<IntPtr, IntPtr>();
+        private Dictionary<IntPtr, IntPtr> prevZorderWnd = new Dictionary<IntPtr, IntPtr>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -438,7 +438,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     windowTitle.Remove(hwnd);
 
-                    nextZorderWnd.Remove(hwnd);
+                    prevZorderWnd.Remove(hwnd);
                     if (sessionActive)
                     {
                         CaptureZorder(curDisplayKey);
@@ -613,7 +613,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private IntPtr GetNextZorderWindow(IntPtr hWnd, string displayKey)
+        private IntPtr GetPrevZorderWindow(IntPtr hWnd, string displayKey)
         {
             if (!User32.IsWindow(hWnd))
             {
@@ -621,18 +621,18 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             IntPtr tmpWnd = hWnd;
-            //return User32.GetWindow(tmpWnd, 2);
+            //return User32.GetWindow(tmpWnd, 3);
 
             while (true)
             {
-                IntPtr next = User32.GetWindow(tmpWnd, 2);
-                tmpWnd = next;
-                if (next == IntPtr.Zero)
+                IntPtr prev = User32.GetWindow(tmpWnd, 3);
+                tmpWnd = prev;
+                if (prev == IntPtr.Zero)
                 {
                     break;
                 }
 
-                if (monitorApplications[displayKey].ContainsKey(next))
+                if (monitorApplications[displayKey].ContainsKey(prev))
                 {                    
                     break;
                 }
@@ -647,7 +647,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 foreach (var hWnd in monitorApplications[displayKey].Keys)
                 {
-                    nextZorderWnd[hWnd] = GetNextZorderWindow(hWnd, displayKey);
+                    prevZorderWnd[hWnd] = GetPrevZorderWindow(hWnd, displayKey);
                 }
             }
             catch (Exception ex)
@@ -658,19 +658,19 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool RestoreZorder(IntPtr hWnd, string displayKey)
         {
-            if (!nextZorderWnd.ContainsKey(hWnd))
+            if (!prevZorderWnd.ContainsKey(hWnd))
             {
                 return false;
             }
 
-            IntPtr next = nextZorderWnd[hWnd];
-            if (!User32.IsWindow(next))
+            IntPtr prev = prevZorderWnd[hWnd];
+            if (!User32.IsWindow(prev))
             {
                 return false;
             }
 
-            IntPtr realNext = GetNextZorderWindow(hWnd, displayKey);
-            if (next == realNext)
+            IntPtr curPrev = GetPrevZorderWindow(hWnd, displayKey);
+            if (prev == curPrev)
             {
                 return false;
             }
@@ -678,25 +678,24 @@ namespace Ninjacrab.PersistentWindows.Common
 
             bool ok = User32.SetWindowPos(
                 hWnd,
-                next,
+                prev,
                 0, //rect.Left,
                 0, //rect.Top,
                 0, //rect.Width,
                 0, //rect.Height,
                 0
                 //| SetWindowPosFlags.DoNotChangeOwnerZOrder
-                //| SetWindowPosFlags.IgnoreZOrder
                 //| SetWindowPosFlags.DoNotRedraw
                 //| SetWindowPosFlags.DoNotSendChangingEvent
-                //| SetWindowPosFlags.DoNotActivate
+                | SetWindowPosFlags.DoNotActivate
                 | SetWindowPosFlags.IgnoreMove
                 | SetWindowPosFlags.IgnoreResize
             );
 
             if (ok)
-                Log.Event("restore zorder success for {0} above {1}", hWnd.ToString("X8"), next.ToString("X8"));
+                Log.Event("restore zorder success for {0} above {1}", hWnd.ToString("X8"), prev.ToString("X8"));
             else
-                Log.Error("restore zorder failed for {0} above {1}", hWnd.ToString("X8"), next.ToString("X8"));
+                Log.Error("restore zorder failed for {0} above {1}", hWnd.ToString("X8"), prev.ToString("X8"));
 
             return true;
         }
