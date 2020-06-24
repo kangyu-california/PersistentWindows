@@ -535,20 +535,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                         // continuously delayed capture
                                         StartCaptureTimer();
                                     }
-
-                                    /*
-                                    if (screenPosition.Height <= 1 && screenPosition.Width <= 1)
-                                    {
-                                        ++hiddenWindowLocChanges;
-
-                                        if (hiddenWindowLocChanges > MinOsMoveWindows)
-                                        {
-                                            // early termination of current display session
-                                            RecordBatchCaptureTime(DateTime.Now);
-                                        }
-                                    }
-                                    pendingCaptureWindows.Add(hwnd);
-                                    */
                                 }
                             }
 
@@ -559,41 +545,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             StartCaptureTimer();
-
-                            var thread = new Thread(() =>
-                            {
-                                try
-                                {
-                                    lock (databaseLock)
-                                    {
-                                        //hiddenWindowLocChanges = 0;
-
-                                        string displayKey = GetDisplayKey();
-                                        CaptureZorder(displayKey);
-
-                                        bool isNewMovedWindow = CaptureWindow(window, eventType, now, displayKey);
-                                        if (isNewMovedWindow && displayKey.Equals(curDisplayKey))
-                                        {
-                                            RecordBatchCaptureTime(time: now, force: true);
-                                            //Log.Event("one window captured");
-                                        }
-                                        /*
-                                        if (eventType != User32Events.EVENT_SYSTEM_FOREGROUND)
-                                        {
-                                            if (!restoreFromDB)
-                                            {
-                                                RemoveBatchCaptureTime();
-                                            }
-                                        }
-                                        */
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Log.Error(ex.ToString());
-                                }
-                            });
-                            //thread.Start();
                             break;
                     }
                 }
