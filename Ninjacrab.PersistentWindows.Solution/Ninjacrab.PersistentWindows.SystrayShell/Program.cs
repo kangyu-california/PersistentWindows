@@ -102,7 +102,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void Restore()
         {
-            pwp.restoreFromDB = true;
+            pwp.restoringFromDB = true;
             pwp.BatchRestoreApplicationsOnCurrentDisplays();
         }
 
