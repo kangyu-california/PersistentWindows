@@ -83,6 +83,14 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowRect(IntPtr hWnd, ref RECT2 lpRect);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IntersectRect([Out] out RECT2 lprcDst, [In] ref RECT2 lprcSrc1, [In] ref RECT2 lprcSrc2);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsWindowVisible(IntPtr hWnd);
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.SysInt)]
         public static extern IntPtr GetDesktopWindow();
