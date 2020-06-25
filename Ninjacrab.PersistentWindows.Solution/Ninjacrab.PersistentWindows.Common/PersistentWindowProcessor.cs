@@ -588,7 +588,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 RECT2 intersection = new RECT2();
                 if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
-                    break;
+                {
+                    if (monitorApplications[curDisplayKey].ContainsKey(result))
+                        break;
+                }
 
             } while (true);
 
