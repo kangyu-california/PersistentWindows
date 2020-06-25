@@ -146,7 +146,7 @@ namespace Ninjacrab.PersistentWindows.Common
             CaptureZorder(curDisplayKey);
 
 #if DEBUG
-            TestSetWindowPos();
+            //TestSetWindowPos();
 
             var debugTimer = new Timer(state =>
             {
@@ -613,7 +613,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private bool RestoreZorder(IntPtr hWnd, string displayKey)
+        private bool RestoreZorder(IntPtr hWnd)
         {
             if (!prevZorderWnd.ContainsKey(hWnd))
             {
@@ -1355,9 +1355,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            //IntPtr hWinPosInfo;
-            //hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count());
-
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1379,24 +1376,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
-                /*
-                if (hWinPosInfo != IntPtr.Zero)
-                {
-                    hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, nextZorderWnd[hWnd],
-                            rect.Left, rect.Top, rect.Width, rect.Height,
-                        0
-                        | User32.DeferWindowPosCommands.SWP_NOMOVE
-                        | User32.DeferWindowPosCommands.SWP_NOSIZE
-                        );
-                }
-                else
-                {
-                    int i = 0;
-                }
-                */
-
                 if (restoreTimes > 0)
-                    RestoreZorder(hWnd, curDisplayKey);
+                    RestoreZorder(hWnd);
 
                 if (!moved)
                 {
@@ -1461,9 +1442,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
             }
-
-            //User32.EndDeferWindowPos(hWinPosInfo);
-            //User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
