@@ -584,10 +584,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 return IntPtr.Zero;
             }
 
-            RECT2 rect = new RECT2();
-            User32.GetWindowRect(hWnd, ref rect);
-            if (rect.Width < 10 && rect.Height < 10)
-                return IntPtr.Zero; //too small to care about
+            //RECT2 rect = new RECT2();
+            //User32.GetWindowRect(hWnd, ref rect);
+            //if (rect.Width < 10 && rect.Height < 10)
+            //    return IntPtr.Zero; //too small to care about
 
             IntPtr result = hWnd;
             do
@@ -596,11 +596,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (result == IntPtr.Zero)
                     break;
 
-                RECT2 prevRect = new RECT2();
-                User32.GetWindowRect(result, ref prevRect);
+                //RECT2 prevRect = new RECT2();
+                //User32.GetWindowRect(result, ref prevRect);
 
-                RECT2 intersection = new RECT2();
-                if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
+                //RECT2 intersection = new RECT2();
+                //if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                 {
                     if (monitorApplications[curDisplayKey].ContainsKey(result))
                         break;
@@ -626,31 +626,31 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private bool RestoreZorder(IntPtr hWnd)
+        private int RestoreZorder(IntPtr hWnd)
         {
             if (!prevZorderWnd.ContainsKey(hWnd))
             {
-                return false;
+                return 0;
             }
 
             IntPtr prev = prevZorderWnd[hWnd];
             if (prev == IntPtr.Zero)
-                return false; // issue 21, avoiding restore to top z-order
+                return 0; // issue 21, avoiding restore to top z-order
 
             if (!User32.IsWindow(prev))
             {
-                return false;
+                return 0;
             }
 
             IntPtr curPrev = GetPrevZorderWindow(hWnd);
             if (prev == curPrev)
             {
-                return false;
+                return 0;
             }
 
             SystemWindow window = new SystemWindow(prev);
             if (IsTaskBar(window))
-                return false; // issue 21, avoid restore to top z-order
+                return 0; // issue 21, avoid restore to top z-order
 
             bool ok = User32.SetWindowPos(
                 hWnd,
@@ -673,7 +673,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 windowTitle.ContainsKey(prev) ? windowTitle[prev] : prev.ToString("X8"),
                 ok ? "succeeded" : "failed");
 
-            return true;
+            return ok ? 1 : -1;
         }
 
         private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveToDB = false)
@@ -1378,6 +1378,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
+            bool restoreZorder = true;
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1399,8 +1400,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
-                if (restoreTimes > 0)
-                    RestoreZorder(hWnd);
+                //if (restoreTimes > 0)
+                // stop restore z-order upon first failure
+                if (restoreZorder)
+                    restoreZorder = RestoreZorder(hWnd) != -1;
 
                 if (!moved)
                 {
