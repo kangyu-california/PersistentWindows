@@ -1347,6 +1347,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
+            bool zorderRestoreFails = false;
+
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1369,7 +1371,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
                 if (restoreTimes > 0)
-                    RestoreZorder(hWnd);
+                    if (!RestoreZorder(hWnd))
+                        zorderRestoreFails = true;
 
                 if (!moved)
                 {
@@ -1434,6 +1437,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
             }
+
+            if (zorderRestoreFails)
+                User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
