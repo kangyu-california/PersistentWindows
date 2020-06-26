@@ -1274,8 +1274,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Info("");
             Log.Info("Restoring applications for {0}", displayKey);
+
+            /*
             if (restoreTimes == 0)
                 RestoreCursorPos(displayKey);
+            */
 
             IEnumerable<SystemWindow> sWindows;
             SystemWindow[] arr = new SystemWindow[1];
@@ -1405,7 +1408,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!dryRun)
                     {
                         MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-                        RestoreCursorPos(displayKey);
+                        //RestoreCursorPos(displayKey);
                     }
                     continue;
                 }
