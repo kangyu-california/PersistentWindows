@@ -1421,7 +1421,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 //if (restoreTimes > 0)
                 // stop restore z-order upon first failure
-                if (restoreZorder)
+                if (restoreZorder && !IsTaskBar(window))
                     restoreZorder = RestoreZorder(hWnd) != -1;
 
                 if (!moved)
