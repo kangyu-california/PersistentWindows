@@ -41,6 +41,7 @@ namespace Ninjacrab.PersistentWindows.Common
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>(); //in-memory database
         private LiteDatabase persistDB; //on-disk database
         private Dictionary<IntPtr, IntPtr> prevZorderWnd = new Dictionary<IntPtr, IntPtr>();
+        private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -539,6 +540,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                            // capture user moves
+                            // Occasionaly OS might bring a window to forground upon sleep
+                            CaptureCursorPos(curDisplayKey);
                             StartCaptureTimer();
                             break;
                     }
@@ -557,6 +561,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 // limit length of capture history
                 monitorApplications[displayKey][hwnd].Dequeue();
             }
+        }
+
+        private void CaptureCursorPos(string displayKey)
+        {
+            POINT cursorPos;
+            User32.GetCursorPos(out cursorPos);
+            lastCursorPos[displayKey] = cursorPos;
+        }
+
+        private void RestoreCursorPos(string displayKey)
+        {
+            POINT cursorPos = lastCursorPos[displayKey];
+            User32.SetCursorPos(cursorPos.X, cursorPos.Y);
         }
 
         private IntPtr GetPrevZorderWindow(IntPtr hWnd)
@@ -813,6 +830,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
             RecordLastUserActionTime(DateTime.Now);
+            CaptureCursorPos(displayKey);
             CaptureZorder(displayKey);
         }
 
@@ -1256,6 +1274,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Info("");
             Log.Info("Restoring applications for {0}", displayKey);
+            if (restoreTimes == 0)
+                RestoreCursorPos(displayKey);
+
             IEnumerable<SystemWindow> sWindows;
             SystemWindow[] arr = new SystemWindow[1];
             if (sWindow != null)
@@ -1384,6 +1405,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!dryRun)
                     {
                         MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                        RestoreCursorPos(displayKey);
                     }
                     continue;
                 }
