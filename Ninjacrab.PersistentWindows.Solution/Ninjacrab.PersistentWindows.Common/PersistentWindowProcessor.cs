@@ -102,12 +102,13 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool Start()
         {
             string productName = System.Windows.Forms.Application.ProductName;
-            string tempFolderPath = Path.GetTempPath();
+            string dbFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
+
 #if DEBUG
-            tempFolderPath = "."; //avoid db path conflict with release version
+            //dbFolderPath = "."; //avoid db path conflict with release version
 #endif
             // remove outdated db files
-            var dir = new DirectoryInfo(tempFolderPath);
+            var dir = Directory.CreateDirectory(dbFolderPath);
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
             {
@@ -127,7 +128,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
-                persistDB = new LiteDatabase($@"{tempFolderPath}/{productName}.{db_version}.db");
+                persistDB = new LiteDatabase($@"{dbFolderPath}/{productName}.{db_version}.db");
             }
             catch (Exception)
             {
