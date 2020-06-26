@@ -61,6 +61,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
+        private int totalWindowRestored = 0;
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -191,6 +192,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
+                int numWindowRestored = totalWindowRestored;
+
                 restoringFromMem = false;
                 ResetState();
                 Log.Trace("");
@@ -208,7 +211,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
-                    Log.Event("Restore finished for display setting {0}", curDisplayKey);
+                    Log.Event("Restored {0} windows for display setting {1}", numWindowRestored, curDisplayKey);
 
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
@@ -635,7 +638,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
             IntPtr prev = prevZorderWnd[hWnd];
             if (prev == IntPtr.Zero)
+            {
+                Log.Trace("avoid restore to top most");
                 return 0; // issue 21, avoiding restore to top z-order
+            }
 
             if (!User32.IsWindow(prev))
             {
@@ -650,7 +656,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
             SystemWindow window = new SystemWindow(prev);
             if (IsTaskBar(window))
+            {
+                Log.Trace("avoid restore under taskbar");
                 return 0; // issue 21, avoid restore to top z-order
+            }
 
             bool ok = User32.SetWindowPos(
                 hWnd,
@@ -857,6 +866,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreTimes = 0;
                 restoreHaltTimes = 0;
                 restoreNestLevel = 0;
+                totalWindowRestored = 0;
                 restoringFromDB = false;
 
                 // reset counter of multiwindowProcess
@@ -1415,6 +1425,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!dryRun)
                     {
                         MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                        ++totalWindowRestored;
                         //RestoreCursorPos(displayKey);
                     }
                     continue;
@@ -1451,6 +1462,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    ++totalWindowRestored;
                 }
 
                 Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
