@@ -40,7 +40,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>(); //in-memory database
         private LiteDatabase persistDB; //on-disk database
-        private Dictionary<IntPtr, IntPtr> prevZorderWnd = new Dictionary<IntPtr, IntPtr>();
+        private Dictionary<string, Dictionary<IntPtr, IntPtr>> prevZorderWnd = new Dictionary<string, Dictionary<IntPtr, IntPtr>>();
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
 
         // control shared by capture and restore
@@ -436,7 +436,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     windowTitle.Remove(hwnd);
 
-                    prevZorderWnd.Remove(hwnd);
+                    foreach (var key in prevZorderWnd.Keys)
+                    {
+                        prevZorderWnd[key].Remove(hwnd);
+                    }
+
                     if (sessionActive)
                     {
                         CaptureZorder(curDisplayKey);
@@ -618,9 +622,14 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             try
             {
+                if (!prevZorderWnd.ContainsKey(displayKey))
+                {
+                    prevZorderWnd.Add(displayKey, new Dictionary<IntPtr, IntPtr>());
+                }
+
                 foreach (var hWnd in monitorApplications[displayKey].Keys)
                 {
-                    prevZorderWnd[hWnd] = GetPrevZorderWindow(hWnd);
+                    prevZorderWnd[displayKey][hWnd] = GetPrevZorderWindow(hWnd);
                 }
             }
             catch (Exception ex)
@@ -631,12 +640,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private int RestoreZorder(IntPtr hWnd)
         {
-            if (!prevZorderWnd.ContainsKey(hWnd))
+            if (!prevZorderWnd[curDisplayKey].ContainsKey(hWnd))
             {
                 return 0;
             }
 
-            IntPtr prev = prevZorderWnd[hWnd];
+            IntPtr prev = prevZorderWnd[curDisplayKey][hWnd];
             if (prev == IntPtr.Zero)
             {
                 Log.Trace("avoid restore to top most");
