@@ -633,6 +633,9 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             IntPtr prev = prevZorderWnd[hWnd];
+            if (prev == IntPtr.Zero)
+                return false; // issue 21, avoiding restore to top z-order
+
             if (!User32.IsWindow(prev))
             {
                 return false;
@@ -644,6 +647,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
+            SystemWindow window = new SystemWindow(prev);
+            if (IsTaskBar(window))
+                return false; // issue 21, avoid restore to top z-order
 
             bool ok = User32.SetWindowPos(
                 hWnd,
@@ -1371,8 +1377,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            bool zorderRestoreFails = false;
-
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1395,8 +1399,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
                 if (restoreTimes > 0)
-                    if (!RestoreZorder(hWnd))
-                        zorderRestoreFails = true;
+                    RestoreZorder(hWnd);
 
                 if (!moved)
                 {
@@ -1462,9 +1465,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
             }
-
-            if (zorderRestoreFails)
-                User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
