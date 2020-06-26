@@ -211,7 +211,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
-                    Log.Event("Restored {0} windows for display setting {1}", numWindowRestored, curDisplayKey);
+                    Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
 
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
@@ -1323,7 +1323,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Restore time {0}", restoreTime);
             if (restoreTimes == 0)
             {
-                Log.Event("Restore window position to {0} for display setting {1}", restoreTime, curDisplayKey);
+                Log.Event("Start restoring window layout back to {0} for display setting {1}", restoreTime, curDisplayKey);
             }
 
             ILiteCollection<ApplicationDisplayMetrics> db = null;
