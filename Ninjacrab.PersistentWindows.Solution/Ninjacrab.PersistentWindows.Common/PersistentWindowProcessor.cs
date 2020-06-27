@@ -33,7 +33,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window move to capture
         private const int MinOsMoveWindows = 4; // minimum number of moved windows to be characterized as OS initiated moves
-        private const int NormHistoryQueueLength = 5;
         private const int MaxHistoryQueueLength = 10;
 
         // window position database
@@ -565,7 +564,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void TrimQueue(string displayKey, IntPtr hwnd)
         {
-            if (monitorApplications[displayKey][hwnd].Count >= NormHistoryQueueLength)
+            if (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
                 monitorApplications[displayKey][hwnd].Dequeue();
@@ -784,10 +783,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
-                    if (!lastUserActionTime.ContainsKey(displayKey))
-                    {
-                        TrimQueue(displayKey, hWnd);
-                    }
+                    TrimQueue(displayKey, hWnd);
 
                     if (monitorApplications[displayKey][hWnd].Count < MaxHistoryQueueLength)
                     {
