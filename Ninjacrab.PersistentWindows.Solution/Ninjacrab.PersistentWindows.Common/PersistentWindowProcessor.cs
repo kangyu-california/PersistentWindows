@@ -32,7 +32,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 8; // max restore passes for remote desktop session
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window move to capture
-        private const int MinOsMoveWindows = 4; // minimum number of moved windows to be characterized as OS initiated moves
+        private const int MaxUserMoves = 4; // max user window moves per capture cycle
+        private const int MinWindowOsMoveEvents = 12; // criteria to tell if these are OS initiated moves instead of user operation
         private const int MaxHistoryQueueLength = 10;
 
         // window position database
@@ -50,6 +51,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Timer captureTimer;
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
+        private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
 
         // restore control
         private Timer restoreTimer;
@@ -155,16 +157,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
-                /*
-                lock (controlLock)
-                {
-                    if (pendingCaptureWindows.Count > MinOsMoveWindows)
-                    {
-                        RecordBatchCaptureTime(DateTime.Now);
-                    }
-                    pendingCaptureWindows.Clear();
-                }
-                */
                 if (!sessionActive)
                 {
                     return;
@@ -535,12 +527,14 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is initiated by OS (before sleep),
                                     // keep restart capture timer would eventually discard these moves
                                     // either by power suspend event handler calling CancelCaptureTimer()
-                                    // or due to capture timer handler found too many window moves (>= MinOsMoveWindows)
+                                    // or due to capture timer handler found too many window moves
 
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
                                     StartCaptureTimer();
+
+                                    pendingCaptureWindows.Enqueue(hwnd);
                                 }
                             }
 
@@ -970,9 +964,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false)
         {
-            var appWindows = CaptureWindowsOfInterest();
-            DateTime now = DateTime.Now;
-            int movedWindows = 0;
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
             if (saveToDB)
@@ -981,25 +972,46 @@ namespace Ninjacrab.PersistentWindows.Common
                 db.DeleteAll();
             }
 
-            foreach (var window in appWindows)
+            int pendingEventCnt = pendingCaptureWindows.Count;
+            pendingCaptureWindows.Clear();
+
+            if (pendingEventCnt > MinWindowOsMoveEvents)
             {
-                if (CaptureWindow(window, 0, now, displayKey, saveToDB))
+                // too many pending window moves, they are probably initiated by OS instead of user,
+                // defer capture
+                StartCaptureTimer();
+                Log.Trace("defer capture");
+            }
+            else
+            {
+                var appWindows = CaptureWindowsOfInterest();
+                DateTime now = DateTime.Now;
+                int movedWindows = 0;
+
+                foreach (var window in appWindows)
                 {
-                    movedWindows++;
+                    if (CaptureWindow(window, 0, now, displayKey, saveToDB))
+                    {
+                        movedWindows++;
+                    }
+                }
+
+                if (pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                {
+                    // whether these are user moves is still doubtful
+                    // defer acknowledge of user action by one more cycle
+                    StartCaptureTimer();
+                    Log.Trace("further defer capture");
+                }
+                else
+                {
+                    // confirmed user moves
+                    CaptureZorder(displayKey);
+                    RecordLastUserActionTime(time: now, force: true);
+                    if (movedWindows > 0)
+                        Log.Trace("{0} windows captured", movedWindows);
                 }
             }
-
-            // if there are too many window moves, they are probably initiated by OS instead of user,
-            // reject recording capture time.
-            if (movedWindows > 0 && movedWindows < MinOsMoveWindows)
-            {
-                // confirmed user moves
-                RecordLastUserActionTime(time: now, force: true);
-            }
-
-            CaptureZorder(displayKey);
-
-            Log.Trace("{0} windows captured", movedWindows);
         }
 
         private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
@@ -1345,7 +1357,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             Log.Info("");
-            Log.Info("Restoring applications for {0}", displayKey);
+            Log.Info("Restoring windows pass {0} for {1}", restoreTimes, displayKey);
 
             /*
             if (restoreTimes == 0)
