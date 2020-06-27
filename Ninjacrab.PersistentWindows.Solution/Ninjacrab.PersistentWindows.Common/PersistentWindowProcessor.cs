@@ -57,7 +57,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private Timer restoreFinishedTimer;
         private bool restoringFromMem = false; // automatic restore from memory in progress
         public bool restoringFromDB = false; // manual restore from DB in progress
-        public bool dryRun; // only capturre, no actual restore
+        public bool dryRun = false; // only capturre, no actual restore
+        public bool fixZorder = false; // restore z-order
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
@@ -106,7 +107,7 @@ namespace Ninjacrab.PersistentWindows.Common
             string dbFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
 
 #if DEBUG
-            //dbFolderPath = "."; //avoid db path conflict with release version
+            dbFolderPath = "."; //avoid db path conflict with release version
 #endif
             // remove outdated db files
             var dir = Directory.CreateDirectory(dbFolderPath);
@@ -350,7 +351,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     // force restore in case OS does not generate display changed event
                                     restoringFromMem = true;
-                                    StartRestoreTimer(milliSecond : SlowRestoreLatency);
+                                    StartRestoreTimer(milliSecond: SlowRestoreLatency);
                                 }
                             }
                             break;
@@ -618,8 +619,55 @@ namespace Ninjacrab.PersistentWindows.Common
             return result;
         }
 
+        public bool IsWindowTopMost(IntPtr hWnd)
+        {
+            int exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
+            return (exStyle & User32.WS_EX_TOPMOST) != 0;
+        }
+
+        // restore z-order might incorrectly put some window to topmost
+        // workaround by put these windows behind HWND_NOTOPMOST
+        private bool FixTopMostWindowStyle()
+        {
+            if (!fixZorder)
+                return false;
+
+            bool fixedOneWindow = false;
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
+
+            for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
+            {
+                if (monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                {
+                    if (!IsWindowTopMost(hwnd))
+                        continue;
+
+                    SystemWindow window = new SystemWindow(hwnd);
+                    if (IsTaskBar(window))
+                        continue;
+
+                    fixedOneWindow = true;
+                    bool ok = User32.SetWindowPos(hwnd, new IntPtr(-2), //notopmost
+                        0, 0, 0, 0,
+                        0
+                        | SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+
+                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
+                }
+            }
+
+            return fixedOneWindow;
+        }
+
         private void CaptureZorder(string displayKey)
         {
+            if (!fixZorder)
+                return;
+
             try
             {
                 if (!prevZorderWnd.ContainsKey(displayKey))
@@ -686,7 +734,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 | SetWindowPosFlags.IgnoreResize
             );
 
-            Log.Event("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"", 
+            Log.Event("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"",
                 windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"),
                 windowTitle.ContainsKey(prev) ? windowTitle[prev] : prev.ToString("X8"),
                 ok ? "succeeded" : "failed");
@@ -1155,7 +1203,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             restoreTimes++;
 
                             // schedule finish restore
-                            StartRestoreFinishedTimer(milliSecond : MaxRestoreLatency);
+                            StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < MinRestoreTimes)
@@ -1271,7 +1319,7 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
         private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
-        { 
+        {
             foreach (var result in results)
             {
                 if (!result.DbMatchWindow)
@@ -1397,7 +1445,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            bool restoreZorder = true;
             foreach (var window in sWindows)
             {
                 if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
@@ -1419,10 +1466,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
-                //if (restoreTimes > 0)
-                // stop restore z-order upon first failure
-                if (restoreZorder && !IsTaskBar(window))
-                    restoreZorder = RestoreZorder(hWnd) != -1;
+                if (fixZorder && !IsTaskBar(window))
+                    RestoreZorder(hWnd);
 
                 if (!moved)
                 {
@@ -1490,6 +1535,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
             }
+
+            FixTopMostWindowStyle();
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
@@ -1607,7 +1654,7 @@ namespace Ninjacrab.PersistentWindows.Common
             //stop running thread of event loop
         }
 
-#region IDisposable
+        #region IDisposable
         public virtual void Dispose(bool disposing)
         {
             StopRunningThreads();
@@ -1633,7 +1680,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             Dispose(false);
         }
-#endregion
+        #endregion
     }
 
 }

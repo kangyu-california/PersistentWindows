@@ -22,6 +22,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             bool no_splash = false;
             bool dry_run = false;
+            bool fix_zorder = false;
             foreach (var arg in args)
             {
                 switch(arg)
@@ -34,6 +35,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         Log.Trace("dry_run mode");
                         dry_run = true;
                         break;
+                    case "-fix_zorder":
+                        fix_zorder = true;
+                        break;
                 }
             }
 
@@ -43,6 +47,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             pwp = new PersistentWindowProcessor();
             pwp.dryRun = dry_run;
+            pwp.fixZorder = fix_zorder;
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;

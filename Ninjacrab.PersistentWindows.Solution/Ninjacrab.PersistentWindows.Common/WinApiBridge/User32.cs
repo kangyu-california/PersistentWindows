@@ -43,6 +43,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         EVENT_SYSTEM_END = 0x00FF,
 
         EVENT_OBJECT_DESTROY = 0x8001,
+        EVENT_OBJECT_REORDER = 0x8004,
         EVENT_OBJECT_LOCATIONCHANGE = 0x800B,
         EVENT_OBJECT_NAMECHANGE = 0x800C,
 
@@ -94,6 +95,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.SysInt)]
         public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetTopWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
@@ -251,6 +255,12 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError=true)]
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        public const int GWL_EXSTYLE = -20;
+        public const int WS_EX_TOPMOST = 0x0008;
 
         #region Hooks
         [DllImport("user32.dll")]
