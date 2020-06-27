@@ -142,6 +142,8 @@ namespace Ninjacrab.PersistentWindows.Common
             CaptureNewDisplayConfig(curDisplayKey);
 
 #if DEBUG
+            FixTopMostWindowStyle();
+
             //TestSetWindowPos();
 
             var debugTimer = new Timer(state =>
