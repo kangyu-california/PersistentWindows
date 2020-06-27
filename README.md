@@ -28,8 +28,12 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 # Use instructions
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully.
-- Some applications (such as Task Manager, WSL console etc) do require running PersistentWindows with admin privilege in order to be movable.
 - PersistentWindows minimizes itself as an icon in the systray area on task bar.
 - To save current window layout to persistent storage, right click the icon and select "Capture windows to disk" 
 - To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
+
+# Tips for power users
+- Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout.
+- Starting from release 4.23, there is a experimental feature to restore window z-order in addition to two-dementional layout. This feature is disabled by default due to the need to introduce a hack to reset topmost flag to avoid bug #21. To turn on this feature, run PersistentWindows.exe -fix_zorder
+- To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
