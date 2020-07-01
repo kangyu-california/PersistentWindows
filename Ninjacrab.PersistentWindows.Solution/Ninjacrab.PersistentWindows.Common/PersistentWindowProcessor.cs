@@ -36,6 +36,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinWindowOsMoveEvents = 12; // criteria to tell if these are OS initiated moves instead of user operation
         private const int MaxHistoryQueueLength = 10;
 
+        private const int HideIconLatency = 5000; // delay in millliseconds from restore finished to hide icon
+
         // window position database
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>(); //in-memory database
@@ -79,6 +81,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // display session end time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
+
+        private bool iconActive = false;
+        private Timer hideIconTimer;
 
         // callbacks
         public delegate void CallBack();
@@ -171,7 +176,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("Restore timer expired");
                 BatchRestoreApplicationsOnCurrentDisplays();
             });
-
+            
             restoreFinishedTimer = new Timer(state =>
             {
                 // clear DbMatchWindow flag in db
@@ -210,9 +215,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     //RemoveBatchCaptureTime();
-                    hideRestoreTip();
+
+                    hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
                 }
 
+            });
+
+            hideIconTimer = new Timer(stage =>
+            {
+                hideRestoreTip();
+                iconActive = false;
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -1158,7 +1170,13 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (restoreTimes == 0)
             {
-                showRestoreTip();
+                if (!iconActive)
+                {
+                    // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
+                    iconActive = true;
+                    showRestoreTip();
+                }
+
                 if (restoringFromDB)
                 {
                     RecordLastUserActionTime(DateTime.Now);
