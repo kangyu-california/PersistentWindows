@@ -691,7 +691,7 @@ namespace Ninjacrab.PersistentWindows.Common
             IntPtr prev = prevZorderWnd[curDisplayKey][hWnd];
             if (prev == IntPtr.Zero)
             {
-                Log.Trace("avoid restore to top most");
+                Log.Trace("avoid restore to top most for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                 return 0; // issue 21, avoiding restore to top z-order
             }
 
@@ -709,7 +709,7 @@ namespace Ninjacrab.PersistentWindows.Common
             SystemWindow window = new SystemWindow(prev);
             if (IsTaskBar(window))
             {
-                Log.Trace("avoid restore under taskbar");
+                Log.Trace("avoid restore under taskbar for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                 return 0; // issue 21, avoid restore to top z-order
             }
 
