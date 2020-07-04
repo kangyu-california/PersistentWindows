@@ -32,6 +32,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesRemote = 8; // max restore passes for remote desktop session
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window move to capture
+        private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // criteria to tell if these are OS initiated moves instead of user operation
         private const int MaxHistoryQueueLength = 10;
@@ -1399,6 +1400,16 @@ namespace Ninjacrab.PersistentWindows.Common
             if (lastUserActionTime.ContainsKey(displayKey))
             {
                 restoreTime = lastUserActionTime[displayKey];
+
+                // further dial restoreTime back in case it is too close to current time
+                DateTime now = DateTime.Now;
+                TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
+                if (restoreTime + ts > now)
+                {
+                    Log.Error("Last capture time {0} is too close to retore", restoreTime);
+                    restoreTime = now.Subtract(ts);
+                    lastUserActionTime[displayKey] = restoreTime;
+                }
             }
             else
             {
