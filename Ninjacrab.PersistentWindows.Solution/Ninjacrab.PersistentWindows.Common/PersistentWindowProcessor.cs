@@ -1401,12 +1401,12 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 restoreTime = lastUserActionTime[displayKey];
 
-                // further dial restoreTime back in case it is too close to current time
+                // further dial restoreTime (last capture time) back in case it is too close to now (actual restore time)
                 DateTime now = DateTime.Now;
                 TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
                 if (restoreTime + ts > now)
                 {
-                    Log.Error("Last capture time {0} is too close to retore", restoreTime);
+                    Log.Error("Last capture time {0} is too close to restore time {1}", restoreTime, now);
                     restoreTime = now.Subtract(ts);
                     lastUserActionTime[displayKey] = restoreTime;
                 }
