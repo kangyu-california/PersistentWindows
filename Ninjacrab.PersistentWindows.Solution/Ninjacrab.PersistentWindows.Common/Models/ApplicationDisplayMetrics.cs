@@ -26,6 +26,12 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only
 
+        // window z-order
+        public bool IsTopMost { get; set; }
+        public bool NeedClearTopMost { get; set; }
+        public IntPtr PrevZorderWindow { get; set; }
+        public bool NeedRestoreZorder { get; set; }
+
         public bool EqualPlacement(ApplicationDisplayMetrics other)
         {
             bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);

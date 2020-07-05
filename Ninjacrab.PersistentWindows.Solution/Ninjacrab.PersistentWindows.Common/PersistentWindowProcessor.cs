@@ -43,7 +43,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>(); //in-memory database
         private LiteDatabase persistDB; //on-disk database
-        private Dictionary<string, Dictionary<IntPtr, IntPtr>> prevZorderWnd = new Dictionary<string, Dictionary<IntPtr, IntPtr>>();
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
 
         // control shared by capture and restore
@@ -150,8 +149,6 @@ namespace Ninjacrab.PersistentWindows.Common
             CaptureNewDisplayConfig(curDisplayKey);
 
 #if DEBUG
-            FixTopMostWindowStyle();
-
             //TestSetWindowPos();
 
             var debugTimer = new Timer(state =>
@@ -443,14 +440,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     windowTitle.Remove(hwnd);
 
-                    foreach (var key in prevZorderWnd.Keys)
-                    {
-                        prevZorderWnd[key].Remove(hwnd);
-                    }
-
                     if (sessionActive)
                     {
-                        CaptureZorder(curDisplayKey);
+                        StartCaptureTimer(); //update z-order
                     }
                 }
 
@@ -671,37 +663,8 @@ namespace Ninjacrab.PersistentWindows.Common
             return fixedOneWindow;
         }
 
-        private void CaptureZorder(string displayKey)
+        private int RestoreZorder(IntPtr hWnd, IntPtr prev)
         {
-            if (!fixZorder)
-                return;
-
-            try
-            {
-                if (!prevZorderWnd.ContainsKey(displayKey))
-                {
-                    prevZorderWnd.Add(displayKey, new Dictionary<IntPtr, IntPtr>());
-                }
-
-                foreach (var hWnd in monitorApplications[displayKey].Keys)
-                {
-                    prevZorderWnd[displayKey][hWnd] = GetPrevZorderWindow(hWnd);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.ToString());
-            }
-        }
-
-        private int RestoreZorder(IntPtr hWnd)
-        {
-            if (!prevZorderWnd[curDisplayKey].ContainsKey(hWnd))
-            {
-                return 0;
-            }
-
-            IntPtr prev = prevZorderWnd[curDisplayKey][hWnd];
             if (prev == IntPtr.Zero)
             {
                 Log.Trace("avoid restore to top most for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
@@ -713,13 +676,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            IntPtr curPrev = GetPrevZorderWindow(hWnd);
-            if (prev == curPrev)
+            SystemWindow window = new SystemWindow(prev);
+            if (!window.IsValid())
             {
                 return 0;
             }
 
-            SystemWindow window = new SystemWindow(prev);
             if (IsTaskBar(window))
             {
                 Log.Trace("avoid restore under taskbar for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
@@ -907,9 +869,9 @@ namespace Ninjacrab.PersistentWindows.Common
         private void CaptureNewDisplayConfig(string displayKey)
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
+            CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
             RecordLastUserActionTime(DateTime.Now);
             CaptureCursorPos(displayKey);
-            CaptureZorder(displayKey);
         }
 
         private void EndDisplaySession()
@@ -1019,7 +981,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     // confirmed user moves
-                    CaptureZorder(displayKey);
                     RecordLastUserActionTime(time: now, force: true);
                     if (movedWindows > 0)
                         Log.Trace("{0} windows captured", movedWindows);
@@ -1088,7 +1049,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
-                ScreenPosition = screenPosition
+                ScreenPosition = screenPosition,
+
+                IsTopMost = IsWindowTopMost(hwnd),
+                NeedClearTopMost = false,
+
+                PrevZorderWindow = GetPrevZorderWindow(hwnd),
+                NeedRestoreZorder = false,
             };
 
             bool moved = false;
@@ -1140,14 +1107,17 @@ namespace Ninjacrab.PersistentWindows.Common
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
                 {
                     // key collision between dead window and new window with the same hwnd
+                    Log.Error("Invalid entry");
                     monitorApplications[displayKey].Remove(hwnd);
                     moved = true;
                 }
+                /*
                 else if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
                 {
                     // when close/reopen session, OS/user may activate existing window (possibly with different position)
                     // just ignore it
                 }
+                */
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
                     //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
@@ -1161,6 +1131,20 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     // nothing changed except event type & time
+                }
+
+                if (prevDisplayMetrics.IsTopMost != curDisplayMetrics.IsTopMost)
+                {
+                    if (!prevDisplayMetrics.IsTopMost && curDisplayMetrics.IsTopMost)
+                        curDisplayMetrics.NeedClearTopMost = true;
+
+                    moved = true;
+                }
+
+                if (prevDisplayMetrics.PrevZorderWindow != curDisplayMetrics.PrevZorderWindow)
+                {
+                    curDisplayMetrics.NeedRestoreZorder = true;
+                    moved = true;
                 }
             }
 
@@ -1403,7 +1387,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (restoringFromMem)
                 {
-                    // further dial restoreTime (last capture time) back in case it is too close to now (actual restore time)
+                    // further dial last capture time back in case it is too close to now (actual restore time)
                     DateTime now = DateTime.Now;
                     TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
                     if (lastCaptureTime + ts > now)
@@ -1501,20 +1485,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 ApplicationDisplayMetrics curDisplayMetrics = null;
-                bool moved = IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics);
+                if (!IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics))
+                    continue;
 
                 ApplicationDisplayMetrics[] captureHisotry = monitorApplications[displayKey][hWnd].ToArray();
                 ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
-
-                if (fixZorder && !IsTaskBar(window))
-                    RestoreZorder(hWnd);
-
-                if (!moved)
-                {
-                    continue;
-                }
 
                 if (IsTaskBar(window))
                 {
@@ -1555,7 +1532,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                if (!dryRun)
+                if (!dryRun && (curDisplayMetrics.NeedUpdateWindowPlacement || (!curDisplayMetrics.NeedClearTopMost && !curDisplayMetrics.NeedRestoreZorder)))
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     ++totalWindowRestored;
@@ -1569,6 +1546,24 @@ namespace Ninjacrab.PersistentWindows.Common
                     rect.Height,
                     success);
 
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                {
+                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
+                        0, 0, 0, 0,
+                        0
+                        | SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+
+                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
+                }
+
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                {
+                    RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
+                }
+
                 succeed = true;
                 if (!success)
                 {
@@ -1577,8 +1572,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
             }
-
-            FixTopMostWindowStyle();
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
