@@ -1536,15 +1536,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     ++totalWindowRestored;
-                }
 
-                Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                    window.Process.ProcessName,
-                    rect.Left,
-                    rect.Top,
-                    rect.Width,
-                    rect.Height,
-                    success);
+                    Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                        window.Process.ProcessName,
+                        rect.Left,
+                        rect.Top,
+                        rect.Width,
+                        rect.Height,
+                        success);
+                }
 
                 if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
