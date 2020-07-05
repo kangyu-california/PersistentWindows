@@ -1396,30 +1396,30 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             // determine the time to be restored
-            DateTime restoreTime;
+            DateTime lastCaptureTime;
             if (lastUserActionTime.ContainsKey(displayKey))
             {
-                restoreTime = lastUserActionTime[displayKey];
+                lastCaptureTime = lastUserActionTime[displayKey];
 
                 // further dial restoreTime (last capture time) back in case it is too close to now (actual restore time)
                 DateTime now = DateTime.Now;
                 TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
-                if (restoreTime + ts > now)
+                if (lastCaptureTime + ts > now)
                 {
-                    Log.Error("Last capture time {0} is too close to restore time {1}", restoreTime, now);
-                    restoreTime = now.Subtract(ts);
-                    lastUserActionTime[displayKey] = restoreTime;
+                    Log.Error("Last capture time {0} is too close to restore time {1}", lastCaptureTime, now);
+                    lastCaptureTime = now.Subtract(ts);
+                    lastUserActionTime[displayKey] = lastCaptureTime;
                 }
             }
             else
             {
                 Log.Error("Missing session cut-off time for display setting {0}", displayKey);
-                restoreTime = DateTime.Now;
+                lastCaptureTime = DateTime.Now;
             }
-            Log.Trace("Restore time {0}", restoreTime);
+            Log.Trace("Restore time {0}", lastCaptureTime);
             if (restoreTimes == 0)
             {
-                Log.Event("Start restoring window layout back to {0} for display setting {1}", restoreTime, curDisplayKey);
+                Log.Event("Start restoring window layout back to {0} for display setting {1}", lastCaptureTime, curDisplayKey);
             }
 
             ILiteCollection<ApplicationDisplayMetrics> db = null;
@@ -1477,7 +1477,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.DbMatchWindow = true;
                     db.Update(curDisplayMetrics);
 
-                    curDisplayMetrics.CaptureTime = restoreTime;
+                    curDisplayMetrics.CaptureTime = lastCaptureTime;
 
                     TrimQueue(displayKey, hWnd);
                     monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
@@ -1498,7 +1498,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 ApplicationDisplayMetrics curDisplayMetrics = null;
-                bool moved = IsWindowMoved(displayKey, window, 0, restoreTime, out curDisplayMetrics);
+                bool moved = IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics);
 
                 ApplicationDisplayMetrics[] captureHisotry = monitorApplications[displayKey][hWnd].ToArray();
                 ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
