@@ -35,5 +35,5 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 # Tips for power users
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout.
-- Starting from release 4.23, there is a experimental feature to restore window z-order in addition to two-dementional layout. This feature is disabled by default due to the need to introduce a hack to reset topmost flag to avoid bug #21. To turn on this feature, run PersistentWindows.exe -fix_zorder
+- Starting from release 4.26, there is an experimental feature to automatically restore window z-order in addition to two-dementional layout. This feature is disabled by default. To turn on this feature, run PersistentWindows.exe -fix_zorder
 - To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
