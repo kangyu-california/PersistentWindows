@@ -1499,6 +1499,24 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
+                if (fixZorder && restoreTimes < MinRestoreTimes && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                {
+                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
+                        0, 0, 0, 0,
+                        0
+                        | SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+
+                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
+                }
+
+                if (fixZorder && restoreTimes < MinRestoreTimes && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                {
+                    RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
+                }
+
                 bool success = true;
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
@@ -1527,7 +1545,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // recover previous screen position
-                if (!dryRun && (curDisplayMetrics.NeedUpdateWindowPlacement || (!curDisplayMetrics.NeedClearTopMost && !curDisplayMetrics.NeedRestoreZorder)))
+                if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     ++totalWindowRestored;
@@ -1539,24 +1557,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Width,
                         rect.Height,
                         success);
-                }
-
-                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
-                {
-                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
-                        0, 0, 0, 0,
-                        0
-                        | SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
-
-                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
-                }
-
-                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
-                {
-                    RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
 
                 succeed = true;
