@@ -1027,6 +1027,7 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowRect(hwnd, ref screenPosition);
             if (screenPosition.Top < 0 && screenPosition.Top > -15)
             {
+                Log.Error("Auto correct negative y screen coordinate");
                 // automatically fix small negative y coordinate to avoid repeated recovery failure
                 screenPosition.Top = 0;
             }
