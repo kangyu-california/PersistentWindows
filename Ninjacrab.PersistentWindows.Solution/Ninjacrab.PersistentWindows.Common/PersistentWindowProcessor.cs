@@ -40,8 +40,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int HideIconLatency = 5000; // delay in millliseconds from restore finished to hide icon
 
         // window position database
-        private Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>> monitorApplications
-            = new Dictionary<string, Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>>(); //in-memory database
+        private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
+            = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database
         private LiteDatabase persistDB; //on-disk database
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
 
@@ -568,7 +568,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
-                monitorApplications[displayKey][hwnd].Dequeue();
+                monitorApplications[displayKey][hwnd].RemoveAt(0);
             }
         }
 
@@ -724,7 +724,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (!monitorApplications.ContainsKey(displayKey))
             {
-                monitorApplications.Add(displayKey, new Dictionary<IntPtr, Queue<ApplicationDisplayMetrics>>());
+                monitorApplications.Add(displayKey, new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>());
             }
 
             ApplicationDisplayMetrics curDisplayMetrics = null;
@@ -749,8 +749,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
                 {
-                    monitorApplications[displayKey].Add(hWnd, new Queue<ApplicationDisplayMetrics>());
-                    monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
+                    monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
+                    monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
                 else
                 {
@@ -758,7 +758,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (monitorApplications[displayKey][hWnd].Count < MaxHistoryQueueLength)
                     {
-                        monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
+                        monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                     }
                 }
                 ret = true;
@@ -1071,13 +1071,12 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
-                ApplicationDisplayMetrics[] captureHistory = monitorApplications[displayKey][hwnd].ToArray();
                 ApplicationDisplayMetrics prevDisplayMetrics;
                 if (eventType == 0 && restoringFromMem)
                 {
                     //truncate OS move event that happens after cut-off time
                     int truncateSize = 0;
-                    foreach (var metrics in captureHistory)
+                    foreach (var metrics in monitorApplications[displayKey][hwnd])
                     {
                         if (metrics.CaptureTime > time)
                         {
@@ -1091,18 +1090,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Trace("unexpected zero captured events");
                         return false;
                     }
-                    else if (truncateSize < captureHistory.Length)
+                    else if (truncateSize < monitorApplications[displayKey][hwnd].Count)
                     {
                         // truncate capture history to filter out OS moves
-                        Array.Resize(ref captureHistory, truncateSize);
-                        monitorApplications[displayKey][hwnd].Clear();
-                        foreach (var metrics in captureHistory)
-                        {
-                            monitorApplications[displayKey][hwnd].Enqueue(metrics);
-                        }
+                        monitorApplications[displayKey][hwnd].RemoveRange(truncateSize, monitorApplications[displayKey][hwnd].Count - truncateSize);
                     }
                 }
-                prevDisplayMetrics = captureHistory.Last();
+                prevDisplayMetrics = monitorApplications[displayKey][hwnd].Last();
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
@@ -1468,7 +1462,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
 
                     TrimQueue(displayKey, hWnd);
-                    monitorApplications[displayKey][hWnd].Enqueue(curDisplayMetrics);
+                    monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
             }
 
