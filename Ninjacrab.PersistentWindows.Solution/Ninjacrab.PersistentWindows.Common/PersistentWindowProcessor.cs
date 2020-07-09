@@ -1508,7 +1508,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         | SetWindowPosFlags.IgnoreResize
                     );
 
-                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
+                    Log.Error("Fix topmost window {0} {1}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"), ok.ToString());
                 }
 
                 if (fixZorder && restoreTimes < MinRestoreTimes && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
