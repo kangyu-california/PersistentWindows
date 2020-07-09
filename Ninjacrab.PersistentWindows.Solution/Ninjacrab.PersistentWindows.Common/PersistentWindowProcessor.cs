@@ -335,7 +335,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (e.Mode)
                     {
                         case PowerModes.Suspend:
-                            Log.Info("System suspending");
+                            Log.Event("System suspending");
                             lock (controlLock)
                             {
                                 sessionActive = false;
@@ -347,7 +347,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case PowerModes.Resume:
-                            Log.Info("System Resuming");
+                            Log.Event("System Resuming");
                             lock (controlLock)
                             {
                                 if (!sessionLocked)
