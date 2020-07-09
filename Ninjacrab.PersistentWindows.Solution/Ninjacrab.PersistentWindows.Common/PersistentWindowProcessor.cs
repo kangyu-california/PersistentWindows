@@ -704,9 +704,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 | SetWindowPosFlags.IgnoreResize
             );
 
-            Log.Event("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"",
-                windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"),
-                windowTitle.ContainsKey(prev) ? windowTitle[prev] : prev.ToString("X8"),
+            Log.Event("Restore zorder {4} by repositioning window \"{0}\" ({1}) under \"{2}\" ({3})",
+                windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : "", hWnd.ToString("X8"),
+                windowTitle.ContainsKey(prev) ? windowTitle[prev] : "", prev.ToString("X8"),
                 ok ? "succeeded" : "failed");
 
             return ok ? 1 : -1;
