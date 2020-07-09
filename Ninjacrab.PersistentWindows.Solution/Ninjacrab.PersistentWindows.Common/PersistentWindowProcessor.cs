@@ -1128,18 +1128,21 @@ namespace Ninjacrab.PersistentWindows.Common
                     // nothing changed except event type & time
                 }
 
-                if (prevDisplayMetrics.IsTopMost != curDisplayMetrics.IsTopMost)
+                if (fixZorder)
                 {
-                    if (!prevDisplayMetrics.IsTopMost && curDisplayMetrics.IsTopMost)
-                        curDisplayMetrics.NeedClearTopMost = true;
+                    if (prevDisplayMetrics.IsTopMost != curDisplayMetrics.IsTopMost)
+                    {
+                        if (!prevDisplayMetrics.IsTopMost && curDisplayMetrics.IsTopMost)
+                            curDisplayMetrics.NeedClearTopMost = true;
 
-                    moved = true;
-                }
+                        moved = true;
+                    }
 
-                if (prevDisplayMetrics.PrevZorderWindow != curDisplayMetrics.PrevZorderWindow)
-                {
-                    curDisplayMetrics.NeedRestoreZorder = true;
-                    moved = true;
+                    if (prevDisplayMetrics.PrevZorderWindow != curDisplayMetrics.PrevZorderWindow)
+                    {
+                        curDisplayMetrics.NeedRestoreZorder = true;
+                        moved = true;
+                    }
                 }
             }
 
