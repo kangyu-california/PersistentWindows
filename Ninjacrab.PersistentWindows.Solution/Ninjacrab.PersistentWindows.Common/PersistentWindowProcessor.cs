@@ -1483,8 +1483,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics))
                     continue;
 
-                ApplicationDisplayMetrics[] captureHisotry = monitorApplications[displayKey][hWnd].ToArray();
-                ApplicationDisplayMetrics prevDisplayMetrics = captureHisotry.Last();
+                ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][hWnd].Last();
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
