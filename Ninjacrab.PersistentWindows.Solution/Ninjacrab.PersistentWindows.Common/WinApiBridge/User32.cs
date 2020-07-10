@@ -257,10 +257,13 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        public static extern long GetWindowLong(IntPtr hWnd, int nIndex);
 
         public const int GWL_EXSTYLE = -20;
-        public const int WS_EX_TOPMOST = 0x0008;
+        public const long WS_EX_TOPMOST = 0x00000008L;
+
+        public const int GWL_STYLE = -16;
+        public const long WS_CAPTION = 0x00C00000L;
 
         #region Hooks
         [DllImport("user32.dll")]

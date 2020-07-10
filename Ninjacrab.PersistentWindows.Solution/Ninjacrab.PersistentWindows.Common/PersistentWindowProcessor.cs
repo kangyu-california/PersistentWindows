@@ -621,7 +621,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public bool IsWindowTopMost(IntPtr hWnd)
         {
-            int exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
+            long exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
             return (exStyle & User32.WS_EX_TOPMOST) != 0;
         }
 
@@ -1052,7 +1052,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
 
-                IsTopMost = IsWindowTopMost(hwnd),
+                IsTopMost = window.TopMost, //IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
 
                 PrevZorderWindow = GetPrevZorderWindow(hwnd),
