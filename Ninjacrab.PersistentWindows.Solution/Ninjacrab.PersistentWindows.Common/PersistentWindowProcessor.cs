@@ -1237,7 +1237,15 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
-                            RestoreApplicationsOnCurrentDisplays(displayKey);
+                            try
+                            {
+                                RestoreApplicationsOnCurrentDisplays(displayKey);
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex.ToString());
+                            }
+
                             restoreTimes++;
 
                             // schedule finish restore
@@ -1498,7 +1506,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             foreach (var window in sWindows)
             {
-                if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
+                if (!window.IsValid())
                 {
                     continue;
                 }
