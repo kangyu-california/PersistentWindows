@@ -1001,6 +1001,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 SystemWindow window = new SystemWindow(hwnd);
                 if (!window.Visible)
                     continue;
+
                 if (string.IsNullOrEmpty(window.ClassName))
                     continue;
 
@@ -1011,14 +1012,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 if (string.IsNullOrEmpty(window.Title))
-                {
                     continue;
-                }
 
-                WindowStyleFlags style = window.Style;
-                if ((style & WindowStyleFlags.MINIMIZEBOX) == 0)
+                // workaround runtime overflow exception in release build
+                //WindowStyleFlags style = window.Style;
+
+                long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+                if ((style & (long)WindowStyleFlags.MINIMIZEBOX) == 0L)
                     continue;
-                if ((style & WindowStyleFlags.MAXIMIZEBOX) == 0)
+                if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
                     continue;
 
                 result.Add(window);
