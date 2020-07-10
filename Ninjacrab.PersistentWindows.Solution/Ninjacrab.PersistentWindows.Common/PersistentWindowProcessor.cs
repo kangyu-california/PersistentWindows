@@ -411,17 +411,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            if (!User32.IsTopLevelWindow(hwnd))
-            {
+            // only track top level windows
+            if (User32.GetParent(hwnd) != IntPtr.Zero)
                 return;
-            }
-
-            var window = new SystemWindow(hwnd);
-            if (window.Parent.HWnd.ToInt64() != 0)
-            {
-                // only track top level windows
-                return;
-            }
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
@@ -448,6 +440,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 return;
             }
+
+            var window = new SystemWindow(hwnd);
 
             /* need invisible window event to detect session cut-off
             // only track visible windows
@@ -717,11 +711,6 @@ namespace Ninjacrab.PersistentWindows.Common
             bool ret = false;
             IntPtr hWnd = window.HWnd;
 
-            if (!window.Visible)
-            {
-                return false;
-            }
-
             if (!monitorApplications.ContainsKey(displayKey))
             {
                 monitorApplications.Add(displayKey, new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>());
@@ -990,19 +979,59 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
         {
+            /*
             return SystemWindow.AllToplevelWindows
                                 .Where(row =>
                                 {
                                     return row.Parent.HWnd.ToInt64() == 0
                                     && row.Visible;
                                 });
+            */
+
+            List<SystemWindow> result = new List<SystemWindow>();
+
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
+
+            for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
+            {
+                if (User32.GetParent(hwnd) != IntPtr.Zero)
+                    continue;
+
+                SystemWindow window = new SystemWindow(hwnd);
+                if (!window.Visible)
+                    continue;
+                if (string.IsNullOrEmpty(window.ClassName))
+                    continue;
+
+                if (IsTaskBar(window))
+                {
+                    result.Add(window);
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(window.Title))
+                {
+                    continue;
+                }
+
+                WindowStyleFlags style = window.Style;
+                if ((style & WindowStyleFlags.MINIMIZEBOX) == 0)
+                    continue;
+                if ((style & WindowStyleFlags.MAXIMIZEBOX) == 0)
+                    continue;
+
+                result.Add(window);
+            }
+
+            return result;
         }
 
         private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime time, out ApplicationDisplayMetrics curDisplayMetrics)
         {
             curDisplayMetrics = null;
 
-            if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
+            if (!window.IsValid())
             {
                 return false;
             }
@@ -1013,10 +1042,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 // capture task bar
                 isTaskBar = true;
-            }
-            else if (string.IsNullOrEmpty(window.Title))
-            {
-                return false;
             }
 
             WindowPlacement windowPlacement = new WindowPlacement();

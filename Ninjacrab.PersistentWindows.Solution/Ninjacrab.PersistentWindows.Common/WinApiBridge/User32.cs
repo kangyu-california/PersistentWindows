@@ -136,6 +136,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
+        [DllImport("user32.dll", ExactSpelling=true, CharSet=CharSet.Auto)]
+        public static extern IntPtr GetParent(IntPtr hWnd);
+
         [DllImport("user32.dll")]
         public static extern IntPtr BeginDeferWindowPos(int nNumWindows);
 
