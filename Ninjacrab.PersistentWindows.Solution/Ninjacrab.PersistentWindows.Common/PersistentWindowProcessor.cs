@@ -586,8 +586,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 return IntPtr.Zero;
             }
 
-            //RECT2 rect = new RECT2();
-            //User32.GetWindowRect(hWnd, ref rect);
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(hWnd, ref rect);
             //if (rect.Width < 10 && rect.Height < 10)
             //    return IntPtr.Zero; //too small to care about
 
@@ -598,11 +598,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (result == IntPtr.Zero)
                     break;
 
-                //RECT2 prevRect = new RECT2();
-                //User32.GetWindowRect(result, ref prevRect);
+                RECT2 prevRect = new RECT2();
+                User32.GetWindowRect(result, ref prevRect);
 
-                //RECT2 intersection = new RECT2();
-                //if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
+                RECT2 intersection = new RECT2();
+                if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                 {
                     if (monitorApplications[curDisplayKey].ContainsKey(result))
                         break;
@@ -1536,7 +1536,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
-                if (fixZorder && restoreTimes < MinRestoreTimes && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
                     bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
                         0, 0, 0, 0,
@@ -1549,7 +1549,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error("Fix topmost window {0} {1}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"), ok.ToString());
                 }
 
-                if (fixZorder && restoreTimes < MinRestoreTimes && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes > 0)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
