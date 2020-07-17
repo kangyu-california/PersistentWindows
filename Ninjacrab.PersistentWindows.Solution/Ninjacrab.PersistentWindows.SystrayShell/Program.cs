@@ -16,6 +16,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
+        static bool notification_off = false;
 
         [STAThread]
         static void Main(string[] args)
@@ -28,9 +29,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 switch(arg)
                 {
                     case "-silent":
+                    case "-splash_off":
                         no_splash = true;
                         break;
-
+                    case "-notification_off":
+                        notification_off = true;
+                        break;
                     case "-dry_run":
                         Log.Trace("dry_run mode");
                         dry_run = true;
@@ -70,7 +74,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             var thread = new Thread(() =>
             {
                 systrayForm.notifyIconMain.Visible = true;
-                systrayForm.notifyIconMain.ShowBalloonTip(30000);
+
+                if (notification_off)
+                    return;
+
+                systrayForm.notifyIconMain.ShowBalloonTip(10000);
             });
 
             thread.IsBackground = false;
@@ -79,6 +87,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void HideRestoreTip()
         {
+            if (notification_off)
+                return;
             systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
         }

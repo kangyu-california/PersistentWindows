@@ -37,7 +37,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinWindowOsMoveEvents = 12; // criteria to tell if these are OS initiated moves instead of user operation
         private const int MaxHistoryQueueLength = 10;
 
-        private const int HideIconLatency = 5000; // delay in millliseconds from restore finished to hide icon
+        private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
 
         // window position database
         private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
