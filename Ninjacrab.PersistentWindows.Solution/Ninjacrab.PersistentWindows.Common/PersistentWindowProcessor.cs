@@ -65,7 +65,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
-        private int totalWindowRestored = 0;
+        private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -189,7 +189,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                int numWindowRestored = totalWindowRestored;
+                int numWindowRestored = restoredWindows.Count;
 
                 restoringFromMem = false;
                 ResetState();
@@ -879,7 +879,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreTimes = 0;
                 restoreHaltTimes = 0;
                 restoreNestLevel = 0;
-                totalWindowRestored = 0;
+                restoredWindows.Clear();
                 restoringFromDB = false;
 
                 // reset counter of multiwindowProcess
@@ -1530,7 +1530,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!dryRun)
                     {
                         MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-                        ++totalWindowRestored;
+                        restoredWindows.Add(hWnd);
                         //RestoreCursorPos(displayKey);
                     }
                     continue;
@@ -1585,7 +1585,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                    ++totalWindowRestored;
+                    restoredWindows.Add(hWnd);
 
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
