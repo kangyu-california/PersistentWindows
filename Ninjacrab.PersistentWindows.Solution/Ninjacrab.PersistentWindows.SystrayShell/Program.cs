@@ -16,7 +16,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
-        static bool notification_off = false;
+        static bool notification_on = false;
 
         [STAThread]
         static void Main(string[] args)
@@ -32,8 +32,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-splash_off":
                         no_splash = true;
                         break;
-                    case "-notification_off":
-                        notification_off = true;
+                    case "-notification_on":
+                        notification_on = true;
                         break;
                     case "-dry_run":
                         Log.Trace("dry_run mode");
@@ -75,7 +75,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 systrayForm.notifyIconMain.Visible = true;
 
-                if (notification_off)
+                if (!notification_on)
                     return;
 
                 systrayForm.notifyIconMain.ShowBalloonTip(10000);
@@ -87,7 +87,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void HideRestoreTip()
         {
-            if (notification_off)
+            if (!notification_on)
                 return;
             systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
