@@ -73,6 +73,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             var thread = new Thread(() =>
             {
+                systrayForm.notifyIconMain.Visible = false;
                 systrayForm.notifyIconMain.Visible = true;
 
                 if (!notification_on)
