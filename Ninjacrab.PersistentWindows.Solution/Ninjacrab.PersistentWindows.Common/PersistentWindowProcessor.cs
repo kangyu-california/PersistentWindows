@@ -430,9 +430,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         monitorApplications[key].Remove(hwnd);
                     }
 
-                    windowTitle.Remove(hwnd);
+                    bool found = windowTitle.Remove(hwnd);
 
-                    if (sessionActive)
+                    if (sessionActive && found)
                     {
                         StartCaptureTimer(); //update z-order
                     }
