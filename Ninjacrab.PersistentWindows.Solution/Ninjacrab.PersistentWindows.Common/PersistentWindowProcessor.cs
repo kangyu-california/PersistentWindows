@@ -209,7 +209,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
-
+                    restoringFromDB = false;
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     //RemoveBatchCaptureTime();
@@ -880,7 +880,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreHaltTimes = 0;
                 restoreNestLevel = 0;
                 restoredWindows.Clear();
-                restoringFromDB = false;
 
                 // reset counter of multiwindowProcess
                 var keys = new List<string>();
