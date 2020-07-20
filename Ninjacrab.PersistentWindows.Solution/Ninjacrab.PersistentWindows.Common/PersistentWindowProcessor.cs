@@ -798,7 +798,7 @@ namespace Ninjacrab.PersistentWindows.Common
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false)
+        public void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false)
         {
             restoreTimer.Change(milliSecond, Timeout.Infinite);
             if (wait)
@@ -1177,7 +1177,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return moved;
         }
 
-        public void BatchRestoreApplicationsOnCurrentDisplays()
+        private void BatchRestoreApplicationsOnCurrentDisplays()
         {
             if (restoreTimes == 0)
             {
@@ -1191,7 +1191,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringFromDB)
                 {
                     RecordLastUserActionTime(DateTime.Now);
-                    Thread.Sleep(2000); // let mouse settle still for taskbar restoration
                 }
             }
 

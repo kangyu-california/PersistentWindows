@@ -126,7 +126,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void Restore()
         {
             pwp.restoringFromDB = true;
-            pwp.BatchRestoreApplicationsOnCurrentDisplays();
+            pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }
 
     }
