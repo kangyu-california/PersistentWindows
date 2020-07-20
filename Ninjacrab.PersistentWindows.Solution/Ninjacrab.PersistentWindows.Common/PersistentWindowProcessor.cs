@@ -1020,8 +1020,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
                 if ((style & (long)WindowStyleFlags.MINIMIZEBOX) == 0L)
                     continue;
+                /* full screen app such as mstsc may not have maximize box
                 if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
                     continue;
+                */
 
                 result.Add(window);
             }
