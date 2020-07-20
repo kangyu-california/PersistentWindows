@@ -58,10 +58,11 @@ namespace Ninjacrab.PersistentWindows.Common
         // restore control
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
-        private bool restoringFromMem = false; // automatic restore from memory in progress
+        public bool restoringFromMem = false; // automatic restore from memory in progress
         public bool restoringFromDB = false; // manual restore from DB in progress
         public bool dryRun = false; // only capturre, no actual restore
         public bool fixZorder = false; // restore z-order
+        public bool pauseAutoRestore = false;
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
@@ -77,7 +78,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // session control
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
-        private bool sessionActive = true;
+        public bool sessionActive = true;
 
         // display session end time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
@@ -171,6 +172,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreTimer = new Timer(state =>
             {
+                if (pauseAutoRestore && !restoringFromDB)
+                    return;
+
                 Log.Trace("Restore timer expired");
                 BatchRestoreApplicationsOnCurrentDisplays();
             });

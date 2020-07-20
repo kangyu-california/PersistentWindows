@@ -6,6 +6,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
+        static bool pauseAutoRestore = false;
 
         public SystrayForm()
         {
@@ -21,6 +22,22 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void RestoreWindowClickHandler(object sender, EventArgs e)
         {
             Program.Restore();
+        }
+
+        private void PauseResumeAutoRestore(object sender, EventArgs e)
+        {
+            if (!pauseAutoRestore)
+            {
+                pauseAutoRestore = true;
+                Program.PauseAutoRestore();
+                pauseResumeToolStripMenuItem.Text = "Resume auto restore";
+            }
+            else
+            {
+                Program.ResumeAutoRestore();
+                pauseAutoRestore = false;
+                pauseResumeToolStripMenuItem.Text = "Pause auto restore";
+            }
         }
 
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)

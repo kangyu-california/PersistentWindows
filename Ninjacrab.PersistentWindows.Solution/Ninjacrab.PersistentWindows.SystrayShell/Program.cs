@@ -129,5 +129,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }
 
+        static public void PauseAutoRestore()
+        {
+            pwp.pauseAutoRestore = true;
+            pwp.sessionActive = false; //disable capture as well
+        }
+
+        static public void ResumeAutoRestore()
+        {
+            pwp.pauseAutoRestore = false;
+            pwp.restoringFromMem = true;
+            pwp.StartRestoreTimer();
+        }
     }
 }
