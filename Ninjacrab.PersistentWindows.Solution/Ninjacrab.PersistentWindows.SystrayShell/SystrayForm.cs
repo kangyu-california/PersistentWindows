@@ -6,11 +6,22 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
-        static bool pauseAutoRestore = false;
+        private bool pauseAutoRestore = false;
+        public bool enableRestoreFromDB = false;
+        public Timer UiRefreshTimer = new Timer();
 
         public SystrayForm()
         {
+            UiRefreshTimer.Interval = 500;
+            UiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
+
             InitializeComponent();
+        }
+
+        private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
+        {
+            restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+            UiRefreshTimer.Stop();
         }
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)

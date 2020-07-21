@@ -103,7 +103,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void EnableRestoreMenu(bool enable)
         {
-            systrayForm.restoreToolStripMenuItem.Enabled = enable;
+            systrayForm.enableRestoreFromDB = enable;
+            systrayForm.UiRefreshTimer.Start();
         }
 
         static void StartSplashForm()
