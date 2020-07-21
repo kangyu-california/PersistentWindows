@@ -1057,12 +1057,14 @@ namespace Ninjacrab.PersistentWindows.Common
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
+            /*
             if (screenPosition.Top < 0 && screenPosition.Top > -15)
             {
                 Log.Error("Auto correct negative y screen coordinate");
                 // automatically fix small negative y coordinate to avoid repeated recovery failure
                 screenPosition.Top = 0;
             }
+            */
 
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
