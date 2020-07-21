@@ -1067,6 +1067,8 @@ namespace Ninjacrab.PersistentWindows.Common
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
                 HWnd = hwnd,
@@ -1078,6 +1080,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 ClassName = window.ClassName,
                 Title = isTaskBar ? "$taskbar$" : window.Title,
+
+                //full screen app such as mstsc may not have maximize box
+                IsFullScreen = (style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L,
 
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
@@ -1570,6 +1575,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
+                    }
+                    else if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
+                    {
+                        Log.Event("recover full screen window");
+                        windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
+                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
                     }
 
                     if (!dryRun)
