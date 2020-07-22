@@ -1023,9 +1023,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
                 if ((style & (long)WindowStyleFlags.MINIMIZEBOX) == 0L)
                     continue;
-                /* full screen app such as mstsc may not have maximize box
+
+                /* full screen app such as mstsc may not have maximize box */
+                /*
                 if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
-                    continue;
+                {
+                        continue;
+                }
                 */
 
                 result.Add(window);
@@ -1070,6 +1074,13 @@ namespace Ninjacrab.PersistentWindows.Common
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            bool isFullScreen = false;
+            if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
+            {
+                string size = string.Format("Res{0}x{1}", screenPosition.Width, screenPosition.Height);
+                if (curDisplayKey.Contains(size))
+                    isFullScreen = true;
+            }
 
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
@@ -1084,7 +1095,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Title = isTaskBar ? "$taskbar$" : window.Title,
 
                 //full screen app such as mstsc may not have maximize box
-                IsFullScreen = (style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L,
+                IsFullScreen = isFullScreen,
 
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
@@ -1580,7 +1591,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     else if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
-                        Log.Event("recover full screen window");
+                        Log.Error("recover full screen window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                         windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
