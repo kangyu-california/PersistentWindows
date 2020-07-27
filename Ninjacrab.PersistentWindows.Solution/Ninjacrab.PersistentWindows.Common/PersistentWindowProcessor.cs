@@ -1316,6 +1316,21 @@ namespace Ninjacrab.PersistentWindows.Common
             MoveTaskBar(hwnd, 300, 15);
         }
 
+        private void RestoreFullScreenWindow(IntPtr hwnd)
+        {
+            RECT2 screenPosition = new RECT2();
+            User32.GetWindowRect(hwnd, ref screenPosition);
+            int centerx = screenPosition.Left + screenPosition.Width / 2;
+            int centery = screenPosition.Top + 15;
+            User32.SetCursorPos(centerx, centery);
+            User32.SetActiveWindow(hwnd);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(150);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
+        }
+
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
         {
             // simulate mouse drag, assuming taskbar is unlocked
@@ -1612,6 +1627,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal)
+                    {
+                        RestoreFullScreenWindow(hWnd);
+                    }
                     restoredWindows.Add(hWnd);
 
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
