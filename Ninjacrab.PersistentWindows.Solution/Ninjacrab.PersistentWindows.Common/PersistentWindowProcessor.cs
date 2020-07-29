@@ -185,7 +185,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringFromDB && persistDB.CollectionExists(curDisplayKey))
                 {
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
-                    var results = db.Find(x => x.DbMatchWindow == true); // find process not yet started
+                    var results = db.Find(x => x.DbMatchWindow == true); // find db entry already matched with open window
                     foreach (var curDisplayMetrics in results)
                     {
                         curDisplayMetrics.DbMatchWindow = false;
