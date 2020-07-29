@@ -37,17 +37,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void PauseResumeAutoRestore(object sender, EventArgs e)
         {
-            if (!pauseAutoRestore)
-            {
-                pauseAutoRestore = true;
-                Program.PauseAutoRestore();
-                pauseResumeToolStripMenuItem.Text = "Resume auto restore";
-            }
-            else
+            if (pauseAutoRestore)
             {
                 Program.ResumeAutoRestore();
                 pauseAutoRestore = false;
                 pauseResumeToolStripMenuItem.Text = "Pause auto restore";
+            }
+            else
+            {
+                pauseAutoRestore = true;
+                Program.PauseAutoRestore();
+                pauseResumeToolStripMenuItem.Text = "Resume auto restore";
             }
         }
 
