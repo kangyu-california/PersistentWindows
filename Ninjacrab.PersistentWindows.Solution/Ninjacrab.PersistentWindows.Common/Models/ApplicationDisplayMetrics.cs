@@ -8,7 +8,6 @@ namespace Ninjacrab.PersistentWindows.Common.Models
     {
         // for LiteDB use only
         public int Id { get; set; }
-        public bool DbMatchWindow { get; set; }
         public uint ProcessId { get; set; }
         public string ProcessExePath { get; set; }
 

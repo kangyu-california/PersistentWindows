@@ -67,6 +67,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
+        private Dictionary<int, bool> dbMatchWindow = new Dictionary<int, bool>(); // db entry (id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -182,19 +183,14 @@ namespace Ninjacrab.PersistentWindows.Common
             restoreFinishedTimer = new Timer(state =>
             {
                 // clear DbMatchWindow flag in db
-                if (restoringFromDB && persistDB.CollectionExists(curDisplayKey))
+                if (restoringFromDB)
                 {
-                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(curDisplayKey);
-                    var results = db.Find(x => x.DbMatchWindow == true); // find db entry already matched with open window
-                    foreach (var curDisplayMetrics in results)
-                    {
-                        curDisplayMetrics.DbMatchWindow = false;
-                        db.Update(curDisplayMetrics);
-                    }
+                    dbMatchWindow.Clear();
                 }
 
                 int numWindowRestored = restoredWindows.Count;
 
+                restoringFromDB = false;
                 restoringFromMem = false;
                 ResetState();
                 Log.Trace("");
@@ -213,7 +209,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
-                    restoringFromDB = false;
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     //RemoveBatchCaptureTime();
@@ -519,11 +514,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 if (restoringFromDB)
                                 {
+                                    /*
                                     if (restoreTimes >= MinRestoreTimes)
                                     {
                                         // restore is not finished as long as window location keeps changing
                                         StartRestoreTimer();
                                     }
+                                    */
                                 }
                                 else
                                 {
@@ -550,7 +547,14 @@ namespace Ninjacrab.PersistentWindows.Common
                             // capture user moves
                             // Occasionaly OS might bring a window to forground upon sleep
                             CaptureCursorPos(curDisplayKey);
-                            StartCaptureTimer();
+                            if (restoringFromDB && eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
+                            {
+                                StartCaptureTimer(milliSeconds: 0); // immediately capture new window
+                            }
+                            else
+                            {
+                                StartCaptureTimer();
+                            }
                             break;
                     }
                 }
@@ -764,7 +768,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     windowTitle[hWnd] = curDisplayMetrics.Title;
                     curDisplayMetrics.ProcessName = window.Process.ProcessName;
-                    curDisplayMetrics.DbMatchWindow = false;
 
                     IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
                     string procPath = GetProcExePath(hProcess);
@@ -1403,12 +1406,14 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             foreach (var result in results)
             {
-                if (!result.DbMatchWindow)
+                if (dbMatchWindow.ContainsKey(result.Id))
                 {
-                    // map to the first matching db entry
-                    Log.Trace("restore window position with matching process name {0}", result.ProcessName);
-                    return result;
+                    continue;
                 }
+
+                // map to the first matching db entry
+                Log.Trace("restore window position with matching process name {0}", result.ProcessName);
+                return result;
             }
 
             return null;
@@ -1529,8 +1534,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.HWnd = hWnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
-                    curDisplayMetrics.DbMatchWindow = true;
-                    db.Update(curDisplayMetrics);
+
+                    if (dbMatchWindow.ContainsKey(curDisplayMetrics.Id))
+                    {
+                        continue; //avoid restore multiple times
+                    }
+
+                    dbMatchWindow.Add(curDisplayMetrics.Id, true);
 
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
 
@@ -1656,9 +1666,13 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoringFromDB && restoreTimes == 0)
             {
                 // launch process in db
-                var results = db.Find(x => x.DbMatchWindow == false); // find process not yet started
+                var results = db.FindAll(); // find process not yet started
                 foreach (var curDisplayMetrics in results)
                 {
+                    if (dbMatchWindow.ContainsKey(curDisplayMetrics.Id))
+                    {
+                        continue;
+                    }
 #if DEBUG
                     if (curDisplayMetrics.Title.Contains("Microsoft Visual Studio"))
                     {
