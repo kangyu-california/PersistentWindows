@@ -1043,6 +1043,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime time, out ApplicationDisplayMetrics curDisplayMetrics)
         {
+            bool moved = false;
             curDisplayMetrics = null;
 
             if (!window.IsValid())
@@ -1069,6 +1070,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Error("Auto correct negative y screen coordinate for window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                 // automatically fix small negative y coordinate to avoid repeated recovery failure
                 screenPosition.Top = 0;
+                moved = true;
             }
 
             uint processId = 0;
@@ -1110,7 +1112,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 NeedRestoreZorder = false,
             };
 
-            bool moved = false;
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 //newly created window or new display setting
