@@ -1476,12 +1476,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Error("Missing session cut-off time for display setting {0}", displayKey);
                 lastCaptureTime = DateTime.Now;
             }
-            Log.Trace("Restore time {0}", lastCaptureTime);
-            if (restoreTimes == 0)
-            {
-                Log.Event("Start restoring window layout back to {0} for display setting {1}", lastCaptureTime, curDisplayKey);
-            }
 
+            DateTime printRestoreTime = lastCaptureTime;
             ILiteCollection<ApplicationDisplayMetrics> db = null;
             if (restoringFromDB)
             {
@@ -1542,11 +1538,18 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     dbMatchWindow.Add(curDisplayMetrics.Id, true);
 
+                    printRestoreTime = curDisplayMetrics.CaptureTime;
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
 
                     TrimQueue(displayKey, hWnd);
                     monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
+            }
+
+            Log.Trace("Restore time {0}", printRestoreTime);
+            if (restoreTimes == 0)
+            {
+                Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
             foreach (var window in sWindows)
