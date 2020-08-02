@@ -1642,7 +1642,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal)
                     {
-                        RestoreFullScreenWindow(hWnd);
+                        if (restoreTimes < MinRestoreTimes)
+                            RestoreFullScreenWindow(hWnd);
                     }
                     restoredWindows.Add(hWnd);
 
