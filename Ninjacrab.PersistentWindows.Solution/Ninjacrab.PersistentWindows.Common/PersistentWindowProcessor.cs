@@ -34,7 +34,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int CaptureLatency = 3000; // delay in milliseconds from window move to capture
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
-        private const int MinWindowOsMoveEvents = 12; // criteria to tell if these are OS initiated moves instead of user operation
+        private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxHistoryQueueLength = 10;
 
         private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
@@ -393,7 +393,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
-                        Log.Trace("Session opening: reason {0}", args.Reason);
+                        Log.Event("Session opening: reason {0}", args.Reason);
                         remoteSession = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
