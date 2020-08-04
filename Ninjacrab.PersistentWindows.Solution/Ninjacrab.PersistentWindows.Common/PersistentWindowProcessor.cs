@@ -1315,9 +1315,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void RestoreFullScreenWindow(IntPtr hwnd)
         {
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
+            {
+                return;
+            }
+
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
+
             int centerx = screenPosition.Left + screenPosition.Width / 2;
+
             int centery = screenPosition.Top + 15;
             User32.SetCursorPos(centerx, centery);
             User32.SetActiveWindow(hwnd);
@@ -1615,7 +1623,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
-                    else if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
+                    else if (restoreTimes == 0 && prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
                         Log.Error("recover full screen window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                         windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
@@ -1642,8 +1650,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal)
                     {
-                        if (restoreTimes < MinRestoreTimes)
-                            RestoreFullScreenWindow(hWnd);
+                        RestoreFullScreenWindow(hWnd);
                     }
                     restoredWindows.Add(hWnd);
 
