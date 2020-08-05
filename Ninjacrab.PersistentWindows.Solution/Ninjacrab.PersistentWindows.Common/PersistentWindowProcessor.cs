@@ -1325,7 +1325,8 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
-            int centerx = screenPosition.Left + screenPosition.Width / 2;
+            // window caption center might be occupied by other controls 
+            int centerx = screenPosition.Left + screenPosition.Width / 4;
 
             int centery = screenPosition.Top + 15;
             User32.SetCursorPos(centerx, centery);
