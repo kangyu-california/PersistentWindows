@@ -1092,6 +1092,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
+                IsMinimized = User32.IsIconic(hwnd),
 
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
@@ -1651,6 +1652,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal)
                     {
                         RestoreFullScreenWindow(hWnd);
+                    }
+                    if (prevDisplayMetrics.IsMinimized && !curDisplayMetrics.IsMinimized)
+                    {
+                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                     }
                     restoredWindows.Add(hWnd);
 

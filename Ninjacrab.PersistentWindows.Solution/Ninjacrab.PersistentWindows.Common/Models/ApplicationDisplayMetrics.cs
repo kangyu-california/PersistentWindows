@@ -17,6 +17,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string ProcessName { get; set; }
         public string Title { get; set; }
         public bool IsFullScreen { get; set; }
+        public bool IsMinimized { get; set; }
 
         // for restore window position to display session end time
         public DateTime CaptureTime { get; set; }
@@ -36,7 +37,8 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         {
             bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
             bool minmaxStateEqual = this.WindowPlacement.ShowCmd == other.WindowPlacement.ShowCmd;
-            return posEqual && minmaxStateEqual;
+            bool minimizeStateEqual = this.IsMinimized == other.IsMinimized;
+            return posEqual && minmaxStateEqual && minimizeStateEqual;
         }
 
         public override string ToString()
