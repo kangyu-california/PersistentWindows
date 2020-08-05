@@ -230,6 +230,11 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ShowWindow(IntPtr hWnd, int cmd);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool ShowWindowAsync(IntPtr hWnd, int cmd);
+
         public const int SW_SHOWMINNOACTIVE = 7;
 
         [DllImport("user32.dll", SetLastError = true)]

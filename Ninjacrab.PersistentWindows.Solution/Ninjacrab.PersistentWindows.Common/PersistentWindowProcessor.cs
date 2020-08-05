@@ -1655,7 +1655,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     if (prevDisplayMetrics.IsMinimized && !curDisplayMetrics.IsMinimized)
                     {
-                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        User32.ShowWindowAsync(hWnd, User32.SW_SHOWMINNOACTIVE);
                         Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                     }
                     restoredWindows.Add(hWnd);
