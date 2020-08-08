@@ -408,6 +408,31 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
+        private void ActivateWindow(IntPtr hwnd)
+        {
+            var thread = new Thread(() =>
+            {
+                Thread.Sleep(500);
+                lock (databaseLock)
+                {
+                    if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                    {
+                        return;
+                    }
+
+                    if (monitorApplications[curDisplayKey][hwnd].Count == 0)
+                        return;
+
+                    var prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
+                    if (prevDisplayMetrics.IsMinimized && prevDisplayMetrics.IsFullScreen)
+                        RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                }
+            });
+
+            thread.IsBackground = false;
+            thread.Start();
+        }
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             // only track top level windows
@@ -541,6 +566,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
+                            ActivateWindow(hwnd);
+                            goto case User32Events.EVENT_SYSTEM_MINIMIZESTART;
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
@@ -1190,6 +1217,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         moved = true;
                     }
                 }
+
+                if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && curDisplayMetrics.IsMinimized)
+                    curDisplayMetrics.IsFullScreen = true; // flag that current state is minized from full screen mode
             }
 
             return moved;
@@ -1650,7 +1680,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!dryRun)
                 {
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                    if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal)
+                    if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !prevDisplayMetrics.IsMinimized)
                     {
                         RestoreFullScreenWindow(hWnd);
                     }
