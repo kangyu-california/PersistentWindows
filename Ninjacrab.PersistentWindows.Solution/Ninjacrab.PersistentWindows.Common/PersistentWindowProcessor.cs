@@ -424,8 +424,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         return;
 
                     var prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
-                    if (prevDisplayMetrics.IsMinimized && prevDisplayMetrics.IsFullScreen)
-                        RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                    if (prevDisplayMetrics.IsMinimized)
+                    {
+                        if (prevDisplayMetrics.IsFullScreen)
+                            RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                        else
+                            // windows ignores previous snap status when activated from minimized state
+                            RestoreSnapWindow(hwnd, ref prevDisplayMetrics);
+                    }
                 }
             });
 
@@ -1368,6 +1374,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
         }
 
+        private void RestoreSnapWindow(IntPtr hwnd, ref ApplicationDisplayMetrics prevDisplayMetrics)
+        {
+            SystemWindow window = new SystemWindow(hwnd);
+            RestoreApplicationsOnCurrentDisplays(curDisplayKey, window);
+        }
+
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
         {
             // simulate mouse drag, assuming taskbar is unlocked
@@ -1655,7 +1667,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
-                    else if (restoreTimes == 0 && prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
+                    else if (restoreTimes == 0 && prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
                         Log.Error("recover full screen window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                         windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
@@ -1684,9 +1696,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         RestoreFullScreenWindow(hWnd);
                     }
-                    if (prevDisplayMetrics.IsMinimized && !curDisplayMetrics.IsMinimized)
+                    if (prevDisplayMetrics.IsMinimized)
                     {
-                        User32.ShowWindowAsync(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
                         Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                     }
                     restoredWindows.Add(hWnd);
