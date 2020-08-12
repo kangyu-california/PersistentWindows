@@ -432,8 +432,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 Thread.Sleep(500);
                 lock (databaseLock)
                 {
+                    RECT2 screenPosition = new RECT2();
+                    User32.GetWindowRect(hwnd, ref screenPosition);
+
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
+                        if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                        {
+                            User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                            Log.Error("fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                        }
                         return;
                     }
 
@@ -448,13 +456,16 @@ namespace Ninjacrab.PersistentWindows.Common
                         else if (!IsFullScreen(hwnd))
                         {
                             // windows ignores previous snap status when activated from minimized state
-                            RECT2 screenPosition = new RECT2();
-                            User32.GetWindowRect(hwnd, ref screenPosition);
                             if (!screenPosition.Equals(prevDisplayMetrics.SnapPosition))
                             {
                                 RECT2 rect = prevDisplayMetrics.SnapPosition;
                                 User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                Log.Event("restore snapped window");
+                                Log.Error("restore snapped window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                            }
+                            else if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                            {
+                                User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                                Log.Error("fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                             }
                         }
                     }
@@ -1150,7 +1161,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
-                SnapPosition = screenPosition,
+                SnapPosition = screenPosition.Left <= -25600 ?
+                        windowPlacement.NormalPosition : screenPosition,
 
                 IsTopMost = window.TopMost, //IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
@@ -1399,6 +1411,8 @@ namespace Ninjacrab.PersistentWindows.Common
             Thread.Sleep(150);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
+
+            Log.Error("restore full screen window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
         }
 
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
