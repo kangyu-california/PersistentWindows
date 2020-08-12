@@ -24,6 +24,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         // window position
         public RECT2 ScreenPosition { get; set; }
+        public RECT2 SnapPosition { get; set; } // for restore snap window from minimize state
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only
 

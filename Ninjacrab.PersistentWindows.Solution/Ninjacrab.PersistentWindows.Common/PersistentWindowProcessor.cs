@@ -408,6 +408,23 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
+        private bool IsFullScreen(IntPtr hwnd)
+        {
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            bool isFullScreen = false;
+            if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
+            {
+                RECT2 screenPosition = new RECT2();
+                User32.GetWindowRect(hwnd, ref screenPosition);
+
+                string size = string.Format("Res{0}x{1}", screenPosition.Width, screenPosition.Height);
+                if (curDisplayKey.Contains(size))
+                    isFullScreen = true;
+            }
+
+            return isFullScreen;
+        }
+
         private void ActivateWindow(IntPtr hwnd)
         {
             var thread = new Thread(() =>
@@ -428,9 +445,18 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (prevDisplayMetrics.IsFullScreen)
                             RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
-                        else
+                        else if (!IsFullScreen(hwnd))
+                        {
                             // windows ignores previous snap status when activated from minimized state
-                            RestoreSnapWindow(hwnd, ref prevDisplayMetrics);
+                            RECT2 screenPosition = new RECT2();
+                            User32.GetWindowRect(hwnd, ref screenPosition);
+                            if (!screenPosition.Equals(prevDisplayMetrics.SnapPosition))
+                            {
+                                RECT2 rect = prevDisplayMetrics.SnapPosition;
+                                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                Log.Event("restore snapped window");
+                            }
+                        }
                     }
                 }
             });
@@ -1102,14 +1128,7 @@ namespace Ninjacrab.PersistentWindows.Common
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
-            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
-            bool isFullScreen = false;
-            if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
-            {
-                string size = string.Format("Res{0}x{1}", screenPosition.Width, screenPosition.Height);
-                if (curDisplayKey.Contains(size))
-                    isFullScreen = true;
-            }
+            bool isFullScreen = IsFullScreen(hwnd);
 
             curDisplayMetrics = new ApplicationDisplayMetrics
             {
@@ -1131,6 +1150,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
+                SnapPosition = screenPosition,
 
                 IsTopMost = window.TopMost, //IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
@@ -1177,6 +1197,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd].Last();
 
+                if (curDisplayMetrics.IsMinimized)
+                {
+                    // remember prev screen position when minimize snapped window
+                    curDisplayMetrics.SnapPosition = prevDisplayMetrics.SnapPosition;
+                }
+
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
                 {
@@ -1206,6 +1232,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // nothing changed except event type & time
                 }
+
 
                 if (fixZorder)
                 {
@@ -1372,12 +1399,6 @@ namespace Ninjacrab.PersistentWindows.Common
             Thread.Sleep(150);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
-        }
-
-        private void RestoreSnapWindow(IntPtr hwnd, ref ApplicationDisplayMetrics prevDisplayMetrics)
-        {
-            SystemWindow window = new SystemWindow(hwnd);
-            RestoreApplicationsOnCurrentDisplays(curDisplayKey, window);
         }
 
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
