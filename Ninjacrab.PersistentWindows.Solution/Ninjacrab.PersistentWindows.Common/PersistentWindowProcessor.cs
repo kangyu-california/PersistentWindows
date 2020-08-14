@@ -440,7 +440,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
                         {
                             User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                            Log.Error("fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                            Log.Error("Auto fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                         }
                         return;
                     }
@@ -455,14 +455,24 @@ namespace Ninjacrab.PersistentWindows.Common
                             RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
                         else if (!IsFullScreen(hwnd))
                         {
-                            // windows ignores previous snap status when activated from minimized state
-                            if (!screenPosition.Equals(prevDisplayMetrics.SnapPosition))
+                            var count = monitorApplications[curDisplayKey][hwnd].Count;
+                            if (count > 1)
                             {
-                                RECT2 rect = prevDisplayMetrics.SnapPosition;
-                                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                Log.Error("restore snapped window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                // restore to position prior to minimize
+                                var prev = monitorApplications[curDisplayKey][hwnd][count - 2];
+                                if (!screenPosition.Equals(prev.ScreenPosition))
+                                {
+                                    // windows ignores previous snap status when activated from minimized state
+                                    var placement = prev.WindowPlacement;
+                                    User32.SetWindowPlacement(hwnd, ref placement);
+                                    RECT2 rect = prev.ScreenPosition;
+                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                    Log.Error("restore snapped window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                }
                             }
-                            else if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+
+                            User32.GetWindowRect(hwnd, ref screenPosition);
+                            if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
                             {
                                 User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
                                 Log.Error("fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
@@ -1161,8 +1171,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
-                SnapPosition = screenPosition.Left <= -25600 ?
-                        windowPlacement.NormalPosition : screenPosition,
 
                 IsTopMost = window.TopMost, //IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
@@ -1208,12 +1216,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd].Last();
-
-                if (curDisplayMetrics.IsMinimized)
-                {
-                    // remember prev screen position when minimize snapped window
-                    curDisplayMetrics.SnapPosition = prevDisplayMetrics.SnapPosition;
-                }
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
