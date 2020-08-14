@@ -463,7 +463,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 RECT2 rect = prev.ScreenPosition;
                                 if (rect.Left <= -25600)
                                 {
-                                    Log.Error("no qualified position data to unminimize window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                    Log.Error("no qualified position data to unminimize window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                                 }
                                 else if (!screenPosition.Equals(rect))
                                 {
@@ -471,7 +471,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                    Log.Error("restore snapped window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                    Log.Error("restore snapped window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                                 }
                             }
 
@@ -479,7 +479,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
                             {
                                 User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                                Log.Error("fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                Log.Error("fix invisible window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                             }
                         }
                     }
