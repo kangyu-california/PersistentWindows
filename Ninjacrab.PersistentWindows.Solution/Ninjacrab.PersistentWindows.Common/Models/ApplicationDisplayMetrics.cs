@@ -1,6 +1,8 @@
-﻿using System;
-using Ninjacrab.PersistentWindows.Common.WinApiBridge;
+using System;
 using ManagedWinapi.Windows;
+
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
+using Ninjacrab.PersistentWindows.Common.Diagnostics;
 
 namespace Ninjacrab.PersistentWindows.Common.Models
 {
@@ -38,7 +40,15 @@ namespace Ninjacrab.PersistentWindows.Common.Models
             bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
             bool minmaxStateEqual = this.WindowPlacement.ShowCmd == other.WindowPlacement.ShowCmd;
             bool minimizeStateEqual = this.IsMinimized == other.IsMinimized;
-            return posEqual && minmaxStateEqual && minimizeStateEqual;
+            bool allEqual = posEqual && minmaxStateEqual && minimizeStateEqual;
+
+            if (minimizeStateEqual && this.IsMinimized && !allEqual)
+            {
+                Log.Trace("reject placement change in minimized state");
+                return true;
+            }
+
+            return allEqual;
         }
 
         public override string ToString()

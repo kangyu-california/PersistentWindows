@@ -460,12 +460,16 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 // restore to position prior to minimize
                                 var prev = monitorApplications[curDisplayKey][hwnd][count - 2];
-                                if (!screenPosition.Equals(prev.ScreenPosition))
+                                RECT2 rect = prev.ScreenPosition;
+                                if (rect.Left <= -25600)
+                                {
+                                    Log.Error("no qualified position data to unminimize window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                }
+                                else if (!screenPosition.Equals(rect))
                                 {
                                     // windows ignores previous snap status when activated from minimized state
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
-                                    RECT2 rect = prev.ScreenPosition;
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                     Log.Error("restore snapped window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                                 }
@@ -1146,6 +1150,13 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
+            bool isMinimized = User32.IsIconic(hwnd);
+            if (!isMinimized && (screenPosition.Left <= -25600 || screenPosition.Top <= -25600))
+            {
+                Log.Error("set minimize flag for window {0}", window.Title);
+                isMinimized = true;
+            }
+
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
@@ -1165,7 +1176,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
-                IsMinimized = User32.IsIconic(hwnd),
+                IsMinimized = isMinimized,
 
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
