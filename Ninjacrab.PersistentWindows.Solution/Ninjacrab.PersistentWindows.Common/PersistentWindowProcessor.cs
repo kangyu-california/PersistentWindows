@@ -682,7 +682,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void TrimQueue(string displayKey, IntPtr hwnd)
         {
-            if (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
+            while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
                 monitorApplications[displayKey][hwnd].RemoveAt(0);
@@ -867,11 +867,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     TrimQueue(displayKey, hWnd);
-
-                    if (monitorApplications[displayKey][hWnd].Count < MaxHistoryQueueLength)
-                    {
-                        monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
-                    }
+                    monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
                 ret = true;
             }
