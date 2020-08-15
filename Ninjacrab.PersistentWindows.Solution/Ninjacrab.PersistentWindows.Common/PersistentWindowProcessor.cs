@@ -389,11 +389,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
-                        Log.Event("Session closing: reason {0}", args.Reason);
+                        Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
-                        Log.Event("Session opening: reason {0}", args.Reason);
+                        Log.Trace("Session opening: reason {0}", args.Reason);
                         remoteSession = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
@@ -425,6 +425,29 @@ namespace Ninjacrab.PersistentWindows.Common
             return isFullScreen;
         }
 
+        private string GetWindowTitle(IntPtr hwnd)
+        {
+            return windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8");
+        }
+
+        private bool IsMinimized(IntPtr hwnd)
+        {
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(hwnd, ref rect);
+            bool result = rect.Left <= -25600 || rect.Top <= -25600;
+            if (result)
+                return result;
+
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            if ((style & (long)WindowStyleFlags.MINIMIZE) != 0L)
+            {
+                Log.Error("window minimized flag is set \"{0}\"", GetWindowTitle(hwnd));
+                result = true;
+            }
+
+            return result;
+        }
+
         private void ActivateWindow(IntPtr hwnd)
         {
             var thread = new Thread(() =>
@@ -432,20 +455,18 @@ namespace Ninjacrab.PersistentWindows.Common
                 Thread.Sleep(500);
                 lock (databaseLock)
                 {
-                    RECT2 screenPosition = new RECT2();
-                    User32.GetWindowRect(hwnd, ref screenPosition);
-                    if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
-                        return; // already minimized
-
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
-                        if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                        if (IsMinimized(hwnd))
                         {
                             User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                            Log.Error("Auto fix invisible window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                            Log.Error("Auto fix invisible window {0}", GetWindowTitle(hwnd));
                         }
                         return;
                     }
+
+                    if (IsMinimized(hwnd))
+                        return; // already minimized
 
                     if (monitorApplications[curDisplayKey][hwnd].Count == 0)
                         return;
@@ -457,36 +478,39 @@ namespace Ninjacrab.PersistentWindows.Common
                             RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
                         else if (!IsFullScreen(hwnd))
                         {
+                            RECT2 screenPosition = new RECT2();
+                            User32.GetWindowRect(hwnd, ref screenPosition);
+
                             var count = monitorApplications[curDisplayKey][hwnd].Count;
                             for (var i = count - 2; i >= 0; --i)
                             {
                                 // restore to position prior to minimize
                                 var prev = monitorApplications[curDisplayKey][hwnd][i];
+                                if (prev.IsMinimized)
+                                    continue;
+
                                 RECT2 rect = prev.ScreenPosition;
                                 if (rect.Left <= -25600)
                                 {
-                                    Log.Error("no qualified position data to unminimize window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                    Log.Error("no qualified position data to unminimize window \"{0}\"", GetWindowTitle(hwnd));
                                     continue;
                                 }
 
                                 if (!screenPosition.Equals(rect))
                                 {
                                     // windows ignores previous snap status when activated from minimized state
-                                    /*
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
-                                    */
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                    Log.Error("restore snapped window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
-                                    break;
+                                    Log.Error("restore snapped window \"{0}\"", GetWindowTitle(hwnd));
                                 }
+                                break;
                             }
 
-                            User32.GetWindowRect(hwnd, ref screenPosition);
-                            if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                            if (IsMinimized(hwnd))
                             {
                                 User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                                Log.Error("fix invisible window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
                     }
@@ -749,7 +773,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         | SetWindowPosFlags.IgnoreResize
                     );
 
-                    Log.Error("Fix topmost window {0} {1}", window.Title, ok.ToString());
+                    Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hwnd), ok.ToString());
                 }
             }
 
@@ -760,7 +784,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (prev == IntPtr.Zero)
             {
-                Log.Trace("avoid restore to top most for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                Log.Trace("avoid restore to top most for window {0}", GetWindowTitle(hWnd));
                 return 0; // issue 21, avoiding restore to top z-order
             }
 
@@ -777,7 +801,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (IsTaskBar(window))
             {
-                Log.Trace("avoid restore under taskbar for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                Log.Trace("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 return 0; // issue 21, avoid restore to top z-order
             }
 
@@ -798,8 +822,8 @@ namespace Ninjacrab.PersistentWindows.Common
             );
 
             Log.Event("Restore zorder {4} by repositioning window \"{0}\" ({1}) under \"{2}\" ({3})",
-                windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : "", hWnd.ToString("X8"),
-                windowTitle.ContainsKey(prev) ? windowTitle[prev] : "", prev.ToString("X8"),
+                GetWindowTitle(hWnd),
+                GetWindowTitle(prev),
                 ok ? "succeeded" : "failed");
 
             return ok ? 1 : -1;
@@ -1157,7 +1181,11 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
-            bool isMinimized = screenPosition.Left <= -25600 || screenPosition.Top <= -25600;
+            bool isMinimized = IsMinimized(hwnd);
+            if (isMinimized && window.Title.Contains("Notepad3"))
+            {
+                int i = 0;
+            }
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
@@ -1272,8 +1300,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (prevDisplayMetrics.PrevZorderWindow != curDisplayMetrics.PrevZorderWindow)
                     {
-                        curDisplayMetrics.NeedRestoreZorder = true;
-                        moved = true;
+                        if (!moved && curDisplayMetrics.IsMinimized)
+                        {
+                            ; // ignore z-order change in minimized state
+                        }
+                        else
+                        {
+                            curDisplayMetrics.NeedRestoreZorder = true;
+                            moved = true;
+                        }
                     }
                 }
 
@@ -1426,7 +1461,7 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
 
-            Log.Error("restore full screen window {0}", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+            Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
         private void MoveTaskBar(IntPtr hwnd, int x, int y)
@@ -1687,10 +1722,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (!dryRun)
                 {
-                    if (prevDisplayMetrics.IsMinimized && !curDisplayMetrics.IsMinimized)
+                    if (prevDisplayMetrics.IsMinimized)
                     {
                         User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
                         Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                        continue;
                     }
                 }
 
