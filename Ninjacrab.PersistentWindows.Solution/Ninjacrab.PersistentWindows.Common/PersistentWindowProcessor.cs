@@ -434,6 +434,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     RECT2 screenPosition = new RECT2();
                     User32.GetWindowRect(hwnd, ref screenPosition);
+                    if (User32.IsIconic(hwnd) || screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                        return; // already minimized
 
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
@@ -456,22 +458,25 @@ namespace Ninjacrab.PersistentWindows.Common
                         else if (!IsFullScreen(hwnd))
                         {
                             var count = monitorApplications[curDisplayKey][hwnd].Count;
-                            if (count > 1)
+                            for (var i = count - 2; i >= 0; --i)
                             {
                                 // restore to position prior to minimize
-                                var prev = monitorApplications[curDisplayKey][hwnd][count - 2];
+                                var prev = monitorApplications[curDisplayKey][hwnd][i];
                                 RECT2 rect = prev.ScreenPosition;
                                 if (rect.Left <= -25600)
                                 {
                                     Log.Error("no qualified position data to unminimize window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                    continue;
                                 }
-                                else if (!screenPosition.Equals(rect))
+
+                                if (!screenPosition.Equals(rect))
                                 {
                                     // windows ignores previous snap status when activated from minimized state
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                     Log.Error("restore snapped window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
+                                    break;
                                 }
                             }
 
@@ -1684,6 +1689,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
+                if (!dryRun)
+                {
+                    if (prevDisplayMetrics.IsMinimized && !curDisplayMetrics.IsMinimized)
+                    {
+                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                    }
+                }
+
                 if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
                     bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
@@ -1743,11 +1757,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !prevDisplayMetrics.IsMinimized)
                     {
                         RestoreFullScreenWindow(hWnd);
-                    }
-                    if (prevDisplayMetrics.IsMinimized)
-                    {
-                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
-                        Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
                     }
                     restoredWindows.Add(hWnd);
 
