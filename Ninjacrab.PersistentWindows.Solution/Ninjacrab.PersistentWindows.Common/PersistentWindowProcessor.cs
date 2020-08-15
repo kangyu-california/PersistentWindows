@@ -460,7 +460,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (IsMinimized(hwnd))
                         {
                             User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                            Log.Error("Auto fix invisible window {0}", GetWindowTitle(hwnd));
+                            Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                         }
                         return;
                     }
@@ -492,7 +492,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 RECT2 rect = prev.ScreenPosition;
                                 if (rect.Left <= -25600)
                                 {
-                                    Log.Error("no qualified position data to unminimize window \"{0}\"", GetWindowTitle(hwnd));
+                                    Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
                                     continue;
                                 }
 
@@ -502,7 +502,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                    Log.Error("restore snapped window \"{0}\"", GetWindowTitle(hwnd));
+                                    Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
                                 }
                                 break;
                             }
@@ -821,7 +821,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 | SetWindowPosFlags.IgnoreResize
             );
 
-            Log.Event("Restore zorder {4} by repositioning window \"{0}\" ({1}) under \"{2}\" ({3})",
+            Log.Event("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"",
                 GetWindowTitle(hWnd),
                 GetWindowTitle(prev),
                 ok ? "succeeded" : "failed");
