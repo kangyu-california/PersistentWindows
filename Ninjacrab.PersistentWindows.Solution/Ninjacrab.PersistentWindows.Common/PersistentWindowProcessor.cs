@@ -1065,7 +1065,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     // confirmed user moves
-                    RecordLastUserActionTime(time: now, force: true);
+                    RecordLastUserActionTime(time: DateTime.Now, force: true);
                     if (movedWindows > 0)
                         Log.Trace("{0} windows captured", movedWindows);
                 }
