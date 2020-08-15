@@ -367,7 +367,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 switch (args.Reason)
                 {
                     case SessionSwitchReason.SessionLock:
-                        Log.Trace("Session closing: reason {0}", args.Reason);
+                        Log.Event("Session closing: reason {0}", args.Reason);
                         lock (controlLock)
                         {
                             sessionLocked = true;
@@ -376,7 +376,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         break;
                     case SessionSwitchReason.SessionUnlock:
-                        Log.Trace("Session opening: reason {0}", args.Reason);
+                        Log.Event("Session opening: reason {0}", args.Reason);
                         lock (controlLock)
                         {
                             sessionLocked = false;
@@ -389,7 +389,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
-                        Log.Trace("Session closing: reason {0}", args.Reason);
+                        Log.Event("Session closing: reason {0}", args.Reason);
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
@@ -434,7 +434,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     RECT2 screenPosition = new RECT2();
                     User32.GetWindowRect(hwnd, ref screenPosition);
-                    if (User32.IsIconic(hwnd) || screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
+                    if (screenPosition.Left <= -25600 || screenPosition.Top <= -25600)
                         return; // already minimized
 
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
@@ -472,8 +472,10 @@ namespace Ninjacrab.PersistentWindows.Common
                                 if (!screenPosition.Equals(rect))
                                 {
                                     // windows ignores previous snap status when activated from minimized state
+                                    /*
                                     var placement = prev.WindowPlacement;
                                     User32.SetWindowPlacement(hwnd, ref placement);
+                                    */
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                     Log.Error("restore snapped window \"{0}\"", windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8"));
                                     break;
@@ -1155,13 +1157,7 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT2 screenPosition = new RECT2();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
-            bool isMinimized = User32.IsIconic(hwnd);
-            if (!isMinimized && (screenPosition.Left <= -25600 || screenPosition.Top <= -25600))
-            {
-                Log.Error("set minimize flag for window {0}", window.Title);
-                isMinimized = true;
-            }
-
+            bool isMinimized = screenPosition.Left <= -25600 || screenPosition.Top <= -25600;
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
@@ -1282,7 +1278,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && curDisplayMetrics.IsMinimized)
-                    curDisplayMetrics.IsFullScreen = true; // flag that current state is minized from full screen mode
+                    curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
             }
 
             return moved;
