@@ -1703,7 +1703,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 if (rect.Top < 0 && rect.Top > -15)
                 {
-                    Log.Error("Auto correct negative y screen coordinate for window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                    Log.Error("Auto correct negative y screen coordinate for window {0}", GetWindowTitle(hWnd));
                     // automatically fix small negative y coordinate to avoid repeated recovery failure
                     rect.Top = 0;
                 }
@@ -1725,7 +1725,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsMinimized)
                     {
                         User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
-                        Log.Error("recover minimized window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                        Log.Error("recover minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
                 }
@@ -1740,7 +1740,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         | SetWindowPosFlags.IgnoreResize
                     );
 
-                    Log.Error("Fix topmost window {0} {1}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"), ok.ToString());
+                    Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
                 if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes > 0)
@@ -1763,7 +1763,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     else if (restoreTimes == 0 && prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
-                        Log.Error("recover full screen window {0}", windowTitle.ContainsKey(hWnd) ? windowTitle[hWnd] : hWnd.ToString("X8"));
+                        Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
                         windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
