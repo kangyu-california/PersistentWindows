@@ -1178,10 +1178,6 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowRect(hwnd, ref screenPosition);
 
             bool isMinimized = IsMinimized(hwnd);
-            if (isMinimized && window.Title.Contains("Notepad3"))
-            {
-                int i = 0;
-            }
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
 
