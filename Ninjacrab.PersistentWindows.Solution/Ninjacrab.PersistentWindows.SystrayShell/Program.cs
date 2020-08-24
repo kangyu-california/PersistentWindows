@@ -25,8 +25,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool no_splash = false;
             bool dry_run = false;
             bool fix_zorder = false;
+            bool delay_start = false;
             foreach (var arg in args)
             {
+                if (delay_start)
+                {
+                    delay_start = false;
+                    int seconds = Int32.Parse(arg);
+                    Thread.Sleep(1000 * seconds);
+                    continue;
+                }
+
                 switch(arg)
                 {
                     case "-silent":
@@ -45,6 +54,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-fix_zorder":
                         fix_zorder = true;
+                        break;
+                    case "-delay_start":
+                        delay_start = true;
                         break;
                 }
             }
