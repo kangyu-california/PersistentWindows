@@ -61,6 +61,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
+            while (String.IsNullOrEmpty(PersistentWindowProcessor.GetDisplayKey()))
+            {
+                Thread.Sleep(5000);
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             systrayForm = new SystrayForm();
