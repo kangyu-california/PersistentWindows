@@ -53,7 +53,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < 3; ++i)
             {
                 this.toolStripMenuItem[i] = new System.Windows.Forms.ToolStripSeparator();
                 this.toolStripMenuItem[i].Name = $"toolStripMenuItem{i}";
@@ -78,13 +78,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.contextMenuStripSysTray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
                 this.captureToolStripMenuItem,
-                this.toolStripMenuItem[0],
                 this.restoreToolStripMenuItem,
-                this.toolStripMenuItem[1],
+                this.toolStripMenuItem[0],
                 this.pauseResumeToolStripMenuItem,
-                this.toolStripMenuItem[2],
+                this.toolStripMenuItem[1],
                 this.aboutToolStripMenuItem,
-                this.toolStripMenuItem[3],
+                this.toolStripMenuItem[2],
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
             this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
