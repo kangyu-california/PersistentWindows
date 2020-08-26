@@ -457,7 +457,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
-                        if (IsMinimized(hwnd))
+                        bool isNewWindow = true;
+                        foreach (var key in monitorApplications.Keys)
+                        {
+                            if (monitorApplications[key].ContainsKey(hwnd))
+                            {
+                                isNewWindow = false;
+                                break;
+                            }
+                        }
+
+                        if (isNewWindow && IsMinimized(hwnd))
                         {
                             User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
                             Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
