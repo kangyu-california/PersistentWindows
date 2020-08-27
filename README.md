@@ -18,7 +18,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Key features 
 - Keeps track of window position change in real time, and automatically restores window layout to last matching monitor setup.
 - Support remote desktop session with multiple virtual monitor resolutions.
-- Can be run as a startup job.
+- Can be auto started as a task or startup menu item.
 - Support manual save/restore window position to/from persistent database on hard drive, making it possible to revert unintended or temporary window moves, or restore closed windows even after reboot.
 - Support manual pause/resume auto restore.
 
