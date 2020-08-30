@@ -26,6 +26,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool dry_run = false;
             bool fix_zorder = false;
             bool delay_start = false;
+            bool redraw_desktop = false;
+
             foreach (var arg in args)
             {
                 if (delay_start)
@@ -58,6 +60,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-delay_start":
                         delay_start = true;
                         break;
+                    case "-redraw_desktop":
+                        redraw_desktop = true;
+                        break;
                 }
             }
 
@@ -76,6 +81,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
+            pwp.redrawDesktop = redraw_desktop;
 
             if (!pwp.Start())
             {

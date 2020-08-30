@@ -63,6 +63,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool fixZorder = false; // restore z-order
         public bool pauseAutoRestore = false;
+        public bool redrawDesktop = false;
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
@@ -208,6 +209,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
+                    if (redrawDesktop)
+                        User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
                     Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
                     sessionActive = true;
                     enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
