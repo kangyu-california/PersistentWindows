@@ -77,6 +77,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 { "opera", 0},
             };
 
+        private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
+            {
+                { "WindowsTerminal.exe", "wt.exe"},
+            };
+
         // session control
         private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
@@ -1846,12 +1851,21 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (!String.IsNullOrEmpty(curDisplayMetrics.ProcessExePath))
                     {
-                        Log.Trace("launch process {0}", curDisplayMetrics.ProcessExePath);
                         if (!dryRun)
                         {
                             try
                             {
-                                System.Diagnostics.Process.Start(curDisplayMetrics.ProcessExePath);
+                                string processPath = curDisplayMetrics.ProcessExePath;
+                                foreach(var processName in realProcessFileName.Keys)
+                                {
+                                    if (processPath.Contains(processName))
+                                    {
+                                        processPath = processPath.Replace(processName, realProcessFileName[processName]);
+                                        break;
+                                    }
+                                }
+                                Log.Event("launch process {0}", processPath);
+                                System.Diagnostics.Process.Start(processPath);
                                 Thread.Sleep(1000);
                             }
                             catch (Exception ex)
