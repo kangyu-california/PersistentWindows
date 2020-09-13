@@ -1883,7 +1883,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     }
                                 }
                                 Log.Event("launch process {0}", processPath);
-                                System.Diagnostics.Process.Start(processPath);
+                                System.Diagnostics.Process.Start("explorer.exe", processPath);
                                 Thread.Sleep(1000);
                             }
                             catch (Exception ex)
