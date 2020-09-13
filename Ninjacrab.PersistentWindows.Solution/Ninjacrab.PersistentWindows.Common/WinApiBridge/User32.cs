@@ -77,6 +77,13 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfo lpmi);
 
         [DllImport("user32.dll", SetLastError = true)]
+        //public static extern IntPtr MonitorFromPoint(POINT pt, MonitorOptions dwFlags);
+        public static extern IntPtr MonitorFromPoint(POINT pt, int dwFlags);
+        public const int MONITOR_DEFAULTTONULL = 0;
+        public const int MONITOR_DEFAULTTOPRIMARY = 1;
+        public const int MONITOR_DEFAULTTONEAREST = 2;
+
+        [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);
 

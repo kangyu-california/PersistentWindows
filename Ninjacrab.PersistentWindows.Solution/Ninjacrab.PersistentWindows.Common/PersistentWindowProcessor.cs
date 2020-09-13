@@ -440,20 +440,30 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsMinimized(IntPtr hwnd)
         {
-            RECT2 rect = new RECT2();
-            User32.GetWindowRect(hwnd, ref rect);
-            bool result = rect.Left <= -25600 || rect.Top <= -25600;
-            if (result)
-                return result;
-
+            bool result = false;
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.MINIMIZE) != 0L)
             {
-                Log.Error("window minimized flag is set \"{0}\"", GetWindowTitle(hwnd));
                 result = true;
             }
 
             return result;
+        }
+
+        private bool IsOffScreen(IntPtr hwnd)
+        {
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(hwnd, ref rect);
+
+            POINT topLeft = new POINT(rect.Left, rect.Top);
+            if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+                return true;
+
+            POINT topRight = new POINT(rect.Right, rect.Top);
+            if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+                return true;
+
+            return false;
         }
 
         private void ActivateWindow(IntPtr hwnd)
@@ -475,9 +485,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                         }
 
-                        if (isNewWindow && IsMinimized(hwnd))
+                        if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
                         {
-                            User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                            IntPtr desktopWindow = User32.GetDesktopWindow();
+                            RECT2 rect = new RECT2();
+                            User32.GetWindowRect(desktopWindow, ref rect);
+                            //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                            User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
                             Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                         }
                         return;
@@ -525,9 +539,13 @@ namespace Ninjacrab.PersistentWindows.Common
                                 break;
                             }
 
-                            if (IsMinimized(hwnd))
+                            if (IsOffScreen(hwnd))
                             {
-                                User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                                IntPtr desktopWindow = User32.GetDesktopWindow();
+                                RECT2 rect = new RECT2();
+                                User32.GetWindowRect(desktopWindow, ref rect);
+                                //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                                User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
