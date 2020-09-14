@@ -457,11 +457,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
             POINT topLeft = new POINT(rect.Left, rect.Top);
             if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+            {
+                Log.Error("top left of Rect {0} is off-screen", rect.ToString());
                 return true;
+            }
 
-            POINT topRight = new POINT(rect.Right, rect.Top);
+            POINT topRight = new POINT(rect.Right - 1, rect.Top);
             if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+            {
+                Log.Error("top right of Rect {0} is off-screen", rect.ToString());
                 return true;
+            }
 
             return false;
         }
