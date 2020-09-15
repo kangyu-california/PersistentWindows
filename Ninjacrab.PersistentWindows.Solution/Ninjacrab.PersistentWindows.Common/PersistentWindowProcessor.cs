@@ -54,6 +54,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
+        public Dictionary<uint, string> processTbl = new Dictionary<uint, string>();
 
         // restore control
         private Timer restoreTimer;
@@ -1889,7 +1890,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     }
                                 }
                                 Log.Event("launch process {0}", processPath);
-                                System.Diagnostics.Process.Start("explorer.exe", processPath);
+                                Process.Start("explorer.exe", processPath);
                                 Thread.Sleep(1000);
                             }
                             catch (Exception ex)

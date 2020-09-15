@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 using Ninjacrab.PersistentWindows.Common;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
@@ -144,6 +145,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void Capture()
         {
+            GetProcessInfo();
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
         }
 
@@ -164,6 +166,46 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.pauseAutoRestore = false;
             pwp.restoringFromMem = true;
             pwp.StartRestoreTimer();
+        }
+        static void GetProcessInfo()
+        {
+            Process process = new Process();
+            process.StartInfo.FileName = "wmic.exe";
+            //process.StartInfo.Arguments = "process get caption,commandline,processid /format:csv";
+            process.StartInfo.Arguments = "process get commandline,processid /format:csv";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = false;
+
+            process.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
+            process.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
+
+            // Start process and handlers
+            process.Start();
+            process.BeginOutputReadLine();
+            //process.BeginErrorReadLine();
+            process.WaitForExit();
+        }
+
+        static void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            //* Do your stuff with the output (write to console/log/StringBuilder)
+            //Console.WriteLine(outLine.Data);
+            string line = outLine.Data;
+            if (string.IsNullOrEmpty(line))
+                return;
+            //Log.Info("{0}", line);
+            string[] words = line.Split(',');
+            if (words.Length < 3)
+                return;
+            uint processId;
+            if (uint.TryParse(words[2], out processId))
+            {
+                if (!string.IsNullOrEmpty(words[1]))
+                {
+                    pwp.processTbl[processId] = words[1];
+                }
+            }
         }
     }
 }
