@@ -453,17 +453,20 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsOffScreen(IntPtr hwnd)
         {
+            const int MinSize = 20;
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hwnd, ref rect);
+            if (rect.Width <= MinSize || rect.Height <= MinSize)
+                return false;
 
-            POINT topLeft = new POINT(rect.Left, rect.Top);
+            POINT topLeft = new POINT(rect.Left + MinSize, rect.Top + MinSize);
             if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
             {
                 Log.Error("top left of Rect {0} is off-screen", rect.ToString());
                 return true;
             }
 
-            POINT topRight = new POINT(rect.Right - 1, rect.Top);
+            POINT topRight = new POINT(rect.Right - MinSize, rect.Top + MinSize);
             if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
             {
                 Log.Error("top right of Rect {0} is off-screen", rect.ToString());
