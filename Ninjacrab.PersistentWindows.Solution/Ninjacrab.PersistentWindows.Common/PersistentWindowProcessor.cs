@@ -37,6 +37,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
 
+        private bool initialized = false;
+
         // window position database
         private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database
@@ -414,6 +416,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
 
+            initialized = true;
             return true;
         }
 
@@ -1995,14 +1998,17 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             StopRunningThreads();
 
-            SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
-            SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
-            SystemEvents.PowerModeChanged -= powerModeChangedHandler;
-            SystemEvents.SessionSwitch -= sessionSwitchEventHandler;
-
-            foreach (var handle in this.winEventHooks)
+            if (initialized)
             {
-                User32.UnhookWinEvent(handle);
+                SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
+                SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
+                SystemEvents.PowerModeChanged -= powerModeChangedHandler;
+                SystemEvents.SessionSwitch -= sessionSwitchEventHandler;
+
+                foreach (var handle in this.winEventHooks)
+                {
+                    User32.UnhookWinEvent(handle);
+                }
             }
         }
 

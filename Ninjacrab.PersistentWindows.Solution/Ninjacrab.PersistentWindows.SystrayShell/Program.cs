@@ -86,6 +86,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             if (!pwp.Start())
             {
+                systrayForm.notifyIconMain.Visible = false;
                 return;
             }
 
