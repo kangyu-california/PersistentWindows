@@ -130,7 +130,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy,
             SetWindowPosFlags uFlags);
         /// <summary>
-        
+
         /// Retrieves a handle to a window that has the specified relationship (Z-Order or owner) to the specified window.
         /// </summary>
         /// <remarks>The EnumChildWindows function is more reliable than calling GetWindow in a loop. An application that
@@ -147,7 +147,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
 
-        [DllImport("user32.dll", ExactSpelling=true, CharSet=CharSet.Auto)]
+        [DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
         public static extern IntPtr GetParent(IntPtr hWnd);
 
         [DllImport("user32.dll")]
@@ -226,7 +226,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             NoFrame = 0x800
         }
         [DllImport("user32.dll")]
-        public static extern bool RedrawWindow(IntPtr hWnd, 
+        public static extern bool RedrawWindow(IntPtr hWnd,
             IntPtr lprcUpdate, //[In] ref RECT lprcUpdate, 
             IntPtr hrgnUpdate, RedrawWindowFlags flags);
 
@@ -256,7 +256,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern IntPtr FindWindowA(string lpClassName, string lpWindowName);
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className,  string windowTitle);
+        public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
 
         [DllImport("user32.dll")]
         public static extern void mouse_event(MouseAction dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
@@ -271,9 +271,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool SetCursorPos(int x, int y);
 
         [DllImport("user32.dll")]
-        public static extern bool SetForegroundWindow (IntPtr hWnd);
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
 
-        [DllImport("user32.dll", SetLastError=true)]
+        [DllImport("user32.dll", SetLastError = true)]
         public static extern IntPtr SetActiveWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -318,10 +318,10 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
     public class Kernel32
     {
-        [DllImport("kernel32.dll", SetLastError=true)]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool QueryFullProcessImageName([In]IntPtr hProcess, [In]int dwFlags, [Out]StringBuilder lpExeName, ref int lpdwSize);
 
-        [DllImport("kernel32.dll", SetLastError=true)]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool CloseHandle(IntPtr hHandle);
 
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -377,6 +377,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             public RECT rc;
             public IntPtr lParam;
         }
-
     }
+
+
 }

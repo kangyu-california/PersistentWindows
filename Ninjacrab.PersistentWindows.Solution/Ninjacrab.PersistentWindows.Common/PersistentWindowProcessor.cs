@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
-
 using Microsoft.Win32;
 
 using LiteDB;
@@ -17,7 +16,6 @@ using ManagedWinapi.Windows;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.Models;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
-
 
 namespace Ninjacrab.PersistentWindows.Common
 {
@@ -54,7 +52,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
-        public Dictionary<uint, string> processTbl = new Dictionary<uint, string>();
+        public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
         private Timer restoreTimer;
@@ -82,6 +80,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 { "WindowsTerminal.exe", "wt.exe"},
             };
+
+        private string appDataFolder;
 
         // session control
         private bool remoteSession = false;
@@ -119,13 +119,13 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool Start()
         {
             string productName = System.Windows.Forms.Application.ProductName;
-            string dbFolderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
+            appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
 
 #if DEBUG
-            dbFolderPath = "."; //avoid db path conflict with release version
+            appDataFolder = "."; //avoid db path conflict with release version
 #endif
             // remove outdated db files
-            var dir = Directory.CreateDirectory(dbFolderPath);
+            var dir = Directory.CreateDirectory(appDataFolder);
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
             {
@@ -145,7 +145,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
-                persistDB = new LiteDatabase($@"{dbFolderPath}/{productName}.{db_version}.db");
+                persistDB = new LiteDatabase($@"{appDataFolder}/{productName}.{db_version}.db");
             }
             catch (Exception)
             {
@@ -930,7 +930,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     string procPath = GetProcExePath(hProcess);
                     if (!String.IsNullOrEmpty(procPath))
                     {
-                        curDisplayMetrics.ProcessExePath = procPath;
+                        if (processCmd.ContainsKey(curDisplayMetrics.ProcessId))
+                            curDisplayMetrics.ProcessExePath = processCmd[curDisplayMetrics.ProcessId];
+                        else
+                            curDisplayMetrics.ProcessExePath = procPath;
                     }
                     db.Insert(curDisplayMetrics);
                     Kernel32.CloseHandle(hProcess);
@@ -1884,7 +1887,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             try
                             {
                                 string processPath = curDisplayMetrics.ProcessExePath;
-                                foreach(var processName in realProcessFileName.Keys)
+                                foreach (var processName in realProcessFileName.Keys)
                                 {
                                     if (processPath.Contains(processName))
                                     {
@@ -1892,9 +1895,19 @@ namespace Ninjacrab.PersistentWindows.Common
                                         break;
                                     }
                                 }
+
                                 Log.Event("launch process {0}", processPath);
-                                Process.Start("explorer.exe", processPath);
-                                Thread.Sleep(1000);
+                                string batFile = Path.Combine(appDataFolder, "pw_exec.bat");
+                                File.WriteAllText(batFile, "start \"\" " + processPath);
+                                //Process.Start(batFile);
+                                //Process process = Process.Start("cmd.exe", "-c " + batFile);
+                                Process.Start("explorer.exe", batFile);
+                                Thread.Sleep(2000);
+                                File.Delete(batFile);
+                                /*
+                                if (!process.HasExited)
+                                    process.Kill();
+                                */
                             }
                             catch (Exception ex)
                             {

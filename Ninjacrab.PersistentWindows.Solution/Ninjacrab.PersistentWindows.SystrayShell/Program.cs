@@ -195,15 +195,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (string.IsNullOrEmpty(line))
                 return;
             //Log.Info("{0}", line);
-            string[] words = line.Split(',');
-            if (words.Length < 3)
+            string[] fields = line.Split(',');
+            if (fields.Length < 3)
                 return;
             uint processId;
-            if (uint.TryParse(words[2], out processId))
+            if (uint.TryParse(fields[2], out processId))
             {
-                if (!string.IsNullOrEmpty(words[1]))
+                if (!string.IsNullOrEmpty(fields[1]))
                 {
-                    pwp.processTbl[processId] = words[1];
+                    pwp.processCmd[processId] = fields[1];
                 }
             }
         }
