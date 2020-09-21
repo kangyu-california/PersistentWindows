@@ -479,6 +479,15 @@ namespace Ninjacrab.PersistentWindows.Common
             return false;
         }
 
+        private void FixOffScreenWindow(IntPtr hwnd)
+        {
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(desktopWindow, ref rect);
+            //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+            User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
+            Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+        }
         private void ActivateWindow(IntPtr hwnd)
         {
             var thread = new Thread(() =>
@@ -500,12 +509,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
                         {
-                            IntPtr desktopWindow = User32.GetDesktopWindow();
-                            RECT2 rect = new RECT2();
-                            User32.GetWindowRect(desktopWindow, ref rect);
-                            //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                            User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
-                            Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+                            FixOffScreenWindow(hwnd);
                         }
                         return;
                     }
