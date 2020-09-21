@@ -1901,16 +1901,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
                                 Log.Event("launch process {0}", processPath);
                                 string batFile = Path.Combine(appDataFolder, "pw_exec.bat");
-                                File.WriteAllText(batFile, "start \"\" " + processPath);
+                                File.WriteAllText(batFile, "start \"\" /B " + processPath);
                                 //Process.Start(batFile);
                                 //Process process = Process.Start("cmd.exe", "-c " + batFile);
-                                Process.Start("explorer.exe", batFile);
+                                Process process = Process.Start("explorer.exe", batFile);
                                 Thread.Sleep(2000);
                                 File.Delete(batFile);
-                                /*
                                 if (!process.HasExited)
                                     process.Kill();
-                                */
                             }
                             catch (Exception ex)
                             {
