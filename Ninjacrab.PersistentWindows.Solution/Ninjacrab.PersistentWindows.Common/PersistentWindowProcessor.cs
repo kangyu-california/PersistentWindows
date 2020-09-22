@@ -1512,7 +1512,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
-        private void MoveTaskBar(IntPtr hwnd, int x, int y)
+        private bool MoveTaskBar(IntPtr hwnd, int x, int y)
         {
             // simulate mouse drag, assuming taskbar is unlocked
             /*
@@ -1566,8 +1566,8 @@ namespace Ninjacrab.PersistentWindows.Common
             int deltay = Math.Abs(centery - y);
             if (deltax + deltay < 300)
             {
-                // taskbar center has no change
-                return;
+                // taskbar center has no big change (such as different screen edge alignment)
+                return false;
             }
 
             User32.SetCursorPos(screenPosition.Left + dx, screenPosition.Top + dy);
@@ -1578,6 +1578,14 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.SetCursorPos(x, y);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
+
+            return true;
+        }
+
+        // recover height of horizontal taskbar, or width of vertical taskbar
+        private void RecoverTaskBarArea(IntPtr hwnd)
+        {
+            //TBD
         }
 
         private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
@@ -1761,9 +1769,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     if (!dryRun)
                     {
-                        MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+                        bool changed = MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
                         restoredWindows.Add(hWnd);
                         //RestoreCursorPos(displayKey);
+                        if (!changed)
+                            RecoverTaskBarArea(hWnd);
                     }
                     continue;
                 }
