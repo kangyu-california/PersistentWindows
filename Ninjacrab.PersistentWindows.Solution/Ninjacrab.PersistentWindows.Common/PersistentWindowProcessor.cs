@@ -456,7 +456,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsOffScreen(IntPtr hwnd)
         {
-            const int MinSize = 20;
+            const int MinSize = 10;
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hwnd, ref rect);
             if (rect.Width <= MinSize || rect.Height <= MinSize)
@@ -469,10 +469,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 return true;
             }
 
-            POINT topRight = new POINT(rect.Right - MinSize, rect.Top + MinSize);
-            if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+            POINT middle = new POINT(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+            if (User32.MonitorFromPoint(middle, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
             {
-                Log.Error("top right of Rect {0} is off-screen", rect.ToString());
+                Log.Error("middle point ({0}, {1}) is off-screen", middle.X, middle.Y);
                 return true;
             }
 
@@ -481,13 +481,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void FixOffScreenWindow(IntPtr hwnd)
         {
-            IntPtr desktopWindow = User32.GetDesktopWindow();
             RECT2 rect = new RECT2();
-            User32.GetWindowRect(desktopWindow, ref rect);
-            //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-            User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
+            User32.GetWindowRect(hwnd, ref rect);
+
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT2 rectDesk = new RECT2();
+            User32.GetWindowRect(desktopWindow, ref rectDesk);
+
+            User32.MoveWindow(hwnd, rectDesk.Left + 100, rectDesk.Top + 100, rect.Width, rect.Height, true);
             Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
         }
+
         private void ActivateWindow(IntPtr hwnd)
         {
             var thread = new Thread(() =>
