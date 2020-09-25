@@ -6,6 +6,13 @@ using Ninjacrab.PersistentWindows.Common.Diagnostics;
 
 namespace Ninjacrab.PersistentWindows.Common.Models
 {
+    public class DeadAppPosition
+    {
+        public string ClassName { get; set; }
+        public string ProcessPath { get; set; }
+        public RECT2 ScreenPosition { get; set; }
+    }
+
     public class ApplicationDisplayMetrics
     {
         // for LiteDB use only

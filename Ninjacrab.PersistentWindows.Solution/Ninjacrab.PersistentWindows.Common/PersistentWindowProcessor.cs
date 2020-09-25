@@ -44,6 +44,7 @@ namespace Ninjacrab.PersistentWindows.Common
             = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database
         private LiteDatabase persistDB; //on-disk database
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
+        private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -481,6 +482,43 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void FixOffScreenWindow(IntPtr hwnd)
         {
+            if (deadApps.ContainsKey(curDisplayKey))
+            {
+                SystemWindow window = new SystemWindow(hwnd);
+                string className = window.ClassName;
+                if (!string.IsNullOrEmpty(className))
+                {
+                    uint processId = 0;
+                    uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
+                    IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, processId);
+                    string procPath = GetProcExePath(hProcess);
+                    int idx = -1;
+                    bool found = false;
+                    foreach (var appPos in deadApps[curDisplayKey])
+                    {
+                        ++idx;
+
+                        if (!className.Equals(appPos.ClassName))
+                            continue;
+                        if (!procPath.Equals(appPos.ProcessPath))
+                            continue;
+
+                        // found match
+                        RECT2 r= appPos.ScreenPosition;
+                        User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
+                        Log.Error("Recover invisible window \"{0}\"", GetWindowTitle(hwnd));
+                        found = true;
+                        break;
+                    }
+
+                    if (found)
+                    {
+                        deadApps[curDisplayKey].RemoveAt(idx);
+                        return;
+                    }
+                }
+            }
+
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hwnd, ref rect);
 
@@ -596,7 +634,30 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     foreach (var key in monitorApplications.Keys)
                     {
-                        monitorApplications[key].Remove(hwnd);
+                        if (monitorApplications[key].ContainsKey(hwnd))
+                        {
+                            // save window size of closed app to restore off-screen window later
+                            if (!deadApps.ContainsKey(key))
+                            {
+                                deadApps.Add(key, new List<DeadAppPosition>());
+                            }
+                            var appPos = new DeadAppPosition();
+                            var lastMetric = monitorApplications[key][hwnd].Last();
+                            appPos.ClassName = lastMetric.ClassName;
+                            appPos.ScreenPosition = lastMetric.ScreenPosition;
+                            IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, lastMetric.ProcessId);
+                            string procPath = GetProcExePath(hProcess);
+                            appPos.ProcessPath = procPath;
+                            deadApps[key].Add(appPos);
+
+                            //limit list size
+                            while (deadApps[key].Count > 50)
+                            {
+                                deadApps[key].RemoveAt(0);
+                            }
+
+                            monitorApplications[key].Remove(hwnd);
+                        }
                     }
 
                     bool found = windowTitle.Remove(hwnd);
