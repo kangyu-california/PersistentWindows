@@ -484,6 +484,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (deadApps.ContainsKey(curDisplayKey))
             {
+                var deadAppPos = deadApps[curDisplayKey];
                 SystemWindow window = new SystemWindow(hwnd);
                 string className = window.ClassName;
                 if (!string.IsNullOrEmpty(className))
@@ -492,11 +493,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
                     IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, processId);
                     string procPath = GetProcExePath(hProcess);
-                    int idx = -1;
+                    int idx = deadAppPos.Count;
                     bool found = false;
-                    foreach (var appPos in deadApps[curDisplayKey])
+                    foreach (var appPos in deadAppPos.Reverse<DeadAppPosition>())
                     {
-                        ++idx;
+                        --idx;
 
                         if (!className.Equals(appPos.ClassName))
                             continue;
