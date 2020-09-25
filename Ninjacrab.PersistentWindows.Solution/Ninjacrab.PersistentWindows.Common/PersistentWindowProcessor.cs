@@ -526,8 +526,13 @@ namespace Ninjacrab.PersistentWindows.Common
             RECT2 rectDesk = new RECT2();
             User32.GetWindowRect(desktopWindow, ref rectDesk);
 
-            User32.MoveWindow(hwnd, rectDesk.Left + 100, rectDesk.Top + 100, rect.Width, rect.Height, true);
-            Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+            RECT2 intersection = new RECT2();
+            bool overlap = User32.IntersectRect(out intersection, ref rect, ref rectDesk);
+            if (!overlap || !intersection.Equals(rectDesk))
+            {
+                User32.MoveWindow(hwnd, rectDesk.Left + 100, rectDesk.Top + 100, rect.Width, rect.Height, true);
+                Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+            }
         }
 
         private void ActivateWindow(IntPtr hwnd)
