@@ -52,6 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics\Log.cs" />
+    <Compile Include="LayoutProfile.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LayoutProfile.Designer.cs">
+      <DependentUpon>LayoutProfile.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\ApplicationDisplayMetrics.cs" />
     <Compile Include="Models\DesktopDisplayMetrics.cs" />
     <Compile Include="Models\WindowPositionInfo.cs" />
@@ -77,6 +83,11 @@
     <PackageReference Include="NLog">
       <Version>4.7.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="LayoutProfile.resx">
+      <DependentUpon>LayoutProfile.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
