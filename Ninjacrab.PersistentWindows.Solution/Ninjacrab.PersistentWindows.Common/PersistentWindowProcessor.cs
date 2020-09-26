@@ -529,7 +529,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
             RECT2 intersection = new RECT2();
             bool overlap = User32.IntersectRect(out intersection, ref rect, ref rectDesk);
-            if (!overlap || !intersection.Equals(rectDesk))
+            if (overlap && intersection.Equals(rectDesk))
+            {
+                //fix issue #47, Win+Shift+S create screen fully covers desktop
+                ;
+            }
+            else
             {
                 User32.MoveWindow(hwnd, rectDesk.Left + 100, rectDesk.Top + 100, rect.Width, rect.Height, true);
                 Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
@@ -541,83 +546,92 @@ namespace Ninjacrab.PersistentWindows.Common
             var thread = new Thread(() =>
             {
                 Thread.Sleep(500);
-                lock (databaseLock)
+                try
                 {
-                    if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                    //lock (controlLock)
+                    lock (databaseLock)
                     {
-                        bool isNewWindow = true;
-                        foreach (var key in monitorApplications.Keys)
+                        if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                         {
-                            if (monitorApplications[key].ContainsKey(hwnd))
+                            bool isNewWindow = true;
+                            foreach (var key in monitorApplications.Keys)
                             {
-                                isNewWindow = false;
-                                break;
-                            }
-                        }
-
-                        if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
-                        {
-                            FixOffScreenWindow(hwnd);
-                        }
-                        return;
-                    }
-
-                    if (IsMinimized(hwnd))
-                        return; // already minimized
-
-                    if (monitorApplications[curDisplayKey][hwnd].Count == 0)
-                        return;
-
-                    var prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
-                    if (prevDisplayMetrics.IsMinimized)
-                    {
-                        if (prevDisplayMetrics.IsFullScreen)
-                            RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
-                        else if (!IsFullScreen(hwnd))
-                        {
-                            RECT2 screenPosition = new RECT2();
-                            User32.GetWindowRect(hwnd, ref screenPosition);
-
-                            var count = monitorApplications[curDisplayKey][hwnd].Count;
-                            for (var i = count - 2; i >= 0; --i)
-                            {
-                                // restore to position prior to minimize
-                                var prev = monitorApplications[curDisplayKey][hwnd][i];
-                                if (prev.IsMinimized)
-                                    continue;
-
-                                RECT2 rect = prev.ScreenPosition;
-                                if (rect.Left <= -25600)
+                                if (monitorApplications[key].ContainsKey(hwnd))
                                 {
-                                    Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                    continue;
+                                    isNewWindow = false;
+                                    break;
                                 }
-
-                                if (!screenPosition.Equals(rect))
-                                {
-                                    // windows ignores previous snap status when activated from minimized state
-                                    var placement = prev.WindowPlacement;
-                                    User32.SetWindowPlacement(hwnd, ref placement);
-                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                    Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                }
-                                break;
                             }
 
-                            if (IsOffScreen(hwnd))
+                            if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
                             {
-                                IntPtr desktopWindow = User32.GetDesktopWindow();
-                                RECT2 rect = new RECT2();
-                                User32.GetWindowRect(desktopWindow, ref rect);
-                                //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                                User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
-                                Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+                                FixOffScreenWindow(hwnd);
+                            }
+                            return;
+                        }
+
+                        if (IsMinimized(hwnd))
+                            return; // already minimized
+
+                        if (monitorApplications[curDisplayKey][hwnd].Count == 0)
+                            return;
+
+                        var prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
+                        if (prevDisplayMetrics.IsMinimized)
+                        {
+                            if (prevDisplayMetrics.IsFullScreen)
+                                RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                            else if (!IsFullScreen(hwnd))
+                            {
+                                RECT2 screenPosition = new RECT2();
+                                User32.GetWindowRect(hwnd, ref screenPosition);
+
+                                var count = monitorApplications[curDisplayKey][hwnd].Count;
+                                for (var i = count - 2; i >= 0; --i)
+                                {
+                                    // restore to position prior to minimize
+                                    var prev = monitorApplications[curDisplayKey][hwnd][i];
+                                    if (prev.IsMinimized)
+                                        continue;
+
+                                    RECT2 rect = prev.ScreenPosition;
+                                    if (rect.Left <= -25600)
+                                    {
+                                        Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                        continue;
+                                    }
+
+                                    if (!screenPosition.Equals(rect))
+                                    {
+                                        // windows ignores previous snap status when activated from minimized state
+                                        var placement = prev.WindowPlacement;
+                                        User32.SetWindowPlacement(hwnd, ref placement);
+                                        User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                        Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                    }
+                                    break;
+                                }
+
+                                if (IsOffScreen(hwnd))
+                                {
+                                    IntPtr desktopWindow = User32.GetDesktopWindow();
+                                    RECT2 rect = new RECT2();
+                                    User32.GetWindowRect(desktopWindow, ref rect);
+                                    //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                                    User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
+                                    Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+                                }
                             }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
             });
 
+            thread.Name = "ActivateWindow";
             thread.IsBackground = false;
             thread.Start();
         }
