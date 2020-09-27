@@ -42,14 +42,26 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
+        private void ProfileList_KeyDown(object sender, KeyEventArgs e)
+        {
+            //if (sender == ProfileList)
+            if (e.KeyValue == (int)Keys.Delete)
+            {
+                int i = 0; 
+            }
+        }
+
         private void LayoutProfile_Load(object sender, EventArgs e)
         {
+#if DEBUG 
+            this.ProfileList.Items.Insert(0, "default");
+#endif
 
         }
 
         private void Close_Click(object sender, EventArgs e)
         {
-
+            Close();
         }
     }
 }

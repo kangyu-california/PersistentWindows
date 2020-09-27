@@ -31,7 +31,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SplashForm));
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -69,10 +68,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(671, 353);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
-            //this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Icon = Properties.Resources.pwIcon;
-
+            this.Icon = global::Ninjacrab.PersistentWindows.SystrayShell.Properties.Resources.pwIcon;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "SplashForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Load += new System.EventHandler(this.SplashForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -24,6 +24,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             UiRefreshTimer.Stop();
         }
 
+        private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
+        {
+            Program.ManageLayoutProfile();
+        }
+
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
             Program.Capture();

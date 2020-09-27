@@ -17,6 +17,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public System.Windows.Forms.NotifyIcon notifyIconMain;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
 
+        private ToolStripMenuItem manageLayoutProfile; 
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem pauseResumeToolStripMenuItem;
@@ -53,7 +54,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            for (int i = 0; i < 3; ++i)
+            this.manageLayoutProfile = new ToolStripMenuItem();
+
+            for (int i = 0; i < 4; ++i)
             {
                 this.toolStripMenuItem[i] = new System.Windows.Forms.ToolStripSeparator();
                 this.toolStripMenuItem[i].Name = $"toolStripMenuItem{i}";
@@ -77,6 +80,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // contextMenuStripSysTray
             // 
             this.contextMenuStripSysTray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                this.manageLayoutProfile,
+                this.toolStripMenuItem[3],
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
                 this.toolStripMenuItem[0],
@@ -87,6 +92,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
             this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
+
+            // manage layout profiles
+            this.manageLayoutProfile.Name = "manage layout";
+            this.manageLayoutProfile.Size = new System.Drawing.Size(135, 22);
+            this.manageLayoutProfile.Text = "&Manage layout profiles";
+            this.manageLayoutProfile.Click += new System.EventHandler(this.ManageLayoutProfileClickHandler);
 
             // capture
             // 

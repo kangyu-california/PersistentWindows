@@ -159,6 +159,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             thread.Start();
         }
 
+        static public void ManageLayoutProfile()
+        {
+            var profileDlg = new LayoutProfile();
+            if (profileDlg.ShowDialog(systrayForm) == DialogResult.OK)
+            {
+
+            }
+        }
+
         static public void Capture()
         {
             GetProcessInfo();
