@@ -59,7 +59,7 @@
             // 
             // SwitchProfile
             // 
-            this.SwitchProfile.Location = new System.Drawing.Point(359, 182);
+            this.SwitchProfile.Location = new System.Drawing.Point(359, 152);
             this.SwitchProfile.Name = "SwitchProfile";
             this.SwitchProfile.Size = new System.Drawing.Size(82, 37);
             this.SwitchProfile.TabIndex = 3;
@@ -69,7 +69,7 @@
             // 
             // DeleteProfile
             // 
-            this.DeleteProfile.Location = new System.Drawing.Point(359, 267);
+            this.DeleteProfile.Location = new System.Drawing.Point(359, 227);
             this.DeleteProfile.Name = "DeleteProfile";
             this.DeleteProfile.Size = new System.Drawing.Size(82, 36);
             this.DeleteProfile.TabIndex = 4;
@@ -83,7 +83,7 @@
             this.ProfileList.ItemHeight = 16;
             this.ProfileList.Location = new System.Drawing.Point(92, 152);
             this.ProfileList.Name = "ProfileList";
-            this.ProfileList.Size = new System.Drawing.Size(215, 180);
+            this.ProfileList.Size = new System.Drawing.Size(215, 196);
             this.ProfileList.TabIndex = 0;
             this.ProfileList.SelectedIndexChanged += new System.EventHandler(this.ProfileList_SelectedIndexChanged);
             this.ProfileList.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ProfileList_KeyDown);
@@ -109,9 +109,9 @@
             // CloseBtn
             // 
             this.CloseBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.CloseBtn.Location = new System.Drawing.Point(218, 388);
+            this.CloseBtn.Location = new System.Drawing.Point(359, 308);
             this.CloseBtn.Name = "CloseBtn";
-            this.CloseBtn.Size = new System.Drawing.Size(89, 39);
+            this.CloseBtn.Size = new System.Drawing.Size(82, 40);
             this.CloseBtn.TabIndex = 7;
             this.CloseBtn.Text = "Cancel";
             this.CloseBtn.UseVisualStyleBackColor = true;
@@ -122,7 +122,7 @@
             this.AcceptButton = this.CloseBtn;
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(509, 480);
+            this.ClientSize = new System.Drawing.Size(525, 417);
             this.Controls.Add(this.CloseBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
