@@ -138,7 +138,7 @@
             this.Name = "LayoutProfile";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "LayoutProfile";
+            this.Text = "Manage Layout Profiles";
             this.Load += new System.EventHandler(this.LayoutProfile_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
