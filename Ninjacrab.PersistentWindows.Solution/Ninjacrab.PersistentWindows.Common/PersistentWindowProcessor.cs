@@ -1021,11 +1021,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 ret = true;
             }
 
-            if (saveToDB && curDisplayMetrics != null && monitorApplications[displayKey].ContainsKey(hWnd))
+            try
             {
-                try
+                if (saveToDB && curDisplayMetrics != null && monitorApplications[displayKey].ContainsKey(hWnd))
+                using(var persistDB = new LiteDatabase(persistDbName))
                 {
-                    var persistDB = new LiteDatabase(persistDbName);
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     windowTitle[hWnd] = curDisplayMetrics.Title;
                     curDisplayMetrics.ProcessName = window.Process.ProcessName;
@@ -1041,13 +1041,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     db.Insert(curDisplayMetrics);
                     Kernel32.CloseHandle(hProcess);
-                    persistDB.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
                 }
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
             return ret;
         }
 
