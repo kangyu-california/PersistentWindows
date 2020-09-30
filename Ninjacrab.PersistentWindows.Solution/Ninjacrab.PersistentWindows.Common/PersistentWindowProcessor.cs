@@ -42,13 +42,14 @@ namespace Ninjacrab.PersistentWindows.Common
         // window position database
         private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database
-        private LiteDatabase persistDB; //on-disk database
+        private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
         private Object controlLock = new Object();
+        private LiteDatabase singletonLock; //prevent second PW inst from running
 
         // capture control
         private Timer captureTimer;
@@ -125,8 +126,22 @@ namespace Ninjacrab.PersistentWindows.Common
             appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
 
 #if DEBUG
-            appDataFolder = "."; //avoid db path conflict with release version
+            //avoid db path conflict with release version
+            //appDataFolder = ".";
+            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #endif
+
+            try
+            {
+                string singletonLockName = $@"{appDataFolder}/{productName}.db.lock";
+                singletonLock = new LiteDatabase(singletonLockName);
+            }
+            catch (Exception)
+            {
+                System.Windows.Forms.MessageBox.Show($"Only one instance of {productName} can be run!");
+                return false;
+            }
+
             // remove outdated db files
             var dir = Directory.CreateDirectory(appDataFolder);
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -146,18 +161,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            try
-            {
-                persistDB = new LiteDatabase($@"{appDataFolder}/{productName}.{db_version}.db");
-            }
-            catch (Exception)
-            {
-                System.Windows.Forms.MessageBox.Show($"Only one instance of {productName} can be run!");
-                return false;
-            }
-
             curDisplayKey = GetDisplayKey();
-            enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
+            using(var persistDB = new LiteDatabase(persistDbName))
+            {
+                enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+            }
             CaptureNewDisplayConfig(curDisplayKey);
 
 #if DEBUG
@@ -222,7 +231,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
                     Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
                     sessionActive = true;
-                    enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+                    using (var persistDB = new LiteDatabase(persistDbName))
+                    {
+                        enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+                    }
                     //RemoveBatchCaptureTime();
 
                     hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
@@ -548,7 +560,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 Thread.Sleep(500);
                 try
                 {
-                    //lock (controlLock)
                     lock (databaseLock)
                     {
                         if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
@@ -1014,6 +1025,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
+                    var persistDB = new LiteDatabase(persistDbName);
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     windowTitle[hWnd] = curDisplayMetrics.Title;
                     curDisplayMetrics.ProcessName = window.Process.ProcessName;
@@ -1029,6 +1041,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     db.Insert(curDisplayMetrics);
                     Kernel32.CloseHandle(hProcess);
+                    persistDB.Dispose();
                 }
                 catch (Exception ex)
                 {
@@ -1188,7 +1201,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
+
             if (saveToDB)
+            using (var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                 db.DeleteAll();
@@ -1751,6 +1766,7 @@ namespace Ninjacrab.PersistentWindows.Common
             DateTime printRestoreTime = lastCaptureTime;
             ILiteCollection<ApplicationDisplayMetrics> db = null;
             if (restoringFromDB)
+            using(var persistDB = new LiteDatabase(persistDbName))
             {
                 db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
