@@ -145,7 +145,9 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             catch (Exception)
             {
-                System.Windows.Forms.MessageBox.Show($"Only one instance of {productName} can be run!");
+                System.Windows.Forms.MessageBox.Show("Another instance is already running.", $"{productName}",
+                    System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.Exclamation);
                 return false;
             }
 
