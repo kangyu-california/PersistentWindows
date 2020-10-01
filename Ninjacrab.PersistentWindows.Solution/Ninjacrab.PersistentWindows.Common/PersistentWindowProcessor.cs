@@ -35,6 +35,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxHistoryQueueLength = 10;
 
+        private const int OffScreenDetectionLatency = 1000; //must be smaller than CaptureLatency
+
         private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
 
         private bool initialized = false;
@@ -559,9 +561,18 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             var thread = new Thread(() =>
             {
-                Thread.Sleep(500);
+                Thread.Sleep(OffScreenDetectionLatency);
                 try
                 {
+                    lock(controlLock)
+                    {
+                        if (pendingCaptureWindows.Contains(hwnd))
+                        {
+                            //ignore window currently moving by user
+                            return;
+                        }
+                    }
+
                     lock (databaseLock)
                     {
                         if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
