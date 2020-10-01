@@ -29,6 +29,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool delay_start = false;
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
+            bool enhanced_offscreen_fix = false;
+            bool disable_offscreen_fix = false;
 
             foreach (var arg in args)
             {
@@ -68,6 +70,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-redirect_appdata":
                         redirect_appdata = true;
                         break;
+                    case "-enhanced_offscreen_fix":
+                        enhanced_offscreen_fix = true;
+                        break;
+                    case "-disable_offscreen_fix":
+                        disable_offscreen_fix = true;
+                        break;
                 }
             }
 
@@ -88,6 +96,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.enableRestoreMenu = EnableRestoreMenu;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
+            pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
+            pwp.disableOffScreenFix = disable_offscreen_fix;
 
             if (!pwp.Start())
             {

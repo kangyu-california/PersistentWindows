@@ -69,6 +69,8 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool fixZorder = false; // restore z-order
         public bool pauseAutoRestore = false;
         public bool redrawDesktop = false;
+        public bool disableOffScreenFix = false;
+        public bool enhancedOffScreenFix = false;
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
@@ -564,12 +566,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 Thread.Sleep(OffScreenDetectionLatency);
                 try
                 {
+                    bool enable_offscreen_fix = !disableOffScreenFix;
                     lock(controlLock)
                     {
                         if (pendingCaptureWindows.Contains(hwnd))
                         {
                             //ignore window currently moving by user
-                            return;
+                            if (!enhancedOffScreenFix)
+                            {
+                                enable_offscreen_fix = false;
+                            }
                         }
                     }
 
@@ -577,6 +583,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                         {
+                            if (!enable_offscreen_fix)
+                                return;
+
                             bool isNewWindow = true;
                             foreach (var key in monitorApplications.Keys)
                             {
@@ -635,6 +644,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                     }
                                     break;
                                 }
+
+                                if (!enable_offscreen_fix)
+                                    return;
 
                                 if (IsOffScreen(hwnd))
                                 {
