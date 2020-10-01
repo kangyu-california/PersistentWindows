@@ -69,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LiteDB">
-      <Version>5.0.7</Version>
+      <Version>5.0.9</Version>
     </PackageReference>
     <PackageReference Include="ManagedWinapi">
       <Version>0.3.0</Version>
