@@ -28,6 +28,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool fix_zorder = false;
             bool delay_start = false;
             bool redraw_desktop = false;
+            bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
 
             foreach (var arg in args)
             {
@@ -64,6 +65,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-redraw_desktop":
                         redraw_desktop = true;
                         break;
+                    case "-redirect_appdata":
+                        redirect_appdata = true;
+                        break;
                 }
             }
 
@@ -83,6 +87,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
             pwp.redrawDesktop = redraw_desktop;
+            pwp.redirectAppDataFolder = redirect_appdata;
 
             if (!pwp.Start())
             {

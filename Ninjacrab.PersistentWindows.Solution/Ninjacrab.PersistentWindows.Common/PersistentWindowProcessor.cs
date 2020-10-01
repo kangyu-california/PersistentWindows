@@ -86,6 +86,7 @@ namespace Ninjacrab.PersistentWindows.Common
             };
 
         private string appDataFolder;
+        public bool redirectAppDataFolder = false;
 
         // session control
         private bool remoteSession = false;
@@ -123,7 +124,8 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool Start()
         {
             string productName = System.Windows.Forms.Application.ProductName;
-            appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
+            appDataFolder = redirectAppDataFolder ? "." :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
 
 #if DEBUG
             //avoid db path conflict with release version
