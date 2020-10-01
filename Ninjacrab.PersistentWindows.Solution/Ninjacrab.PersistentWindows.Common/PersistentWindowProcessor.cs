@@ -1789,11 +1789,11 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             DateTime printRestoreTime = lastCaptureTime;
-            ILiteCollection<ApplicationDisplayMetrics> db = null;
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
-                db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                //ILiteCollection<ApplicationDisplayMetrics> db = null;
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
                 foreach (var window in sWindows)
                 {
@@ -1997,7 +1997,10 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
             if (restoringFromDB && restoreTimes == 0)
+            using(var persistDB = new LiteDatabase(persistDbName))
             {
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+
                 // launch process in db
                 var results = db.FindAll(); // find process not yet started
                 foreach (var curDisplayMetrics in results)
