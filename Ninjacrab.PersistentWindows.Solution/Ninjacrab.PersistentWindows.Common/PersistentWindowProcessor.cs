@@ -1003,7 +1003,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return ok ? 1 : -1;
         }
 
-        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey, bool saveToDB = false)
+        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey)
         {
             bool ret = false;
             IntPtr hWnd = window.HWnd;
@@ -1044,33 +1044,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
                 ret = true;
-            }
-
-            try
-            {
-                if (saveToDB && curDisplayMetrics != null && monitorApplications[displayKey].ContainsKey(hWnd))
-                using(var persistDB = new LiteDatabase(persistDbName))
-                {
-                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                    windowTitle[hWnd] = curDisplayMetrics.Title;
-                    curDisplayMetrics.ProcessName = window.Process.ProcessName;
-
-                    IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
-                    string procPath = GetProcExePath(hProcess);
-                    if (!String.IsNullOrEmpty(procPath))
-                    {
-                        if (processCmd.ContainsKey(curDisplayMetrics.ProcessId))
-                            curDisplayMetrics.ProcessExePath = processCmd[curDisplayMetrics.ProcessId];
-                        else
-                            curDisplayMetrics.ProcessExePath = procPath;
-                    }
-                    db.Insert(curDisplayMetrics);
-                    Kernel32.CloseHandle(hProcess);
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.ToString());
             }
 
             return ret;
@@ -1227,17 +1200,52 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
 
-            if (saveToDB)
-            using (var persistDB = new LiteDatabase(persistDbName))
-            {
-                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                db.DeleteAll();
-            }
 
             int pendingEventCnt = pendingCaptureWindows.Count;
             pendingCaptureWindows.Clear();
 
-            if (pendingEventCnt > MinWindowOsMoveEvents)
+            if (saveToDB)
+            {
+                using (var persistDB = new LiteDatabase(persistDbName))
+                {
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                    db.DeleteAll();
+
+                    var appWindows = CaptureWindowsOfInterest();
+                    foreach (var window in appWindows)
+                    {
+                        IntPtr hWnd = window.HWnd;
+                        if (monitorApplications[displayKey].ContainsKey(hWnd))
+                        try
+                        {
+                            var curDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
+                            windowTitle[hWnd] = curDisplayMetrics.Title;
+                            curDisplayMetrics.ProcessName = window.Process.ProcessName;
+
+                            if (processCmd.ContainsKey(curDisplayMetrics.ProcessId))
+                                curDisplayMetrics.ProcessExePath = processCmd[curDisplayMetrics.ProcessId];
+                            else
+                            {
+                                IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
+                                string procPath = GetProcExePath(hProcess);
+                                Kernel32.CloseHandle(hProcess);
+                                if (!String.IsNullOrEmpty(procPath))
+                                {
+                                    curDisplayMetrics.ProcessExePath = procPath;
+                                }
+                            }
+
+                            curDisplayMetrics.Id = 0;
+                            db.Insert(curDisplayMetrics);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log.Error(ex.ToString());
+                        }
+                    }
+                }
+            }
+            else if (pendingEventCnt > MinWindowOsMoveEvents)
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
@@ -1252,7 +1260,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 foreach (var window in appWindows)
                 {
-                    if (CaptureWindow(window, 0, now, displayKey, saveToDB))
+                    if (CaptureWindow(window, 0, now, displayKey))
                     {
                         movedWindows++;
                     }
