@@ -136,6 +136,7 @@ namespace Ninjacrab.PersistentWindows.Common
             //appDataFolder = ".";
             appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #endif
+            var dir = Directory.CreateDirectory(appDataFolder);
 
             try
             {
@@ -149,7 +150,6 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             // remove outdated db files
-            var dir = Directory.CreateDirectory(appDataFolder);
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
             foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
             {
