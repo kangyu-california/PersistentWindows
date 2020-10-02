@@ -1200,7 +1200,6 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
 
-
             int pendingEventCnt = pendingCaptureWindows.Count;
             pendingCaptureWindows.Clear();
 
@@ -1208,9 +1207,17 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
+                    var ids = new HashSet<int>();
+                    foreach (var hwnd in monitorApplications[displayKey].Keys)
+                    {
+                        var displayMetrics = monitorApplications[displayKey][hwnd].Last<ApplicationDisplayMetrics>();
+                        if (displayMetrics.Id > 0)
+                            ids.Add(displayMetrics.Id);
+                    }
+
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                     if (db.Count() > 0)
-                        db.DeleteMany(_ => true);
+                        db.DeleteMany(_ => !ids.Contains(_.Id));
                         //db.DeleteAll();
 
                     var appWindows = CaptureWindowsOfInterest();
@@ -1239,8 +1246,10 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                             }
 
-                            curDisplayMetrics.Id = 0;
-                            db.Insert(curDisplayMetrics);
+                            if (curDisplayMetrics.Id == 0)
+                                db.Insert(curDisplayMetrics);
+                            else
+                                db.Update(curDisplayMetrics);
                         }
                         catch (Exception ex)
                         {
@@ -1441,6 +1450,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd].Last();
+                curDisplayMetrics.Id = prevDisplayMetrics.Id;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
