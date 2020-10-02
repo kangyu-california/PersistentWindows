@@ -1209,13 +1209,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                    db.DeleteAll();
+                    if (db.Count() > 0)
+                        db.DeleteMany(_ => true);
+                        //db.DeleteAll();
 
                     var appWindows = CaptureWindowsOfInterest();
                     foreach (var window in appWindows)
                     {
                         IntPtr hWnd = window.HWnd;
-                        if (monitorApplications[displayKey].ContainsKey(hWnd))
+                        if (!monitorApplications[displayKey].ContainsKey(hWnd))
+                            continue;
+
                         try
                         {
                             var curDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
