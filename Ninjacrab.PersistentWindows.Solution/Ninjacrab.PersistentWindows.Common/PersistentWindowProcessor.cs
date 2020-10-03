@@ -471,6 +471,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     dlg.Size = new Size(300, 200);
                     dlg.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
                     dlg.TopMost = true;
+                    dlg.Icon = Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
+                    dlg.MinimizeBox = false;
+                    dlg.MaximizeBox = false;
                     dlg.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
                     dlg.Text = $"{System.Windows.Forms.Application.ProductName}";
                     var button1 = new System.Windows.Forms.Button();
@@ -496,11 +499,25 @@ namespace Ninjacrab.PersistentWindows.Common
                         0, //rect.Width,
                         0, //rect.Height,
                         0
-                        //| SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.DoNotActivate
                         | SetWindowPosFlags.IgnoreMove
                         | SetWindowPosFlags.IgnoreResize
                     );
 
+                    /*
+                    User32.SetWindowPos(
+                        dlg.Handle,
+                        new IntPtr(-1), // set dialog to topmost
+                        0, //rect.Left,
+                        0, //rect.Top,
+                        0, //rect.Width,
+                        0, //rect.Height,
+                        0
+                        //| SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+                    */
                     dlg.ShowDialog();
                 }
 
@@ -519,7 +536,7 @@ namespace Ninjacrab.PersistentWindows.Common
             );
 
             promptRestore.Name = "prompt_restore";
-            promptRestore.Priority = ThreadPriority.Lowest;
+            promptRestore.Priority = ThreadPriority.Highest;
             promptRestore.Start();
 
             runningThreads.Add(promptRestore);

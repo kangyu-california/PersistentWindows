@@ -1,4 +1,7 @@
-﻿namespace Ninjacrab.PersistentWindows.Common
+﻿using System.Windows.Forms;
+using System.Drawing;
+
+namespace Ninjacrab.PersistentWindows.Common
 {
     partial class LayoutProfile
     {
@@ -131,7 +134,8 @@
             this.Controls.Add(this.AddProfile);
             this.Controls.Add(this.ProfileName);
             this.Controls.Add(this.ProfileList);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            //this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
