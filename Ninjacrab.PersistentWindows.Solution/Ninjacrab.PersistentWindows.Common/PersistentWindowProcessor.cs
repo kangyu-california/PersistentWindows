@@ -69,7 +69,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool fixZorder = false; // restore z-order
         public bool pauseAutoRestore = false;
-        public bool pauseSessionRestore = false;
+        public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
         public bool disableOffScreenFix = false;
         public bool enhancedOffScreenFix = false;
@@ -375,7 +375,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             lock (controlLock)
                             {
                                 sessionActive = false;
-                                if (pauseSessionRestore)
+                                if (promptSessionRestore)
                                     pauseAutoRestore = true;
                                 if (!sessionLocked)
                                 {
@@ -390,7 +390,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 if (!sessionLocked)
                                 {
-                                    if (pauseAutoRestore && pauseSessionRestore)
+                                    if (pauseAutoRestore && promptSessionRestore)
                                     {
                                         PromptSessionRestore();
                                         return;
@@ -416,7 +416,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             sessionLocked = true;
                             sessionActive = false;
-                            if (pauseSessionRestore)
+                            if (promptSessionRestore)
                                 pauseAutoRestore = true;
                             EndDisplaySession();
                         }
@@ -426,7 +426,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         lock (controlLock)
                         {
                             sessionLocked = false;
-                            if (pauseAutoRestore && pauseSessionRestore)
+                            if (pauseAutoRestore && promptSessionRestore)
                             {
                                 PromptSessionRestore();
                                 return;
@@ -440,7 +440,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
-                        if (pauseSessionRestore)
+                        if (promptSessionRestore)
                             pauseAutoRestore = true;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
@@ -490,7 +490,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     User32.SetWindowPos(
                         dlg.Handle,
-                        new IntPtr(-1), // set dialog to topmost
+                        IntPtr.Zero, // set dialog to top
                         0, //rect.Left,
                         0, //rect.Top,
                         0, //rect.Width,
