@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using System.Drawing;
 using Microsoft.Win32;
 
 using LiteDB;
@@ -68,6 +69,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool fixZorder = false; // restore z-order
         public bool pauseAutoRestore = false;
+        public bool pauseSessionRestore = false;
         public bool redrawDesktop = false;
         public bool disableOffScreenFix = false;
         public bool enhancedOffScreenFix = false;
@@ -118,6 +120,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
+
+        // running thread
+        private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
 #if DEBUG
         private void DebugInterval()
@@ -370,6 +375,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             lock (controlLock)
                             {
                                 sessionActive = false;
+                                if (pauseSessionRestore)
+                                    pauseAutoRestore = true;
                                 if (!sessionLocked)
                                 {
                                     EndDisplaySession();
@@ -383,6 +390,11 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 if (!sessionLocked)
                                 {
+                                    if (pauseAutoRestore && pauseSessionRestore)
+                                    {
+                                        PromptSessionRestore();
+                                        return;
+                                    }
                                     // force restore in case OS does not generate display changed event
                                     restoringFromMem = true;
                                     StartRestoreTimer(milliSecond: SlowRestoreLatency);
@@ -404,6 +416,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             sessionLocked = true;
                             sessionActive = false;
+                            if (pauseSessionRestore)
+                                pauseAutoRestore = true;
                             EndDisplaySession();
                         }
                         break;
@@ -412,6 +426,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         lock (controlLock)
                         {
                             sessionLocked = false;
+                            if (pauseAutoRestore && pauseSessionRestore)
+                            {
+                                PromptSessionRestore();
+                                return;
+                            }
                             // force restore in case OS does not generate display changed event
                             restoringFromMem = true;
                             StartRestoreTimer();
@@ -421,6 +440,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
+                        if (pauseSessionRestore)
+                            pauseAutoRestore = true;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
@@ -439,6 +460,69 @@ namespace Ninjacrab.PersistentWindows.Common
 
             initialized = true;
             return true;
+        }
+
+        private void PromptSessionRestore()
+        {
+            Thread promptRestore = new Thread(() =>
+            {
+                using (var dlg = new System.Windows.Forms.Form())
+                {
+                    dlg.Size = new Size(300, 200);
+                    dlg.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                    dlg.TopMost = true;
+                    dlg.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+                    dlg.Text = $"{System.Windows.Forms.Application.ProductName}";
+                    var button1 = new System.Windows.Forms.Button();
+                    button1.Text = "OK";
+                    // Set the position of the button on the form.
+                    button1.Location = new Point(110, 120);
+
+                    var label = new System.Windows.Forms.Label();
+                    label.Size = new Size(250, 50);
+                    label.Location = new Point(30, 50);
+                    label.Text = "Press OK to restore window layout";
+                    label.Font = new System.Drawing.Font(label.Font.Name, 10F);
+
+                    dlg.CancelButton = button1;
+                    dlg.Controls.Add(button1);
+                    dlg.Controls.Add(label);
+
+                    User32.SetWindowPos(
+                        dlg.Handle,
+                        new IntPtr(-1), // set dialog to topmost
+                        0, //rect.Left,
+                        0, //rect.Top,
+                        0, //rect.Width,
+                        0, //rect.Height,
+                        0
+                        //| SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+
+                    dlg.ShowDialog();
+                }
+
+                /*
+                System.Windows.Forms.MessageBox.Show(
+                    $@"Press OK to start restore for {curDisplayKey}",
+                    $"{System.Windows.Forms.Application.ProductName}",
+                    System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.None);
+                */
+
+                pauseAutoRestore = false;
+                restoringFromMem = true;
+                StartRestoreTimer();
+            }
+            );
+
+            promptRestore.Name = "prompt_restore";
+            promptRestore.Priority = ThreadPriority.Lowest;
+            promptRestore.Start();
+
+            runningThreads.Add(promptRestore);
         }
 
         private bool IsFullScreen(IntPtr hwnd)
@@ -2155,7 +2239,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void StopRunningThreads()
         {
-            //stop running thread of event loop
+            foreach(var thd in runningThreads)
+            {
+                if (thd.IsAlive)
+                    thd.Abort();
+            }
         }
 
         #region IDisposable
