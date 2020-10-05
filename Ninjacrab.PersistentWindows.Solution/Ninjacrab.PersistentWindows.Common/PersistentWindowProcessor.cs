@@ -491,6 +491,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     dlg.Controls.Add(button1);
                     dlg.Controls.Add(label);
 
+                    dlg.Activate();
+
                     User32.SetWindowPos(
                         dlg.Handle,
                         IntPtr.Zero, // set dialog to top
