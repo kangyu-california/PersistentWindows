@@ -76,6 +76,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.notifyIconMain.BalloonTipText = "Please wait while restoring windows";
             this.notifyIconMain.BalloonTipIcon = ToolTipIcon.Info;
             this.notifyIconMain.Visible = true;
+            this.notifyIconMain.MouseClick += new System.Windows.Forms.MouseEventHandler(this.IconMouseClick);
+
             // 
             // contextMenuStripSysTray
             // 

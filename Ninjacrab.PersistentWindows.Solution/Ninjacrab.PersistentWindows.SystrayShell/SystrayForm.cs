@@ -68,5 +68,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Exit();
         }
 
+        private void IconMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+            }
+        }
+
     }
 }
