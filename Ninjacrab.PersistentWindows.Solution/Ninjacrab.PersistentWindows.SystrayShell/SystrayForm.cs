@@ -12,7 +12,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         public SystrayForm()
         {
-            UiRefreshTimer.Interval = 500;
+            UiRefreshTimer.Interval = 2000;
             UiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
 
             InitializeComponent();
@@ -21,7 +21,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         {
             restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
-            UiRefreshTimer.Stop();
         }
 
         private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
@@ -32,7 +31,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
             Program.Capture();
-            this.restoreToolStripMenuItem.Enabled = true;
+            enableRestoreFromDB = true;
         }
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)

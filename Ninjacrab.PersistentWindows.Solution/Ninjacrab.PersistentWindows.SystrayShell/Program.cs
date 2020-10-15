@@ -148,6 +148,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void EnableRestoreMenu(bool enable)
         {
+#if DEBUG
+            LogEvent("start ui refresh timer");
+#endif
             systrayForm.enableRestoreFromDB = enable;
             systrayForm.UiRefreshTimer.Start();
         }
@@ -236,6 +239,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     pwp.processCmd[processId] = fields[1];
                 }
             }
+        }
+        public static void LogEvent(string format, params object[] args)
+        {
+            Log.Event(format, args);
         }
     }
 }
