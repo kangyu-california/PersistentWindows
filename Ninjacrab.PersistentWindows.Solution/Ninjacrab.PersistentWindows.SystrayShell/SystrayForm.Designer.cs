@@ -82,8 +82,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // contextMenuStripSysTray
             // 
             this.contextMenuStripSysTray.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                /*
                 this.manageLayoutProfile,
                 this.toolStripMenuItem[3],
+                */
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
                 this.toolStripMenuItem[0],
