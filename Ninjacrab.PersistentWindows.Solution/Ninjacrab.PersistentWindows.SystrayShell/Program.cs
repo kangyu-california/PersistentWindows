@@ -152,7 +152,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             LogEvent("start ui refresh timer");
 #endif
             systrayForm.enableRestoreFromDB = enable;
-            systrayForm.UiRefreshTimer.Start();
+            systrayForm.enableRefresh = true;
         }
 
         static void StartSplashForm()

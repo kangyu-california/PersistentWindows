@@ -6,21 +6,31 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
-        private bool pauseAutoRestore = false;
+        public volatile bool enableRefresh = false;
         public bool enableRestoreFromDB = false;
-        public Timer UiRefreshTimer = new Timer();
+
+        private bool pauseAutoRestore = false;
+        private Timer uiRefreshTimer = new Timer();
 
         public SystrayForm()
         {
-            UiRefreshTimer.Interval = 2000;
-            UiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
+            uiRefreshTimer.Interval = 2000;
+            uiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
+            uiRefreshTimer.Enabled = true;
 
             InitializeComponent();
         }
 
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         {
-            restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+            if (enableRefresh)
+            {
+#if DEBUG
+                Program.LogEvent("ui refresh timer triggered");
+#endif
+                restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+                enableRefresh = false;
+            }
         }
 
         private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
