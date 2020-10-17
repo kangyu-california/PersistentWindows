@@ -41,7 +41,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
             Program.Capture();
-            enableRestoreFromDB = true;
+            restoreToolStripMenuItem.Enabled = true;
         }
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)
