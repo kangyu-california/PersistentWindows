@@ -77,6 +77,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.notifyIconMain.BalloonTipIcon = ToolTipIcon.Info;
             this.notifyIconMain.Visible = true;
             this.notifyIconMain.MouseClick += new System.Windows.Forms.MouseEventHandler(this.IconMouseClick);
+            this.notifyIconMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.IconMouseDoubleClick);
 
             // 
             // contextMenuStripSysTray

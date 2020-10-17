@@ -155,6 +155,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             systrayForm.enableRefresh = true;
         }
 
+        static public void TakeSnapshot()
+        {
+            pwp.TakeSnapshot();
+        }
         static void StartSplashForm()
         {
             var thread = new Thread(() =>

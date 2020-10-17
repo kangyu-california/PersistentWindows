@@ -101,6 +101,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // display session end time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
+        private Dictionary<string, DateTime> snapshotTakenTime = new Dictionary<string, DateTime>();
 
         private bool iconActive = false;
         private Timer hideIconTimer;
@@ -964,7 +965,38 @@ namespace Ninjacrab.PersistentWindows.Common
             while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
-                monitorApplications[displayKey][hwnd].RemoveAt(0);
+                for (int i = 0; i < 2; ++i)
+                {
+                    if (monitorApplications[displayKey][hwnd][i].IsSnapShot)
+                        continue; //preserve snapshot record
+                    monitorApplications[displayKey][hwnd].RemoveAt(0);
+                    break; //remove one record at one time
+                }
+            }
+        }
+
+        public void TakeSnapshot()
+        {
+            if (String.IsNullOrEmpty(curDisplayKey))
+                return;
+
+            lock(databaseLock)
+            {
+                foreach(var hwnd in monitorApplications[curDisplayKey].Keys)
+                {
+                    foreach(var app in monitorApplications[curDisplayKey][hwnd])
+                    {
+                        app.IsSnapShot = false;
+                    }
+
+                    int count = monitorApplications[curDisplayKey][hwnd].Count;
+                    if (count > 0)
+                        monitorApplications[curDisplayKey][hwnd][count - 1].IsSnapShot = true;
+                }
+
+                var now = DateTime.Now;
+                snapshotTakenTime[curDisplayKey] = now;
+                Log.Event("Snapshot is taken");
             }
         }
 
@@ -1516,6 +1548,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 PrevZorderWindow = GetPrevZorderWindow(hwnd),
                 NeedRestoreZorder = false,
+
+                IsSnapShot = false,
             };
 
             if (!monitorApplications[displayKey].ContainsKey(hwnd))

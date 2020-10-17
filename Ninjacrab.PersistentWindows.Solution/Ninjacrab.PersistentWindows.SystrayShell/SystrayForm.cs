@@ -85,5 +85,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
+        private void IconMouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                Program.TakeSnapshot();
+                notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
+            }
+        }
     }
 }

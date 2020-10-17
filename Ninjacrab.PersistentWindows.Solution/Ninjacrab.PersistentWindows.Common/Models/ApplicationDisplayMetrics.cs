@@ -42,6 +42,9 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public IntPtr PrevZorderWindow { get; set; }
         public bool NeedRestoreZorder { get; set; }
 
+        // for snapshot recovery
+        public bool IsSnapShot { get; set; }
+
         public bool EqualPlacement(ApplicationDisplayMetrics other)
         {
             bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
