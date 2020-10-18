@@ -907,7 +907,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             lock (controlLock)
                             {
-                                if (restoringFromDB || restoringSnapshot)
+                                if (restoringFromDB)
                                 {
                                     /*
                                     if (restoreTimes >= MinRestoreTimes)
@@ -986,14 +986,13 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 foreach(var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
-                    foreach(var app in monitorApplications[curDisplayKey][hwnd])
-                    {
-                        app.IsSnapShot = false;
-                    }
-
                     int count = monitorApplications[curDisplayKey][hwnd].Count;
                     if (count > 0)
+                    {
+                        for (var i = 0; i < count - 1; ++i)
+                            monitorApplications[curDisplayKey][hwnd][i].IsSnapShot = false;
                         monitorApplications[curDisplayKey][hwnd][count - 1].IsSnapShot = true;
+                    }
                 }
 
                 var now = DateTime.Now;
@@ -1201,7 +1200,7 @@ namespace Ninjacrab.PersistentWindows.Common
             captureTimer.Change(milliSeconds, Timeout.Infinite);
         }
 
-        private void CancelCaptureTimer()
+        public void CancelCaptureTimer()
         {
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -1674,7 +1673,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             lock (controlLock)
             {
-                if (!restoringFromMem && !restoringFromDB && !restoringSnapshot)
+                if (!restoringFromMem && !restoringFromDB)
                 {
                     return;
                 }
@@ -1932,7 +1931,11 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 lastCaptureTime = lastUserActionTime[displayKey];
 
-                if (restoringFromMem)
+                if (restoringSnapshot)
+                {
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey];
+                }
+                else if (restoringFromMem)
                 {
                     // further dial last capture time back in case it is too close to now (actual restore time)
                     DateTime now = DateTime.Now;
@@ -1943,10 +1946,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         lastCaptureTime = now.Subtract(ts);
                         lastUserActionTime[displayKey] = lastCaptureTime;
                     }
-                }
-                else if (restoringSnapshot)
-                {
-                    lastCaptureTime = snapshotTakenTime[curDisplayKey];
                 }
             }
             else
