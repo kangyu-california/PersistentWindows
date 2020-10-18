@@ -66,6 +66,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Timer restoreFinishedTimer;
         public bool restoringFromMem = false; // automatic restore from memory in progress
         public bool restoringFromDB = false; // manual restore from DB in progress
+        public bool restoringSnapshot = false;
         public bool dryRun = false; // only capturre, no actual restore
         public bool fixZorder = false; // restore z-order
         public bool pauseAutoRestore = false;
@@ -206,7 +207,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             restoreTimer = new Timer(state =>
             {
-                if (pauseAutoRestore && !restoringFromDB)
+                if (pauseAutoRestore && !restoringFromDB && !restoringSnapshot)
                     return;
 
                 Log.Trace("Restore timer expired");
@@ -225,6 +226,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 restoringFromDB = false;
                 restoringFromMem = false;
+                restoringSnapshot = false;
                 ResetState();
                 Log.Trace("");
                 Log.Trace("");
@@ -905,7 +907,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             lock (controlLock)
                             {
-                                if (restoringFromDB)
+                                if (restoringFromDB || restoringSnapshot)
                                 {
                                     /*
                                     if (restoreTimes >= MinRestoreTimes)
@@ -1672,7 +1674,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             lock (controlLock)
             {
-                if (!restoringFromMem && !restoringFromDB)
+                if (!restoringFromMem && !restoringFromDB && !restoringSnapshot)
                 {
                     return;
                 }
@@ -1941,6 +1943,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         lastCaptureTime = now.Subtract(ts);
                         lastUserActionTime[displayKey] = lastCaptureTime;
                     }
+                }
+                else if (restoringSnapshot)
+                {
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey];
                 }
             }
             else

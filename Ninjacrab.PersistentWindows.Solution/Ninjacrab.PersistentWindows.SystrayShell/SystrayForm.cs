@@ -12,6 +12,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool pauseAutoRestore = false;
         private Timer uiRefreshTimer = new Timer();
 
+        private bool singleClick = false;
+        private bool doubleClick = false;
+
         public SystrayForm()
         {
             uiRefreshTimer.Interval = 2000;
@@ -31,6 +34,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
                 enableRefresh = false;
             }
+            else if (doubleClick)
+            {
+                doubleClick = false;
+                singleClick = false;
+
+                Program.TakeSnapshot();
+                notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
+            }
+            else if (singleClick)
+            {
+                singleClick = false;
+                Program.RestoreSnapshot();
+            }
         }
 
         private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
@@ -46,7 +62,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)
         {
-            Program.Restore();
+            Program.RestoreDisk();
         }
 
         private void PauseResumeAutoRestore(object sender, EventArgs e)
@@ -82,6 +98,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 //this.notifyIconMain.Icon = new System.Drawing.Icon(System.Drawing.SystemIcons.Exclamation, 40, 40);
+                singleClick = true;
             }
         }
 
@@ -89,8 +106,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
-                Program.TakeSnapshot();
-                notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
+                doubleClick = true;
             }
         }
     }

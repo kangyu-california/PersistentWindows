@@ -159,6 +159,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             pwp.TakeSnapshot();
         }
+
         static void StartSplashForm()
         {
             var thread = new Thread(() =>
@@ -186,10 +187,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
         }
 
-        static public void Restore()
+        static public void RestoreDisk()
         {
             pwp.restoringFromDB = true;
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
+        }
+
+        static public void RestoreSnapshot()
+        {
+            pwp.restoringSnapshot = true;
+            pwp.StartRestoreTimer(milliSecond : 500 /*wait mouse settle still for taskbar restore*/);
+            LogEvent("restore snapshot");
         }
 
         static public void PauseAutoRestore()
