@@ -25,7 +25,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             bool no_splash = false;
             bool dry_run = false;
-            bool fix_zorder = false;
+            bool fix_zorder = true;
             bool delay_start = false;
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
@@ -59,8 +59,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         Log.Trace("dry_run mode");
                         dry_run = true;
                         break;
-                    case "-fix_zorder":
-                        fix_zorder = true;
+                    case "-fix_zorder=0":
+                        fix_zorder = false;
                         break;
                     case "-delay_start":
                         delay_start = true;
