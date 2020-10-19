@@ -34,7 +34,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
                 enableRefresh = false;
             }
-            else if (doubleClick)
+
+            if (doubleClick)
             {
                 doubleClick = false;
                 singleClick = false;

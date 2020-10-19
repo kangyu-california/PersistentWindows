@@ -1200,7 +1200,7 @@ namespace Ninjacrab.PersistentWindows.Common
             captureTimer.Change(milliSeconds, Timeout.Infinite);
         }
 
-        public void CancelCaptureTimer()
+        private void CancelCaptureTimer()
         {
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
