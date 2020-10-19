@@ -17,20 +17,20 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
-        static bool silent = false;
-        static bool notification_on = false;
+        static bool silent = false; //suppress all balloon tip & sound prompt
+        static bool notification = false; //pop balloon when auto restore
 
         [STAThread]
         static void Main(string[] args)
         {
-            bool no_splash = false;
-            bool dry_run = false;
+            bool splash = true;
+            bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = true;
             bool delay_start = false;
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
+            bool offscreen_fix = true;
             bool enhanced_offscreen_fix = false;
-            bool disable_offscreen_fix = false;
             bool prompt_session_restore = false;
 
             foreach (var arg in args)
@@ -47,16 +47,21 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     case "-silent":
                         silent = true;
-                        no_splash = true;
+                        splash = false;
                         break;
                     case "-splash_off":
-                        no_splash = true;
+                        splash = false;
+                        break;
+                    case "-splash=0":
+                        splash = false;
                         break;
                     case "-notification_on":
-                        notification_on = true;
+                        notification = true;
+                        break;
+                    case "-notification=1":
+                        notification = true;
                         break;
                     case "-dry_run":
-                        Log.Trace("dry_run mode");
                         dry_run = true;
                         break;
                     case "-fix_zorder=0":
@@ -75,7 +80,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         enhanced_offscreen_fix = true;
                         break;
                     case "-disable_offscreen_fix":
-                        disable_offscreen_fix = true;
+                        offscreen_fix = false;
+                        break;
+                    case "-offscreen_fix=0":
+                        offscreen_fix = false;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
@@ -101,7 +109,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
-            pwp.disableOffScreenFix = disable_offscreen_fix;
+            pwp.enableOffScreenFix = offscreen_fix;
             pwp.promptSessionRestore = prompt_session_restore;
 
             if (!pwp.Start())
@@ -110,7 +118,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 return;
             }
 
-            if (!no_splash)
+            if (splash)
             {
                 StartSplashForm();
             }
@@ -128,7 +136,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 systrayForm.notifyIconMain.Visible = false;
                 systrayForm.notifyIconMain.Visible = true;
 
-                if (!notification_on)
+                if (!notification)
                     return;
 
                 systrayForm.notifyIconMain.ShowBalloonTip(10000);
@@ -140,7 +148,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void HideRestoreTip()
         {
-            if (silent || !notification_on)
+            if (silent || !notification)
                 return;
             systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
@@ -158,6 +166,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void TakeSnapshot()
         {
             pwp.TakeSnapshot();
+            if (!silent)
+                systrayForm.notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
         }
 
         static void StartSplashForm()

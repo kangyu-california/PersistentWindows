@@ -72,7 +72,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
-        public bool disableOffScreenFix = false;
+        public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
         private int restoreTimes = 0;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
@@ -674,7 +674,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Thread.Sleep(OffScreenDetectionLatency);
                 try
                 {
-                    bool enable_offscreen_fix = !disableOffScreenFix;
+                    bool enable_offscreen_fix = enableOffScreenFix;
                     lock(controlLock)
                     {
                         if (pendingCaptureWindows.Contains(hwnd))

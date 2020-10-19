@@ -41,7 +41,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 singleClick = false;
 
                 Program.TakeSnapshot();
-                notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
             }
             else if (singleClick)
             {
