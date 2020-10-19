@@ -1001,6 +1001,11 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        public bool SnapshotExist()
+        {
+            return snapshotTakenTime.ContainsKey(curDisplayKey);
+        }
+
         private void CaptureCursorPos(string displayKey)
         {
             POINT cursorPos;
