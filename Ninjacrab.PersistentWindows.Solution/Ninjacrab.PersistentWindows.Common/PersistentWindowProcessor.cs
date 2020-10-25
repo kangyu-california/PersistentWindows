@@ -34,7 +34,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
-        private const int MaxHistoryQueueLength = 10;
+        private const int MaxSnapshots = 9; // 1 default + 8 named snapshot
+        private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
 
         private const int OffScreenDetectionLatency = 1000; //must be smaller than CaptureLatency
 
@@ -967,11 +968,11 @@ namespace Ninjacrab.PersistentWindows.Common
             while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
-                for (int i = 0; i < 2; ++i)
+                for (int i = 0; i < MaxSnapshots + 1; ++i)
                 {
                     if (monitorApplications[displayKey][hwnd][i].IsSnapShot)
                         continue; //preserve snapshot record
-                    monitorApplications[displayKey][hwnd].RemoveAt(0);
+                    monitorApplications[displayKey][hwnd].RemoveAt(i);
                     break; //remove one record at one time
                 }
             }
