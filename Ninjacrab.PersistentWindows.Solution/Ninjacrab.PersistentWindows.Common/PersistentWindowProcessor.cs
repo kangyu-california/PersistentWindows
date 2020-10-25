@@ -1034,12 +1034,19 @@ namespace Ninjacrab.PersistentWindows.Common
             //if (rect.Width < 10 && rect.Height < 10)
             //    return IntPtr.Zero; //too small to care about
 
+            IntPtr fail_safe_result = IntPtr.Zero;
             IntPtr result = hWnd;
             do
             {
                 result = User32.GetWindow(result, 3);
                 if (result == IntPtr.Zero)
                     break;
+
+                if (monitorApplications[curDisplayKey].ContainsKey(result))
+                {
+                    if (fail_safe_result == IntPtr.Zero)
+                        fail_safe_result = result;
+                }
 
                 RECT2 prevRect = new RECT2();
                 User32.GetWindowRect(result, ref prevRect);
@@ -1050,9 +1057,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (monitorApplications[curDisplayKey].ContainsKey(result))
                         break;
                 }
-
             } while (true);
 
+            if (result == IntPtr.Zero)
+            {
+                result = fail_safe_result;
+                if (fail_safe_result != IntPtr.Zero)
+                    Log.Trace("fail safe prev zorder of {0} is {1}", GetWindowTitle(hWnd), GetWindowTitle(fail_safe_result));
+            }
             return result;
         }
 
@@ -1119,11 +1131,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
+            /*
             if (IsTaskBar(window))
             {
                 Log.Trace("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 return 0; // issue 21, avoid restore to top z-order
             }
+            */
 
             bool ok = User32.SetWindowPos(
                 hWnd,
