@@ -985,6 +985,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             lock(databaseLock)
             {
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+
                 foreach(var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
                     int count = monitorApplications[curDisplayKey][hwnd].Count;
