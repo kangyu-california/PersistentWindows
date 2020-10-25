@@ -1391,7 +1391,10 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
 
                             if (curDisplayMetrics.Id == 0)
+                            {
                                 db.Insert(curDisplayMetrics);
+                                monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
+                            }
                             else
                                 db.Update(curDisplayMetrics);
                         }
@@ -1988,8 +1991,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (windowTitle.ContainsKey(hWnd))
                     {
                         string title = windowTitle[hWnd];
-                        var results = db.Find(x => x.ClassName == window.ClassName && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
+                        var id = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>().Id;
+                        var results = db.Find(x => x.Id == id);
                         curDisplayMetrics = SearchDb(results);
+
+                        if (curDisplayMetrics == null)
+                        {
+                            results = db.Find(x => x.ClassName == window.ClassName && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
+                            curDisplayMetrics = SearchDb(results);
+                        }
 
                         if (curDisplayMetrics == null)
                         {
