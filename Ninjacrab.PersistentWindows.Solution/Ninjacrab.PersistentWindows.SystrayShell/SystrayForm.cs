@@ -2,24 +2,52 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
+
 namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
+        private Timer uiRefreshTimer = new Timer();
+
         public volatile bool enableRefresh = false;
         public bool enableRestoreFromDB = false;
 
         private bool pauseAutoRestore = false;
-        private Timer uiRefreshTimer = new Timer();
+        private bool disableUpgradeNotice = false;
 
-        private bool singleClick = false;
-        private bool doubleClick = false;
+        private bool controlKeyPressed;
+        private bool altKeyPressed;
+        private bool singleClick;
+        private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
         {
             uiRefreshTimer.Interval = 2000;
             uiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
             uiRefreshTimer.Enabled = true;
+
+            clickDelayTimer = new System.Threading.Timer(state =>
+            {
+                if (singleClick)
+                {
+                    if (controlKeyPressed)
+                    {
+                        //restore named snapshot
+                        ;
+                    }
+                    else if (altKeyPressed)
+                    {
+                        //restore previous workspace (not necessarily a snapshot)
+                        ;
+                    }
+                    else
+                    {
+                        //restore unnamed(default) snapshot
+                        Program.RestoreSnapshot();
+                    }
+                }
+            });
 
             InitializeComponent();
         }
@@ -35,18 +63,37 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 enableRefresh = false;
             }
 
+        }
+
+        private void SnapshotAction(bool doubleClick)
+        {
+            controlKeyPressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            altKeyPressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+
             if (doubleClick)
             {
-                doubleClick = false;
+                // cancel previous single click event
                 singleClick = false;
 
-                Program.TakeSnapshot();
+                if (controlKeyPressed)
+                {
+                    //create named snapshot
+                }
+                else if (altKeyPressed)
+                {
+
+                }
+                else
+                {
+                    //take unnamed(default) snapshot
+                    Program.TakeSnapshot();
+                }
+
+                return;
             }
-            else if (singleClick)
-            {
-                singleClick = false;
-                Program.RestoreSnapshot();
-            }
+
+            singleClick = true;
+            clickDelayTimer.Change(500, System.Threading.Timeout.Infinite);
         }
 
         private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
@@ -81,6 +128,20 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
+        private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
+        {
+            if (disableUpgradeNotice)
+            {
+                disableUpgradeNotice = false;
+                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            }
+            else
+            {
+                disableUpgradeNotice = true;
+                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+            }
+        }
+
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
             Process.Start(Program.ProjectUrl);
@@ -98,7 +159,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 //this.notifyIconMain.Icon = new System.Drawing.Icon(System.Drawing.SystemIcons.Exclamation, 40, 40);
-                singleClick = true;
+                SnapshotAction(doubleClick: false);
             }
         }
 
@@ -106,7 +167,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
-                doubleClick = true;
+                SnapshotAction(doubleClick: true);
             }
         }
     }

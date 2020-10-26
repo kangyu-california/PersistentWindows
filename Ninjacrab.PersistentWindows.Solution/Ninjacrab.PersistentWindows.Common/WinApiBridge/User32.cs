@@ -270,6 +270,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetCursorPos(int x, int y);
 
+        [DllImport("USER32.dll")]
+        public static extern short GetKeyState(int nVirtKey);
+
         [DllImport("user32.dll")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 

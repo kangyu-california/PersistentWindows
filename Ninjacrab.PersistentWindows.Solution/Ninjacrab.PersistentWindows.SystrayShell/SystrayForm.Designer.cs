@@ -21,6 +21,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
         public System.Windows.Forms.ToolStripMenuItem pauseResumeToolStripMenuItem;
+        public System.Windows.Forms.ToolStripMenuItem upgradeNoticeMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator[] toolStripMenuItem = new System.Windows.Forms.ToolStripSeparator[4];
@@ -54,6 +55,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.upgradeNoticeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageLayoutProfile = new ToolStripMenuItem();
 
             for (int i = 0; i < 4; ++i)
@@ -92,6 +94,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 this.toolStripMenuItem[0],
                 this.pauseResumeToolStripMenuItem,
                 this.toolStripMenuItem[1],
+                this.upgradeNoticeMenuItem,
                 this.aboutToolStripMenuItem,
                 this.toolStripMenuItem[2],
                 this.exitToolStripMenuItem});
@@ -132,6 +135,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClickHandler);
+
+            // pause/resume upgrade notice
+            this.upgradeNoticeMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            this.upgradeNoticeMenuItem.Click += new System.EventHandler(this.PauseResumeUpgradeNotice);
 
             // 
             // exitToolStripMenuItem
