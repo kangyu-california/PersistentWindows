@@ -163,9 +163,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             systrayForm.enableRefresh = true;
         }
 
-        static public void TakeSnapshot()
+        static public void TakeSnapshot(string layoutName)
         {
-            pwp.TakeSnapshot();
+            pwp.TakeSnapshot(layoutName);
             if (!silent)
                 systrayForm.notifyIconMain.ShowBalloonTip(5000, "snapshot captured", "click icon to restore the snapshot", ToolTipIcon.Info);
         }
@@ -203,15 +203,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }
 
-        static public void RestoreSnapshot()
+        static public void RestoreSnapshot(string snapshotName)
         {
-            if (!pwp.SnapshotExist())
-                return;
-
-            pwp.restoringFromMem = true;
             pwp.restoringSnapshot = true;
-            pwp.StartRestoreTimer(milliSecond : 500 /*wait mouse settle still for taskbar restore*/);
-            LogEvent("restore snapshot");
+            pwp.snapshotName = snapshotName;
+            pwp.restoringFromMem = true;
+            pwp.StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
+            LogEvent("restore snapshot ${0}", snapshotName);
         }
 
         static public void PauseAutoRestore()

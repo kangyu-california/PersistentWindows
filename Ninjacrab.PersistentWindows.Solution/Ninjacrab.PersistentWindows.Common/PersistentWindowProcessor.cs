@@ -23,6 +23,9 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
+        public const string DefaultSnapshot = "$default$";
+        public const string PreviousSnapshot = "$previous$";
+
         private const int RestoreLatency = 500; // default delay in milliseconds from display change to window restore
         private const int SlowRestoreLatency = 2000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 5000; // max delay in milliseconds from final restore pass to restore finish
@@ -103,7 +106,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // display session end time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
-        private Dictionary<string, DateTime> snapshotTakenTime = new Dictionary<string, DateTime>();
+        private Dictionary<string, Dictionary<string, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<string, DateTime>>();
+        public string snapshotName;
 
         private bool iconActive = false;
         private Timer hideIconTimer;
@@ -978,7 +982,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        public void TakeSnapshot()
+        public void TakeSnapshot(string snapshotName)
         {
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
@@ -998,15 +1002,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
+                if (!snapshotTakenTime.ContainsKey(curDisplayKey))
+                    snapshotTakenTime[curDisplayKey] = new Dictionary<string, DateTime>();
+
                 var now = DateTime.Now;
-                snapshotTakenTime[curDisplayKey] = now;
+                snapshotTakenTime[curDisplayKey][snapshotName] = now;
                 Log.Event("Snapshot is taken");
             }
-        }
-
-        public bool SnapshotExist()
-        {
-            return snapshotTakenTime.ContainsKey(curDisplayKey);
         }
 
         private void CaptureCursorPos(string displayKey)
@@ -1958,7 +1960,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (restoringSnapshot)
                 {
-                    lastCaptureTime = snapshotTakenTime[curDisplayKey];
+                    if (!snapshotTakenTime.ContainsKey(curDisplayKey)
+                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotName))
+                        return false;
+
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotName];
+
+                    if (!snapshotName.Equals(PreviousSnapshot) && restoreTimes == 0)
+                    {
+                        CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                        snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
+                    }
                 }
                 else if (restoringFromMem)
                 {

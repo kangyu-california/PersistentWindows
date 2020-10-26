@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Forms;
 
+using Ninjacrab.PersistentWindows.Common;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
 namespace Ninjacrab.PersistentWindows.SystrayShell
@@ -39,12 +40,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     else if (altKeyPressed)
                     {
                         //restore previous workspace (not necessarily a snapshot)
-                        ;
+                        Program.RestoreSnapshot(PersistentWindowProcessor.PreviousSnapshot);
                     }
                     else
                     {
                         //restore unnamed(default) snapshot
-                        Program.RestoreSnapshot();
+                        Program.RestoreSnapshot(PersistentWindowProcessor.DefaultSnapshot);
                     }
                 }
             });
@@ -77,16 +78,16 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if (controlKeyPressed)
                 {
-                    //create named snapshot
+                    //TODO: create named snapshot
                 }
                 else if (altKeyPressed)
                 {
-
+                    ;
                 }
                 else
                 {
                     //take unnamed(default) snapshot
-                    Program.TakeSnapshot();
+                    Program.TakeSnapshot(PersistentWindowProcessor.DefaultSnapshot);
                 }
 
                 return;
