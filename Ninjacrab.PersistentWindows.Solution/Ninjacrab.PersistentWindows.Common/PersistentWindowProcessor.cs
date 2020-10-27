@@ -2137,7 +2137,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
-                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes > 0)
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
