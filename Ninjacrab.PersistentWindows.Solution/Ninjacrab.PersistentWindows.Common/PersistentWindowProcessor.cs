@@ -1306,7 +1306,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
-            RecordLastUserActionTime(DateTime.Now);
             CaptureCursorPos(displayKey);
         }
 
@@ -1703,11 +1702,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     iconActive = true;
                     showRestoreTip();
                 }
-
-                if (restoringFromDB)
-                {
-                    RecordLastUserActionTime(DateTime.Now);
-                }
             }
 
             lock (controlLock)
@@ -1941,7 +1935,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 // the display setting has not been captured yet
                 Log.Trace("Restoring new display setting {0}", displayKey);
                 CaptureNewDisplayConfig(displayKey);
-                return succeed;
+                return false;
             }
 
             Log.Info("");
@@ -1977,7 +1971,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         return false;
 
                     lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotName];
-
                 }
                 else if (restoringFromMem)
                 {
