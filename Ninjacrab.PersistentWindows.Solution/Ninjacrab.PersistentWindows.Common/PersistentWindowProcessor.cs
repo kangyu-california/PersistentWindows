@@ -1018,6 +1018,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoringFromMem = true;
             if (!snapshotName.Equals(PreviousSnapshot))
             {
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
                 snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
             }
             StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
