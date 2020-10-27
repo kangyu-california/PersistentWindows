@@ -205,11 +205,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void RestoreSnapshot(string snapshotName)
         {
-            pwp.restoringSnapshot = true;
-            pwp.snapshotName = snapshotName;
-            pwp.restoringFromMem = true;
-            pwp.StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
-            LogEvent("restore snapshot ${0}", snapshotName);
+            pwp.RestoreSnapshot(snapshotName);
         }
 
         static public void PauseAutoRestore()

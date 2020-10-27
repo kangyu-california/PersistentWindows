@@ -1011,6 +1011,19 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        public void RestoreSnapshot(string name)
+        {
+            restoringSnapshot = true;
+            snapshotName = name;
+            restoringFromMem = true;
+            if (!snapshotName.Equals(PreviousSnapshot))
+            {
+                snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
+            }
+            StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
+            Log.Event("restore snapshot ${0}", snapshotName);
+        }
+
         private void CaptureCursorPos(string displayKey)
         {
             POINT cursorPos;
@@ -1964,10 +1977,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotName];
 
-                    if (!snapshotName.Equals(PreviousSnapshot) && restoreTimes == 0)
-                    {
-                        snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
-                    }
                 }
                 else if (restoringFromMem)
                 {
