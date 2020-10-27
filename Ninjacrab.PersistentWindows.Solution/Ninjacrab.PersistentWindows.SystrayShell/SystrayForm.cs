@@ -79,6 +79,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (controlKeyPressed)
                 {
                     //TODO: create named snapshot
+                    ;
                 }
                 else if (altKeyPressed)
                 {

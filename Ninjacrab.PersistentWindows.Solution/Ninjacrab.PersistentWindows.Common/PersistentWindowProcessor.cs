@@ -104,7 +104,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool sessionLocked = false; //requires password to unlock
         public bool sessionActive = true;
 
-        // display session end time
+        // restore time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
         private Dictionary<string, Dictionary<string, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<string, DateTime>>();
         public string snapshotName;
@@ -1175,8 +1175,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 monitorApplications.Add(displayKey, new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>());
             }
 
-            ApplicationDisplayMetrics curDisplayMetrics = null;
-            if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics))
+            ApplicationDisplayMetrics curDisplayMetrics;
+            ApplicationDisplayMetrics prevDisplayMetrics;
+            if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} ",
                     curDisplayMetrics,
@@ -1519,10 +1520,12 @@ namespace Ninjacrab.PersistentWindows.Common
             return result;
         }
 
-        private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime time, out ApplicationDisplayMetrics curDisplayMetrics)
+        private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime time,
+            out ApplicationDisplayMetrics curDisplayMetrics, out ApplicationDisplayMetrics prevDisplayMetrics)
         {
             bool moved = false;
             curDisplayMetrics = null;
+            prevDisplayMetrics = null;
 
             if (!window.IsValid())
             {
@@ -1591,32 +1594,26 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
-                ApplicationDisplayMetrics prevDisplayMetrics;
+                int prevIndex = monitorApplications[displayKey][hwnd].Count - 1;
                 if (eventType == 0 && restoringFromMem)
                 {
-                    //truncate OS move event that happens after cut-off time
-                    int truncateSize = 0;
+                    prevIndex = -1;
                     foreach (var metrics in monitorApplications[displayKey][hwnd])
                     {
                         if (metrics.CaptureTime > time)
-                        {
                             break;
-                        }
-                        truncateSize++;
-                    }
 
-                    if (truncateSize == 0)
-                    {
-                        Log.Trace("unexpected zero captured events");
-                        return false;
-                    }
-                    else if (truncateSize < monitorApplications[displayKey][hwnd].Count)
-                    {
-                        // truncate capture history to filter out OS moves
-                        monitorApplications[displayKey][hwnd].RemoveRange(truncateSize, monitorApplications[displayKey][hwnd].Count - truncateSize);
+                        prevIndex++;
                     }
                 }
-                prevDisplayMetrics = monitorApplications[displayKey][hwnd].Last();
+
+                if (prevIndex < 0)
+                {
+                    Log.Error("unable to find previous record");
+                    return false;
+                }
+
+                prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
@@ -2087,11 +2084,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
-                ApplicationDisplayMetrics curDisplayMetrics = null;
-                if (!IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics))
+                ApplicationDisplayMetrics curDisplayMetrics;
+                ApplicationDisplayMetrics prevDisplayMetrics;
+                if (!IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-                ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[displayKey][hWnd].Last();
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 if (rect.Top < 0 && rect.Top > -15)
                 {
