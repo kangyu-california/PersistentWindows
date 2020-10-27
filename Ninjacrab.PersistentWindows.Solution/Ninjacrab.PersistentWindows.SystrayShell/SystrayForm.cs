@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
+using System.Net;
 
 using Ninjacrab.PersistentWindows.Common;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
@@ -16,6 +17,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private bool pauseAutoRestore = false;
         private bool disableUpgradeNotice = false;
+        private int skipUpgradeCounter = 0;
 
         private bool controlKeyPressed;
         private bool altKeyPressed;
@@ -62,8 +64,31 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 #endif
                 restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
                 enableRefresh = false;
-            }
 
+                if (!disableUpgradeNotice)
+                {
+                    skipUpgradeCounter++;
+                    if (skipUpgradeCounter == 3)
+                    {
+                        skipUpgradeCounter = 0;
+                        CheckUpgrade();
+                    }
+                }
+            }
+        }
+
+        private void CheckUpgrade()
+        {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            var cli = new WebClient();
+            string data = cli.DownloadString("https://www.github.com/kangyu-california/PersistentWindows/releases/latest");
+            string pattern = "releases/tag/";
+            int index = data.IndexOf(pattern);
+            string latestVersion = data.Substring(index + pattern.Length, 4);
+
+            if (!Application.ProductVersion.Contains(latestVersion))
+                notifyIconMain.ShowBalloonTip(5000, "Application upgrade is available", "Select \"disable upgrade notice\" to suppress", ToolTipIcon.Info);
         }
 
         private void SnapshotAction(bool doubleClick)

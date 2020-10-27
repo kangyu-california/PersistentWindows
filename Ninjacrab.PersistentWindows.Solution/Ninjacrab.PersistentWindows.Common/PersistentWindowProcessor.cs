@@ -139,6 +139,7 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public bool Start()
         {
+
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
