@@ -1306,6 +1306,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
+            RecordLastUserActionTime(DateTime.Now, force: true);
             CaptureCursorPos(displayKey);
         }
 
@@ -1623,7 +1624,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (prevIndex < 0)
                 {
-                    Log.Error("unable to find previous record");
+                    Log.Error("no previous record found");
                     return false;
                 }
 
@@ -1979,9 +1980,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
                     if (lastCaptureTime + ts > now)
                     {
+                        if (restoreTimes == 1)
+                            Log.Error("New display config ${0}", curDisplayKey);
+                        /*
                         Log.Error("Last capture time {0} is too close to restore time {1}", lastCaptureTime, now);
                         lastCaptureTime = now.Subtract(ts);
                         lastUserActionTime[displayKey] = lastCaptureTime;
+                        */
                     }
                 }
             }
