@@ -1594,6 +1594,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
+                // find last record that satisfies cut-off time
                 int prevIndex = monitorApplications[displayKey][hwnd].Count - 1;
                 if (eventType == 0 && restoringFromMem)
                 {
@@ -1965,7 +1966,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (!snapshotName.Equals(PreviousSnapshot) && restoreTimes == 0)
                     {
-                        CaptureApplicationsOnCurrentDisplays(curDisplayKey);
                         snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
                     }
                 }
