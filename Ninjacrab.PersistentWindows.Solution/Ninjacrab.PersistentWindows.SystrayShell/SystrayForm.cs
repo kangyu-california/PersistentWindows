@@ -81,13 +81,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var cli = new WebClient();
-            string data = cli.DownloadString("https://www.github.com/kangyu-california/PersistentWindows/releases/latest");
+            string data = cli.DownloadString($"{Program.ProjectUrl}/releases/latest");
             string pattern = "releases/tag/";
             int index = data.IndexOf(pattern);
             string latestVersion = data.Substring(index + pattern.Length, data.Substring(index + pattern.Length, 6).LastIndexOf('"'));
 
             if (!Application.ProductVersion.StartsWith(latestVersion))
-                notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "This upgrade notice can be disabled in menu", ToolTipIcon.Info);
+                notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
         }
 
         private void SnapshotAction(bool doubleClick)
