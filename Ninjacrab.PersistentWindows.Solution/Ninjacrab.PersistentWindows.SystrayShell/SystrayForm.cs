@@ -67,12 +67,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if (!disableUpgradeNotice)
                 {
-                    skipUpgradeCounter++;
-                    if (skipUpgradeCounter == 3)
+                    if (skipUpgradeCounter == 0)
                     {
-                        skipUpgradeCounter = 0;
                         CheckUpgrade();
                     }
+                    skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
                 }
             }
         }
@@ -85,10 +84,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             string data = cli.DownloadString("https://www.github.com/kangyu-california/PersistentWindows/releases/latest");
             string pattern = "releases/tag/";
             int index = data.IndexOf(pattern);
-            string latestVersion = data.Substring(index + pattern.Length, 4);
+            string latestVersion = data.Substring(index + pattern.Length, data.Substring(index + pattern.Length, 6).LastIndexOf('"'));
 
-            if (!Application.ProductVersion.Contains(latestVersion))
-                notifyIconMain.ShowBalloonTip(5000, "Application upgrade is available", "Select \"disable upgrade notice\" to suppress", ToolTipIcon.Info);
+            if (!Application.ProductVersion.StartsWith(latestVersion))
+                notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "This upgrade notice can be disabled in menu", ToolTipIcon.Info);
         }
 
         private void SnapshotAction(bool doubleClick)
