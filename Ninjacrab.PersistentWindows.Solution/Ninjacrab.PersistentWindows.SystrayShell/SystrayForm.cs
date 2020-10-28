@@ -19,6 +19,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         public bool enableUpgradeNotice = true;
         private int skipUpgradeCounter = 0;
+        private bool foundUpgrade = false;
 
         private bool controlKeyPressed;
         private bool altKeyPressed;
@@ -88,7 +89,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             string latestVersion = data.Substring(index + pattern.Length, data.Substring(index + pattern.Length, 6).LastIndexOf('"'));
 
             if (!Application.ProductVersion.StartsWith(latestVersion))
+            {
                 notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
+                foundUpgrade = true;
+                aboutToolStripMenuItem.Text = "Goto upgrade";
+            }
         }
 
         private void SnapshotAction(bool doubleClick)
@@ -171,7 +176,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
-            Process.Start(Program.ProjectUrl);
+            if (foundUpgrade)
+                Process.Start($"{Program.ProjectUrl}/releases/latest");
+            else
+                Process.Start(Program.ProjectUrl);
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
