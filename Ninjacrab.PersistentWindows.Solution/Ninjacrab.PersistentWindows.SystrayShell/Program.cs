@@ -103,7 +103,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             systrayForm = new SystrayForm();
-            systrayForm.disableUpgradeNotice = !check_upgrade;
+            systrayForm.enableUpgradeNotice = check_upgrade;
             if (check_upgrade)
                 systrayForm.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
             else

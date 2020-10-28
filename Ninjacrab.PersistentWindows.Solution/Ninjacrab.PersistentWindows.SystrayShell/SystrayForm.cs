@@ -17,7 +17,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private bool pauseAutoRestore = false;
 
-        public bool disableUpgradeNotice = false;
+        public bool enableUpgradeNotice = true;
         private int skipUpgradeCounter = 0;
 
         private bool controlKeyPressed;
@@ -66,7 +66,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
                 enableRefresh = false;
 
-                if (!disableUpgradeNotice)
+                if (enableUpgradeNotice)
                 {
                     if (skipUpgradeCounter == 0)
                     {
@@ -157,15 +157,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
         {
-            if (disableUpgradeNotice)
+            if (enableUpgradeNotice)
             {
-                disableUpgradeNotice = false;
-                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+                enableUpgradeNotice = false;
+                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
             }
             else
             {
-                disableUpgradeNotice = true;
-                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+                enableUpgradeNotice = true;
+                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
             }
         }
 
