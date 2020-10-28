@@ -138,7 +138,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             // pause/resume upgrade notice
             this.upgradeNoticeMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            //this.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
             this.upgradeNoticeMenuItem.Click += new System.EventHandler(this.PauseResumeUpgradeNotice);
 
             // 

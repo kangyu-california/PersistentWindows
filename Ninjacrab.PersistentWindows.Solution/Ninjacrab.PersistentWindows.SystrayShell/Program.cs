@@ -32,6 +32,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool offscreen_fix = true;
             bool enhanced_offscreen_fix = false;
             bool prompt_session_restore = false;
+            bool check_upgrade = true;
 
             foreach (var arg in args)
             {
@@ -88,6 +89,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
+                    case "-check_upgrade=0":
+                        check_upgrade = false;
+                        break;
                 }
             }
 
@@ -99,6 +103,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             systrayForm = new SystrayForm();
+            systrayForm.disableUpgradeNotice = !check_upgrade;
+            if (check_upgrade)
+                systrayForm.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            else
+                systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
             pwp = new PersistentWindowProcessor();
             pwp.dryRun = dry_run;

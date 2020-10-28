@@ -16,7 +16,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public bool enableRestoreFromDB = false;
 
         private bool pauseAutoRestore = false;
-        private bool disableUpgradeNotice = false;
+
+        public bool disableUpgradeNotice = false;
         private int skipUpgradeCounter = 0;
 
         private bool controlKeyPressed;
