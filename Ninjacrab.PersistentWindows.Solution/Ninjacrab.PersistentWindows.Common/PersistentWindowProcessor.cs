@@ -82,7 +82,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
-        private Dictionary<int, bool> dbMatchWindow = new Dictionary<int, bool>(); // db entry (id) matches existing window
+        private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -1914,7 +1914,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             foreach (var result in results)
             {
-                if (dbMatchWindow.ContainsKey(result.Id))
+                if (dbMatchWindow.Contains(result.Id))
                 {
                     continue;
                 }
@@ -2059,12 +2059,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
 
-                    if (dbMatchWindow.ContainsKey(curDisplayMetrics.Id))
+                    if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                     {
                         continue; //avoid restore multiple times
                     }
 
-                    dbMatchWindow.Add(curDisplayMetrics.Id, true);
+                    dbMatchWindow.Add(curDisplayMetrics.Id);
 
                     printRestoreTime = curDisplayMetrics.CaptureTime;
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
@@ -2221,7 +2221,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 var results = db.FindAll(); // find process not yet started
                 foreach (var curDisplayMetrics in results)
                 {
-                    if (dbMatchWindow.ContainsKey(curDisplayMetrics.Id))
+                    if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                     {
                         continue;
                     }
