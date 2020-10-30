@@ -1793,9 +1793,27 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsTaskBar(SystemWindow window)
         {
-            if (!window.IsValid() || !window.Visible || string.IsNullOrEmpty(window.ClassName))
+            if (!window.IsValid() || !window.Visible)
             {
                 return false;
+            }
+
+            try
+            {
+                int nChars = 4096;
+                StringBuilder buf = new StringBuilder(nChars);
+                int chars = User32.GetClassName(window.HWnd, buf, nChars);
+                if (chars == 0)
+                {
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(window.ClassName))
+                    return false;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
             }
 
             return window.ClassName.Equals("Shell_TrayWnd");
