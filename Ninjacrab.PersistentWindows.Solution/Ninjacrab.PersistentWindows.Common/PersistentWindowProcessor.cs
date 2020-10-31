@@ -78,7 +78,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool redrawDesktop = false;
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
-        private int restoreTimes = 0;
+        private int restoreTimes = 0; //multiple passes need to fully restore
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
@@ -2002,7 +2002,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
                     if (lastCaptureTime + ts > now)
                     {
-                        if (restoreTimes == 1)
+                        if (restoreTimes == 0)
                             Log.Error("New display config ${0}", curDisplayKey);
                         /*
                         Log.Error("Last capture time {0} is too close to restore time {1}", lastCaptureTime, now);
