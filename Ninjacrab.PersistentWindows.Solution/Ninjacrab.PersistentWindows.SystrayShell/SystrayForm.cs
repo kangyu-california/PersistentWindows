@@ -19,6 +19,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         public bool enableUpgradeNotice = true;
         private int skipUpgradeCounter = 0;
+        private bool pauseUpgradeCounter = false;
         private bool foundUpgrade = false;
 
         private bool controlKeyPressed;
@@ -36,6 +37,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 if (singleClick)
                 {
+                    pauseUpgradeCounter = true;
+
                     if (controlKeyPressed)
                     {
                         //restore named snapshot
@@ -73,7 +76,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     {
                         CheckUpgrade();
                     }
-                    skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
+
+                    if (pauseUpgradeCounter)
+                        pauseUpgradeCounter = false;
+                    else
+                        skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
                 }
             }
         }
