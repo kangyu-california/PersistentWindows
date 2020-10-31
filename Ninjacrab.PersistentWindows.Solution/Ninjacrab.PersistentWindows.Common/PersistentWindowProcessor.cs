@@ -1014,6 +1014,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void RestoreSnapshot(string name)
         {
+            if (!snapshotTakenTime.ContainsKey(curDisplayKey))
+                return; //snapshot not taken yet
+
             restoringSnapshot = true;
             snapshotName = name;
             restoringFromMem = true;
