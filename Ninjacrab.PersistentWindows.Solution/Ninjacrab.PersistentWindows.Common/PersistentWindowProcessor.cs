@@ -2166,6 +2166,17 @@ namespace Ninjacrab.PersistentWindows.Common
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
 
+                if (fixZorder && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                {
+                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
+                        0, 0, 0, 0,
+                        0
+                        | SetWindowPosFlags.DoNotActivate
+                        | SetWindowPosFlags.IgnoreMove
+                        | SetWindowPosFlags.IgnoreResize
+                    );
+                }
+
                 bool success = true;
                 if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
