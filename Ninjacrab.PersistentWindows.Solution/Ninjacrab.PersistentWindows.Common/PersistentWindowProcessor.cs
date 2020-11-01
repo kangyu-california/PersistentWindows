@@ -2129,6 +2129,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
                             continue;
 
+                        if (!curDisplayMetrics.NeedRestoreZorder)
+                            continue;
+
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
                             0, 0, 0, 0,
                             0
@@ -2141,23 +2144,19 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
                     }
 
+                    bool batchRestoreResult = false;
                     if (hWinPosInfo != IntPtr.Zero)
                     {
-                        fixZorder = User32.EndDeferWindowPos(hWinPosInfo);
+                        batchRestoreResult = User32.EndDeferWindowPos(hWinPosInfo);
                     }
-                    else
-                    {
-                        fixZorder = false;
-                    }
+
+                    if (!batchRestoreResult)
+                        Log.Error("batch restore z-order failed");
                 }
                 catch (Exception ex)
                 {
-                    fixZorder = false;
                     Log.Error(ex.ToString());
                 }
-
-                if (!fixZorder)
-                    Log.Error("batch restore z-order failed");
             }
 
             foreach (var window in sWindows)
