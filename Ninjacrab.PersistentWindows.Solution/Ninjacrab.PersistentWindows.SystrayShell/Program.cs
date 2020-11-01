@@ -25,7 +25,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             bool splash = true;
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
-            bool fix_zorder = true;
+            bool fix_zorder = false;
+            bool fix_zorder_specified = false;
             bool delay_start = false;
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
@@ -67,6 +68,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-fix_zorder=0":
                         fix_zorder = false;
+                        fix_zorder_specified = true;
+                        break;
+                    case "-fix_zorder":
+                    case "-fix_zorder=1":
+                        fix_zorder = true;
+                        fix_zorder_specified = true;
                         break;
                     case "-delay_start":
                         delay_start = true;
@@ -111,7 +118,18 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             pwp = new PersistentWindowProcessor();
             pwp.dryRun = dry_run;
-            pwp.fixZorder = fix_zorder;
+            if (fix_zorder_specified)
+            {
+                if (fix_zorder)
+                    pwp.fixZorder = 2; //force z-order recovery for all
+                else
+                    pwp.fixZorder = 0; //no z-order recovery at all
+            }
+            else
+            {
+                // pwp.fixZorder = 1 //do z-order recovery only for snapshot 
+            }
+
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
