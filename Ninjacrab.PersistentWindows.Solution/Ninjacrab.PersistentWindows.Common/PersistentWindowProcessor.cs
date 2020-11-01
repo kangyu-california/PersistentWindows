@@ -1085,6 +1085,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (fail_safe_result != IntPtr.Zero)
                     Log.Trace("fail safe prev zorder of {0} is {1}", GetWindowTitle(hWnd), GetWindowTitle(fail_safe_result));
             }
+
             return result;
         }
 
@@ -1147,16 +1148,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            SystemWindow window = new SystemWindow(prev);
-            if (!window.IsValid())
+            SystemWindow prevWindow = new SystemWindow(prev);
+            if (!prevWindow.IsValid())
             {
                 return 0;
             }
 
             /*
-            if (IsTaskBar(window))
+            if (IsTaskBar(prevWindow))
             {
-                Log.Trace("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
+                Log.Error("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 return 0; // issue 21, avoid restore to top z-order
             }
             */
@@ -2126,8 +2127,19 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         // get previous value
                         IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
-                        if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
+
+                        if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
+                            continue; //avoid topmost
+
+                        try
+                        {
+                            if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
+                                continue;
+                        }
+                        catch (Exception)
+                        {
                             continue;
+                        }
 
                         if (!curDisplayMetrics.NeedRestoreZorder)
                             continue;
@@ -2204,7 +2216,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsMinimized)
                     {
                         User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
-                        Log.Error("recover minimized window {0}", GetWindowTitle(hWnd));
+                        Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
                 }
