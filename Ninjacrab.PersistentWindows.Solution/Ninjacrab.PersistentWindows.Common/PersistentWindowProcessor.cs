@@ -2101,6 +2101,65 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
+            bool saveFixZorder = fixZorder;
+
+            if (restoreTimes == 0 && fixZorder)
+            {
+                try
+                {
+                    IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<SystemWindow>());
+                    foreach (var window in sWindows)
+                    {
+                        if (!window.IsValid())
+                        {
+                            continue;
+                        }
+
+                        IntPtr hWnd = window.HWnd;
+                        if (!monitorApplications[displayKey].ContainsKey(hWnd))
+                        {
+                            continue;
+                        }
+
+                        ApplicationDisplayMetrics curDisplayMetrics;
+                        ApplicationDisplayMetrics prevDisplayMetrics;
+
+                        // get previous value
+                        IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
+                            continue;
+
+                        hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
+                            0, 0, 0, 0,
+                            0
+                            | User32.DeferWindowPosCommands.SWP_NOACTIVATE
+                            | User32.DeferWindowPosCommands.SWP_NOMOVE
+                            | User32.DeferWindowPosCommands.SWP_NOSIZE
+                        );
+
+                        if (hWinPosInfo == IntPtr.Zero)
+                            break;
+                    }
+
+                    if (hWinPosInfo != IntPtr.Zero)
+                    {
+                        fixZorder = User32.EndDeferWindowPos(hWinPosInfo);
+                    }
+                    else
+                    {
+                        fixZorder = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    fixZorder = false;
+                    Log.Error(ex.ToString());
+                }
+
+                if (!fixZorder)
+                    Log.Error("batch restore z-order failed");
+            }
+
             foreach (var window in sWindows)
             {
                 if (!window.IsValid())
@@ -2239,8 +2298,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                     Log.Error(error);
                 }
-
             }
+
+            fixZorder = saveFixZorder;
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
