@@ -52,14 +52,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         splash = false;
                         break;
                     case "-splash_off":
-                        splash = false;
-                        break;
                     case "-splash=0":
                         splash = false;
                         break;
                     case "-notification_on":
-                        notification = true;
-                        break;
                     case "-notification=1":
                         notification = true;
                         break;
