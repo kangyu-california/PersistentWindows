@@ -2127,6 +2127,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         // get previous value
                         IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        if (prevDisplayMetrics == null)
+                            continue;
 
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
                             continue; //avoid topmost
