@@ -683,9 +683,50 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             var thread = new Thread(() =>
             {
-                Thread.Sleep(OffScreenDetectionLatency);
                 try
                 {
+                    // ctrl click
+                    if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                    {
+                        RECT2 rect = new RECT2();
+                        User32.GetWindowRect(hwnd, ref rect);
+
+                        IntPtr prevWnd = hwnd;
+                        while (true)
+                        {
+                            prevWnd = User32.GetWindow(prevWnd, 3);
+                            if (prevWnd == IntPtr.Zero)
+                                break;
+
+                            if (!monitorApplications[curDisplayKey].ContainsKey(prevWnd))
+                                continue;
+
+                            RECT2 prevRect = new RECT2();
+                            User32.GetWindowRect(prevWnd, ref prevRect);
+
+                            RECT2 intersection = new RECT2();
+                            if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
+                            {
+                                if (IsWindowTopMost(prevWnd))
+                                {
+                                    FixTopMostWindow(prevWnd);
+
+                                    bool ok = User32.SetWindowPos(prevWnd, hwnd,
+                                        0, 0, 0, 0,
+                                        0
+                                        | SetWindowPosFlags.DoNotActivate
+                                        | SetWindowPosFlags.IgnoreMove
+                                        | SetWindowPosFlags.IgnoreResize
+                                    );
+                                }
+                            }
+                        }
+
+                        return;
+                    }
+
+                    Thread.Sleep(OffScreenDetectionLatency);
+
                     bool enable_offscreen_fix = enableOffScreenFix;
                     lock(controlLock)
                     {
@@ -2244,6 +2285,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
+                    //Log.Error("Found topmost window {0}", GetWindowTitle(hWnd));
                     FixTopMostWindow(hWnd);
                     topmostWindowsFixed.Add(hWnd);
                 }
