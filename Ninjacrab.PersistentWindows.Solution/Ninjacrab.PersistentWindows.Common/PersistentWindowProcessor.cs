@@ -82,6 +82,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
+        private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
         private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
@@ -239,6 +240,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 string displayKey = GetDisplayKey();
                 if (!displayKey.Equals(curDisplayKey))
                 {
+                    topmostWindowsFixed.Clear();
+
                     Log.Error("Restore aborted for {0}", curDisplayKey);
 
                     // do restore again, while keeping previous capture time unchanged
@@ -249,8 +252,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else
                 {
+                    BatchFixTopMostWindows();
+
                     if (redrawDesktop)
                         User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
+
                     Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
                     sessionActive = true;
                     using (var persistDB = new LiteDatabase(persistDbName))
@@ -1097,37 +1103,48 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // restore z-order might incorrectly put some window to topmost
         // workaround by put these windows behind HWND_NOTOPMOST
-        private bool FixTopMostWindowStyle()
+        private bool FixTopMostWindow(IntPtr hWnd)
         {
-            bool fixedOneWindow = false;
-            IntPtr desktopWindow = User32.GetDesktopWindow();
-            IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
+            bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
+                0, 0, 0, 0,
+                0
+                | SetWindowPosFlags.DoNotActivate
+                | SetWindowPosFlags.IgnoreMove
+                | SetWindowPosFlags.IgnoreResize
+            );
 
-            for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
+            Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
+
+            if (IsWindowTopMost(hWnd))
             {
-                if (monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                ok = User32.SetWindowPos(hWnd, new IntPtr(1), //bottom
+                    0, 0, 0, 0,
+                    0
+                    | SetWindowPosFlags.DoNotActivate
+                    | SetWindowPosFlags.IgnoreMove
+                    | SetWindowPosFlags.IgnoreResize
+                );
+                Log.Error("Second try to fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
+            }
+
+            return ok;
+        }
+
+        private void BatchFixTopMostWindows()
+        {
+            foreach (var hwnd in topmostWindowsFixed)
+            {
+                try
                 {
-                    if (!IsWindowTopMost(hwnd))
-                        continue;
-
-                    SystemWindow window = new SystemWindow(hwnd);
-                    if (IsTaskBar(window))
-                        continue;
-
-                    fixedOneWindow = true;
-                    bool ok = User32.SetWindowPos(hwnd, new IntPtr(-2), //notopmost
-                        0, 0, 0, 0,
-                        0
-                        | SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
-
-                    Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hwnd), ok.ToString());
+                    FixTopMostWindow(hwnd);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
                 }
             }
 
-            return fixedOneWindow;
+            topmostWindowsFixed.Clear();
         }
 
         private bool AllowRestoreZorder()
@@ -2225,36 +2242,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                bool fixTopMost = false;
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
-                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
-                        0, 0, 0, 0,
-                        0
-                        | SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
-
-                    fixTopMost = true;
-                    Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
+                    FixTopMostWindow(hWnd);
+                    topmostWindowsFixed.Add(hWnd);
                 }
 
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
-                }
-
-                if (fixTopMost && IsWindowTopMost(hWnd))
-                {
-                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(1), //bottom
-                        0, 0, 0, 0,
-                        0
-                        | SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
-                    Log.Error("Second try to fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
                 bool success = true;
