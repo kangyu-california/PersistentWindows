@@ -1130,7 +1130,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return fixedOneWindow;
         }
 
-        private bool ShouldRestoreZorder()
+        private bool AllowRestoreZorder()
         {
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
@@ -2104,7 +2104,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
-            if (restoreTimes == 0 && ShouldRestoreZorder())
+            if (restoreTimes == 0 && AllowRestoreZorder())
             {
                 try
                 {
@@ -2223,7 +2223,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (ShouldRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
                     bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
                         0, 0, 0, 0,
@@ -2236,12 +2236,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
-                if (ShouldRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
 
-                if (ShouldRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
                     bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
                         0, 0, 0, 0,
