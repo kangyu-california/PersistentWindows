@@ -1816,13 +1816,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (string.IsNullOrEmpty(window.ClassName))
                     return false;
+
+                return window.ClassName.Equals("Shell_TrayWnd");
             }
             catch (Exception ex)
             {
                 Log.Error(ex.ToString());
             }
 
-            return window.ClassName.Equals("Shell_TrayWnd");
+            return false;
         }
 
         private void TestMoveTaskBar()
