@@ -721,8 +721,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                             }
                         }
-
-                        return;
                     }
 
                     Thread.Sleep(OffScreenDetectionLatency);
