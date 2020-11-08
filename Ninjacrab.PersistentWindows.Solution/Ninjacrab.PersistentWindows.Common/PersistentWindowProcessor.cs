@@ -2225,6 +2225,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
+                bool fixTopMost = false;
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
                 {
                     bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
@@ -2235,6 +2236,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         | SetWindowPosFlags.IgnoreResize
                     );
 
+                    fixTopMost = true;
                     Log.Error("Fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
@@ -2243,15 +2245,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (fixTopMost && IsWindowTopMost(hWnd))
                 {
-                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
+                    bool ok = User32.SetWindowPos(hWnd, new IntPtr(1), //bottom
                         0, 0, 0, 0,
                         0
                         | SetWindowPosFlags.DoNotActivate
                         | SetWindowPosFlags.IgnoreMove
                         | SetWindowPosFlags.IgnoreResize
                     );
+                    Log.Error("Second try to fix topmost window {0} {1}", GetWindowTitle(hWnd), ok.ToString());
                 }
 
                 bool success = true;
