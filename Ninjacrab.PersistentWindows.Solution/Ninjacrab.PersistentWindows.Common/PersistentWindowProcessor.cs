@@ -698,7 +698,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (prevWnd == IntPtr.Zero)
                                 break;
 
-                            if (!monitorApplications[curDisplayKey].ContainsKey(prevWnd))
+                            if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(prevWnd))
                                 continue;
 
                             RECT2 prevRect = new RECT2();
@@ -1390,6 +1390,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void CaptureNewDisplayConfig(string displayKey)
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
+            RecordLastUserActionTime(DateTime.Now); //suppress invalid capture error
             CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
             RecordLastUserActionTime(DateTime.Now);
             CaptureCursorPos(displayKey);
