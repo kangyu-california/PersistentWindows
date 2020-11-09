@@ -765,10 +765,24 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (IsMinimized(hwnd))
                             return; // already minimized
 
-                        if (monitorApplications[curDisplayKey][hwnd].Count == 0)
+                        var count = monitorApplications[curDisplayKey][hwnd].Count;
+                        if (count == 0)
                             return;
 
-                        var prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
+                        // skip last invalid entrie(s) due to unconfirmed precapture
+                        ApplicationDisplayMetrics prevDisplayMetrics = null;
+                        do
+                        {
+                            prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last();
+                            if (prevDisplayMetrics.IsValid)
+                                break;
+                            count--;
+                            Log.Error("skip invalid entry {0}", GetWindowTitle(hwnd));
+                        } while (true);
+
+                        if (count < 2)
+                            return;
+
                         if (prevDisplayMetrics.IsMinimized)
                         {
                             if (prevDisplayMetrics.IsFullScreen)
@@ -778,11 +792,12 @@ namespace Ninjacrab.PersistentWindows.Common
                                 RECT2 screenPosition = new RECT2();
                                 User32.GetWindowRect(hwnd, ref screenPosition);
 
-                                var count = monitorApplications[curDisplayKey][hwnd].Count;
                                 for (var i = count - 2; i >= 0; --i)
                                 {
                                     // restore to position prior to minimize
                                     var prev = monitorApplications[curDisplayKey][hwnd][i];
+                                    if (!prev.IsValid)
+                                        continue;
                                     if (prev.IsMinimized)
                                         continue;
 
@@ -1369,7 +1384,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             CaptureApplicationsOnCurrentDisplays(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
-            RecordLastUserActionTime(DateTime.Now, force: true);
+            RecordLastUserActionTime(DateTime.Now);
             CaptureCursorPos(displayKey);
         }
 
@@ -1405,34 +1420,27 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private void RecordLastUserActionTime(DateTime time, bool force = false)
+        private void RecordLastUserActionTime(DateTime time)
         {
             lock (controlLock)
             {
-                if (!lastUserActionTime.ContainsKey(curDisplayKey))
-                {
-                    lastUserActionTime.Add(curDisplayKey, time);
-                    Log.Trace("Capture time {0}", time);
-                }
-                else if (force)
-                {
-                    lastUserActionTime[curDisplayKey] = time;
-                    Log.Trace("Capture time {0}", time);
-                }
-            }
-        }
+                lastUserActionTime[curDisplayKey] = time;
 
-        private void RemoveUserActionTime(bool force = true)
-        {
-            lock (controlLock)
-            {
-                if (!force && lastUserActionTime.ContainsKey(curDisplayKey))
+                // validate captured entry
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
-                    return;
+                    try
+                    {
+                        monitorApplications[curDisplayKey][hwnd].Last().IsValid = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                    }
                 }
-                lastUserActionTime.Remove(curDisplayKey);
-            }
 
+                Log.Trace("Capture time {0}", time);
+            }
         }
 
         private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false)
@@ -1532,7 +1540,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     // confirmed user moves
-                    RecordLastUserActionTime(time: DateTime.Now, force: true);
+                    RecordLastUserActionTime(time: DateTime.Now);
                     if (movedWindows > 0)
                         Log.Trace("{0} windows captured", movedWindows);
                 }
@@ -1657,6 +1665,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 PrevZorderWindow = GetPrevZorderWindow(hwnd),
                 NeedRestoreZorder = false,
 
+                IsValid = false,
+
                 IsSnapShot = false,
             };
 
@@ -1692,6 +1702,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
+                if (!prevDisplayMetrics.IsValid)
+                    Log.Error("invalid capture data for {0}", GetWindowTitle(hwnd));
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId

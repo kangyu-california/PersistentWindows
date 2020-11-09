@@ -42,6 +42,9 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public IntPtr PrevZorderWindow { get; set; }
         public bool NeedRestoreZorder { get; set; }
 
+        // for filter invalid entry
+        public bool IsValid { get; set; }
+
         // for snapshot recovery
         public bool IsSnapShot { get; set; }
 
