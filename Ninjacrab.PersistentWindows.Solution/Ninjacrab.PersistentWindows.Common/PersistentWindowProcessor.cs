@@ -860,42 +860,42 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
-                lock (databaseLock)
+                foreach (var key in monitorApplications.Keys)
                 {
-                    foreach (var key in monitorApplications.Keys)
+                    if (monitorApplications[key].ContainsKey(hwnd))
                     {
-                        if (monitorApplications[key].ContainsKey(hwnd))
+                        // save window size of closed app to restore off-screen window later
+                        if (!deadApps.ContainsKey(key))
                         {
-                            // save window size of closed app to restore off-screen window later
-                            if (!deadApps.ContainsKey(key))
-                            {
-                                deadApps.Add(key, new List<DeadAppPosition>());
-                            }
-                            var appPos = new DeadAppPosition();
-                            var lastMetric = monitorApplications[key][hwnd].Last();
-                            appPos.ClassName = lastMetric.ClassName;
-                            appPos.ScreenPosition = lastMetric.ScreenPosition;
-                            IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, lastMetric.ProcessId);
-                            string procPath = GetProcExePath(hProcess);
-                            appPos.ProcessPath = procPath;
-                            deadApps[key].Add(appPos);
+                            deadApps.Add(key, new List<DeadAppPosition>());
+                        }
+                        var appPos = new DeadAppPosition();
+                        var lastMetric = monitorApplications[key][hwnd].Last();
+                        appPos.ClassName = lastMetric.ClassName;
+                        appPos.ScreenPosition = lastMetric.ScreenPosition;
+                        IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, lastMetric.ProcessId);
+                        string procPath = GetProcExePath(hProcess);
+                        appPos.ProcessPath = procPath;
+                        deadApps[key].Add(appPos);
 
-                            //limit list size
-                            while (deadApps[key].Count > 50)
-                            {
-                                deadApps[key].RemoveAt(0);
-                            }
+                        //limit list size
+                        while (deadApps[key].Count > 50)
+                        {
+                            deadApps[key].RemoveAt(0);
+                        }
 
+                        lock (databaseLock)
+                        {
                             monitorApplications[key].Remove(hwnd);
                         }
                     }
+                }
 
-                    bool found = windowTitle.Remove(hwnd);
+                bool found = windowTitle.Remove(hwnd);
 
-                    if (sessionActive && found)
-                    {
-                        StartCaptureTimer(); //update z-order
-                    }
+                if (sessionActive && found)
+                {
+                    StartCaptureTimer(); //update z-order
                 }
 
                 return;
