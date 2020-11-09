@@ -722,9 +722,16 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
 
-                    Thread.Sleep(OffScreenDetectionLatency);
+                Thread.Sleep(OffScreenDetectionLatency);
 
+                try
+                {
                     bool enable_offscreen_fix = enableOffScreenFix;
                     lock(controlLock)
                     {
