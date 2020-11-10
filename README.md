@@ -39,11 +39,11 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
 - To pause PersistentWindows, select menu "Pause auto restore"; To resume PersistentWindows, select menu "Resume auto restore", and window layout will be restored to the moment when pause is executed.
-- **Double click PersistentWindows icon to take a snapshot of current window layout, the snapshot is saved in memory instead of db file. To restore the snapshot, just click PW icon. To undo restore snapshot, hold alt key pressed and click PW icon.** The snapshot feature can be used as a convenient alternative to virtual desktop function of Windows 10.
+- **Double click PersistentWindows icon to take a snapshot of current window layout, the snapshot is saved in memory instead of db file. To restore the snapshot, just click PW icon. To undo restore snapshot, hold ALT key pressed and click PW icon.** The snapshot feature can be used as a convenient alternative to virtual desktop of Windows 10.
 
 # Tips to digest before reporting a bug
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
 - Starting from release 4.26, there is an experimental feature to automatically restore window z-order in addition to two-dementional layout. This feature is disabled by default. To turn on this feature, run PersistentWindows.exe -fix_zorder
-- **Restore snapshot automatically turns on zorder fix (just for snapshot recovery), which occasionally causes some window to stick on top z-order. Release 5.2 provides a remedy to fix this problem, hold ctrl key pressed and click on the window you want to bring to top.**
+- **Restore snapshot automatically turns on zorder fix (just for snapshot recovery), which occasionally causes some window to become sticky at top z-order. The root cause of the issue is still unknown, however release 5.2 provides a remedy to fix this problem: Click on the sticky topmost window first, then hold CTRL key pressed and click on the window (or minimized icon on taskbar) you want to bring to top.**
 - To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
 
