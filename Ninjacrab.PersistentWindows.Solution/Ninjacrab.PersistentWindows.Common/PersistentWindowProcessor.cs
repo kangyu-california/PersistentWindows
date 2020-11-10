@@ -1110,6 +1110,10 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                 return; //snapshot not taken yet
 
+            CancelRestoreTimer();
+            CancelRestoreFinishedTimer();
+            ResetState();
+
             restoringSnapshot = true;
             snapshotName = name;
             restoringFromMem = true;
