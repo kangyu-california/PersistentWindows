@@ -1195,19 +1195,19 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BatchFixTopMostWindows()
         {
-            foreach (var hwnd in topmostWindowsFixed)
+            try
             {
-                try
+                foreach (var hwnd in topmostWindowsFixed)
                 {
                     FixTopMostWindow(hwnd);
                 }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
-            }
 
-            topmostWindowsFixed.Clear();
+                topmostWindowsFixed.Clear();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
         }
 
         private bool AllowRestoreZorder()
