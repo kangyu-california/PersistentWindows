@@ -1052,6 +1052,30 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        private void RemoveInvalidCapture()
+        {
+            try
+            {
+                lock (databaseLock)
+                {
+                    foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                    {
+                        for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
+                        {
+                            if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
+                            {
+                                monitorApplications[curDisplayKey][hwnd].RemoveAt(i);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+        }
+
         public void TakeSnapshot(string snapshotName)
         {
             if (String.IsNullOrEmpty(curDisplayKey))
@@ -1400,6 +1424,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void EndDisplaySession()
         {
+            RemoveInvalidCapture();
             CancelCaptureTimer();
             ResetState();
             //RecordLastUserActionTime(DateTime.Now);
