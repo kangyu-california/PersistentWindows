@@ -151,13 +151,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
-            Program.Capture();
+            Program.CaptureToDisk();
             restoreToolStripMenuItem.Enabled = true;
         }
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)
         {
-            Program.RestoreDisk();
+            Program.RestoreFromDisk();
         }
 
         private void PauseResumeAutoRestore(object sender, EventArgs e)

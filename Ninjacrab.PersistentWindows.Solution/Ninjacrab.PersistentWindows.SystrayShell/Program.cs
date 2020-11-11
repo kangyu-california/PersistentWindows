@@ -214,13 +214,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
-        static public void Capture()
+        static public void CaptureToDisk()
         {
             GetProcessInfo();
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
         }
 
-        static public void RestoreDisk()
+        static public void RestoreFromDisk()
         {
             pwp.restoringFromDB = true;
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
