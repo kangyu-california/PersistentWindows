@@ -1083,7 +1083,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             lock(databaseLock)
             {
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
 
                 foreach(var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
@@ -1119,7 +1119,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoringFromMem = true;
             if (!snapshotName.Equals(PreviousSnapshot))
             {
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
                 snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
             }
             StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
@@ -1403,7 +1403,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             Log.Trace("Ignore capture request for non-current display setting {0}", displayKey);
                             return;
                         }
-                        CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB);
+                        CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
                     }
                 }
                 catch (Exception ex)
@@ -1419,10 +1419,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
-            CaptureApplicationsOnCurrentDisplays(displayKey);
-            RecordLastUserActionTime(DateTime.Now); //suppress invalid capture error
-            CaptureApplicationsOnCurrentDisplays(displayKey); // for capture accurate z-order
-            RecordLastUserActionTime(DateTime.Now);
+            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
+            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true); // for capture accurate z-order
             CaptureCursorPos(displayKey);
         }
 
@@ -1482,7 +1480,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false)
+        private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false, bool immediateCapture = false)
         {
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
@@ -1548,7 +1546,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
             }
-            else if (pendingEventCnt > MinWindowOsMoveEvents)
+            else if (!immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
@@ -1568,6 +1566,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         movedWindows++;
                     }
                 }
+
+                if (immediateCapture)
+                    RecordLastUserActionTime(time: DateTime.Now);
 
                 if (pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
