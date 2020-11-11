@@ -1457,18 +1457,18 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private void RecordLastUserActionTime(DateTime time)
+        private void RecordLastUserActionTime(DateTime time, string displayKey)
         {
             lock (controlLock)
             {
-                lastUserActionTime[curDisplayKey] = time;
+                lastUserActionTime[displayKey] = time;
 
                 // validate captured entry
-                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                foreach (var hwnd in monitorApplications[displayKey].Keys)
                 {
                     try
                     {
-                        monitorApplications[curDisplayKey][hwnd].Last().IsValid = true;
+                        monitorApplications[displayKey][hwnd].Last().IsValid = true;
                     }
                     catch (Exception ex)
                     {
@@ -1568,7 +1568,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 if (immediateCapture)
-                    RecordLastUserActionTime(time: DateTime.Now);
+                    RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
 
                 if (pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
@@ -1580,7 +1580,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else
                 {
                     // confirmed user moves
-                    RecordLastUserActionTime(time: DateTime.Now);
+                    RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
                     if (movedWindows > 0)
                         Log.Trace("{0} windows captured", movedWindows);
                 }
