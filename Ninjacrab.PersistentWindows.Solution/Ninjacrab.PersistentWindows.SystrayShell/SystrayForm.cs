@@ -95,7 +95,16 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             int index = data.IndexOf(pattern);
             string latestVersion = data.Substring(index + pattern.Length, data.Substring(index + pattern.Length, 6).LastIndexOf('"'));
 
-            if (!Application.ProductVersion.StartsWith(latestVersion))
+            string[] latest = latestVersion.Split('.');
+            int latest_major = Int32.Parse(latest[0]);
+            int latest_minor = Int32.Parse(latest[1]);
+
+            string[] current = Application.ProductVersion.Split('.');
+            int current_major = Int32.Parse(current[0]);
+            int current_minor = Int32.Parse(current[1]);
+
+            if (current_major < latest_major
+                || current_major == latest_major && current_minor < latest_minor)
             {
                 notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
                 foundUpgrade = true;
