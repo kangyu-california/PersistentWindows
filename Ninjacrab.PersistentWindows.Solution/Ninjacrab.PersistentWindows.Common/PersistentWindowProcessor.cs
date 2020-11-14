@@ -979,18 +979,20 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     switch (eventType)
                     {
+                        case User32Events.EVENT_SYSTEM_FOREGROUND:
+                            ActivateWindow(hwnd);
+                            goto case User32Events.EVENT_OBJECT_LOCATIONCHANGE;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             lock (controlLock)
                             {
                                 if (restoringFromDB)
                                 {
-                                    /*
-                                    if (restoreTimes >= MinRestoreTimes)
+                                    if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
                                     {
-                                        // restore is not finished as long as window location keeps changing
-                                        StartRestoreTimer();
+                                        // immediately capture new window
+                                        //StartCaptureTimer(milliSeconds: 0);
+                                        CaptureWindow(window, eventType, now, curDisplayKey);
                                     }
-                                    */
                                 }
                                 else
                                 {
@@ -1010,23 +1012,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             break;
 
-                        case User32Events.EVENT_SYSTEM_FOREGROUND:
-                            ActivateWindow(hwnd);
-                            goto case User32Events.EVENT_SYSTEM_MINIMIZESTART;
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // capture user moves
                             // Occasionaly OS might bring a window to forground upon sleep
-                            CaptureCursorPos(curDisplayKey);
-                            if (restoringFromDB && eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
-                            {
-                                StartCaptureTimer(milliSeconds: 0); // immediately capture new window
-                            }
-                            else
-                            {
-                                StartCaptureTimer();
-                            }
+                            //CaptureCursorPos(curDisplayKey);
+                            //StartCaptureTimer();
+                            CaptureWindow(window, eventType, now, curDisplayKey);
+                            RecordLastUserActionTime(now, curDisplayKey);
                             break;
                     }
                 }
@@ -1421,7 +1415,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true); // for capture accurate z-order
-            CaptureCursorPos(displayKey);
         }
 
         private void EndDisplaySession()
