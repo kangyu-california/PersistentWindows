@@ -231,6 +231,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 int numWindowRestored = restoredWindows.Count;
+                int restorePass = restoreTimes;
 
                 restoringFromDB = false;
                 restoringFromMem = false;
@@ -258,7 +259,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (redrawDesktop)
                         User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
-                    Log.Event("Restore finished with {0} windows recovered for display setting {1}", numWindowRestored, curDisplayKey);
+                    Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
                     using (var persistDB = new LiteDatabase(persistDbName))
                     {
@@ -1339,6 +1340,12 @@ namespace Ninjacrab.PersistentWindows.Common
             DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
             metrics.AcquireMetrics();
             return metrics.Key;
+        }
+
+        private List<Display> GetDisplays()
+        {
+            DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
+            return metrics.GetDisplays();
         }
 
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)

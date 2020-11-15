@@ -34,6 +34,12 @@ namespace Ninjacrab.PersistentWindows.Common.Models
             }
         }
 
+        public List<Display> GetDisplays()
+        {
+            AcquireMetrics();
+            return monitorResolutions;
+        }
+
         private string BuildKey()
         {
             List<string> keySegments = new List<string>();
