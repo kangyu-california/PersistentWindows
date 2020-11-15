@@ -1560,9 +1560,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (immediateCapture)
-                    RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
-
                 if (deferCapture && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
@@ -1718,13 +1715,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 int prevIndex = monitorApplications[displayKey][hwnd].Count - 1;
                 if (eventType == 0 && restoringFromMem)
                 {
-                    prevIndex = -1;
-                    foreach (var metrics in monitorApplications[displayKey][hwnd])
+                    for (; prevIndex >= 0; --prevIndex)
                     {
-                        if (metrics.CaptureTime > time)
+                        var metrics = monitorApplications[displayKey][hwnd][prevIndex];
+                        if (!metrics.IsValid)
+                        {
+                            Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
+                            continue;
+                        }
+                        if (metrics.CaptureTime <= time)
                             break;
-
-                        prevIndex++;
                     }
                 }
 
@@ -1735,8 +1735,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
-                if (!prevDisplayMetrics.IsValid)
-                    Log.Error("invalid capture data for {0}", GetWindowTitle(hwnd));
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
