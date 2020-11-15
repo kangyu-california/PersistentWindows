@@ -33,14 +33,14 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimesLocal = 4; // max restore passes for local console session
         private const int MaxRestoreTimesRemote = 8; // max restore passes for remote desktop session
 
-        private const int CaptureLatency = 3000; // delay in milliseconds from window move to capture
+        private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
+        private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
+        private const int ActivationLatency = 500; //must < UserMoveLatency
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxSnapshots = 9; // 1 default + 8 named snapshot
         private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
-
-        private const int OffScreenDetectionLatency = 1000; //must be smaller than CaptureLatency
 
         private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
 
@@ -60,6 +60,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
+        private bool deferCapture;
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
@@ -728,7 +729,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(ex.ToString());
                 }
 
-                Thread.Sleep(OffScreenDetectionLatency);
+                Thread.Sleep(ActivationLatency);
 
                 try
                 {
@@ -1018,9 +1019,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // capture user moves
                             // Occasionaly OS might bring a window to forground upon sleep
                             //CaptureCursorPos(curDisplayKey);
-                            //StartCaptureTimer();
-                            CaptureWindow(window, eventType, now, curDisplayKey);
-                            RecordLastUserActionTime(now, curDisplayKey);
+                            StartCaptureTimer(UserMoveLatency);
                             break;
                     }
                 }
@@ -1345,6 +1344,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
             // restart capture timer
+            deferCapture = milliSeconds != UserMoveLatency;
             captureTimer.Change(milliSeconds, Timeout.Infinite);
         }
 
@@ -1539,7 +1539,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
             }
-            else if (!immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
+            else if (deferCapture && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
@@ -1563,7 +1563,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (immediateCapture)
                     RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
 
-                if (pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                if (deferCapture && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
                     // defer acknowledge of user action by one more cycle
