@@ -1414,7 +1414,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void CaptureNewDisplayConfig(string displayKey)
         {
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
-            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true); // for capture accurate z-order
+            //CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true); // for capture accurate z-order
         }
 
         private void EndDisplaySession()
