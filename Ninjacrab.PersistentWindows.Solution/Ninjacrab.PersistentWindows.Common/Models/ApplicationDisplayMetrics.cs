@@ -52,15 +52,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         {
             bool posEqual = this.WindowPlacement.NormalPosition.Equals(other.WindowPlacement.NormalPosition);
             bool minmaxStateEqual = this.WindowPlacement.ShowCmd == other.WindowPlacement.ShowCmd;
-            bool minimizeStateEqual = this.IsMinimized == other.IsMinimized;
-            bool allEqual = posEqual && minmaxStateEqual && minimizeStateEqual;
-
-            if (minimizeStateEqual && this.IsMinimized && !allEqual)
-            {
-                Log.Trace("reject placement change in minimized state");
-                return true;
-            }
-
+            bool allEqual = posEqual && minmaxStateEqual;
             return allEqual;
         }
 

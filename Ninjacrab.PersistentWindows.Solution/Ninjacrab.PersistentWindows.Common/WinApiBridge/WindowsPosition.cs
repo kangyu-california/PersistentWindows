@@ -42,6 +42,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             return string.Format("({0}, {1}), {2} x {3}", Left, Top, Width, Height);
         }
 
+        /*
         public override bool Equals(object obj)
         {
             if (obj is RECT2)
@@ -59,5 +60,6 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             }
             return base.Equals(obj);
         }
+        */
     }
 }

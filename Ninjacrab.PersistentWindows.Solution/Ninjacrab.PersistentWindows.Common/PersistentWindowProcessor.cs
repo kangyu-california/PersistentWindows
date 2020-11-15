@@ -1754,6 +1754,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     // just ignore it
                 }
                 */
+                else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
+                {
+                    moved = false;
+                }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
                     //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
