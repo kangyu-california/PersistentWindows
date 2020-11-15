@@ -1149,8 +1149,11 @@ namespace Ninjacrab.PersistentWindows.Common
             IntPtr result = hWnd;
             do
             {
+                IntPtr result_prev = result;
                 result = User32.GetWindow(result, 3);
                 if (result == IntPtr.Zero)
+                    break;
+                if (result == result_prev)
                     break;
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
