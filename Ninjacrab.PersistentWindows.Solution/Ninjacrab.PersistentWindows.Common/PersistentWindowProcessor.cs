@@ -1733,9 +1733,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         var metrics = monitorApplications[displayKey][hwnd][prevIndex];
                         if (!metrics.IsValid)
                         {
-                            Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
                             if (!restoringSnapshot)
+                            {
+                                Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
                                 continue;
+                            }
                         }
                         if (metrics.CaptureTime <= time)
                             break;
