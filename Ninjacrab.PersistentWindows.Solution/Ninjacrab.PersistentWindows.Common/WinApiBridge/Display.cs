@@ -7,10 +7,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
     public class Display
     {
-        public int ScreenWidth { get; internal set; }
-        public int ScreenHeight { get; internal set; }
-        public int Left { get; internal set; }
-        public int Top { get; internal set; }
+        public RECT2 Position;
         public uint Flags { get; internal set; }
         public String DeviceName { get; internal set; }
 
@@ -19,7 +16,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             List<Display> displays = new List<Display>();
 
             User32.EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero,
-                delegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData)
+                delegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT2 lprcMonitor, IntPtr dwData)
                 {
                     MonitorInfo monitorInfo = new MonitorInfo();
                     monitorInfo.StructureSize = Marshal.SizeOf(monitorInfo);
@@ -27,10 +24,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
                     if (success)
                     {
                         Display display = new Display();
-                        display.ScreenWidth = monitorInfo.Monitor.Width;
-                        display.ScreenHeight = monitorInfo.Monitor.Height;
-                        display.Left = monitorInfo.Monitor.Left;
-                        display.Top = monitorInfo.Monitor.Top;
+                        display.Position = monitorInfo.Monitor;
                         display.Flags = monitorInfo.Flags;
 
                         //int pos = monitorInfo.DeviceName.LastIndexOf("\\") + 1;

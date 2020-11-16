@@ -10,8 +10,8 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         private const int CCHDEVICENAME = 32;
 
         public int StructureSize;
-        public RECT Monitor;
-        public RECT WorkArea;
+        public RECT2 Monitor;
+        public RECT2 WorkArea;
         public uint Flags;
 
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CCHDEVICENAME)]

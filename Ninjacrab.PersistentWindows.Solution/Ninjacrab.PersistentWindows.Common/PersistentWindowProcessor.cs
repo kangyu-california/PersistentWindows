@@ -1973,6 +1973,28 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
+        private void RestoreSnapWindow(IntPtr hwnd, RECT2 target_pos)
+        {
+            List<Display> displays = GetDisplays();
+            foreach (var display in displays)
+            {
+                RECT2 screen = display.Position;
+                RECT2 intersect = new RECT2();
+                if (User32.IntersectRect(out intersect, ref target_pos, ref screen))
+                {
+                    if (intersect.Equals(target_pos))
+                        continue;
+                    if (Math.Abs(intersect.Width - target_pos.Width) < 10
+                        && Math.Abs(intersect.Height - target_pos.Height)  < 10)
+                    {
+                        User32.MoveWindow(hwnd, intersect.Left, intersect.Top, intersect.Width, intersect.Height, true);
+                        Log.Error("restore snap window {0}", GetWindowTitle(hwnd));
+                        break;
+                    }
+                }
+            }
+        }
+
         private bool MoveTaskBar(IntPtr hwnd, int x, int y)
         {
             // simulate mouse drag, assuming taskbar is unlocked
@@ -2392,6 +2414,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !prevDisplayMetrics.IsMinimized)
                     {
                         RestoreFullScreenWindow(hWnd);
+                    }
+                    else if (restoreTimes >= MinRestoreTimes - 1)
+                    {
+                        RECT2 cur_rect = new RECT2();
+                        User32.GetWindowRect(hWnd, ref cur_rect);
+                        if (!cur_rect.Equals(rect))
+                        {
+                            RestoreSnapWindow(hWnd, rect);
+                            StartRestoreTimer();
+                        }
                     }
                     restoredWindows.Add(hWnd);
 

@@ -68,7 +68,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
     public class User32
     {
         #region EnumDisplayMonitors
-        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
+        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT2 lprcMonitor, IntPtr dwData);
         [DllImport("user32.dll")]
         public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumDelegate lpfnEnum, IntPtr dwData);
         #endregion

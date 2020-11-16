@@ -14,14 +14,14 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
             displays.Sort(delegate (Display dp1, Display dp2)
                 {
-                    if (dp1.Left != dp2.Left)
+                    if (dp1.Position.Left != dp2.Position.Left)
                     {
-                        return dp1.Left.CompareTo(dp2.Left);
+                        return dp1.Position.Left.CompareTo(dp2.Position.Left);
                     }
 
-                    if (dp1.Top != dp2.Top)
+                    if (dp1.Position.Top != dp2.Position.Top)
                     {
-                        return dp1.Top.CompareTo(dp2.Top);
+                        return dp1.Position.Top.CompareTo(dp2.Position.Top);
                     }
 
                     return 0;
@@ -45,7 +45,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
             List<string> keySegments = new List<string>();
             foreach (var entry in monitorResolutions)
             {
-                keySegments.Add(string.Format("{0}_Loc{1}x{2}_Res{3}x{4}", entry.DeviceName, entry.Left, entry.Top, entry.ScreenWidth, entry.ScreenHeight));
+                keySegments.Add(string.Format("{0}_Loc{1}x{2}_Res{3}x{4}", entry.DeviceName, entry.Position.Left, entry.Position.Top, entry.Position.Width, entry.Position.Height));
             }
 
             string key = string.Join("__", keySegments);
