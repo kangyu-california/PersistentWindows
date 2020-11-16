@@ -1056,9 +1056,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
                         {
-                            if (monitorApplications[curDisplayKey][hwnd][i].IsSnapShot)
-                                continue;
-
                             if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
                             {
                                 monitorApplications[curDisplayKey][hwnd].RemoveAt(i);
@@ -1090,6 +1087,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         for (var i = 0; i < count - 1; ++i)
                             monitorApplications[curDisplayKey][hwnd][i].IsSnapShot = false;
                         monitorApplications[curDisplayKey][hwnd][count - 1].IsSnapShot = true;
+                        monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
                     }
                 }
 
@@ -1733,11 +1731,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         var metrics = monitorApplications[displayKey][hwnd][prevIndex];
                         if (!metrics.IsValid)
                         {
-                            if (!restoringSnapshot)
-                            {
-                                Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
-                                continue;
-                            }
+                            Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
+                            continue;
                         }
                         if (metrics.CaptureTime <= time)
                             break;
