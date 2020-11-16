@@ -2423,7 +2423,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (!cur_rect.Equals(rect))
                         {
                             RestoreSnapWindow(hWnd, rect);
-                            StartRestoreTimer();
                         }
                     }
                     restoredWindows.Add(hWnd);
