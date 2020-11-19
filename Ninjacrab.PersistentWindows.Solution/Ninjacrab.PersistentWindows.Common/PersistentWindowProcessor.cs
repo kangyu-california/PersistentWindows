@@ -1020,7 +1020,10 @@ namespace Ninjacrab.PersistentWindows.Common
                             // capture user moves
                             // Occasionaly OS might bring a window to forground upon sleep
                             //CaptureCursorPos(curDisplayKey);
-                            StartCaptureTimer(UserMoveLatency);
+                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                            {
+                                StartCaptureTimer(UserMoveLatency);
+                            }
                             break;
                     }
                 }
