@@ -209,6 +209,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
+                if (restoringFromMem)
+                    return;
+
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
             });
