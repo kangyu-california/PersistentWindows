@@ -982,6 +982,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (eventType)
                     {
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
+                            // Occasionaly OS might bring a window to foreground upon sleep
                             ActivateWindow(hwnd);
                             goto case User32Events.EVENT_OBJECT_LOCATIONCHANGE;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
@@ -1018,8 +1019,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // capture user moves
-                            // Occasionaly OS might bring a window to forground upon sleep
-                            //CaptureCursorPos(curDisplayKey);
+                            // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
                                 StartCaptureTimer(UserMoveLatency);
