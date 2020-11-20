@@ -588,7 +588,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsMinimized(IntPtr hwnd)
         {
-            bool result = false;
+            bool result = User32.IsIconic(hwnd);
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.MINIMIZE) != 0L)
             {
@@ -1771,7 +1771,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 */
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
-                    moved = false;
+                    return false;
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
@@ -1783,11 +1783,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     moved = true;
                 }
-                else
-                {
-                    // nothing changed except event type & time
-                }
-
 
                 if (fixZorder > 0)
                 {
@@ -1801,15 +1796,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (prevDisplayMetrics.PrevZorderWindow != curDisplayMetrics.PrevZorderWindow)
                     {
-                        if (!moved && curDisplayMetrics.IsMinimized)
-                        {
-                            ; // ignore z-order change in minimized state
-                        }
-                        else
-                        {
-                            curDisplayMetrics.NeedRestoreZorder = true;
-                            moved = true;
-                        }
+                        curDisplayMetrics.NeedRestoreZorder = true;
+                        moved = true;
                     }
                 }
 
