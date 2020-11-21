@@ -31,7 +31,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreLatency = 5000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
         private const int MaxRestoreTimesLocal = 4; // max restore passes for local console session
-        private const int MaxRestoreTimesRemote = 8; // max restore passes for remote desktop session
+        private const int MaxRestoreTimesRemote = 4; // max restore passes for remote desktop session
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
