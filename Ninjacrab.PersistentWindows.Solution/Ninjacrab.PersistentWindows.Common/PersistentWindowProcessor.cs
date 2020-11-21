@@ -2237,7 +2237,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
-            if (restoreTimes == 0 && AllowRestoreZorder())
+            if (restoreTimes > 0 && AllowRestoreZorder())
             {
                 try
                 {
