@@ -838,6 +838,14 @@ namespace Ninjacrab.PersistentWindows.Common
                                 */
 
                                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                                if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
+                                   || prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
+                                   || rect.Left <= -25600)
+                                {
+                                    Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                    return; // captured without previous history info, let OS handle it
+                                }
+
                                 if (!screenPosition.Equals(rect))
                                 {
                                     // windows ignores previous snap status when activated from minimized state
