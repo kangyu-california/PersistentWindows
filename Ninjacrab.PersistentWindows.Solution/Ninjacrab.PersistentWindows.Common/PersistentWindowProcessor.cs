@@ -358,9 +358,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lock (controlLock)
                     {
+                        EndDisplaySession();
+
                         if (sessionLocked)
                         {
-                            EndDisplaySession();
                             curDisplayKey = displayKey;
                             //wait for session unlock to start restore
                         }
@@ -373,9 +374,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
-                            EndDisplaySession();
                             // change display on the fly
-                            ResetState();
                             restoringFromMem = true;
                             curDisplayKey = displayKey;
                             StartRestoreTimer();
@@ -775,8 +774,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
 
                         if (IsMinimized(hwnd))
-                            return; // already minimized
+                            return; // minimize operation
 
+                        /*
                         var valid_count = monitorApplications[curDisplayKey][hwnd].Count;
                         if (valid_count == 0)
                             return;
@@ -796,7 +796,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (valid_count < 2)
                             return;
+                        */
 
+                        ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                         if (prevDisplayMetrics.IsMinimized)
                         {
                             if (prevDisplayMetrics.IsFullScreen)
@@ -806,6 +808,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 RECT2 screenPosition = new RECT2();
                                 User32.GetWindowRect(hwnd, ref screenPosition);
 
+                                /*
                                 for (var i = valid_count - 2; i >= 0; --i)
                                 {
                                     // restore to position prior to minimize
@@ -832,6 +835,17 @@ namespace Ninjacrab.PersistentWindows.Common
                                     }
                                     break;
                                 }
+                                */
+
+                                RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                                if (!screenPosition.Equals(rect))
+                                {
+                                    // windows ignores previous snap status when activated from minimized state
+                                    var placement = prevDisplayMetrics.WindowPlacement;
+                                    User32.SetWindowPlacement(hwnd, ref placement);
+                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                    Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                }
 
                                 if (!enable_offscreen_fix)
                                     return;
@@ -839,7 +853,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                 if (IsOffScreen(hwnd))
                                 {
                                     IntPtr desktopWindow = User32.GetDesktopWindow();
-                                    RECT2 rect = new RECT2();
                                     User32.GetWindowRect(desktopWindow, ref rect);
                                     //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
                                     User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
@@ -1431,15 +1444,12 @@ namespace Ninjacrab.PersistentWindows.Common
         private void CaptureNewDisplayConfig(string displayKey)
         {
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
-            //CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true); // for capture accurate z-order
         }
 
         private void EndDisplaySession()
         {
-            RemoveInvalidCapture();
             CancelCaptureTimer();
             ResetState();
-            //RecordLastUserActionTime(DateTime.Now);
         }
 
         private void ResetState()
@@ -1769,13 +1779,23 @@ namespace Ninjacrab.PersistentWindows.Common
                     // just ignore it
                 }
                 */
+                else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
+                {
+                    curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
+                    curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
+
+                    if (prevDisplayMetrics.IsFullScreen)
+                        curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
+
+                    // no need to save z-order as unminimize always bring window to top
+                    return true;
+                }
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
                     return false;
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
-                    //monitorApplications[displayKey][curDisplayMetrics.Key].WindowPlacement = curDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
                     moved = true;
                 }
@@ -1801,8 +1821,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && curDisplayMetrics.IsMinimized)
-                    curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
             }
 
             return moved;
@@ -1844,6 +1862,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     lock (databaseLock)
                     {
                         CancelRestoreFinishedTimer();
+                        RemoveInvalidCapture();
                         string displayKey = GetDisplayKey();
                         if (!displayKey.Equals(curDisplayKey))
                         {
