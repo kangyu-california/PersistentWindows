@@ -1292,7 +1292,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 Log.Error("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 User32.ShowWindow(hWnd, User32.SW_SHOW);
-                return 0; // issue 21, avoid restore to top z-order
             }
 
             bool ok = User32.SetWindowPos(
@@ -1904,10 +1903,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             restoreTimes++;
 
                             // schedule finish restore
-                            StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
+                            if (restoringSnapshot)
+                                StartRestoreFinishedTimer(milliSecond: RestoreLatency + 500);
+                            else
+                                StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < MinRestoreTimes)
+                            if (restoreTimes < MinRestoreTimes + (AllowRestoreZorder() ? 1 : 0))
                             {
                                 StartRestoreTimer();
                             }
@@ -2292,8 +2294,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevDisplayMetrics == null)
                             continue;
 
+                        /*
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
                             continue; //avoid topmost
+                        */
 
                         try
                         {
