@@ -12,7 +12,7 @@ Restore snapshot N :  Ctrl click PW icon N times
 * PW command line options
   * -splash=0       : No splash window at PW startup
   * -notification=1 : Turn on balloon tip and sound notification when restoring windows
-  * -delay_start <seconds> : Delay PW invoked from auto startup memu by specified seconds
+  * -delay_start \<seconds\> : Delay PW invoked from auto startup memu by specified seconds
   * -redraw_desktop : redraw whole desktop windows after restore
   * -fix_zorder=1   : Turn on z-order fix for automatic restore
   * -redirect_appdata : Use current dir instead of user appdata dir to store database file, this option allows run second PW instance.
