@@ -25,7 +25,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool shiftKeyPressed;
         private bool controlKeyPressed;
         private bool altKeyPressed;
-        private bool singleClick;
         private int clickCount;
         private System.Threading.Timer clickDelayTimer;
 
@@ -121,38 +120,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 foundUpgrade = true;
                 aboutToolStripMenuItem.Text = "Goto upgrade";
             }
-        }
-
-        private void SnapshotAction(bool doubleClick)
-        {
-            controlKeyPressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
-            altKeyPressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
-
-            if (doubleClick)
-            {
-                // cancel previous single click event
-                singleClick = false;
-
-                if (controlKeyPressed)
-                {
-                    //TODO: create named snapshot
-                    ;
-                }
-                else if (altKeyPressed)
-                {
-                    ;
-                }
-                else
-                {
-                    //take unnamed(default) snapshot
-                    Program.TakeSnapshot(0);
-                }
-
-                return;
-            }
-
-            singleClick = true;
-            clickDelayTimer.Change(500, System.Threading.Timeout.Infinite);
         }
 
         private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
