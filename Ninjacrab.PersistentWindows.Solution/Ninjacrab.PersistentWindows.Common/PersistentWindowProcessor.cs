@@ -1792,6 +1792,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
 
+                    curDisplayMetrics.NeedUpdateWindowPlacement = true;
+
                     if (prevDisplayMetrics.IsFullScreen)
                         curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
 
