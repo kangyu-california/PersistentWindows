@@ -132,7 +132,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.aboutToolStripMenuItem.Text = "&About";
+            this.aboutToolStripMenuItem.Text = "&Help";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClickHandler);
 
             // pause/resume upgrade notice

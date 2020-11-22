@@ -206,7 +206,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (foundUpgrade)
                 Process.Start($"{Program.ProjectUrl}/releases/latest");
             else
-                Process.Start(Program.ProjectUrl);
+                Process.Start(Program.ProjectUrl + "/Help.md");
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)

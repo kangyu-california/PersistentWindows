@@ -32,8 +32,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Alternatively for users who prefer to auto start PersistentWindows using startup menu, this can be achieved by creating a shortcut to PersistentWindows.exe in C:\Users\\<your_user_id>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup. But this method of auto start may not work as expected for slow computers (see issue #34), it is recommended to delay start by specifying -delay_start \<seconds\> on the command line, 30 seconds seems to be a safe bet.
 
 # Use instructions
-- Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. To disable the splash window, run PersistentWindows.exe -splash_off, or specify the command option in the shortcut or .bat wrapper of PersistentWindows.exe
-- To turn on balloon tip and sound notification when restoring windows, run PersistentWindows.exe -notification_on
+- Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. 
 - PersistentWindows minimizes itself as an icon in the systray area on task bar.
 - To save current window layout to persistent storage, right click the icon and select "Capture windows to disk" 
 - To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
