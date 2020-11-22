@@ -22,9 +22,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool pauseUpgradeCounter = false;
         private bool foundUpgrade = false;
 
+        private bool shiftKeyPressed;
         private bool controlKeyPressed;
         private bool altKeyPressed;
         private bool singleClick;
+        private int clickCount;
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -35,26 +37,35 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             clickDelayTimer = new System.Threading.Timer(state =>
             {
-                if (singleClick)
-                {
-                    pauseUpgradeCounter = true;
+                pauseUpgradeCounter = true;
+                if (clickCount > 3)
+                    clickCount = 3;
 
-                    if (controlKeyPressed)
-                    {
-                        //restore named snapshot
-                        ;
-                    }
-                    else if (altKeyPressed)
-                    {
-                        //restore previous workspace (not necessarily a snapshot)
-                        Program.RestoreSnapshot(PersistentWindowProcessor.PreviousSnapshot);
-                    }
-                    else
-                    {
-                        //restore unnamed(default) snapshot
-                        Program.RestoreSnapshot(PersistentWindowProcessor.DefaultSnapshot);
-                    }
+                if (shiftKeyPressed)
+                {
+                    // take counted snapshot
+                    Program.TakeSnapshot(clickCount);
                 }
+                else if (controlKeyPressed)
+                {
+                    //restore counted snapshot
+                    Program.RestoreSnapshot(clickCount);
+                }
+                else if (altKeyPressed)
+                {
+                    //restore previous workspace (not necessarily a snapshot)
+                    Program.RestoreSnapshot(4);
+                }
+                else
+                {
+                    if (clickCount == 1)
+                        //restore unnamed(default) snapshot
+                        Program.RestoreSnapshot(0);
+                    else if (clickCount == 2)
+                        Program.TakeSnapshot(0);
+                }
+
+                clickCount = 0;
             });
 
             InitializeComponent();
@@ -134,7 +145,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 else
                 {
                     //take unnamed(default) snapshot
-                    Program.TakeSnapshot(PersistentWindowProcessor.DefaultSnapshot);
+                    Program.TakeSnapshot(0);
                 }
 
                 return;
@@ -205,20 +216,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Exit();
         }
 
-        private void IconMouseClick(object sender, MouseEventArgs e)
+        private void IconMouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                //this.notifyIconMain.Icon = new System.Drawing.Icon(System.Drawing.SystemIcons.Exclamation, 40, 40);
-                SnapshotAction(doubleClick: false);
-            }
-        }
+                clickCount++;
 
-        private void IconMouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                SnapshotAction(doubleClick: true);
+                shiftKeyPressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+                controlKeyPressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+                altKeyPressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+
+                clickDelayTimer.Change(500, System.Threading.Timeout.Infinite);
             }
         }
     }

@@ -39,7 +39,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
-        private const int MaxSnapshots = 9; // 1 default + 8 named snapshot
+        private const int MaxSnapshots = 5; // 1 default + 3 numbered + 1 undo
         private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
 
         private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
@@ -108,8 +108,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // restore time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
-        private Dictionary<string, Dictionary<string, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<string, DateTime>>();
-        public string snapshotName;
+        private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
+        public int snapshotId;
 
         private bool iconActive = false;
         private Timer hideIconTimer;
@@ -141,7 +141,6 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public bool Start()
         {
-
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
@@ -1063,9 +1062,9 @@ namespace Ninjacrab.PersistentWindows.Common
             while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of capture history
-                for (int i = 0; i < MaxSnapshots + 1; ++i)
+                for (int i = 0; i < monitorApplications[displayKey][hwnd].Count; ++i)
                 {
-                    if (monitorApplications[displayKey][hwnd][i].IsSnapShot)
+                    if (monitorApplications[displayKey][hwnd][i].SnapShotFlags != 0)
                         continue; //preserve snapshot record
                     monitorApplications[displayKey][hwnd].RemoveAt(i);
                     break; //remove one record at one time
@@ -1097,7 +1096,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        public void TakeSnapshot(string snapshotName)
+        public void TakeSnapshot(int snapshotId)
         {
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
@@ -1112,22 +1111,22 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (count > 0)
                     {
                         for (var i = 0; i < count - 1; ++i)
-                            monitorApplications[curDisplayKey][hwnd][i].IsSnapShot = false;
-                        monitorApplications[curDisplayKey][hwnd][count - 1].IsSnapShot = true;
+                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1 << snapshotId);
+                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1 << snapshotId);
                         monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
                     }
                 }
 
                 if (!snapshotTakenTime.ContainsKey(curDisplayKey))
-                    snapshotTakenTime[curDisplayKey] = new Dictionary<string, DateTime>();
+                    snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
 
                 var now = DateTime.Now;
-                snapshotTakenTime[curDisplayKey][snapshotName] = now;
-                Log.Event("Snapshot is taken");
+                snapshotTakenTime[curDisplayKey][snapshotId] = now;
+                Log.Event("Snapshot {0} is captured", snapshotId);
             }
         }
 
-        public void RestoreSnapshot(string name)
+        public void RestoreSnapshot(int id)
         {
             if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                 return; //snapshot not taken yet
@@ -1137,15 +1136,16 @@ namespace Ninjacrab.PersistentWindows.Common
             ResetState();
 
             restoringSnapshot = true;
-            snapshotName = name;
+            snapshotId = id;
             restoringFromMem = true;
-            if (!snapshotName.Equals(PreviousSnapshot))
+            if (id != MaxSnapshots - 1)
             {
+                // MaxSnapshots - 1 is for undo snapshot restore
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
-                snapshotTakenTime[curDisplayKey][PreviousSnapshot] = DateTime.Now;
+                snapshotTakenTime[curDisplayKey][MaxSnapshots - 1] = DateTime.Now;
             }
             StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
-            Log.Event("restore snapshot ${0}", snapshotName);
+            Log.Event("restore snapshot {0}", id);
         }
 
         private void CaptureCursorPos(string displayKey)
@@ -1732,7 +1732,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 IsValid = false,
 
-                IsSnapShot = false,
+                SnapShotFlags = 0,
             };
 
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
@@ -2152,10 +2152,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringSnapshot)
                 {
                     if (!snapshotTakenTime.ContainsKey(curDisplayKey)
-                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotName))
+                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
                         return false;
 
-                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotName];
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
                 }
                 else if (restoringFromMem)
                 {

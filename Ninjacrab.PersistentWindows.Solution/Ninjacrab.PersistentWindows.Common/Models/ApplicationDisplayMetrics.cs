@@ -46,7 +46,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public bool IsValid { get; set; }
 
         // for snapshot recovery
-        public bool IsSnapShot { get; set; }
+        public int SnapShotFlags { get; set; }
 
         public bool EqualPlacement(ApplicationDisplayMetrics other)
         {
