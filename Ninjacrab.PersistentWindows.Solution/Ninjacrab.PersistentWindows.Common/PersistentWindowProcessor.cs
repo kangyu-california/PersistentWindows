@@ -1288,13 +1288,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            /*
             if (IsTaskBar(prevWindow))
             {
                 Log.Error("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
+                User32.ShowWindow(hWnd, User32.SW_SHOW);
                 return 0; // issue 21, avoid restore to top z-order
             }
-            */
 
             bool ok = User32.SetWindowPos(
                 hWnd,
