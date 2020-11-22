@@ -2268,76 +2268,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
-            if (restoreTimes > 0 && AllowRestoreZorder())
-            {
-                try
-                {
-                    IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<SystemWindow>());
-                    foreach (var window in sWindows)
-                    {
-                        if (!window.IsValid())
-                        {
-                            continue;
-                        }
-
-                        IntPtr hWnd = window.HWnd;
-                        if (!monitorApplications[displayKey].ContainsKey(hWnd))
-                        {
-                            continue;
-                        }
-
-                        ApplicationDisplayMetrics curDisplayMetrics;
-                        ApplicationDisplayMetrics prevDisplayMetrics;
-
-                        // get previous value
-                        IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
-                        if (prevDisplayMetrics == null)
-                            continue;
-
-                        /*
-                        if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
-                            continue; //avoid topmost
-                        */
-
-                        try
-                        {
-                            if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
-                                continue;
-                        }
-                        catch (Exception)
-                        {
-                            continue;
-                        }
-
-                        if (!curDisplayMetrics.NeedRestoreZorder)
-                            continue;
-
-                        hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
-                            0, 0, 0, 0,
-                            0
-                            | User32.DeferWindowPosCommands.SWP_NOACTIVATE
-                            | User32.DeferWindowPosCommands.SWP_NOMOVE
-                            | User32.DeferWindowPosCommands.SWP_NOSIZE
-                        );
-
-                        if (hWinPosInfo == IntPtr.Zero)
-                            break;
-                    }
-
-                    bool batchRestoreResult = false;
-                    if (hWinPosInfo != IntPtr.Zero)
-                    {
-                        batchRestoreResult = User32.EndDeferWindowPos(hWinPosInfo);
-                    }
-
-                    if (!batchRestoreResult)
-                        Log.Error("batch restore z-order failed");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
-            }
 
             foreach (var window in sWindows)
             {
@@ -2462,6 +2392,77 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
                     Log.Error(error);
+                }
+            }
+
+            if (AllowRestoreZorder())
+            {
+                try
+                {
+                    IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<SystemWindow>());
+                    foreach (var window in sWindows)
+                    {
+                        if (!window.IsValid())
+                        {
+                            continue;
+                        }
+
+                        IntPtr hWnd = window.HWnd;
+                        if (!monitorApplications[displayKey].ContainsKey(hWnd))
+                        {
+                            continue;
+                        }
+
+                        ApplicationDisplayMetrics curDisplayMetrics;
+                        ApplicationDisplayMetrics prevDisplayMetrics;
+
+                        // get previous value
+                        IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        if (prevDisplayMetrics == null)
+                            continue;
+
+                        /*
+                        if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
+                            continue; //avoid topmost
+                        */
+
+                        try
+                        {
+                            if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
+                                continue;
+                        }
+                        catch (Exception)
+                        {
+                            continue;
+                        }
+
+                        if (!curDisplayMetrics.NeedRestoreZorder)
+                            continue;
+
+                        hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
+                            0, 0, 0, 0,
+                            0
+                            | User32.DeferWindowPosCommands.SWP_NOACTIVATE
+                            | User32.DeferWindowPosCommands.SWP_NOMOVE
+                            | User32.DeferWindowPosCommands.SWP_NOSIZE
+                        );
+
+                        if (hWinPosInfo == IntPtr.Zero)
+                            break;
+                    }
+
+                    bool batchRestoreResult = false;
+                    if (hWinPosInfo != IntPtr.Zero)
+                    {
+                        batchRestoreResult = User32.EndDeferWindowPos(hWinPosInfo);
+                    }
+
+                    if (!batchRestoreResult)
+                        Log.Error("batch restore z-order failed");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
                 }
             }
 
