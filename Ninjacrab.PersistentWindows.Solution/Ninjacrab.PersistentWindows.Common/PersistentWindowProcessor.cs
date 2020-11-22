@@ -267,7 +267,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
-                    //RemoveBatchCaptureTime();
+
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
 
                     hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
                 }
