@@ -1290,7 +1290,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (IsTaskBar(prevWindow))
             {
-                Log.Error("avoid restore under taskbar for window {0}", GetWindowTitle(hWnd));
+                Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 User32.ShowWindow(hWnd, User32.SW_SHOW);
             }
 
