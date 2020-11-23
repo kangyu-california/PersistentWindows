@@ -22,9 +22,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool pauseUpgradeCounter = false;
         private bool foundUpgrade = false;
 
-        private bool shiftKeyPressed;
-        private bool controlKeyPressed;
-        private bool altKeyPressed;
+        private int shiftKeyPressed;
+        private int controlKeyPressed;
+        private int altKeyPressed;
         private int clickCount;
         private System.Threading.Timer clickDelayTimer;
 
@@ -40,22 +40,28 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (clickCount > 3)
                     clickCount = 3;
 
-                if (shiftKeyPressed)
+                int totalSpecialKeyPressed = shiftKeyPressed + controlKeyPressed + altKeyPressed;
+
+                if (totalSpecialKeyPressed > clickCount)
+                {
+                    //no more than one key can be pressed
+                }
+                if (shiftKeyPressed >= clickCount)
                 {
                     // take counted snapshot
                     Program.TakeSnapshot(clickCount);
                 }
-                else if (controlKeyPressed)
+                else if (controlKeyPressed >= clickCount)
                 {
                     //restore counted snapshot
                     Program.RestoreSnapshot(clickCount);
                 }
-                else if (altKeyPressed)
+                else if (altKeyPressed >= clickCount)
                 {
                     //restore previous workspace (not necessarily a snapshot)
                     Program.RestoreSnapshot(4);
                 }
-                else
+                else if (totalSpecialKeyPressed == 0)
                 {
                     if (clickCount == 1)
                         //restore unnamed(default) snapshot
@@ -65,6 +71,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
 
                 clickCount = 0;
+                shiftKeyPressed = 0;
+                controlKeyPressed = 0;
+                altKeyPressed = 0;
             });
 
             InitializeComponent();
@@ -189,9 +198,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 clickCount++;
 
-                shiftKeyPressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
-                controlKeyPressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
-                altKeyPressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+                if ((User32.GetKeyState(0x10) & 0x8000) != 0)
+                    shiftKeyPressed++;
+
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                    controlKeyPressed++;
+
+                if ((User32.GetKeyState(0x12) & 0x8000) != 0)
+                    altKeyPressed++;
 
                 clickDelayTimer.Change(500, System.Threading.Timeout.Infinite);
             }
