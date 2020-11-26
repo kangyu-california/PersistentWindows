@@ -1,13 +1,13 @@
 
-# Quick help for PW version 5.6
+# Quick help for PW (since version 5.6)
 * How to use snapshot feature
-```
-Capture snapshot 0 : double click PW icon
-Restore snapshot 0 : click PW icon
+  * select PW icon to always appear in taskbar settings
+  ![taskbar setting](showicon.png)
 
-Capture snapshot N : Shift click PW icon N times (N = 1, 2, 3)
-Restore snapshot N :  Ctrl click PW icon N times
-```
+  * Capture snapshot 0 : Double click PW icon
+  * Restore snapshot 0 : Click PW icon
+  * Capture snapshot N : Shift click PW icon N times (N = 1, 2, 3)
+  * Restore snapshot N :  Ctrl click PW icon N times
 
 * PW command line options
   * -splash=0       : No splash window at PW startup
