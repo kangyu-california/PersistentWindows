@@ -63,8 +63,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private bool deferCapture;
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
-        private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
-        private HashSet<IntPtr> pendingRelocateWindows = new HashSet<IntPtr>();
+        private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
+        private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
@@ -690,12 +690,12 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock(controlLock)
             {
-                foreach (IntPtr hwnd in pendingRelocateWindows)
+                foreach (IntPtr hwnd in pendingActivateWindows)
                 {
                     ActivateWindow(hwnd);
                 }
 
-                pendingRelocateWindows.Clear();
+                pendingActivateWindows.Clear();
             }
         }
 
@@ -755,7 +755,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 bool enable_offscreen_fix = enableOffScreenFix;
                 lock(controlLock)
                 {
-                    if (pendingCaptureWindows.Contains(hwnd))
+                    if (pendingMoveEvents.Contains(hwnd))
                     {
                         //ignore window currently moving by user
                         if (!enhancedOffScreenFix)
@@ -990,8 +990,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    pendingRelocateWindows.Add(hwnd);
-                                    StartCaptureTimer(UserMoveLatency);
+                                    pendingActivateWindows.Add(hwnd);
+                                    if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                                        StartCaptureTimer(UserMoveLatency);
+                                    else
+                                        StartCaptureTimer();
                                 }
                             }
 
@@ -1009,9 +1012,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    if (!pendingRelocateWindows.Contains(hwnd))
+                                    if (!pendingActivateWindows.Contains(hwnd))
                                     {
-                                        pendingCaptureWindows.Enqueue(hwnd);
+                                        pendingMoveEvents.Enqueue(hwnd);
                                         StartCaptureTimer();
                                     }
                                 }
@@ -1496,8 +1499,8 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
 
-            int pendingEventCnt = pendingCaptureWindows.Count;
-            pendingCaptureWindows.Clear();
+            int pendingEventCnt = pendingMoveEvents.Count;
+            pendingMoveEvents.Clear();
 
             if (saveToDB)
             {
