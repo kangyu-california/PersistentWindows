@@ -1059,6 +1059,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 lock (databaseLock)
                 {
+                    if (monitorApplications.ContainsKey(curDisplayKey))
                     foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                     {
                         for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
