@@ -776,28 +776,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (IsMinimized(hwnd))
                             return; // minimize operation
 
-                        /*
-                        var valid_count = monitorApplications[curDisplayKey][hwnd].Count;
-                        if (valid_count == 0)
-                            return;
-
-                        // skip last invalid entrie(s) due to unconfirmed precapture
-                        ApplicationDisplayMetrics prevDisplayMetrics = null;
-                        do
-                        {
-                            prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd][valid_count - 1];
-                            if (prevDisplayMetrics.IsValid)
-                                break;
-                            valid_count--;
-                            Log.Error("skip invalid entry {0}", GetWindowTitle(hwnd));
-                            if (valid_count < 1)
-                                break;
-                        } while (true);
-
-                        if (valid_count < 2)
-                            return;
-                        */
-
                         ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                         if (prevDisplayMetrics.IsMinimized)
                         {
@@ -807,35 +785,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 RECT2 screenPosition = new RECT2();
                                 User32.GetWindowRect(hwnd, ref screenPosition);
-
-                                /*
-                                for (var i = valid_count - 2; i >= 0; --i)
-                                {
-                                    // restore to position prior to minimize
-                                    var prev = monitorApplications[curDisplayKey][hwnd][i];
-                                    if (!prev.IsValid)
-                                        continue;
-                                    if (prev.IsMinimized)
-                                        continue;
-
-                                    RECT2 rect = prev.ScreenPosition;
-                                    if (rect.Left <= -25600)
-                                    {
-                                        Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                        continue;
-                                    }
-
-                                    if (!screenPosition.Equals(rect))
-                                    {
-                                        // windows ignores previous snap status when activated from minimized state
-                                        var placement = prev.WindowPlacement;
-                                        User32.SetWindowPlacement(hwnd, ref placement);
-                                        User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                        Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                    }
-                                    break;
-                                }
-                                */
 
                                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                                 if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
