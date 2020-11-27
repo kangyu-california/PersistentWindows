@@ -64,6 +64,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingCaptureWindows = new Queue<IntPtr>(); // queue of window with possible position change for capture
+        private HashSet<IntPtr> pendingRelocateWindows = new HashSet<IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
@@ -210,6 +211,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (restoringFromMem)
                     return;
+
+                RelocateWindows();
 
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
@@ -683,151 +686,162 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        private void RelocateWindows()
+        {
+            lock(controlLock)
+            {
+                foreach (IntPtr hwnd in pendingRelocateWindows)
+                {
+                    ActivateWindow(hwnd);
+                }
+
+                pendingRelocateWindows.Clear();
+            }
+        }
+
+        private void ManualFixTopmostFlag(IntPtr hwnd)
+        {
+            try
+            {
+                // ctrl click received (mannually fix topmost flag)
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                {
+                    RECT2 rect = new RECT2();
+                    User32.GetWindowRect(hwnd, ref rect);
+
+                    IntPtr prevWnd = hwnd;
+                    while (true)
+                    {
+                        prevWnd = User32.GetWindow(prevWnd, 3);
+                        if (prevWnd == IntPtr.Zero)
+                            break;
+
+                        if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(prevWnd))
+                            continue;
+
+                        RECT2 prevRect = new RECT2();
+                        User32.GetWindowRect(prevWnd, ref prevRect);
+
+                        RECT2 intersection = new RECT2();
+                        if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
+                        {
+                            if (IsWindowTopMost(prevWnd))
+                            {
+                                FixTopMostWindow(prevWnd);
+
+                                bool ok = User32.SetWindowPos(prevWnd, hwnd,
+                                    0, 0, 0, 0,
+                                    0
+                                    | SetWindowPosFlags.DoNotActivate
+                                    | SetWindowPosFlags.IgnoreMove
+                                    | SetWindowPosFlags.IgnoreResize
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
+        }
+
         private void ActivateWindow(IntPtr hwnd)
         {
-            var thread = new Thread(() =>
+            try
             {
-                try
+                bool enable_offscreen_fix = enableOffScreenFix;
+                lock(controlLock)
                 {
-                    // ctrl click
-                    if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                    if (pendingCaptureWindows.Contains(hwnd))
                     {
-                        RECT2 rect = new RECT2();
-                        User32.GetWindowRect(hwnd, ref rect);
-
-                        IntPtr prevWnd = hwnd;
-                        while (true)
+                        //ignore window currently moving by user
+                        if (!enhancedOffScreenFix)
                         {
-                            prevWnd = User32.GetWindow(prevWnd, 3);
-                            if (prevWnd == IntPtr.Zero)
+                            enable_offscreen_fix = false;
+                        }
+                    }
+                }
+
+                lock (databaseLock)
+                {
+                    // fix off-screen new window
+                    if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                    {
+                        if (!enable_offscreen_fix)
+                            return;
+
+                        bool isNewWindow = true;
+                        foreach (var key in monitorApplications.Keys)
+                        {
+                            if (monitorApplications[key].ContainsKey(hwnd))
+                            {
+                                isNewWindow = false;
                                 break;
-
-                            if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(prevWnd))
-                                continue;
-
-                            RECT2 prevRect = new RECT2();
-                            User32.GetWindowRect(prevWnd, ref prevRect);
-
-                            RECT2 intersection = new RECT2();
-                            if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
-                            {
-                                if (IsWindowTopMost(prevWnd))
-                                {
-                                    FixTopMostWindow(prevWnd);
-
-                                    bool ok = User32.SetWindowPos(prevWnd, hwnd,
-                                        0, 0, 0, 0,
-                                        0
-                                        | SetWindowPosFlags.DoNotActivate
-                                        | SetWindowPosFlags.IgnoreMove
-                                        | SetWindowPosFlags.IgnoreResize
-                                    );
-                                }
                             }
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
 
-                Thread.Sleep(ActivationLatency);
-
-                try
-                {
-                    bool enable_offscreen_fix = enableOffScreenFix;
-                    lock(controlLock)
-                    {
-                        if (pendingCaptureWindows.Contains(hwnd))
+                        if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
                         {
-                            //ignore window currently moving by user
-                            if (!enhancedOffScreenFix)
-                            {
-                                enable_offscreen_fix = false;
-                            }
+                            FixOffScreenWindow(hwnd);
                         }
+                        return;
                     }
 
-                    lock (databaseLock)
+                    if (IsMinimized(hwnd))
+                        return; // minimize operation
+
+                    // unminimize to previous location
+                    ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
+                    if (prevDisplayMetrics.IsMinimized)
                     {
-                        if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                        if (prevDisplayMetrics.IsFullScreen)
+                            RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                        else if (!IsFullScreen(hwnd))
                         {
+                            RECT2 screenPosition = new RECT2();
+                            User32.GetWindowRect(hwnd, ref screenPosition);
+
+                            RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                            if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
+                               || prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
+                               || rect.Left <= -25600)
+                            {
+                                Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                return; // captured without previous history info, let OS handle it
+                            }
+
+                            if (!screenPosition.Equals(rect))
+                            {
+                                // windows ignores previous snap status when activated from minimized state
+                                var placement = prevDisplayMetrics.WindowPlacement;
+                                User32.SetWindowPlacement(hwnd, ref placement);
+                                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                            }
+
                             if (!enable_offscreen_fix)
                                 return;
 
-                            bool isNewWindow = true;
-                            foreach (var key in monitorApplications.Keys)
+                            if (IsOffScreen(hwnd))
                             {
-                                if (monitorApplications[key].ContainsKey(hwnd))
-                                {
-                                    isNewWindow = false;
-                                    break;
-                                }
-                            }
-
-                            if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
-                            {
-                                FixOffScreenWindow(hwnd);
-                            }
-                            return;
-                        }
-
-                        if (IsMinimized(hwnd))
-                            return; // minimize operation
-
-                        ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
-                        if (prevDisplayMetrics.IsMinimized)
-                        {
-                            if (prevDisplayMetrics.IsFullScreen)
-                                RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
-                            else if (!IsFullScreen(hwnd))
-                            {
-                                RECT2 screenPosition = new RECT2();
-                                User32.GetWindowRect(hwnd, ref screenPosition);
-
-                                RECT2 rect = prevDisplayMetrics.ScreenPosition;
-                                if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
-                                   || prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
-                                   || rect.Left <= -25600)
-                                {
-                                    Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                    return; // captured without previous history info, let OS handle it
-                                }
-
-                                if (!screenPosition.Equals(rect))
-                                {
-                                    // windows ignores previous snap status when activated from minimized state
-                                    var placement = prevDisplayMetrics.WindowPlacement;
-                                    User32.SetWindowPlacement(hwnd, ref placement);
-                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                    Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                }
-
-                                if (!enable_offscreen_fix)
-                                    return;
-
-                                if (IsOffScreen(hwnd))
-                                {
-                                    IntPtr desktopWindow = User32.GetDesktopWindow();
-                                    User32.GetWindowRect(desktopWindow, ref rect);
-                                    //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
-                                    User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
-                                    Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
-                                }
+                                IntPtr desktopWindow = User32.GetDesktopWindow();
+                                User32.GetWindowRect(desktopWindow, ref rect);
+                                //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
+                                User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
+                                Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
                     }
                 }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
-            });
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
 
-            thread.Name = "ActivateWindow";
-            thread.IsBackground = false;
-            thread.Start();
         }
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
@@ -955,22 +969,37 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (eventType)
                     {
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
-                            // Occasionaly OS might bring a window to foreground upon sleep
-                            ActivateWindow(hwnd);
-                            goto case User32Events.EVENT_OBJECT_LOCATIONCHANGE;
-                        case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             lock (controlLock)
                             {
                                 if (restoringFromDB)
                                 {
-                                    if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
-                                    {
-                                        // immediately capture new window
-                                        //StartCaptureTimer(milliSeconds: 0);
-                                        CaptureWindow(window, eventType, now, curDisplayKey);
-                                    }
+                                    // immediately capture new window
+                                    //StartCaptureTimer(milliSeconds: 0);
+                                    CaptureWindow(window, eventType, now, curDisplayKey);
                                 }
                                 else
+                                {
+                                    ManualFixTopmostFlag(hwnd); //manually fix topmost flag
+
+                                    // Occasionaly OS might bring a window to foreground upon sleep
+                                    // If the window move is initiated by OS (before sleep),
+                                    // keep restart capture timer would eventually discard these moves
+                                    // either by power suspend event handler calling CancelCaptureTimer()
+                                    // or due to capture timer handler found too many window moves
+
+                                    // If the window move is caused by user snapping window to screen edge,
+                                    // delay capture by a few seconds should be fine.
+
+                                    pendingRelocateWindows.Add(hwnd);
+                                    StartCaptureTimer(UserMoveLatency);
+                                }
+                            }
+
+                            break;
+                        case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            lock (controlLock)
+                            {
+                                if (!restoringFromDB)
                                 {
                                     // If the window move is initiated by OS (before sleep),
                                     // keep restart capture timer would eventually discard these moves
@@ -980,9 +1009,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    StartCaptureTimer();
-
-                                    pendingCaptureWindows.Enqueue(hwnd);
+                                    if (!pendingRelocateWindows.Contains(hwnd))
+                                    {
+                                        pendingCaptureWindows.Enqueue(hwnd);
+                                        StartCaptureTimer();
+                                    }
                                 }
                             }
 
@@ -1297,6 +1328,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.WindowPlacement.NormalPosition.Height
                     );
                 Log.Trace(log + log2);
+
+                if (eventType != 0)
+                    curDisplayMetrics.IsValid = true;
 
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
                 {
