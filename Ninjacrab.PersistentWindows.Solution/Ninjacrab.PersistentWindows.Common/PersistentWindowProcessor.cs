@@ -212,7 +212,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
-                RelocateWindows();
+                PostActivateWindows();
 
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
@@ -686,7 +686,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private void RelocateWindows()
+        private void PostActivateWindows()
         {
             lock(controlLock)
             {
