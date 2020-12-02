@@ -1474,23 +1474,21 @@ namespace Ninjacrab.PersistentWindows.Common
         private void RecordLastUserActionTime(DateTime time, string displayKey)
         {
             lock (controlLock)
+            try
             {
-                lastUserActionTime[displayKey] = time;
-
                 // validate captured entry
                 foreach (var hwnd in monitorApplications[displayKey].Keys)
                 {
-                    try
-                    {
-                        monitorApplications[displayKey][hwnd].Last().IsValid = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex.ToString());
-                    }
+                    monitorApplications[displayKey][hwnd].Last().IsValid = true;
                 }
 
+                lastUserActionTime[displayKey] = time;
+
                 Log.Trace("Capture time {0}", time);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
             }
         }
 
