@@ -1752,7 +1752,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (prevIndex < 0)
                 {
                     Log.Error("no previous record found");
-                    return false;
+                    return !restoringFromMem;
                 }
 
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
