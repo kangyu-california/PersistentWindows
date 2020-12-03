@@ -2107,8 +2107,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 || monitorApplications[displayKey].Count == 0)
             {
                 // the display setting has not been captured yet
-                Log.Trace("Restoring new display setting {0}", displayKey);
-                CaptureNewDisplayConfig(displayKey);
                 return false;
             }
 
