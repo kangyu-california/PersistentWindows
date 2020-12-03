@@ -13,7 +13,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        public static readonly string ProjectUrl = "https://github.com/kangyu-california/PersistentWindows";
+        public static readonly string ProjectUrl = "https://www.github.com/kangyu-california/PersistentWindows";
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
