@@ -2419,10 +2419,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
-                        /*
-                        if (!curDisplayMetrics.NeedRestoreZorder)
+                        if (restoreTimes > 0 && !curDisplayMetrics.NeedRestoreZorder)
                             continue;
-                        */
 
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
                             0, 0, 0, 0,
