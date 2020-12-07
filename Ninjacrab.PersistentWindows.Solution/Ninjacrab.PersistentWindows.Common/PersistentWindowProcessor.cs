@@ -1086,6 +1086,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
 
+            lock(controlLock)
             lock(databaseLock)
             {
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
