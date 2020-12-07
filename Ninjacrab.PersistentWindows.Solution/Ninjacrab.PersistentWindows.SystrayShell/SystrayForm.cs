@@ -22,10 +22,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool pauseUpgradeCounter = false;
         private bool foundUpgrade = false;
 
-        private int shiftKeyPressed;
-        private int controlKeyPressed;
-        private int altKeyPressed;
-        private int clickCount;
+        private int shiftKeyPressed = 0;
+        private int controlKeyPressed = 0;
+        private int altKeyPressed = 0;
+        private int clickCount = 0;
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -46,17 +46,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     //no more than one key can be pressed
                 }
-                else if (shiftKeyPressed >= clickCount)
+                else if (shiftKeyPressed == clickCount)
                 {
                     // take counted snapshot
                     Program.TakeSnapshot(clickCount);
                 }
-                else if (controlKeyPressed >= clickCount)
+                else if (controlKeyPressed == clickCount)
                 {
                     //restore counted snapshot
                     Program.RestoreSnapshot(clickCount);
                 }
-                else if (altKeyPressed >= clickCount)
+                else if (altKeyPressed == clickCount)
                 {
                     //restore previous workspace (not necessarily a snapshot)
                     Program.RestoreSnapshot(4);
