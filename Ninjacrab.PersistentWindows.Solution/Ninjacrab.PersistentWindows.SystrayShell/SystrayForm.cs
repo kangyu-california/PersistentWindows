@@ -201,13 +201,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.notifyIconMain.Icon = null;
             Application.Exit();
         }
-
-        private void IconMouseUp(object sender, MouseEventArgs e)
+        private void IconMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                clickCount++;
-
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
 
@@ -216,6 +213,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if ((User32.GetKeyState(0x12) & 0x8000) != 0)
                     altKeyPressed++;
+            }
+        }
+
+        private void IconMouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                clickCount++;
 
                 clickDelayTimer.Change(500, System.Threading.Timeout.Infinite);
             }
