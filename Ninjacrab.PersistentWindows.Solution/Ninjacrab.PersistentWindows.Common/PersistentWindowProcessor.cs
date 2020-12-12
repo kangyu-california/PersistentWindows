@@ -2304,7 +2304,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes > 0)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
