@@ -2459,6 +2459,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 // launch process in db
                 var results = db.FindAll(); // find process not yet started
+                var i = 0;
                 foreach (var curDisplayMetrics in results)
                 {
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
@@ -2499,13 +2500,14 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
 
                                 Log.Event("launch process {0}", processPath);
-                                string batFile = Path.Combine(appDataFolder, "pw_exec.bat");
+                                string batFile = Path.Combine(appDataFolder, $"pw_exec{i}.bat");
+                                ++i;
                                 File.WriteAllText(batFile, "start \"\" /B " + processPath);
                                 //Process.Start(batFile);
                                 //Process process = Process.Start("cmd.exe", "-c " + batFile);
                                 Process process = Process.Start("explorer.exe", batFile);
                                 Thread.Sleep(2000);
-                                File.Delete(batFile);
+                                //File.Delete(batFile);
                                 if (!process.HasExited)
                                     process.Kill();
                             }
