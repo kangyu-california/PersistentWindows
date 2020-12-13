@@ -8,6 +8,7 @@
   * Restore snapshot 0 : Click PW icon
   * Capture snapshot N : Shift click PW icon N times (N = 1, 2, 3)
   * Restore snapshot N :  Ctrl click PW icon N times
+  * Undo last snapshot restore : Alt click PW icon
 
 * PW command line options
   * -splash=0       : No splash window at PW startup
