@@ -517,7 +517,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     User32.SetWindowPos(
                         dlg.Handle,
-                        IntPtr.Zero, // set dialog to top
+                        new IntPtr(-1), // set dialog to topmost
                         0, //rect.Left,
                         0, //rect.Top,
                         0, //rect.Width,
@@ -1273,17 +1273,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            bool is_top = false;
+            bool nonTopMost = false;
             if (IsTaskBar(prevWindow))
             {
                 Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
-                is_top = true;
+                nonTopMost = true;
                 //User32.ShowWindow(hWnd, User32.SW_SHOW);
             }
 
             bool ok = User32.SetWindowPos(
                 hWnd,
-                is_top ? new IntPtr(-2) : prev,
+                nonTopMost ? new IntPtr(-2) : prev,
                 0, //rect.Left,
                 0, //rect.Top,
                 0, //rect.Width,
