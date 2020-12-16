@@ -1273,15 +1273,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
+            bool is_top = false;
             if (IsTaskBar(prevWindow))
             {
                 Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
-                User32.ShowWindow(hWnd, User32.SW_SHOW);
+                is_top = true;
+                //User32.ShowWindow(hWnd, User32.SW_SHOW);
             }
 
             bool ok = User32.SetWindowPos(
                 hWnd,
-                prev,
+                is_top ? new IntPtr(-2) : prev,
                 0, //rect.Left,
                 0, //rect.Top,
                 0, //rect.Width,
@@ -1750,7 +1752,20 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (prevIndex < 0)
                 {
-                    Log.Error("no previous record found");
+                    Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
+                    if (restoringFromMem)
+                    {
+                        //the window did not exist when snapshot was taken
+                        User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
+                            0, 0, 0, 0,
+                            0
+                            | SetWindowPosFlags.DoNotActivate
+                            | SetWindowPosFlags.IgnoreMove
+                            | SetWindowPosFlags.IgnoreResize
+                        );
+
+                        return false;
+                    }
                     return !restoringFromMem;
                 }
 
