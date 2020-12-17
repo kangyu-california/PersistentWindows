@@ -1882,7 +1882,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreTimer();
                             }
                         }
-                        else if (restoreTimes < MaxRestoreTimes)
+                        else if (restoreTimes <= MaxRestoreTimes)
                         {
                             //need individual zorder restore to corrrect possible batch zorder restore
                             bool extraZorderPass = false;
@@ -2318,8 +2318,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes < MaxRestoreTimes)
                 {
                     needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
