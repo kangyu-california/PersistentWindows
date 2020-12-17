@@ -688,7 +688,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PostActivateWindows()
         {
-            lock(controlLock)
+            lock(databaseLock)
             {
                 foreach (IntPtr hwnd in pendingActivateWindows)
                 {
@@ -753,7 +753,6 @@ namespace Ninjacrab.PersistentWindows.Common
             try
             {
                 bool enable_offscreen_fix = enableOffScreenFix;
-                lock(controlLock)
                 {
                     if (pendingMoveEvents.Contains(hwnd))
                     {
@@ -763,10 +762,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             enable_offscreen_fix = false;
                         }
                     }
-                }
 
-                lock (databaseLock)
-                {
                     // fix off-screen new window
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
@@ -882,7 +878,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             deadApps[key].RemoveAt(0);
                         }
 
-                        lock (databaseLock)
                         {
                             monitorApplications[key].Remove(hwnd);
                         }
@@ -955,7 +950,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             return;
                     }
 
-                    lock (controlLock)
                     {
                         if (restoreTimes >= MinRestoreTimes)
                         {
@@ -969,7 +963,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (eventType)
                     {
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
-                            lock (controlLock)
                             {
                                 if (restoringFromDB)
                                 {
@@ -1000,7 +993,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             break;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
-                            lock (controlLock)
                             {
                                 if (!restoringFromDB)
                                 {
@@ -1060,7 +1052,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             try
             {
-                lock (databaseLock)
                 {
                     if (monitorApplications.ContainsKey(curDisplayKey))
                     foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
@@ -1086,8 +1077,6 @@ namespace Ninjacrab.PersistentWindows.Common
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
 
-            lock(controlLock)
-            lock(databaseLock)
             {
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
 
@@ -1114,8 +1103,22 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void RestoreSnapshot(int id)
         {
-            if (!snapshotTakenTime.ContainsKey(curDisplayKey))
+            if (restoringSnapshot)
+            {
+                Log.Error("wait for snapshot {0} restore to finish", snapshotId);
+                return;
+            }
+
+            if (!snapshotTakenTime.ContainsKey(curDisplayKey)
+                || !snapshotTakenTime[curDisplayKey].ContainsKey(id))
                 return; //snapshot not taken yet
+
+            if (id != MaxSnapshots - 1)
+            {
+                // MaxSnapshots - 1 is for undo snapshot restore
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
+                snapshotTakenTime[curDisplayKey][MaxSnapshots - 1] = DateTime.Now;
+            }
 
             CancelRestoreTimer();
             CancelRestoreFinishedTimer();
@@ -1124,12 +1127,6 @@ namespace Ninjacrab.PersistentWindows.Common
             restoringSnapshot = true;
             snapshotId = id;
             restoringFromMem = true;
-            if (id != MaxSnapshots - 1)
-            {
-                // MaxSnapshots - 1 is for undo snapshot restore
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
-                snapshotTakenTime[curDisplayKey][MaxSnapshots - 1] = DateTime.Now;
-            }
             StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
             Log.Event("restore snapshot {0}", id);
         }
@@ -1411,7 +1408,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    lock (databaseLock)
                     {
                         if (restoringFromMem)
                         {
@@ -1476,7 +1472,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void RecordLastUserActionTime(DateTime time, string displayKey)
         {
-            lock (controlLock)
             try
             {
                 // validate captured entry
@@ -1568,7 +1563,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 StartCaptureTimer();
                 Log.Trace("defer capture");
             }
-            else
+            else lock(databaseLock)
             {
                 var appWindows = CaptureWindowsOfInterest();
                 DateTime now = DateTime.Now;
@@ -1869,10 +1864,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    lock (databaseLock)
                     {
                         CancelRestoreFinishedTimer();
-                        RemoveInvalidCapture();
                         string displayKey = GetDisplayKey();
                         if (!displayKey.Equals(curDisplayKey))
                         {
@@ -1892,8 +1885,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
+                            lock(databaseLock)
                             try
                             {
+                                RemoveInvalidCapture();
                                 RestoreApplicationsOnCurrentDisplays(displayKey);
                             }
                             catch (Exception ex)
@@ -2319,8 +2314,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
+                //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
                     RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
@@ -2421,14 +2416,17 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevDisplayMetrics == null)
                             continue;
 
+                        IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
                         /*
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
                             continue; //avoid topmost
                         */
+                        if (hWnd == prevZwnd)
+                            continue; //avoid dead loop
 
                         try
                         {
-                            if (!User32.IsWindow(prevDisplayMetrics.PrevZorderWindow))
+                            if (prevZwnd != IntPtr.Zero && !User32.IsWindow(prevZwnd))
                                 continue;
                         }
                         catch (Exception)
@@ -2439,7 +2437,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes > 0 && !curDisplayMetrics.NeedRestoreZorder)
                             continue;
 
-                        hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevDisplayMetrics.PrevZorderWindow,
+                        hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevZwnd,
                             0, 0, 0, 0,
                             0
                             | User32.DeferWindowPosCommands.SWP_NOACTIVATE
