@@ -1885,11 +1885,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
                         {
+                            //need individual zorder restore to corrrect possible batch zorder restore
+                            bool extraZorderPass = false;
+
                             lock(databaseLock)
                             try
                             {
                                 RemoveInvalidCapture();
-                                RestoreApplicationsOnCurrentDisplays(displayKey);
+                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey);
                             }
                             catch (Exception ex)
                             {
@@ -1905,7 +1908,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < MinRestoreTimes + (AllowRestoreZorder() ? 1 : 0))
+                            if (restoreTimes < MinRestoreTimes + ((extraZorderPass) ? 1 : 0))
                             {
                                 StartRestoreTimer();
                             }
@@ -2262,6 +2265,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
             }
 
+            bool batchZorderFix = false;
 
             foreach (var window in sWindows)
             {
@@ -2314,10 +2318,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
-                //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
-                    RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
+                    succeed = true; //force next pass for zorder check
+
+                    if ((restoreTimes & 1) != 0)
+                        RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
+                    else
+                        batchZorderFix = true;
                 }
 
                 bool success = true;
@@ -2382,7 +2391,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         success);
                 }
 
-                succeed = true;
                 if (!success)
                 {
                     string error = new Win32Exception(Marshal.GetLastWin32Error()).Message;
@@ -2390,7 +2398,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            if (AllowRestoreZorder())
+            if (AllowRestoreZorder() && batchZorderFix)
             {
                 try
                 {
@@ -2421,12 +2429,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
                             continue; //avoid topmost
                         */
-                        if (hWnd == prevZwnd)
-                            continue; //avoid dead loop
 
+                        if (prevZwnd != IntPtr.Zero)
                         try
                         {
-                            if (prevZwnd != IntPtr.Zero && !User32.IsWindow(prevZwnd))
+                            if (!User32.IsWindow(prevZwnd))
                                 continue;
                         }
                         catch (Exception)
@@ -2434,8 +2441,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
+                        if (hWnd == prevZwnd)
+                            prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
+
+                        /*
                         if (restoreTimes > 0 && !curDisplayMetrics.NeedRestoreZorder)
                             continue;
+                        */
 
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevZwnd,
                             0, 0, 0, 0,
