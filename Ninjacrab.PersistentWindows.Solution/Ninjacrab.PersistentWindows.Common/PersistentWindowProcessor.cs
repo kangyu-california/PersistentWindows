@@ -1908,7 +1908,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < MinRestoreTimes + ((extraZorderPass) ? 1 : 0))
+                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimesLocal + 1 : MinRestoreTimes))
                             {
                                 StartRestoreTimer();
                             }
