@@ -30,8 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int SlowRestoreLatency = 2000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 5000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
-        private const int MaxRestoreTimesLocal = 4; // max restore passes for local console session
-        private const int MaxRestoreTimesRemote = 4; // max restore passes for remote desktop session
+        private const int MaxRestoreTimes = 4; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
@@ -1883,7 +1882,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreTimer();
                             }
                         }
-                        else if (restoreTimes < (remoteSession ? MaxRestoreTimesRemote : MaxRestoreTimesLocal))
+                        else if (restoreTimes < MaxRestoreTimes)
                         {
                             //need individual zorder restore to corrrect possible batch zorder restore
                             bool extraZorderPass = false;
@@ -1908,7 +1907,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimesLocal + 1 : MinRestoreTimes))
+                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimes + 1 : MinRestoreTimes))
                             {
                                 StartRestoreTimer();
                             }
