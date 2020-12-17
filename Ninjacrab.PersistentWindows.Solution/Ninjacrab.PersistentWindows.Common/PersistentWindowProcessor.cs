@@ -2112,9 +2112,10 @@ namespace Ninjacrab.PersistentWindows.Common
             return null;
         }
 
+        // returns true if extra restore pass is required
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, SystemWindow sWindow = null)
         {
-            bool succeed = false;
+            bool needExtraRestorePass = false;
 
             if (!monitorApplications.ContainsKey(displayKey)
                 || monitorApplications[displayKey].Count == 0)
@@ -2320,7 +2321,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && (restoreTimes & 1) != 0)
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
-                    succeed = true; //force next pass for zorder check
+                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
                     if ((restoreTimes & 1) != 0)
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
@@ -2545,7 +2546,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            return succeed;
+            return needExtraRestorePass;
         }
 
         private string GetProcExePath(IntPtr hProc)
