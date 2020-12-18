@@ -941,6 +941,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     switch (eventType)
                     {
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
+                            if (restoringSnapshot)
+                                return;
                             // let it trigger next restore
                             break;
 
@@ -1884,7 +1886,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (restoreTimes <= MaxRestoreTimes)
                         {
-                            //need individual zorder restore to corrrect possible batch zorder restore
                             bool extraZorderPass = false;
 
                             lock(databaseLock)
@@ -1900,17 +1901,16 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             restoreTimes++;
 
-                            // schedule finish restore
-                            if (restoringSnapshot)
-                                StartRestoreFinishedTimer(milliSecond: RestoreLatency + 500);
-                            else
-                                StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
 
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < (extraZorderPass ? MaxRestoreTimes + 1 : MinRestoreTimes))
-                            {
                                 StartRestoreTimer();
-                            }
+                            else if (restoringSnapshot)
+                                // immediately finish restore
+                                StartRestoreFinishedTimer(milliSecond: 0);
+                            else
+                                // schedule finish restore
+                                StartRestoreFinishedTimer(milliSecond: MaxRestoreLatency);
                         }
                         else
                         {
