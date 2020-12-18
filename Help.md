@@ -1,7 +1,7 @@
 
 ## PersistentWindows quick help
 * How to use snapshot feature
-  1. In taskbar settings, turn on PW icon to always appear on taskbar
+  1. In taskbar settings, turn on PW to let the icon always appear on taskbar
   ![taskbar setting](showicon.png)
   2. Issue one of the instructions below to execute the corresponding snapshot command
 
