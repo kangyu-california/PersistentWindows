@@ -1572,9 +1572,16 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 foreach (var window in appWindows)
                 {
-                    if (CaptureWindow(window, 0, now, displayKey))
+                    try
                     {
-                        movedWindows++;
+                        if (CaptureWindow(window, 0, now, displayKey))
+                        {
+                            movedWindows++;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.ToString());
                     }
                 }
 
