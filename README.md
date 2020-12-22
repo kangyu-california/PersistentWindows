@@ -21,7 +21,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Can be auto started as a task or startup menu item.
 - Support manual save/restore window position to/from persistent database on hard drive, making it possible to revert unintended or temporary window moves, or restore closed windows even after reboot.
 - Support manual pause/resume auto restore.
-- **Support snapshot capture/restore (since version 5.x)**
+- **Support snapshot capture/restore**
 
 # Installation
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
@@ -38,11 +38,11 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
 - To pause PersistentWindows, select menu "Pause auto restore"; To resume PersistentWindows, select menu "Resume auto restore", and window layout will be restored to the moment when pause is executed.
-- **Double click PersistentWindows icon to take a snapshot of current window layout, the snapshot is saved in memory instead of db file. To restore the snapshot, just click PW icon. To undo restore snapshot, hold ALT key pressed and click PW icon.** The snapshot feature can be used as alternative implementation of virtual desktop function of Windows 10. Click help menu to checkout how to use multi-snapshots feature.
+- **Double click PersistentWindows icon to take a snapshot of current window layout, the snapshot is saved in memory instead of db file. To restore the snapshot, just click PW icon.** The snapshot feature can be used as an alternative to virtual desktops in Windows 10. Click help menu to checkout how to use multi-snapshots feature.
 
 # Tips to digest before reporting a bug
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
-- Starting from release 4.26, there is an experimental feature to automatically restore window z-order in addition to two-dementional layout. This feature is disabled by default. To turn on this feature, run PersistentWindows.exe -fix_zorder
-- **Restore snapshot automatically turns on zorder fix (just for snapshot recovery), which occasionally causes some window to become sticky at top z-order. The root cause of the issue is still unknown, however release 5.2 provides a remedy to fix this problem: Click on the sticky topmost window first, then hold CTRL key pressed and click on the window (or minimized icon on taskbar) you want to bring to top.**
+- Window z-order can be restored in addition to two-dementional layout. This feature is disabled by default. To turn on this feature, run PersistentWindows.exe -fix_zorder
+- **Window z-order fix is automatically enabled just for snapshot restore, which occasionally causes some window to become sticky at top z-order. The root cause of the issue is still unknown. Here is the remedy to fix this issue: Click on the sticky topmost window first, then hold CTRL key pressed and click on the window (or the corresponding icon on taskbar) that you want to bring to top.**
 - To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
 
