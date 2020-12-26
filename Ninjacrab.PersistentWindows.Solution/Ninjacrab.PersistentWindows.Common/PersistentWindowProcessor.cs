@@ -686,12 +686,21 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             lock(databaseLock)
             {
-                foreach (IntPtr hwnd in pendingActivateWindows)
+                try
                 {
-                    ActivateWindow(hwnd);
+                    foreach (IntPtr hwnd in pendingActivateWindows)
+                    {
+                        if (User32.IsWindow(hwnd))
+                            ActivateWindow(hwnd);
+                    }
+
+                    pendingActivateWindows.Clear();
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
                 }
 
-                pendingActivateWindows.Clear();
             }
         }
 
