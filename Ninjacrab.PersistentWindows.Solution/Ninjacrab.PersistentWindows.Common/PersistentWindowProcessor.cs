@@ -41,7 +41,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxSnapshots = 5; // 1 default + 3 numbered + 1 undo
         private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
 
-        private const int HideIconLatency = 500; // delay in millliseconds from restore finished to hide icon
+        private const int HideIconLatency = 50; // delay in millliseconds from restore finished to hide icon
 
         private bool initialized = false;
 
@@ -263,6 +263,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (redrawDesktop)
                         User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
+                    hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
+
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
                     using (var persistDB = new LiteDatabase(persistDbName))
@@ -271,8 +273,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
-
-                    hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
                 }
 
             });
