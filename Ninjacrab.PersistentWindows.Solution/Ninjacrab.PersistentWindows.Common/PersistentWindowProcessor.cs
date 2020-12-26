@@ -23,9 +23,6 @@ namespace Ninjacrab.PersistentWindows.Common
     public class PersistentWindowProcessor : IDisposable
     {
         // constant
-        public const string DefaultSnapshot = "$default$";
-        public const string PreviousSnapshot = "$previous$";
-
         private const int RestoreLatency = 500; // default delay in milliseconds from display change to window restore
         private const int SlowRestoreLatency = 2000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 5000; // max delay in milliseconds from final restore pass to restore finish
@@ -2097,7 +2094,7 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
         // recover height of horizontal taskbar, or width of vertical taskbar
-        private void RecoverTaskBarArea(IntPtr hwnd)
+        private void RecoverTaskBarArea(IntPtr hwnd, RECT2 rect)
         {
             //TBD
         }
@@ -2303,7 +2300,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         restoredWindows.Add(hWnd);
                         //RestoreCursorPos(displayKey);
                         if (!changed)
-                            RecoverTaskBarArea(hWnd);
+                            RecoverTaskBarArea(hWnd, rect);
                     }
                     continue;
                 }
