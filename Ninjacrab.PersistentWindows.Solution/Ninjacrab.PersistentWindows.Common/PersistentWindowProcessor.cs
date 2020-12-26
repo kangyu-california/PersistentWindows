@@ -41,7 +41,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxSnapshots = 5; // 1 default + 3 numbered + 1 undo
         private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
 
-        private const int HideIconLatency = 2000; // delay in millliseconds from restore finished to hide icon
+        private const int HideIconLatency = 500; // delay in millliseconds from restore finished to hide icon
 
         private bool initialized = false;
 

@@ -153,6 +153,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             var thread = new Thread(() =>
             {
+                systrayForm.notifyIconMain.Icon = Properties.Resources.pwIconBusy;
+
                 if (silent)
                     return;
 
@@ -171,6 +173,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void HideRestoreTip()
         {
+            systrayForm.notifyIconMain.Icon = Properties.Resources.pwIcon;
             if (silent || !notification)
                 return;
             systrayForm.notifyIconMain.Visible = false;

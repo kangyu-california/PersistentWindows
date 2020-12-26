@@ -69,5 +69,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        internal static System.Drawing.Icon pwIconBusy {
+            get {
+                object obj = ResourceManager.GetObject("pwIconBusy", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
