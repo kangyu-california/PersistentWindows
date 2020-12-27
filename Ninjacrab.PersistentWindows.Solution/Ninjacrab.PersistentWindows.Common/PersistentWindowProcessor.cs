@@ -688,7 +688,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    foreach (IntPtr hwnd in pendingActivateWindows)
+                    List<IntPtr> pendingWindows = new List<IntPtr>(pendingActivateWindows);
+                    foreach (IntPtr hwnd in pendingWindows)
                     {
                         if (User32.IsWindow(hwnd))
                             ActivateWindow(hwnd);
@@ -993,7 +994,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    pendingActivateWindows.Add(hwnd);
+                                    if (!pendingActivateWindows.Contains(hwnd))
+                                        pendingActivateWindows.Add(hwnd);
+
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                                         StartCaptureTimer(UserMoveLatency);
                                     else
