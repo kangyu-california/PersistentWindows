@@ -721,6 +721,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevWnd == IntPtr.Zero)
                             break;
 
+                        if (prevWnd == hwnd)
+                            break;
+
                         if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(prevWnd))
                             continue;
 
@@ -733,15 +736,15 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (IsWindowTopMost(prevWnd))
                             {
                                 FixTopMostWindow(prevWnd);
-
-                                bool ok = User32.SetWindowPos(prevWnd, hwnd,
-                                    0, 0, 0, 0,
-                                    0
-                                    | SetWindowPosFlags.DoNotActivate
-                                    | SetWindowPosFlags.IgnoreMove
-                                    | SetWindowPosFlags.IgnoreResize
-                                );
                             }
+
+                            User32.SetWindowPos(prevWnd, hwnd,
+                                0, 0, 0, 0,
+                                0
+                                | SetWindowPosFlags.DoNotActivate
+                                | SetWindowPosFlags.IgnoreMove
+                                | SetWindowPosFlags.IgnoreResize
+                            );
                         }
                     }
                 }
@@ -1021,8 +1024,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             break;
 
-                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            ManualFixTopmostFlag(hwnd);
+                            goto case User32Events.EVENT_SYSTEM_MINIMIZESTART;
+                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // capture user moves
                             // only respond to move of captured window to avoid miscapture
