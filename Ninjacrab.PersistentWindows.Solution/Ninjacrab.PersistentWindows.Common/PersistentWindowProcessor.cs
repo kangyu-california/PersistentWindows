@@ -737,15 +737,15 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (IsWindowTopMost(prevWnd))
                             {
                                 FixTopMostWindow(prevWnd);
-                            }
 
-                            User32.SetWindowPos(prevWnd, hwnd,
-                                0, 0, 0, 0,
-                                0
-                                | SetWindowPosFlags.DoNotActivate
-                                | SetWindowPosFlags.IgnoreMove
-                                | SetWindowPosFlags.IgnoreResize
-                            );
+                                User32.SetWindowPos(prevWnd, hwnd,
+                                    0, 0, 0, 0,
+                                    0
+                                    | SetWindowPosFlags.DoNotActivate
+                                    | SetWindowPosFlags.IgnoreMove
+                                    | SetWindowPosFlags.IgnoreResize
+                                );
+                            }
                         }
                     }
                 }
@@ -1028,8 +1028,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
-                            ManualFixTopmostFlag(hwnd);
-                            goto case User32Events.EVENT_SYSTEM_MINIMIZESTART;
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // capture user moves
