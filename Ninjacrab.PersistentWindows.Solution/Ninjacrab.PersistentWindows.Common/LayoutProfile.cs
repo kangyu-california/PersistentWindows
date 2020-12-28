@@ -47,7 +47,6 @@ namespace Ninjacrab.PersistentWindows.Common
             //if (sender == ProfileList)
             if (e.KeyValue == (int)Keys.Delete)
             {
-                int i = 0; 
             }
         }
 

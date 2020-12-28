@@ -99,7 +99,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool redirectAppDataFolder = false;
 
         // session control
-        private bool remoteSession = false;
         private bool sessionLocked = false; //requires password to unlock
         public bool sessionActive = true;
 
@@ -465,10 +464,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     case SessionSwitchReason.RemoteConnect:
                         Log.Trace("Session opening: reason {0}", args.Reason);
-                        remoteSession = true;
                         break;
                     case SessionSwitchReason.ConsoleConnect:
-                        remoteSession = false;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                 }
