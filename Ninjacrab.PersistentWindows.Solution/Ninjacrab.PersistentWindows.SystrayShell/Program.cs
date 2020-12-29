@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using System.Diagnostics;
@@ -14,6 +15,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// The main entry point for the application.
         /// </summary>
         public static readonly string ProjectUrl = "https://www.github.com/kangyu-california/PersistentWindows";
+        public static System.Drawing.Icon IdleIcon = null;
+        public static System.Drawing.Icon BusyIcon = null;
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
@@ -105,6 +108,36 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            string productName = System.Windows.Forms.Application.ProductName;
+            string appDataFolder = redirect_appdata ? "." :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    productName);
+#if DEBUG
+            //avoid db path conflict with release version
+            //appDataFolder = ".";
+            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+            string icon_path = Path.Combine(appDataFolder, "pwIcon.ico");
+            if (File.Exists(icon_path))
+            {
+                IdleIcon = new System.Drawing.Icon(icon_path);
+            }
+            else
+            {
+                IdleIcon = Properties.Resources.pwIcon;
+            }
+
+            icon_path = Path.Combine(appDataFolder, "pwIconBusy.ico");
+            if (File.Exists(icon_path))
+            {
+                BusyIcon = new System.Drawing.Icon(icon_path);
+            }
+            else
+            {
+                BusyIcon = Properties.Resources.pwIconBusy;
+            }
+
             systrayForm = new SystrayForm();
             systrayForm.enableUpgradeNotice = check_upgrade;
             if (check_upgrade)
@@ -153,7 +186,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             var thread = new Thread(() =>
             {
-                systrayForm.notifyIconMain.Icon = Properties.Resources.pwIconBusy;
+                systrayForm.notifyIconMain.Icon = BusyIcon;
 
                 if (silent)
                     return;
@@ -173,7 +206,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void HideRestoreTip()
         {
-            systrayForm.notifyIconMain.Icon = Properties.Resources.pwIcon;
+            systrayForm.notifyIconMain.Icon = IdleIcon;
             if (silent || !notification)
                 return;
             systrayForm.notifyIconMain.Visible = false;

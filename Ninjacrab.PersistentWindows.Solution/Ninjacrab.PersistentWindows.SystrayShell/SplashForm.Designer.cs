@@ -68,7 +68,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(671, 353);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
-            this.Icon = global::Ninjacrab.PersistentWindows.SystrayShell.Properties.Resources.pwIcon;
+            //this.Icon = global::Ninjacrab.PersistentWindows.SystrayShell.Properties.Resources.pwIcon;
+            this.Icon = Program.IdleIcon;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SplashForm";
