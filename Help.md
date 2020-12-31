@@ -25,4 +25,7 @@
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching second PW instance.
   | -check_upgrade=0 | Disable version upgrade check from beginning 
 
+* Run PW with customized icon (since version 5.11)
+  * Rename your customized icon file as pwIcon.ico and copy it to 'C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/', or copy it to current directory if running (second inst of) PW with -redirect_appdata switch from command console.
+  * Add second icon file, rename it to pwIconBusy.ico, this icon is displayed when PW is busy restoring windows.
 ```
