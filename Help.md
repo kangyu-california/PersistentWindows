@@ -20,7 +20,7 @@
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -delay_start \<seconds\> | Delay PW invoked from auto startup memu by specified seconds
   | -redraw_desktop | redraw whole desktop windows after restore
-  | -prompt_session_restore | Upon resuming last session, ask user before restore window layout
+  | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching second PW instance.
   | -check_upgrade=0 | Disable version upgrade check from beginning 
