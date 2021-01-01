@@ -2045,6 +2045,19 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             RECT2 screenPosition = new RECT2();
+            User32.GetWindowRect(hwnd, ref screenPosition);
+
+            // avoid unnecessary move
+            int centerx = screenPosition.Left + screenPosition.Width / 2;
+            int centery = screenPosition.Top + screenPosition.Height / 2;
+            int deltax = Math.Abs(centerx - x);
+            int deltay = Math.Abs(centery - y);
+            if (deltax + deltay < 300)
+            {
+                // taskbar center has no big change (such as different screen edge alignment)
+                return false;
+            }
+
             IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             //User32.GetWindowRect(hReBar, ref screenPosition);
 
@@ -2082,17 +2095,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            // avoid unnecessary move
-            int centerx = screenPosition.Left + screenPosition.Width / 2;
-            int centery = screenPosition.Top + screenPosition.Height / 2;
-            int deltax = Math.Abs(centerx - x);
-            int deltay = Math.Abs(centery - y);
-            if (deltax + deltay < 300)
-            {
-                // taskbar center has no big change (such as different screen edge alignment)
-                return false;
-            }
-
             User32.SetCursorPos(screenPosition.Left + dx, screenPosition.Top + dy);
             User32.SetActiveWindow(hTaskBar);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
@@ -2106,9 +2108,57 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
         // recover height of horizontal taskbar, or width of vertical taskbar
-        private void RecoverTaskBarArea(IntPtr hwnd, RECT2 rect)
+        private void RecoverTaskBarArea(IntPtr hwnd, RECT2 targetRect)
         {
-            //TBD
+            RECT2 sourceRect = new RECT2();
+            User32.GetWindowRect(hwnd, ref sourceRect);
+
+            int deltaWidth = sourceRect.Width - targetRect.Width;
+            if (Math.Abs(deltaWidth) < 10)
+                return;
+
+            List<Display> displays = GetDisplays();
+            foreach (var display in displays)
+            {
+                RECT2 screen = display.Position;
+                RECT2 intersect = new RECT2();
+                if (User32.IntersectRect(out intersect, ref sourceRect, ref screen))
+                {
+                    Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
+
+                    int start_y = sourceRect.Top + screen.Height / 2;
+                    int start_x;
+                    int end_x;
+                    if (Math.Abs(targetRect.Left - screen.Left) < 5)
+                    {
+                        //taskbar is on left edge
+                        start_x = sourceRect.Left + sourceRect.Width - 1;
+                        end_x = targetRect.Left + targetRect.Width - 1;
+                    }
+                    else
+                    {
+                        //taskbar is on right edge
+                        start_x = sourceRect.Left;
+                        end_x = targetRect.Left;
+                    }
+
+                    IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
+                    IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
+                    hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
+
+                    User32.SetCursorPos(start_x, start_y);
+                    User32.SetActiveWindow(hTaskBar);
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
+                        0, 0, 0, UIntPtr.Zero);
+                    Thread.Sleep(3500); // wait to be activated
+                    User32.SetCursorPos(end_x, start_y);
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
+                        0, 0, 0, UIntPtr.Zero);
+
+                    break;
+                }
+            }
+
         }
 
         private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
