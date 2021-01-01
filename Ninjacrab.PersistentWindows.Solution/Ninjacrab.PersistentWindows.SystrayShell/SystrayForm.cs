@@ -91,15 +91,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if (enableUpgradeNotice)
                 {
-                    if (skipUpgradeCounter == 0)
-                    {
-                        CheckUpgrade();
-                    }
-
                     if (pauseUpgradeCounter)
+                    {
                         pauseUpgradeCounter = false;
+                    }
                     else
+                    {
+                        if (skipUpgradeCounter == 0)
+                        {
+                            CheckUpgrade();
+                        }
+
                         skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
+                    }
                 }
             }
         }
