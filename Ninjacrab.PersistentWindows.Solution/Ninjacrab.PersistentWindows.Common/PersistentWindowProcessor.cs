@@ -1214,6 +1214,9 @@ namespace Ninjacrab.PersistentWindows.Common
         // workaround by put these windows behind HWND_NOTOPMOST
         private bool FixTopMostWindow(IntPtr hWnd)
         {
+            if (!IsWindowTopMost(hWnd))
+                return false;
+
             bool ok = User32.SetWindowPos(hWnd, new IntPtr(-2), //notopmost
                 0, 0, 0, 0,
                 0
