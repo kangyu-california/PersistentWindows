@@ -292,6 +292,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public const int GWL_STYLE = -16;
         public const long WS_CAPTION = 0x00C00000L;
 
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags); // I'm too lazy to write an enum for them
+        
         #region Hooks
         [DllImport("user32.dll")]
         public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
