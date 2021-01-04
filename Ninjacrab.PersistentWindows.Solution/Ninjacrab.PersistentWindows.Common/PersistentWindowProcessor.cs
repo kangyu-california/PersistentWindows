@@ -848,8 +848,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            // only track top level windows
-            if (User32.GetParent(hwnd) != IntPtr.Zero)
+            // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
+            if (User32.GetAncestor(hwnd, 1) != User32.GetDesktopWindow())
                 return;
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
@@ -1632,7 +1632,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
             {
-                if (User32.GetParent(hwnd) != IntPtr.Zero)
+                // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
+                if (User32.GetAncestor(hwnd, 1) != desktopWindow)
                     continue;
 
                 SystemWindow window = new SystemWindow(hwnd);
