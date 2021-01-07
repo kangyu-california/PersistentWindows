@@ -940,8 +940,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace(log);
 #endif
 
-                DateTime now = DateTime.Now;
-
                 if (restoringFromMem)
                 {
                     switch (eventType)
@@ -975,6 +973,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     // immediately capture new window
                                     //StartCaptureTimer(milliSeconds: 0);
+                                    DateTime now = DateTime.Now;
                                     CaptureWindow(window, eventType, now, curDisplayKey);
                                 }
                                 else
@@ -1172,11 +1171,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hWnd, ref rect);
-            //if (rect.Width < 10 && rect.Height < 10)
-            //    return IntPtr.Zero; //too small to care about
 
             IntPtr fail_safe_result = IntPtr.Zero;
             IntPtr result = hWnd;
+
             do
             {
                 IntPtr result_prev = result;
@@ -1297,7 +1295,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 nonTopMost = true;
-                //User32.ShowWindow(hWnd, User32.SW_SHOW);
             }
 
             bool ok = User32.SetWindowPos(
