@@ -228,7 +228,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (!silent)
             {
                 if (id < 10)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", "click icon then press and hold key '{id}' to restore the snapshot", ToolTipIcon.Info);
+                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", $"click icon then press and hold key '{id}' to restore the snapshot", ToolTipIcon.Info);
                 else
                 {
                     char c = 'a';

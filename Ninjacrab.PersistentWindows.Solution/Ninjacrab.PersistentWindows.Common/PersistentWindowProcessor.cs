@@ -1104,8 +1104,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (count > 0)
                     {
                         for (var i = 0; i < count - 1; ++i)
-                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~((long)1 << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= ((long)1 << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1ul << snapshotId);
+                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1ul << snapshotId);
                         monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
                     }
                 }
@@ -1746,7 +1746,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 IsValid = false,
 
-                SnapShotFlags = 0,
+                SnapShotFlags = 0ul,
             };
 
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
