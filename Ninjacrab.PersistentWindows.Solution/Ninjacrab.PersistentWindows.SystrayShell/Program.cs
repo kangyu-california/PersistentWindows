@@ -227,14 +227,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.TakeSnapshot(id);
             if (!silent)
             {
-                if (id == 0)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", "click icon to restore the snapshot", ToolTipIcon.Info);
-                else if (id == 1)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", $"ctrl click icon to restore the snapshot", ToolTipIcon.Info);
-                else if (id == 2)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", $"ctrl click icon twice to restore the snapshot", ToolTipIcon.Info);
-                else if (id == 3)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", $"ctrl click icon {id} times to restore the snapshot", ToolTipIcon.Info);
+                if (id < 10)
+                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", "click icon then press and hold key '{id}' to restore the snapshot", ToolTipIcon.Info);
+                else
+                {
+                    char c = 'a';
+                    c += (char)(id - 10);
+                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {c} is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
+
+                }
             }
         }
 

@@ -35,8 +35,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
-        private const int MaxSnapshots = 5; // 1 default + 3 numbered + 1 undo
-        private const int MaxHistoryQueueLength = 12; // must be bigger than MaxSnapshots + 1
+        private const int MaxSnapshots = 37; // 0-9, a-z, and final one for undo
+        private const int MaxHistoryQueueLength = 40; // must be bigger than MaxSnapshots + 1
 
         private const int HideIconLatency = 50; // delay in millliseconds from restore finished to hide icon
 
@@ -1104,8 +1104,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (count > 0)
                     {
                         for (var i = 0; i < count - 1; ++i)
-                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1 << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1 << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~((long)1 << snapshotId);
+                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= ((long)1 << snapshotId);
                         monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
                     }
                 }
