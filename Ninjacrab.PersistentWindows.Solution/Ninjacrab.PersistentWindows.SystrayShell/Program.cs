@@ -215,9 +215,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void EnableRestoreMenu(bool enable)
         {
-#if DEBUG
-            LogEvent("start ui refresh timer");
-#endif
             systrayForm.enableRestoreFromDB = enable;
             systrayForm.enableRefresh = true;
         }
@@ -234,7 +231,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     char c = 'a';
                     c += (char)(id - 10);
                     systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {c} is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
-
                 }
             }
         }
@@ -312,11 +308,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             //* Do your stuff with the output (write to console/log/StringBuilder)
-            //Console.WriteLine(outLine.Data);
             string line = outLine.Data;
             if (string.IsNullOrEmpty(line))
                 return;
-            //Log.Info("{0}", line);
             string[] fields = line.Split(',');
             if (fields.Length < 3)
                 return;
