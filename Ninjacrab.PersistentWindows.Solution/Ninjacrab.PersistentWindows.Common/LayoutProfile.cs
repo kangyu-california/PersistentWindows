@@ -22,39 +22,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
-        private void AddProfile_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void SwitchProfile_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void DeleteProfile_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ProfileList_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ProfileList_KeyDown(object sender, KeyEventArgs e)
-        {
-            //if (sender == ProfileList)
-            if (e.KeyValue == (int)Keys.Delete)
-            {
-            }
-        }
 
         private void LayoutProfile_Load(object sender, EventArgs e)
         {
-#if DEBUG 
-            this.ProfileList.Items.Insert(0, "default");
-#endif
 
         }
 
@@ -62,5 +32,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             Close();
         }
+
     }
 }
