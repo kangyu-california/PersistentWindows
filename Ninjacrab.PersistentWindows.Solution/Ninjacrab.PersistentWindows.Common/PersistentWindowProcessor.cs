@@ -979,19 +979,18 @@ namespace Ninjacrab.PersistentWindows.Common
                                 else
                                 {
                                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                                        ManualFixTopmostFlag(hwnd); //manually fix topmost flag
-                                    else if ((User32.GetKeyState(0x12) & 0x8000) != 0
-                                        && (User32.GetKeyState(9) & 0x8000) == 0) //alt key pressed (exclude alt-tab)
                                     {
-                                        //put activated window in background
-                                        User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
-                                            0, 0, 0, 0,
-                                            0
-                                            | SetWindowPosFlags.DoNotActivate
-                                            | SetWindowPosFlags.IgnoreMove
-                                            | SetWindowPosFlags.IgnoreResize
-                                        );
-
+                                        if ((User32.GetKeyState(0x12) & 0x8000) != 0) //ctrl-alt key pressed
+                                            //put activated window in background
+                                            User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
+                                                0, 0, 0, 0,
+                                                0
+                                                | SetWindowPosFlags.DoNotActivate
+                                                | SetWindowPosFlags.IgnoreMove
+                                                | SetWindowPosFlags.IgnoreResize
+                                            );
+                                        else
+                                            ManualFixTopmostFlag(hwnd); //manually fix topmost flag
                                     }
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
