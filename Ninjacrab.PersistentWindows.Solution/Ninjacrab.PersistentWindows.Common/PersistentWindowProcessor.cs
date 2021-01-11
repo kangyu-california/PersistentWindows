@@ -980,7 +980,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                                         ManualFixTopmostFlag(hwnd); //manually fix topmost flag
-                                    else if ((User32.GetKeyState(0x12) & 0x8000) != 0) //alt key pressed
+                                    else if ((User32.GetKeyState(0x12) & 0x8000) != 0
+                                        && (User32.GetKeyState(9) & 0x8000) == 0) //alt key pressed (exclude alt-tab)
+                                    {
                                         //put activated window in background
                                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                                             0, 0, 0, 0,
@@ -989,6 +991,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                             | SetWindowPosFlags.IgnoreMove
                                             | SetWindowPosFlags.IgnoreResize
                                         );
+
+                                    }
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
