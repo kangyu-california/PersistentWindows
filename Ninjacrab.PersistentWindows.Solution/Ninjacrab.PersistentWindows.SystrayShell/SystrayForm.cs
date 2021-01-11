@@ -204,6 +204,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Program.RestoreFromDisk();
         }
 
+        private void CaptureSnapshotClickHandler(object sender, EventArgs e)
+        {
+        }
+
+        private void RestoreSnapshotClickHandler(object sender, EventArgs e)
+        {
+        }
+
         private void PauseResumeAutoRestore(object sender, EventArgs e)
         {
             if (pauseAutoRestore)

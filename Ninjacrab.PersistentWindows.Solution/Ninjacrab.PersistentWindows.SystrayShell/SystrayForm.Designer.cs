@@ -19,12 +19,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private ToolStripMenuItem manageLayoutProfile; 
         private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
-        public System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
-        public System.Windows.Forms.ToolStripMenuItem pauseResumeToolStripMenuItem;
-        public System.Windows.Forms.ToolStripMenuItem upgradeNoticeMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem captureSnapshotMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem restoreSnapshotMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pauseResumeToolStripMenuItem;
+        public  System.Windows.Forms.ToolStripMenuItem upgradeNoticeMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator[] toolStripMenuItem = new System.Windows.Forms.ToolStripSeparator[4];
+        private System.Windows.Forms.ToolStripSeparator[] menuSeparators = new System.Windows.Forms.ToolStripSeparator[5];
 
         /// <summary>
         /// Clean up any resources being used.
@@ -54,15 +56,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.captureSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restoreSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradeNoticeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.manageLayoutProfile = new ToolStripMenuItem();
 
-            for (int i = 0; i < 4; ++i)
+            for (int i = 0; i < menuSeparators.Length; ++i)
             {
-                this.toolStripMenuItem[i] = new System.Windows.Forms.ToolStripSeparator();
-                this.toolStripMenuItem[i].Name = $"toolStripMenuItem{i}";
-                this.toolStripMenuItem[i].Size = new System.Drawing.Size(132, 6);
+                this.menuSeparators[i] = new System.Windows.Forms.ToolStripSeparator();
+                this.menuSeparators[i].Name = $"toolStripMenuItem{i}";
+                this.menuSeparators[i].Size = new System.Drawing.Size(132, 6);
             }
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripSysTray.SuspendLayout();
@@ -91,12 +95,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 */
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
-                this.toolStripMenuItem[0],
+                this.menuSeparators[0],
+                this.captureSnapshotMenuItem,
+                this.restoreSnapshotMenuItem,
+                this.menuSeparators[1],
                 this.pauseResumeToolStripMenuItem,
-                this.toolStripMenuItem[1],
+                this.menuSeparators[2],
                 this.upgradeNoticeMenuItem,
                 this.aboutToolStripMenuItem,
-                this.toolStripMenuItem[2],
+                this.menuSeparators[3],
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
             this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
@@ -121,6 +128,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
 
+            // capture snapshot
+            // 
+            this.captureSnapshotMenuItem.Name = "capture snapshot";
+            this.captureSnapshotMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.captureSnapshotMenuItem.Text = "C&apture snapshot";
+            this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshotClickHandler);
+
+            // restore
+            // 
+            this.restoreSnapshotMenuItem.Name = "restore snapshot";
+            this.restoreSnapshotMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.restoreSnapshotMenuItem.Text = "R&estore snapshot";
+            this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshotClickHandler);
             // suspend/resume auto restore
             // 
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";
