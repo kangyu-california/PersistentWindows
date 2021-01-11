@@ -3,15 +3,19 @@
 * How to use snapshot feature
   1. In taskbar settings, turn on PW to let the icon always appear on taskbar
   ![taskbar setting](showicon.png)
-  2. Issue one of the instructions below to execute the corresponding snapshot command
+  2. Shortcut for snapshot command
 
-  |Snapshot command | Instruction|
+  | Snapshot command | Shortcut|
   | --- | --- |
   | Capture snapshot 0 | Double click PW icon
-   Restore snapshot 0 | Click PW icon
+  | Restore snapshot 0 | Click PW icon
   | Capture snapshot N | Shift click PW icon N times (N = 1, 2, 3)
   | Restore snapshot N |  Ctrl click PW icon N times
+  | Capture snapshot x (release 5.12) | Double click PW icon then immediately press and hold x key (x represents any digit [0-9] or letter [a-z])
+  | Restore snapshot x (release 5.12) | Click PW icon then immediately press and hold x key
   | Undo last snapshot restore | Alt click PW icon
+
+
 
 * PW command line options
   | Command line option | Meaning |
