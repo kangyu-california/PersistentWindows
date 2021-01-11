@@ -72,7 +72,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 else if (shiftKeyPressed == clickCount)
                 {
                     // take counted snapshot
-                    Program.TakeSnapshot(clickCount);
+                    Program.CaptureSnapshot(clickCount);
                 }
                 else if (controlKeyPressed == clickCount)
                 {
@@ -92,7 +92,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);
                         else
-                            Program.TakeSnapshot(0);
+                            Program.CaptureSnapshot(0);
                     }
                     else
                     {
@@ -102,13 +102,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         else
                             snapshot = keyPressed - 0x41 + 10; 
 
-                        if (clickCount == 1)
+                        if (snapshot < 0 || snapshot > 35)
+                        {
+                            //invalid key pressed
+                        }
+                        else if (clickCount == 1)
                         {
                             Program.RestoreSnapshot(snapshot);
                         }
                         else
                         {
-                            Program.TakeSnapshot(snapshot);
+                            Program.CaptureSnapshot(snapshot);
                         }
                     }
                 }
@@ -188,11 +192,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
-        private void ManageLayoutProfileClickHandler(object sender, EventArgs e)
-        {
-            Program.ManageLayoutProfile();
-        }
-
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
             Program.CaptureToDisk();
@@ -206,10 +205,18 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void CaptureSnapshotClickHandler(object sender, EventArgs e)
         {
+            char snapshot_char = Program.EnterSnapshotName();
+            int id = Program.SnapshotCharToId(snapshot_char);
+            if (id != -1)
+                Program.CaptureSnapshot(id);
         }
 
         private void RestoreSnapshotClickHandler(object sender, EventArgs e)
         {
+            char snapshot_char = Program.EnterSnapshotName();
+            int id = Program.SnapshotCharToId(snapshot_char);
+            if (id != -1)
+                Program.RestoreSnapshot(id);
         }
 
         private void PauseResumeAutoRestore(object sender, EventArgs e)

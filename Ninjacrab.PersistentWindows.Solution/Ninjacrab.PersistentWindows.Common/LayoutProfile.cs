@@ -12,6 +12,8 @@ namespace Ninjacrab.PersistentWindows.Common
 {
     public partial class LayoutProfile : Form
     {
+        public char snapshot_name;
+
         public LayoutProfile()
         {
             InitializeComponent();
@@ -19,7 +21,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void ProfileName_TextChanged(object sender, EventArgs e)
         {
-
+            var str = ((TextBox)sender).Text;
+            snapshot_name = Char.ToLower(str[0]); 
+            Close();
         }
 
 
@@ -27,11 +31,5 @@ namespace Ninjacrab.PersistentWindows.Common
         {
 
         }
-
-        private void Close_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
     }
 }

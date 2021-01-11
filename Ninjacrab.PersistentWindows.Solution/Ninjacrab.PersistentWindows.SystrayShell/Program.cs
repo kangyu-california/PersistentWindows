@@ -219,20 +219,44 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             systrayForm.enableRefresh = true;
         }
 
-        static public void TakeSnapshot(int id)
+        static public void CaptureSnapshot(int id)
         {
             pwp.TakeSnapshot(id);
             if (!silent)
             {
-                if (id < 10)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {id} is captured", $"click icon then press and hold key '{id}' to restore the snapshot", ToolTipIcon.Info);
-                else
-                {
-                    char c = 'a';
-                    c += (char)(id - 10);
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot {c} is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
-                }
+                char c = SnapshotIdToChar(id);
+                systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
             }
+        }
+
+        static public char SnapshotIdToChar(int id)
+        {
+            char c;
+            if (id < 10)
+            {
+                c = '0';
+                c += (char)id;
+            }
+            else
+            {
+                c = 'a';
+                c += (char)(id - 10);
+            }
+
+            return c;
+        }
+
+        static public int SnapshotCharToId(char c)
+        {
+            if (c < '0')
+                return -1;
+            if (c > 'z')
+                return -1;
+            if (c <= '9')
+                return (int)(c - '0');
+            if (c < 'a')
+                return -1;
+            return (int)(c - 'a' + 10);
         }
 
         static void StartSplashForm()
@@ -247,13 +271,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             thread.Start();
         }
 
-        static public void ManageLayoutProfile()
+        static public char EnterSnapshotName()
         {
             var profileDlg = new LayoutProfile();
             if (profileDlg.ShowDialog(systrayForm) == DialogResult.OK)
             {
 
             }
+
+            return profileDlg.snapshot_name;
         }
 
         static public void CaptureToDisk()

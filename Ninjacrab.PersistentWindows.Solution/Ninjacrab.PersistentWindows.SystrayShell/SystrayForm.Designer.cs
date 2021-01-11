@@ -17,16 +17,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public System.Windows.Forms.NotifyIcon notifyIconMain;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
 
-        private ToolStripMenuItem manageLayoutProfile; 
-        private System.Windows.Forms.ToolStripMenuItem captureToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem captureSnapshotMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem restoreSnapshotMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem pauseResumeToolStripMenuItem;
-        public  System.Windows.Forms.ToolStripMenuItem upgradeNoticeMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator[] menuSeparators = new System.Windows.Forms.ToolStripSeparator[5];
+        private ToolStripMenuItem captureToolStripMenuItem;
+        private ToolStripMenuItem restoreToolStripMenuItem;
+        private ToolStripMenuItem captureSnapshotMenuItem;
+        private ToolStripMenuItem restoreSnapshotMenuItem;
+        private ToolStripMenuItem pauseResumeToolStripMenuItem;
+        public  ToolStripMenuItem upgradeNoticeMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripSeparator[] menuSeparators = new System.Windows.Forms.ToolStripSeparator[5];
 
         /// <summary>
         /// Clean up any resources being used.
@@ -60,7 +59,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.restoreSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradeNoticeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.manageLayoutProfile = new ToolStripMenuItem();
 
             for (int i = 0; i < menuSeparators.Length; ++i)
             {
@@ -107,12 +105,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
             this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
-
-            // manage layout profiles
-            this.manageLayoutProfile.Name = "manage layout";
-            this.manageLayoutProfile.Size = new System.Drawing.Size(135, 22);
-            this.manageLayoutProfile.Text = "&Manage layout profiles";
-            this.manageLayoutProfile.Click += new System.EventHandler(this.ManageLayoutProfileClickHandler);
 
             // capture
             // 
