@@ -208,7 +208,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             char snapshot_char = Program.EnterSnapshotName();
             int id = Program.SnapshotCharToId(snapshot_char);
             if (id != -1)
-                Program.CaptureSnapshot(id);
+                Program.CaptureSnapshot(id, prompt : false);
         }
 
         private void RestoreSnapshotClickHandler(object sender, EventArgs e)

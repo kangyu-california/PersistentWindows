@@ -219,13 +219,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             systrayForm.enableRefresh = true;
         }
 
-        static public void CaptureSnapshot(int id)
+        static public void CaptureSnapshot(int id, bool prompt = true)
         {
             pwp.TakeSnapshot(id);
             if (!silent)
             {
                 char c = SnapshotIdToChar(id);
-                systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
+                if (prompt)
+                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
             }
         }
 
