@@ -226,7 +226,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 char c = SnapshotIdToChar(id);
                 if (prompt)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then press and hold key '{c}' to restore the snapshot", ToolTipIcon.Info);
+                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
             }
         }
 
