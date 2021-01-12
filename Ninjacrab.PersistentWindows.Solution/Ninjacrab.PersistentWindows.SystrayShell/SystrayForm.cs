@@ -42,7 +42,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 //check 0-9 key pressed
                 for (int i = 0x30; i < 0x3a; ++i)
                 {
-                    if ((User32.GetKeyState(i) & 0x8000) != 0)
+                    if (User32.GetAsyncKeyState(i) != 0)
                     {
                         keyPressed = i;
                         break;
@@ -53,7 +53,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (keyPressed < 0)
                 for (int i = 0x41; i < 0x5b; ++i)
                 {
-                    if ((User32.GetKeyState(i) & 0x8000) != 0)
+                    if (User32.GetAsyncKeyState(i) != 0)
                     {
                         keyPressed = i;
                         break;
@@ -285,6 +285,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
+
+                // clear memory of keyboard input
+                for (int i = 0x30; i < 0x3a; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
+
+                for (int i = 0x41; i < 0x5b; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
             }
         }
     }

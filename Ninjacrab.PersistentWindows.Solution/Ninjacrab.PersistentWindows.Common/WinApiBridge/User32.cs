@@ -277,6 +277,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [DllImport("USER32.dll")]
         public static extern short GetKeyState(int nVirtKey);
 
+        [DllImport("USER32.dll")]
+        public static extern short GetAsyncKeyState(int nVirtKey);
+
         [DllImport("user32.dll")]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
 
