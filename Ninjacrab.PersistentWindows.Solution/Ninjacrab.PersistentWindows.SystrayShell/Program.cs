@@ -275,10 +275,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public char EnterSnapshotName()
         {
             var profileDlg = new LayoutProfile();
-            if (profileDlg.ShowDialog(systrayForm) == DialogResult.OK)
-            {
-
-            }
+            profileDlg.Icon = IdleIcon;
+            profileDlg.ShowDialog(systrayForm);
 
             return profileDlg.snapshot_name;
         }
