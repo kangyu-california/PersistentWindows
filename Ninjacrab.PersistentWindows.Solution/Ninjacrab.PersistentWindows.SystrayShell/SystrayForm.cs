@@ -246,6 +246,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 enableUpgradeNotice = true;
                 upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+                CheckUpgrade();
             }
         }
 
