@@ -1098,6 +1098,12 @@ namespace Ninjacrab.PersistentWindows.Common
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
 
+            if (restoringSnapshot)
+            {
+                Log.Error("wait for snapshot {0} restore to finish", snapshotId);
+                return;
+            }
+
             {
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
 
