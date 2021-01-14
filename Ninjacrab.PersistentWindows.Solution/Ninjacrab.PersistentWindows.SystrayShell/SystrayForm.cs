@@ -10,6 +10,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
+        private Object uiLock = new Object();
         private Timer uiRefreshTimer = new Timer();
 
         public volatile bool enableRefresh = false;
@@ -37,94 +38,101 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             clickDelayTimer = new System.Threading.Timer(state =>
             {
-                pauseUpgradeCounter = true;
-
-                int keyPressed = -1;
-                //check 0-9 key pressed
-                for (int i = 0x30; i < 0x3a; ++i)
-                {
-                    if (User32.GetAsyncKeyState(i) != 0)
-                    {
-                        keyPressed = i;
-                        break;
-                    }
-                }
-
-                //check a-z pressed
-                if (keyPressed < 0)
-                for (int i = 0x41; i < 0x5b; ++i)
-                {
-                    if (User32.GetAsyncKeyState(i) != 0)
-                    {
-                        keyPressed = i;
-                        break;
-                    }
-                }
-
-                int totalSpecialKeyPressed = shiftKeyPressed + controlKeyPressed + altKeyPressed;
-
-                if (clickCount > 3)
-                {
-                }
-                else if (totalSpecialKeyPressed > clickCount)
-                {
-                    //no more than one key can be pressed
-                }
-                else if (shiftKeyPressed == clickCount)
-                {
-                    // take counted snapshot
-                    Program.CaptureSnapshot(clickCount);
-                }
-                else if (controlKeyPressed == clickCount)
-                {
-                    //restore counted snapshot
-                    Program.RestoreSnapshot(clickCount);
-                }
-                else if (altKeyPressed == clickCount)
-                {
-                    //restore previous workspace (not necessarily a snapshot)
-                    Program.RestoreSnapshot(36); //MaxSnapShot - 1
-                }
-                else if (totalSpecialKeyPressed == 0)
-                {
-                    if (keyPressed < 0)
-                    {
-                        if (clickCount == 1)
-                            //restore unnamed(default) snapshot
-                            Program.RestoreSnapshot(0);
-                        else if (clickCount == 2)
-                            Program.CaptureSnapshot(0);
-                    }
-                    else
-                    {
-                        int snapshot;
-                        if (keyPressed < 0x3a)
-                            snapshot = keyPressed - 0x30;
-                        else
-                            snapshot = keyPressed - 0x41 + 10; 
-
-                        if (snapshot < 0 || snapshot > 35)
-                        {
-                            //invalid key pressed
-                        }
-                        else if (clickCount == 1)
-                        {
-                            Program.RestoreSnapshot(snapshot);
-                        }
-                        else if (clickCount == 2)
-                        {
-                            Program.CaptureSnapshot(snapshot);
-                        }
-                    }
-                }
-
-                clickCount = 0;
-                shiftKeyPressed = 0;
-                controlKeyPressed = 0;
-                altKeyPressed = 0;
+                lock (uiLock)
+                    TimerCallBack();
             });
 
             InitializeComponent();
+        }
+
+        private void TimerCallBack()
+        {
+            pauseUpgradeCounter = true;
+
+            int keyPressed = -1;
+            //check 0-9 key pressed
+            for (int i = 0x30; i < 0x3a; ++i)
+            {
+                if (User32.GetAsyncKeyState(i) != 0)
+                {
+                    keyPressed = i;
+                    break;
+                }
+            }
+
+            //check a-z pressed
+            if (keyPressed < 0)
+            for (int i = 0x41; i < 0x5b; ++i)
+            {
+                if (User32.GetAsyncKeyState(i) != 0)
+                {
+                    keyPressed = i;
+                    break;
+                }
+            }
+
+            int totalSpecialKeyPressed = shiftKeyPressed + controlKeyPressed + altKeyPressed;
+
+            if (clickCount > 3)
+            {
+            }
+            else if (totalSpecialKeyPressed > clickCount)
+            {
+                //no more than one key can be pressed
+            }
+            else if (shiftKeyPressed == clickCount)
+            {
+                // take counted snapshot
+                Program.CaptureSnapshot(clickCount);
+            }
+            else if (controlKeyPressed == clickCount)
+            {
+                //restore counted snapshot
+                Program.RestoreSnapshot(clickCount);
+            }
+            else if (altKeyPressed == clickCount)
+            {
+                //restore previous workspace (not necessarily a snapshot)
+                Program.RestoreSnapshot(36); //MaxSnapShot - 1
+            }
+            else if (totalSpecialKeyPressed == 0)
+            {
+                if (keyPressed < 0)
+                {
+                    if (clickCount == 1)
+                        //restore unnamed(default) snapshot
+                        Program.RestoreSnapshot(0);
+                    else if (clickCount == 2)
+                        Program.CaptureSnapshot(0);
+                }
+                else
+                {
+                    int snapshot;
+                    if (keyPressed < 0x3a)
+                        snapshot = keyPressed - 0x30;
+                    else
+                        snapshot = keyPressed - 0x41 + 10; 
+
+                    if (snapshot < 0 || snapshot > 35)
+                    {
+                        //invalid key pressed
+                    }
+                    else if (clickCount == 1)
+                    {
+                        Program.RestoreSnapshot(snapshot);
+                    }
+                    else if (clickCount == 2)
+                    {
+                        Program.CaptureSnapshot(snapshot);
+                    }
+                }
+            }
+
+            clickCount = 0;
+            shiftKeyPressed = 0;
+            controlKeyPressed = 0;
+            altKeyPressed = 0;
+
         }
 
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
@@ -268,6 +276,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void IconMouseDown(object sender, MouseEventArgs e)
         {
+            lock(uiLock)
             if (e.Button == MouseButtons.Left)
             {
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
@@ -278,15 +287,29 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if ((User32.GetKeyState(0x12) & 0x8000) != 0)
                     altKeyPressed++;
+
+                // clear memory of keyboard input
+                for (int i = 0x30; i < 0x3a; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
+
+                for (int i = 0x41; i < 0x5b; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
+
             }
         }
 
         private void IconMouseUp(object sender, MouseEventArgs e)
         {
+            lock(uiLock)
             if (e.Button == MouseButtons.Left)
             {
                 DateTime now = DateTime.Now;
                 var milliseconds = now.Subtract(prevClickTime).TotalMilliseconds;
+                prevClickTime = now;
                 if (milliseconds < 50)
                 {
                     clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
@@ -302,27 +325,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
                     Program.LogEvent($"mouse click debounced due to abnormal click interval {milliseconds}");
                     clickCount = 0;
-                    prevClickTime = now;
                     shiftKeyPressed = 0;
                     controlKeyPressed = 0;
                     altKeyPressed = 0;
                     return;
                 }
 
-                prevClickTime = now;
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
-
-                // clear memory of keyboard input
-                for (int i = 0x30; i < 0x3a; ++i)
-                {
-                    User32.GetAsyncKeyState(i);
-                }
-
-                for (int i = 0x41; i < 0x5b; ++i)
-                {
-                    User32.GetAsyncKeyState(i);
-                }
             }
         }
     }
