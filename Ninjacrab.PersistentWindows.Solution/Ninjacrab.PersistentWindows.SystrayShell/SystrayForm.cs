@@ -26,6 +26,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private int controlKeyPressed = 0;
         private int altKeyPressed = 0;
         private int clickCount = 0;
+        private DateTime prevClickTime = DateTime.Now;
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -91,7 +92,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         if (clickCount == 1)
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);
-                        else
+                        else if (clickCount == 2)
                             Program.CaptureSnapshot(0);
                     }
                     else
@@ -110,7 +111,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         {
                             Program.RestoreSnapshot(snapshot);
                         }
-                        else
+                        else if (clickCount == 2)
                         {
                             Program.CaptureSnapshot(snapshot);
                         }
@@ -284,6 +285,31 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
+                DateTime now = DateTime.Now;
+                var milliseconds = now.Subtract(prevClickTime).TotalMilliseconds;
+                if (milliseconds < 50)
+                {
+                    clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+                    Program.LogEvent($"mouse click debounced due to abnormal click interval {milliseconds}");
+                    clickCount = 0;
+                    shiftKeyPressed = 0;
+                    controlKeyPressed = 0;
+                    altKeyPressed = 0;
+                    return;
+                }
+                else if (milliseconds > 500 && clickCount != 0)
+                {
+                    clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+                    Program.LogEvent($"mouse click debounced due to abnormal click interval {milliseconds}");
+                    clickCount = 0;
+                    prevClickTime = now;
+                    shiftKeyPressed = 0;
+                    controlKeyPressed = 0;
+                    altKeyPressed = 0;
+                    return;
+                }
+
+                prevClickTime = now;
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
 
