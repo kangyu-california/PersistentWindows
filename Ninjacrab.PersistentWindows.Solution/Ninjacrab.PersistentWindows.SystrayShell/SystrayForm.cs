@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private int controlKeyPressed = 0;
         private int altKeyPressed = 0;
         private int clickCount = 0;
-        private DateTime prevClickTime = DateTime.Now;
+        //private DateTime prevClickTime = DateTime.Now;
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -307,6 +307,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             lock(uiLock)
             if (e.Button == MouseButtons.Left)
             {
+                /*
                 DateTime now = DateTime.Now;
                 var milliseconds = now.Subtract(prevClickTime).TotalMilliseconds;
                 prevClickTime = now;
@@ -330,6 +331,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     altKeyPressed = 0;
                     return;
                 }
+                */
 
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
