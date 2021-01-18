@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int SlowRestoreLatency = 2000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 5000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
-        private const int MaxRestoreTimes = 4; // maximum restore passes
+        private const int MaxRestoreTimes = 3; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
@@ -2413,7 +2413,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes < MaxRestoreTimes)
                 {
-                    //needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
+                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
                     if ((restoreTimes & 1) != 0)
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
