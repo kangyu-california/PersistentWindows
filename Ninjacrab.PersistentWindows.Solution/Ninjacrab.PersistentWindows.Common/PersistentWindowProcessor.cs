@@ -2413,7 +2413,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes < MaxRestoreTimes)
                 {
-                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
+                    //needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
                     if ((restoreTimes & 1) != 0)
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
