@@ -85,12 +85,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 // take counted snapshot
                 Program.CaptureSnapshot(clickCount);
             }
-            else if (controlKeyPressed == clickCount)
+            else if (controlKeyPressed == clickCount && controlKeyPressed != 0)
             {
                 //restore counted snapshot
                 Program.RestoreSnapshot(clickCount);
             }
-            else if (altKeyPressed == clickCount)
+            else if (altKeyPressed == clickCount && altKeyPressed != 0)
             {
                 //restore previous workspace (not necessarily a snapshot)
                 Program.RestoreSnapshot(36); //MaxSnapShot - 1
@@ -99,7 +99,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 if (keyPressed < 0)
                 {
-                    if (clickCount == 1)
+                    if (clickCount == 1 && firstClick && !doubleClick)
                         //restore unnamed(default) snapshot
                         Program.RestoreSnapshot(0);
                     else if (clickCount == 2 && firstClick && doubleClick)
@@ -117,7 +117,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     {
                         //invalid key pressed
                     }
-                    else if (clickCount == 1)
+                    else if (clickCount == 1 && firstClick && !doubleClick)
                     {
                         Program.RestoreSnapshot(snapshot);
                     }
