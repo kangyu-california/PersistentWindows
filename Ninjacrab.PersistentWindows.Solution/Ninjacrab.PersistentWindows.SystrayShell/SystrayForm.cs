@@ -80,7 +80,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 //no more than one key can be pressed
             }
-            else if (shiftKeyPressed == clickCount)
+            else if (shiftKeyPressed == clickCount && shiftKeyPressed != 0)
             {
                 // take counted snapshot
                 Program.CaptureSnapshot(clickCount);
