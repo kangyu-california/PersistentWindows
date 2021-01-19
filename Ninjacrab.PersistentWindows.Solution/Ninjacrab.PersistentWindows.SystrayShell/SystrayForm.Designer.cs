@@ -83,6 +83,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.notifyIconMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.IconMouseDown);
             this.notifyIconMain.MouseUp += new System.Windows.Forms.MouseEventHandler(this.IconMouseUp);
 
+            this.notifyIconMain.MouseClick += new System.Windows.Forms.MouseEventHandler(this.IconMouseClick);
+
+            this.notifyIconMain.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.IconMouseDoubleClick);
+
             // 
             // contextMenuStripSysTray
             // 

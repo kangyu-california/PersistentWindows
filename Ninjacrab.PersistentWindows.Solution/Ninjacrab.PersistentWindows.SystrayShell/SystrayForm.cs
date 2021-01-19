@@ -10,7 +10,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
-        private Object uiLock = new Object();
         private Timer uiRefreshTimer = new Timer();
 
         public volatile bool enableRefresh = false;
@@ -27,7 +26,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private int controlKeyPressed = 0;
         private int altKeyPressed = 0;
         private int clickCount = 0;
-        //private DateTime prevClickTime = DateTime.Now;
+        private bool firstClick = false;
+        private bool doubleClick = false;
+
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -38,8 +39,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             clickDelayTimer = new System.Threading.Timer(state =>
             {
-                lock (uiLock)
-                    TimerCallBack();
+                TimerCallBack();
             });
 
             InitializeComponent();
@@ -102,7 +102,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     if (clickCount == 1)
                         //restore unnamed(default) snapshot
                         Program.RestoreSnapshot(0);
-                    else if (clickCount == 2)
+                    else if (clickCount == 2 && firstClick && doubleClick)
                         Program.CaptureSnapshot(0);
                 }
                 else
@@ -121,7 +121,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     {
                         Program.RestoreSnapshot(snapshot);
                     }
-                    else if (clickCount == 2)
+                    else if (clickCount == 2 && firstClick && doubleClick)
                     {
                         Program.CaptureSnapshot(snapshot);
                     }
@@ -129,6 +129,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
 
             clickCount = 0;
+            doubleClick = false;
+            firstClick = false;
             shiftKeyPressed = 0;
             controlKeyPressed = 0;
             altKeyPressed = 0;
@@ -274,11 +276,30 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Exit();
         }
 
-        private void IconMouseDown(object sender, MouseEventArgs e)
+        private void IconMouseClick(object sender, MouseEventArgs e)
         {
-            lock(uiLock)
             if (e.Button == MouseButtons.Left)
             {
+                firstClick = true;
+                //Console.WriteLine("MouseClick");
+            }
+        }
+
+        private void IconMouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                doubleClick = true;
+                //Console.WriteLine("MouseDoubleClick");
+            }
+        }
+
+        private void IconMouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                //Console.WriteLine("Down");
+
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
 
@@ -304,34 +325,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void IconMouseUp(object sender, MouseEventArgs e)
         {
-            lock(uiLock)
             if (e.Button == MouseButtons.Left)
             {
-                /*
-                DateTime now = DateTime.Now;
-                var milliseconds = now.Subtract(prevClickTime).TotalMilliseconds;
-                prevClickTime = now;
-                if (milliseconds < 50)
-                {
-                    clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-                    Program.LogEvent($"mouse click debounced due to abnormal click interval {milliseconds}");
-                    clickCount = 0;
-                    shiftKeyPressed = 0;
-                    controlKeyPressed = 0;
-                    altKeyPressed = 0;
-                    return;
-                }
-                else if (milliseconds > 500 && clickCount != 0)
-                {
-                    clickDelayTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
-                    Program.LogEvent($"mouse click debounced due to abnormal click interval {milliseconds}");
-                    clickCount = 0;
-                    shiftKeyPressed = 0;
-                    controlKeyPressed = 0;
-                    altKeyPressed = 0;
-                    return;
-                }
-                */
+                //Console.WriteLine("Up");
 
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);

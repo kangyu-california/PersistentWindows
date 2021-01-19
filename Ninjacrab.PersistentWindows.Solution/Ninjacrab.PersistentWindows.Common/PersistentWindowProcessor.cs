@@ -1154,7 +1154,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoringSnapshot = true;
             snapshotId = id;
             restoringFromMem = true;
-            StartRestoreTimer(milliSecond : 200 /*wait mouse settle still for taskbar restore*/);
+            StartRestoreTimer(milliSecond : 0 /*wait mouse settle still for taskbar restore*/);
             Log.Event("restore snapshot {0}", id);
         }
 
