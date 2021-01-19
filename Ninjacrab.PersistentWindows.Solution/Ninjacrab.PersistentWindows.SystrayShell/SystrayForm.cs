@@ -281,7 +281,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 firstClick = true;
-                //Console.WriteLine("MouseClick");
+                Console.WriteLine("MouseClick");
             }
         }
 
@@ -290,7 +290,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 doubleClick = true;
-                //Console.WriteLine("MouseDoubleClick");
+                Console.WriteLine("MouseDoubleClick");
             }
         }
 
@@ -298,7 +298,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
-                //Console.WriteLine("Down");
+                Console.WriteLine("Down");
 
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
@@ -327,7 +327,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
-                //Console.WriteLine("Up");
+                Console.WriteLine("Up");
 
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
