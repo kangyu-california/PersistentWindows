@@ -282,6 +282,18 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 firstClick = true;
                 Console.WriteLine("MouseClick");
+
+                // clear memory of keyboard input
+                for (int i = 0x30; i < 0x3a; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
+
+                for (int i = 0x41; i < 0x5b; ++i)
+                {
+                    User32.GetAsyncKeyState(i);
+                }
+
             }
         }
 
@@ -308,17 +320,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if ((User32.GetKeyState(0x12) & 0x8000) != 0)
                     altKeyPressed++;
-
-                // clear memory of keyboard input
-                for (int i = 0x30; i < 0x3a; ++i)
-                {
-                    User32.GetAsyncKeyState(i);
-                }
-
-                for (int i = 0x41; i < 0x5b; ++i)
-                {
-                    User32.GetAsyncKeyState(i);
-                }
 
             }
         }
