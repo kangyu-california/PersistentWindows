@@ -29,6 +29,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool firstClick = false;
         private bool doubleClick = false;
 
+        private DateTime clickTime;
+
         private System.Threading.Timer clickDelayTimer;
 
         public SystrayForm()
@@ -281,6 +283,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 firstClick = true;
+                clickTime = DateTime.Now;
                 Console.WriteLine("MouseClick");
 
                 // clear memory of keyboard input
@@ -301,6 +304,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
+                DateTime now = DateTime.Now;
+                var diff = now.Subtract(clickTime);
+                if (diff.TotalMilliseconds < 20)
+                {
+                    Program.LogEvent("ignore false double click");
+                    return;
+                }
+
                 doubleClick = true;
                 Console.WriteLine("MouseDoubleClick");
             }
