@@ -180,7 +180,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
             catch (Exception ex)
             {
-                Program.LogEvent(ex.ToString());
+                Program.LogError(ex.ToString());
                 return;
             }
 
@@ -308,7 +308,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 var diff = now.Subtract(clickTime);
                 if (diff.TotalMilliseconds < 20)
                 {
-                    Program.LogEvent("ignore false double click");
+                    Program.LogError("ignore bogus double click");
                     return;
                 }
 

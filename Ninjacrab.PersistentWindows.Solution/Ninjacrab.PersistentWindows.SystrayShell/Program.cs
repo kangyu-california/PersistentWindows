@@ -348,9 +348,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
         }
+
         public static void LogEvent(string format, params object[] args)
         {
             Log.Event(format, args);
+        }
+
+        public static void LogError(string format, params object[] args)
+        {
+            Log.Error(format, args);
         }
     }
 }
