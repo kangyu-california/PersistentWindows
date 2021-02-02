@@ -1038,11 +1038,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                            // capture user moves
+                            // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
-                                StartCaptureTimer(UserMoveLatency);
+                                StartCaptureTimer(0);
                             }
                             break;
                     }
@@ -1401,7 +1401,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
             // restart capture timer
-            deferCapture = milliSeconds != UserMoveLatency;
+            deferCapture = milliSeconds > UserMoveLatency;
             captureTimer.Change(milliSeconds, Timeout.Infinite);
         }
 
