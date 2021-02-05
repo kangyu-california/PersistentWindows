@@ -307,7 +307,7 @@ namespace Ninjacrab.PersistentWindows.Common
             // captures user restore window
             this.winEventHooks.Add(User32.SetWinEventHook(
                 User32Events.EVENT_SYSTEM_MINIMIZESTART,
-                User32Events.EVENT_SYSTEM_MINIMIZEEND, //window restored
+                User32Events.EVENT_SYSTEM_MINIMIZEEND, //unminimize window
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
                 0,
@@ -1051,6 +1051,14 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                            {
+                                //capture with slight delay inperceivable by user, required for full screen mode recovery 
+                                StartCaptureTimer(UserMoveLatency / 4);
+                                userSessions.Add(curDisplayKey);
+                            }
+                            break;
+
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // immediately capture user moves
