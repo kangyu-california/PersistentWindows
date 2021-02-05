@@ -31,7 +31,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
-        private const int ActivationLatency = 500; //must < UserMoveLatency
         private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
@@ -61,6 +60,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
+        private HashSet<string> userSessions = new HashSet<string>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
@@ -248,9 +248,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // do restore again, while keeping previous capture time unchanged
                     curDisplayKey = displayKey;
-                    Log.Event("Restart restore for {0}", curDisplayKey);
-                    restoringFromMem = true;
-                    StartRestoreTimer();
+                    if (userSessions.Contains(curDisplayKey))
+                    {
+                        Log.Event("Restart restore for {0}", curDisplayKey);
+                        restoringFromMem = true;
+                        StartRestoreTimer();
+                    }
                 }
                 else
                 {
@@ -373,9 +376,16 @@ namespace Ninjacrab.PersistentWindows.Common
                         else
                         {
                             // change display on the fly
-                            restoringFromMem = true;
                             curDisplayKey = displayKey;
-                            StartRestoreTimer();
+                            if (userSessions.Contains(curDisplayKey))
+                            {
+                                restoringFromMem = true;
+                                StartRestoreTimer();
+                            }
+                            else
+                            {
+                                Log.Error($"No need to restore {curDisplayKey} display session");
+                            }
                         }
                     }
                 };
@@ -768,6 +778,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                     }
 
+                    if (!monitorApplications.ContainsKey(curDisplayKey))
+                    {
+                        return;
+                    }
+
                     // fix off-screen new window
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
@@ -1043,6 +1058,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
                                 StartCaptureTimer(0);
+                                userSessions.Add(curDisplayKey);
                             }
                             break;
                     }
@@ -1097,6 +1113,8 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
+
+            userSessions.Add(curDisplayKey);
 
             if (restoringSnapshot)
             {
@@ -1469,6 +1487,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
+            userSessions.Add(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
         }
 
