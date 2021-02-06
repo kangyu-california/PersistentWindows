@@ -60,7 +60,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
-        private HashSet<string> userSessions = new HashSet<string>();
+        private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
@@ -248,7 +248,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // do restore again, while keeping previous capture time unchanged
                     curDisplayKey = displayKey;
-                    if (userSessions.Contains(curDisplayKey))
+                    if (normalSessions.Contains(curDisplayKey))
                     {
                         Log.Event("Restart restore for {0}", curDisplayKey);
                         restoringFromMem = true;
@@ -377,7 +377,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             // change display on the fly
                             curDisplayKey = displayKey;
-                            if (userSessions.Contains(curDisplayKey))
+                            if (normalSessions.Contains(curDisplayKey))
                             {
                                 restoringFromMem = true;
                                 StartRestoreTimer();
@@ -1055,7 +1055,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                userSessions.Add(curDisplayKey);
+                                normalSessions.Add(curDisplayKey);
                             }
                             break;
 
@@ -1066,7 +1066,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
                                 StartCaptureTimer(0);
-                                userSessions.Add(curDisplayKey);
+                                normalSessions.Add(curDisplayKey);
                             }
                             break;
                     }
@@ -1122,7 +1122,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (String.IsNullOrEmpty(curDisplayKey))
                 return;
 
-            userSessions.Add(curDisplayKey);
+            normalSessions.Add(curDisplayKey);
 
             if (restoringSnapshot)
             {
@@ -1495,7 +1495,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
-            userSessions.Add(displayKey);
+            normalSessions.Add(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
         }
 
