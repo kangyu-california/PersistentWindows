@@ -1011,6 +1011,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                             ManualFixTopmostFlag(hwnd); //manually fix topmost flag
                                     }
 
+                                    normalSessions.Add(curDisplayKey);
+
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
                                     // keep restart capture timer would eventually discard these moves
