@@ -61,6 +61,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
+        private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
         // restore control
@@ -993,6 +994,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                                 else
                                 {
+                                    foreGroundWindow[curDisplayKey] = hwnd;
+
                                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                                     {
                                         if ((User32.GetKeyState(0x12) & 0x8000) != 0) //ctrl-alt key pressed
@@ -1043,6 +1046,14 @@ namespace Ninjacrab.PersistentWindows.Common
                                     if (!pendingActivateWindows.Contains(hwnd))
                                     {
                                         pendingMoveEvents.Enqueue(hwnd);
+                                    }
+                                    
+                                    if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
+                                    {
+                                        StartCaptureTimer(UserMoveLatency / 4);
+                                    }
+                                    else
+                                    {
                                         StartCaptureTimer();
                                     }
                                 }
