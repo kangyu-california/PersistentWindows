@@ -61,7 +61,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
-        private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //minized window bundled together by tidytab
+        private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
