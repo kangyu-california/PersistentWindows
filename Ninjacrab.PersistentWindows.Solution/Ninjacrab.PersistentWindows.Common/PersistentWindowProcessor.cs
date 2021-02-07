@@ -61,6 +61,9 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
+        private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //minized window bundled together by tidytab
+        private DateTime lastUnminimizeTime = DateTime.Now;
+        private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
 
@@ -830,7 +833,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 return; // captured without previous history info, let OS handle it
                             }
 
-                            if (!screenPosition.Equals(rect))
+                            if (!screenPosition.Equals(rect) && !tidyTabWindows.Contains(hwnd))
                             {
                                 // windows ignores previous snap status when activated from minimized state
                                 var placement = prevDisplayMetrics.WindowPlacement;
@@ -1064,6 +1067,10 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            lastUnminimizeTime = DateTime.Now;
+                            lastUnminimizeWindow = hwnd;
+                            tidyTabWindows.Remove(hwnd); //no longer hidden by tidytab
+
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
@@ -1073,6 +1080,19 @@ namespace Ninjacrab.PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                            {
+                                DateTime now = DateTime.Now;
+                                var diff = now.Subtract(lastUnminimizeTime);
+                                if (diff.TotalMilliseconds < 200)
+                                {
+                                    Log.Error($"window \"{windowTitle[hwnd]}\" is hidden by tidytab");
+                                    tidyTabWindows.Add(hwnd);
+                                    if (lastUnminimizeWindow != IntPtr.Zero)
+                                        tidyTabWindows.Add(lastUnminimizeWindow);
+                                }
+                            }
+
+                            goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
