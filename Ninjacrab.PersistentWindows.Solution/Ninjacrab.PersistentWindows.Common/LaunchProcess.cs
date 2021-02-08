@@ -32,7 +32,7 @@ namespace Ninjacrab.PersistentWindows.Common
             TextBox window_title = new TextBox();
             window_title.Font = new Font("Calibri", 13);
             window_title.Location = new Point(Math.Max(50, 240 - title.Length * 4), 130);
-            window_title.Width = Math.Min(400, title.Length * 8);
+            window_title.Width = Math.Min(400, title.Length * 10);
             window_title.TextAlign = HorizontalAlignment.Center;
             window_title.ReadOnly = true;
             window_title.Text = title;
