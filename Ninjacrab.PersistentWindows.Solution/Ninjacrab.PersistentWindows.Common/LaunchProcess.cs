@@ -14,22 +14,29 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         public string buttonName = "None";
 
-        public LaunchProcess(string title)
+        public LaunchProcess(string process, string title)
         {
             InitializeComponent();
 
             // Creating and setting the label 
-            Label title_label = new Label();
-            title_label.Text = title;
-            title_label.Location = new Point(240 - title.Length * 4, 100);
-            title_label.AutoSize = true;
-            title_label.BorderStyle = BorderStyle.Fixed3D;
-            title_label.Font = new Font("Calibri", 13);
-            title_label.Padding = new Padding(6);
-            title_label.TextAlign = ContentAlignment.MiddleCenter;
+            Label process_name = new Label();
+            process_name.Font = new Font("Calibri", 13);
+            process_name.Location = new Point(Math.Max(50, 240 - process.Length * 4), 80);
+            process_name.AutoSize = true;
+            process_name.BorderStyle = BorderStyle.Fixed3D;
+            process_name.Padding = new Padding(6);
+            process_name.TextAlign = ContentAlignment.MiddleCenter;
+            process_name.Text = process;
+            this.Controls.Add(process_name);
 
-            // Adding this control to the form 
-            this.Controls.Add(title_label);
+            TextBox window_title = new TextBox();
+            window_title.Font = new Font("Calibri", 13);
+            window_title.Location = new Point(Math.Max(50, 240 - title.Length * 4), 130);
+            window_title.Width = Math.Min(400, title.Length * 8);
+            window_title.TextAlign = HorizontalAlignment.Center;
+            window_title.ReadOnly = true;
+            window_title.Text = title;
+            this.Controls.Add(window_title);
         }
 
         private void RunProcess_Load(object sender, EventArgs e)

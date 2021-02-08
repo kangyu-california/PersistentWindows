@@ -122,7 +122,7 @@
     <value>Microsoft Sans Serif, 12pt</value>
   </data>
   <data name="Yes.Location" type="System.Drawing.Point, System.Drawing">
-    <value>160, 228</value>
+    <value>160, 238</value>
   </data>
   <data name="Yes.Size" type="System.Drawing.Size, System.Drawing">
     <value>114, 45</value>
@@ -154,7 +154,7 @@
     <value>NoControl</value>
   </data>
   <data name="No.Location" type="System.Drawing.Point, System.Drawing">
-    <value>386, 228</value>
+    <value>386, 238</value>
   </data>
   <data name="No.Size" type="System.Drawing.Size, System.Drawing">
     <value>116, 45</value>
@@ -184,7 +184,7 @@
     <value>NoControl</value>
   </data>
   <data name="YesToAll.Location" type="System.Drawing.Point, System.Drawing">
-    <value>160, 297</value>
+    <value>160, 307</value>
   </data>
   <data name="YesToAll.Size" type="System.Drawing.Size, System.Drawing">
     <value>114, 45</value>
@@ -214,7 +214,7 @@
     <value>NoControl</value>
   </data>
   <data name="NoToAll.Location" type="System.Drawing.Point, System.Drawing">
-    <value>386, 297</value>
+    <value>386, 307</value>
   </data>
   <data name="NoToAll.Size" type="System.Drawing.Size, System.Drawing">
     <value>116, 45</value>
@@ -244,16 +244,16 @@
     <value>Microsoft Sans Serif, 12pt</value>
   </data>
   <data name="Notice.Location" type="System.Drawing.Point, System.Drawing">
-    <value>232, 72</value>
+    <value>155, 41</value>
   </data>
   <data name="Notice.Size" type="System.Drawing.Size, System.Drawing">
-    <value>220, 25</value>
+    <value>367, 25</value>
   </data>
   <data name="Notice.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
   </data>
   <data name="Notice.Text" xml:space="preserve">
-    <value>Restore missing window</value>
+    <value>Restore missing process with window title</value>
   </data>
   <data name="Notice.TextAlign" type="System.Drawing.ContentAlignment, System.Drawing">
     <value>TopCenter</value>
@@ -277,7 +277,7 @@
     <value>8, 16</value>
   </data>
   <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>677, 387</value>
+    <value>670, 390</value>
   </data>
   <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
     <value>CenterScreen</value>

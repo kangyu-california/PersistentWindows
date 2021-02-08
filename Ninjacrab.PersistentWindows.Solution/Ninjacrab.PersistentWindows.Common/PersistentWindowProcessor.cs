@@ -2662,7 +2662,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (!yes_to_all)
                     {
-                        var runProcessDlg = new LaunchProcess(curDisplayMetrics.Title);
+                        var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName, curDisplayMetrics.Title);
                         runProcessDlg.Icon = icon;
                         runProcessDlg.ShowDialog();
 
