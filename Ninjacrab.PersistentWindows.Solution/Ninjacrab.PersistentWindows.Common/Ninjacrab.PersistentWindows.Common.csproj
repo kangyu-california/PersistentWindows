@@ -52,6 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics\Log.cs" />
+    <Compile Include="LaunchProcess.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LaunchProcess.Designer.cs">
+      <DependentUpon>LaunchProcess.cs</DependentUpon>
+    </Compile>
     <Compile Include="LayoutProfile.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -87,6 +93,9 @@
   <ItemGroup>
     <EmbeddedResource Include="LayoutProfile.resx">
       <DependentUpon>LayoutProfile.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LaunchProcess.resx">
+      <DependentUpon>LaunchProcess.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

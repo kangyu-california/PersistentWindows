@@ -130,6 +130,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
 
+        public System.Drawing.Icon icon = null;
+
         // running thread
         private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
@@ -2662,6 +2664,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 #endif
+
+                    var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName);
+                    runProcessDlg.Icon = icon;
+                    runProcessDlg.ShowDialog();
 
                     if (multiwindowProcess.ContainsKey(curDisplayMetrics.ProcessName))
                     {
