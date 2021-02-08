@@ -2652,22 +2652,30 @@ namespace Ninjacrab.PersistentWindows.Common
                 // launch process in db
                 var results = db.FindAll(); // find process not yet started
                 var i = 0;
+                bool yes_to_all = false;
                 foreach (var curDisplayMetrics in results)
                 {
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                     {
                         continue;
                     }
-#if DEBUG
-                    if (curDisplayMetrics.Title.Contains("Microsoft Visual Studio"))
-                    {
-                        continue;
-                    }
-#endif
 
-                    var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName);
-                    runProcessDlg.Icon = icon;
-                    runProcessDlg.ShowDialog();
+                    if (!yes_to_all)
+                    {
+                        var runProcessDlg = new LaunchProcess(curDisplayMetrics.Title);
+                        runProcessDlg.Icon = icon;
+                        runProcessDlg.ShowDialog();
+
+                        bool no_to_all = runProcessDlg.buttonName.Equals("NoToAll");
+                        if (no_to_all)
+                            break;
+
+                        var no_set = new HashSet<string>() { "No", "None" };
+                        if (no_set.Contains(runProcessDlg.buttonName))
+                            continue;
+
+                        yes_to_all = runProcessDlg.buttonName.Equals("YesToAll");
+                    }
 
                     if (multiwindowProcess.ContainsKey(curDisplayMetrics.ProcessName))
                     {

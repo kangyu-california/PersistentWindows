@@ -35,7 +35,6 @@ namespace Ninjacrab.PersistentWindows.Common
             this.YesToAll = new System.Windows.Forms.Button();
             this.NoToAll = new System.Windows.Forms.Button();
             this.Notice = new System.Windows.Forms.Label();
-            this.ProcessName = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Yes
@@ -71,22 +70,16 @@ namespace Ninjacrab.PersistentWindows.Common
             resources.ApplyResources(this.Notice, "Notice");
             this.Notice.Name = "Notice";
             // 
-            // ProcessName
-            // 
-            resources.ApplyResources(this.ProcessName, "ProcessName");
-            this.ProcessName.Name = "ProcessName";
-            // 
-            // RunProcess
+            // LaunchProcess
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.ProcessName);
             this.Controls.Add(this.Notice);
             this.Controls.Add(this.NoToAll);
             this.Controls.Add(this.YesToAll);
             this.Controls.Add(this.No);
             this.Controls.Add(this.Yes);
-            this.Name = "RunProcess";
+            this.Name = "LaunchProcess";
             this.Load += new System.EventHandler(this.RunProcess_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -99,6 +92,5 @@ namespace Ninjacrab.PersistentWindows.Common
         private System.Windows.Forms.Button YesToAll;
         private System.Windows.Forms.Button NoToAll;
         private System.Windows.Forms.Label Notice;
-        private System.Windows.Forms.Label ProcessName;
     }
 }

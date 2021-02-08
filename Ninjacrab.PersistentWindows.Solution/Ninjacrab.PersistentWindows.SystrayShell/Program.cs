@@ -146,6 +146,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
             pwp = new PersistentWindowProcessor();
+            pwp.icon = IdleIcon;
             pwp.dryRun = dry_run;
             if (fix_zorder_specified)
             {
