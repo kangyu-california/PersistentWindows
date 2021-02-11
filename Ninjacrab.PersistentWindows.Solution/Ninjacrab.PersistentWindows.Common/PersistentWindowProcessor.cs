@@ -2663,6 +2663,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!yes_to_all)
                     {
                         var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName, curDisplayMetrics.Title);
+                        runProcessDlg.TopMost = true;
                         runProcessDlg.Icon = icon;
                         runProcessDlg.ShowDialog();
 
