@@ -111,7 +111,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
         public int snapshotId;
 
-        private bool iconActive = false;
+        private bool iconBusy = false;
         private Timer hideIconTimer;
 
         // callbacks
@@ -260,6 +260,18 @@ namespace Ninjacrab.PersistentWindows.Common
                         restoringFromMem = true;
                         StartRestoreTimer();
                     }
+                    else
+                    {
+                        Log.Event("no need to restore fresh session {0}", curDisplayKey);
+
+                        //restore icon to idle
+                        hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
+                        sessionActive = true;
+                        using (var persistDB = new LiteDatabase(persistDbName))
+                        {
+                            enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+                        }
+                    }
                 }
                 else
                 {
@@ -285,7 +297,7 @@ namespace Ninjacrab.PersistentWindows.Common
             hideIconTimer = new Timer(stage =>
             {
                 hideRestoreTip();
-                iconActive = false;
+                iconBusy = false;
             });
 
             winEventsCaptureDelegate = WinEventProc;
@@ -1938,10 +1950,10 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             if (restoreTimes == 0)
             {
-                if (!iconActive)
+                if (!iconBusy)
                 {
                     // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
-                    iconActive = true;
+                    iconBusy = true;
                     showRestoreTip();
                 }
             }

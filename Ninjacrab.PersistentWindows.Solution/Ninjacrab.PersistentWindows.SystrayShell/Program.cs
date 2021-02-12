@@ -208,8 +208,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static void HideRestoreTip()
         {
             systrayForm.notifyIconMain.Icon = IdleIcon;
-            if (silent || !notification)
+
+            /*
+            if (silent)
                 return;
+            */
+
             systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
         }
