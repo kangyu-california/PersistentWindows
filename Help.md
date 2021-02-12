@@ -14,12 +14,7 @@
 
 ---
 
-* How to use command shortcuts to access snapshot feature
-  1. In taskbar settings, turn on PW to let the icon always appear on taskbar
-  ![taskbar setting](showicon.png)
-
-  2. Issue corresponding command shortcut according to the table 
-
+* Command shortcut to capture/restore snapshot
   | Snapshot command | Shortcut|
   | --- | --- |
   | Capture snapshot 0 | Double click PW icon
