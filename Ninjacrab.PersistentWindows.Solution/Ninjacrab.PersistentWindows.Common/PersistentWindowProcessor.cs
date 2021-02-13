@@ -2398,6 +2398,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (curDisplayMetrics == null)
                     {
+                        var results = db.Find(x => x.ProcessName == processName);
+                        curDisplayMetrics = SearchDb(results);
+                    }
+
+                    if (curDisplayMetrics == null)
+                    {
                         // no db data to restore
                         continue;
                     }
@@ -2714,6 +2720,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                         processPath = processPath.Replace(processName, realProcessFileName[processName]);
                                         break;
                                     }
+                                }
+
+                                if (processPath.Contains(" ") && !processPath.Contains("\""))
+                                {
+                                    processPath = $"\"{processPath}\"";
                                 }
 
                                 Log.Event("launch process {0}", processPath);
