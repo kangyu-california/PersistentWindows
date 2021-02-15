@@ -2412,6 +2412,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.HWnd = hWnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
+                    curDisplayMetrics.ClassName = window.ClassName;
                     curDisplayMetrics.IsValid = true;
 
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
