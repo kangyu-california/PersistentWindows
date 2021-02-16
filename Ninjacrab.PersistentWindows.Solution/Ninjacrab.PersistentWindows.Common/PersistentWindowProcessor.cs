@@ -47,6 +47,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
+        private HashSet<IntPtr> childWindows = new HashSet<IntPtr>();
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -878,11 +879,35 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
+        private bool IsChildWindow(IntPtr hwnd)
+        {
+            return User32.GetAncestor(hwnd, 1) != User32.GetDesktopWindow()
+                || User32.GetParent(hwnd) != User32.GetDesktopWindow();
+        }
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
-            if (User32.GetAncestor(hwnd, 1) != User32.GetDesktopWindow())
-                return;
+            if (IsChildWindow(hwnd))
+            {
+                switch (eventType)
+                {
+                    case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                    case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                    case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                        // only care about child windows that are moved by user
+                        childWindows.Add(hwnd);
+                        break;
+
+                    case User32Events.EVENT_OBJECT_DESTROY:
+                        childWindows.Remove(hwnd);
+                        break;
+
+                    default:
+                        break;
+                        //return;
+                }
+            }
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
@@ -1110,7 +1135,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
-                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || childWindows.Contains(hwnd))
                             {
                                 StartCaptureTimer(0);
                                 normalSessions.Add(curDisplayKey);
@@ -1628,6 +1653,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         IntPtr hWnd = window.HWnd;
                         if (!monitorApplications[displayKey].ContainsKey(hWnd))
                             continue;
+                        if (childWindows.Contains(hWnd))
+                            continue;
 
                         try
                         {
@@ -1749,9 +1776,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 // workaround runtime overflow exception in release build
                 //WindowStyleFlags style = window.Style;
 
+                /*
                 long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
                 if ((style & (long)WindowStyleFlags.MINIMIZEBOX) == 0L)
                     continue;
+                */
 
                 /* full screen app such as mstsc may not have maximize box */
                 /*
@@ -1761,6 +1790,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 */
 
+                result.Add(window);
+            }
+
+            foreach (var hwnd in childWindows)
+            {
+                SystemWindow window = new SystemWindow(hwnd);
                 result.Add(window);
             }
 
@@ -2364,6 +2399,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         continue;
                     }
+
+                    if (childWindows.Contains(hWnd))
+                        continue;
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     var processName = window.Process.ProcessName;
