@@ -885,6 +885,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 || User32.GetParent(hwnd) != User32.GetDesktopWindow();
         }
 
+        private bool IsMinimizableWindow(IntPtr hwnd)
+        {
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            return (style & (long)WindowStyleFlags.MINIMIZEBOX) != 0L;
+        }
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
@@ -1654,6 +1660,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (!monitorApplications[displayKey].ContainsKey(hWnd))
                             continue;
                         if (childWindows.Contains(hWnd))
+                            continue;
+                        if (!IsMinimizableWindow(hWnd))
                             continue;
 
                         try
