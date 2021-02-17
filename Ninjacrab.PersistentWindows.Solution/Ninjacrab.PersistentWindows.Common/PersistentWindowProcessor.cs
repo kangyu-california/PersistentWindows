@@ -2542,7 +2542,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
-                    if ((restoreTimes & 1) != 0)
+                    if ((restoreTimes & 1) == 0)
                         batchZorderFix = true;
                     else
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
