@@ -81,6 +81,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool redrawDesktop = false;
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
+        public bool autoRestoreMissingWindows = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
@@ -2717,7 +2718,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 // launch process in db
                 var results = db.FindAll(); // find process not yet started
                 var i = 0;
-                bool yes_to_all = false;
+                bool yes_to_all = autoRestoreMissingWindows | false;
                 foreach (var curDisplayMetrics in results)
                 {
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))

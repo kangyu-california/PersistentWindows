@@ -37,6 +37,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool enhanced_offscreen_fix = false;
             bool prompt_session_restore = false;
             bool check_upgrade = true;
+            bool auto_restore_missing_windows = false;
 
             foreach (var arg in args)
             {
@@ -97,6 +98,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-check_upgrade=0":
                         check_upgrade = false;
+                        break;
+                    case "-auto_restore_missing_windows":
+                    case "-auto_restore_missing_windows=1":
+                        auto_restore_missing_windows = true;
+                        break;
+                    case "-auto_restore_missing_windows=0":
+                        auto_restore_missing_windows = false;
                         break;
                 }
             }
@@ -168,6 +176,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
             pwp.enableOffScreenFix = offscreen_fix;
             pwp.promptSessionRestore = prompt_session_restore;
+            pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
 
             if (!pwp.Start())
             {
