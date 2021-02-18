@@ -974,7 +974,7 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             // auto track taskbar
-            if (string.IsNullOrEmpty(window.Title) && !IsTaskBar(window))
+            if (string.IsNullOrEmpty(window.Title) && !IsTaskBar(hwnd))
             {
                 return;
             }
@@ -1409,7 +1409,7 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             bool nonTopMost = false;
-            if (IsTaskBar(prevWindow))
+            if (IsTaskBar(prevWindow.HWnd))
             {
                 Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 nonTopMost = true;
@@ -1772,7 +1772,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (string.IsNullOrEmpty(window.ClassName))
                     continue;
 
-                if (IsTaskBar(window))
+                if (IsTaskBar(hwnd))
                 {
                     result.Add(window);
                     continue;
@@ -1824,7 +1824,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             IntPtr hwnd = window.HWnd;
             bool isTaskBar = false;
-            if (IsTaskBar(window))
+            if (IsTaskBar(hwnd))
             {
                 // capture task bar
                 isTaskBar = true;
@@ -2091,27 +2091,22 @@ namespace Ninjacrab.PersistentWindows.Common
             thread.Start();
         }
 
-        private bool IsTaskBar(SystemWindow window)
+        private string GetWindowClassName(IntPtr hwnd)
         {
-            if (!window.IsValid() || !window.Visible)
-            {
+            int nChars = 4096;
+            StringBuilder buf = new StringBuilder(nChars);
+            int chars = User32.GetClassName(hwnd, buf, nChars);
+            return buf.ToString();
+        }
+
+        private bool IsTaskBar(IntPtr hwnd)
+        {
+            if (!User32.IsWindowVisible(hwnd))
                 return false;
-            }
 
             try
             {
-                int nChars = 4096;
-                StringBuilder buf = new StringBuilder(nChars);
-                int chars = User32.GetClassName(window.HWnd, buf, nChars);
-                if (chars == 0)
-                {
-                    return false;
-                }
-
-                if (string.IsNullOrEmpty(window.ClassName))
-                    return false;
-
-                return window.ClassName.Equals("Shell_TrayWnd");
+                return GetWindowClassName(hwnd).Equals("Shell_TrayWnd");
             }
             catch (Exception ex)
             {
@@ -2508,7 +2503,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
-                if (IsTaskBar(window))
+                if (IsTaskBar(hWnd))
                 {
                     if (!dryRun)
                     {
