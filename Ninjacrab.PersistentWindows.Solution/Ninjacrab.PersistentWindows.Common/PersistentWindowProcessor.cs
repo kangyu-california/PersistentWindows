@@ -881,12 +881,18 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsChildWindow(IntPtr hwnd)
         {
+            if (IsTaskBar(hwnd))
+                return false;
+
             return User32.GetAncestor(hwnd, 1) != User32.GetDesktopWindow()
                 || User32.GetParent(hwnd) != User32.GetDesktopWindow();
         }
 
         private bool IsMinimizableWindow(IntPtr hwnd)
         {
+            if (IsTaskBar(hwnd))
+                return false;
+
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             return (style & (long)WindowStyleFlags.MINIMIZEBOX) != 0L;
         }
