@@ -11,6 +11,7 @@
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching second PW instance.
   | -check_upgrade=0 | Disable version upgrade check from beginning 
+  | ‑auto_restore_missing_windows | Spawns missing windows automatically without prompting the user first 
 
 ---
 
