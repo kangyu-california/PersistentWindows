@@ -1859,7 +1859,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //ProcessName = window.Process.ProcessName,
                 ProcessName = "",
 
-                ClassName = window.ClassName,
+                ClassName = GetWindowClassName(hwnd),
                 Title = isTaskBar ? "$taskbar$" : window.Title,
 
                 //full screen app such as mstsc may not have maximize box
