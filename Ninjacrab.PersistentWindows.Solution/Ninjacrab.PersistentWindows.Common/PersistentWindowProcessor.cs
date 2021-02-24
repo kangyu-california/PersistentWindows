@@ -2444,7 +2444,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         curDisplayMetrics = SearchDb(results);
                     }
 
-                    if (curDisplayMetrics == null)
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd))
                     {
                         var results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results);
