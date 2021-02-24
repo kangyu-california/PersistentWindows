@@ -889,10 +889,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 || User32.GetParent(hwnd) != User32.GetDesktopWindow();
         }
 
-        private bool IsMinimizableWindow(IntPtr hwnd)
+        private bool IsDbPersistentWindow(IntPtr hwnd)
         {
             if (IsTaskBar(hwnd))
-                return false;
+                return true;
 
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             return (style & (long)WindowStyleFlags.MINIMIZEBOX) != 0L;
@@ -1668,7 +1668,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         if (childWindows.Contains(hWnd))
                             continue;
-                        if (!IsMinimizableWindow(hWnd))
+                        if (!IsDbPersistentWindow(hWnd))
                             continue;
 
                         try
@@ -2411,6 +2411,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     if (childWindows.Contains(hWnd))
+                        continue;
+                    if (!IsDbPersistentWindow(hWnd))
                         continue;
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
