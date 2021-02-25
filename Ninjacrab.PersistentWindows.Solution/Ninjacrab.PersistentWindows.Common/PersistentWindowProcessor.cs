@@ -625,6 +625,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsOffScreen(IntPtr hwnd)
         {
+            if (IsMinimized(hwnd))
+                return false;
+
             const int MinSize = 10;
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hwnd, ref rect);
@@ -819,7 +822,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                         }
 
-                        if (isNewWindow && !IsMinimized(hwnd) && IsOffScreen(hwnd))
+                        if (isNewWindow && IsOffScreen(hwnd))
                         {
                             FixOffScreenWindow(hwnd);
                         }
