@@ -62,6 +62,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
+        private bool userInteraction = false;
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
@@ -1052,6 +1053,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                                 else
                                 {
+                                    userInteraction = true;
                                     foreGroundWindow[curDisplayKey] = hwnd;
 
                                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
@@ -1068,8 +1070,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                         else
                                             ManualFixTopmostFlag(hwnd); //manually fix topmost flag
                                     }
-
-                                    normalSessions.Add(curDisplayKey);
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
@@ -1129,8 +1129,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
+                                userInteraction = true;
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                normalSessions.Add(curDisplayKey);
                             }
                             break;
 
@@ -1154,7 +1154,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || childWindows.Contains(hwnd))
                             {
                                 StartCaptureTimer(0);
-                                normalSessions.Add(curDisplayKey);
+                                userInteraction = true;
                             }
                             break;
                     }
@@ -1567,6 +1567,13 @@ namespace Ninjacrab.PersistentWindows.Common
                             Log.Trace("Ignore capture request for non-current display setting {0}", displayKey);
                             return;
                         }
+                        
+                        if (userInteraction)
+                        {
+                            normalSessions.Add(curDisplayKey);
+                            userInteraction = false;
+                        }
+
                         CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
                     }
                 }
@@ -1583,7 +1590,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
-            normalSessions.Add(displayKey);
+            userInteraction = true;
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
         }
 
