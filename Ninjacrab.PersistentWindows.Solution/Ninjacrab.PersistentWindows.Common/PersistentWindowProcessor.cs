@@ -291,7 +291,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
 
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
 
             });
@@ -1625,7 +1625,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 // validate captured entry
                 foreach (var hwnd in monitorApplications[displayKey].Keys)
                 {
-                    monitorApplications[displayKey][hwnd].Last().IsValid = true;
+                    if (monitorApplications[displayKey][hwnd].Count > 0)
+                        monitorApplications[displayKey][hwnd].Last().IsValid = true;
                 }
 
                 lastUserActionTime[displayKey] = time;
