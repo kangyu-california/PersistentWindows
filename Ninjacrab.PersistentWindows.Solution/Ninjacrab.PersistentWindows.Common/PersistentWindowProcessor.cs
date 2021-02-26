@@ -1517,7 +1517,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             // ignore defer timer request to capture user move ASAP
             if (userMove)
-                return;
+                return; //assuming timer has already started
 
             // restart capture timer
             deferCapture = milliSeconds > UserMoveLatency;
@@ -1526,6 +1526,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CancelCaptureTimer()
         {
+            userMove = false;
+
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
@@ -2402,7 +2404,9 @@ namespace Ninjacrab.PersistentWindows.Common
             else
             {
                 Log.Error("Missing session cut-off time for display setting {0}", displayKey);
-                lastCaptureTime = DateTime.Now;
+                normalSessions.Remove(displayKey);
+                return false;
+                //lastCaptureTime = DateTime.Now;
             }
 
             DateTime printRestoreTime = lastCaptureTime;
