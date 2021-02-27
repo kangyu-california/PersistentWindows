@@ -2549,6 +2549,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsMinimized)
                     {
                         User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        if (IsFullScreen(hWnd))
+                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
                         Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }

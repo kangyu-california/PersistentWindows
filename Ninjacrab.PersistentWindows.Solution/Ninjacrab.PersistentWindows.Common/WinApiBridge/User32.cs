@@ -297,7 +297,12 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags); // I'm too lazy to write an enum for them
-        
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+        public const int WM_SYSCOMMAND = 0x0112;
+        public const int SC_MINIMIZE = 0xF020;
+
         #region Hooks
         [DllImport("user32.dll")]
         public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
