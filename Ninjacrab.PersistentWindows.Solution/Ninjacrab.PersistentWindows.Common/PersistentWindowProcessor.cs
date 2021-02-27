@@ -608,9 +608,21 @@ namespace Ninjacrab.PersistentWindows.Common
             return isFullScreen;
         }
 
-        private string GetWindowTitle(IntPtr hwnd)
+        private string GetWindowTitle(IntPtr hwnd, bool use_cache = true)
         {
-            return windowTitle.ContainsKey(hwnd) ? windowTitle[hwnd] : hwnd.ToString("X8");
+            if (use_cache && windowTitle.ContainsKey(hwnd))
+                return windowTitle[hwnd];
+
+            var length = User32.GetWindowTextLength(hwnd);
+            if (length > 0)
+            {
+                var title = new StringBuilder(length);
+                User32.GetWindowText(hwnd, title, length);
+                return title.ToString();
+            }
+
+            //return hwnd.ToString("X8");
+            return "";
         }
 
         private bool IsMinimized(IntPtr hwnd)
@@ -1794,7 +1806,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!User32.IsWindowVisible(hwnd))
                     continue;
 
-                if (string.IsNullOrEmpty(window.ClassName))
+                if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
                     continue;
 
                 if (IsTaskBar(hwnd))
@@ -1803,7 +1815,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(window.Title))
+                if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
 
                 // workaround runtime overflow exception in release build
@@ -1878,7 +1890,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ProcessName = "",
 
                 ClassName = GetWindowClassName(hwnd),
-                Title = isTaskBar ? "$taskbar$" : window.Title,
+                Title = isTaskBar ? "$taskbar$" : GetWindowTitle(hwnd, use_cache: false),
 
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
