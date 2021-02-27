@@ -1465,14 +1465,14 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-                string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} : {7} ",
+                string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} visible:{6} minimized:{7}",
                     curDisplayMetrics,
                     curDisplayMetrics.ScreenPosition.Left,
                     curDisplayMetrics.ScreenPosition.Top,
                     curDisplayMetrics.ScreenPosition.Width,
                     curDisplayMetrics.ScreenPosition.Height,
-                    window.Visible,
                     curDisplayMetrics.Title,
+                    window.Visible,
                     curDisplayMetrics.IsMinimized
                     );
                 string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
