@@ -1610,6 +1610,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
+            normalSessions.Add(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
         }
 
