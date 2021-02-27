@@ -1062,7 +1062,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // immediately capture new window
                                     //StartCaptureTimer(milliSeconds: 0);
                                     DateTime now = DateTime.Now;
-                                    CaptureWindow(window, eventType, now, curDisplayKey);
+                                    CaptureWindow(hwnd, eventType, now, curDisplayKey);
                                 }
                                 else
                                 {
@@ -1463,10 +1463,9 @@ namespace Ninjacrab.PersistentWindows.Common
             return ok ? 1 : -1;
         }
 
-        private bool CaptureWindow(SystemWindow window, User32Events eventType, DateTime now, string displayKey)
+        private bool CaptureWindow(IntPtr hWnd, User32Events eventType, DateTime now, string displayKey)
         {
             bool ret = false;
-            IntPtr hWnd = window.HWnd;
 
             if (!monitorApplications.ContainsKey(displayKey))
             {
@@ -1475,7 +1474,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             ApplicationDisplayMetrics curDisplayMetrics;
             ApplicationDisplayMetrics prevDisplayMetrics;
-            if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
+            if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} visible:{6} minimized:{7}",
                     curDisplayMetrics,
@@ -1484,7 +1483,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.ScreenPosition.Width,
                     curDisplayMetrics.ScreenPosition.Height,
                     curDisplayMetrics.Title,
-                    window.Visible,
+                    User32.IsWindowVisible(hWnd),
                     curDisplayMetrics.IsMinimized
                     );
                 string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
@@ -1691,9 +1690,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         //db.DeleteAll();
 
                     var appWindows = CaptureWindowsOfInterest();
-                    foreach (var window in appWindows)
+                    foreach (var hWnd in appWindows)
                     {
-                        IntPtr hWnd = window.HWnd;
                         if (!monitorApplications[displayKey].ContainsKey(hWnd))
                             continue;
                         if (childWindows.Contains(hWnd))
@@ -1705,6 +1703,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             var curDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
                             windowTitle[hWnd] = curDisplayMetrics.Title;
+                            var window = new SystemWindow(hWnd);
                             curDisplayMetrics.ProcessName = window.Process.ProcessName;
 
                             if (processCmd.ContainsKey(curDisplayMetrics.ProcessId))
@@ -1748,11 +1747,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 DateTime now = DateTime.Now;
                 int movedWindows = 0;
 
-                foreach (var window in appWindows)
+                foreach (var hwnd in appWindows)
                 {
                     try
                     {
-                        if (CaptureWindow(window, 0, now, displayKey))
+                        if (CaptureWindow(hwnd, 0, now, displayKey))
                         {
                             movedWindows++;
                         }
@@ -1780,7 +1779,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private IEnumerable<SystemWindow> CaptureWindowsOfInterest()
+        private IEnumerable<IntPtr> CaptureWindowsOfInterest()
         {
             /*
             return SystemWindow.AllToplevelWindows
@@ -1791,7 +1790,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 });
             */
 
-            List<SystemWindow> result = new List<SystemWindow>();
+            List<IntPtr> result = new List<IntPtr>();
 
             IntPtr desktopWindow = User32.GetDesktopWindow();
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
@@ -1811,7 +1810,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (IsTaskBar(hwnd))
                 {
-                    result.Add(window);
+                    result.Add(hwnd);
                     continue;
                 }
 
@@ -1835,31 +1834,29 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 */
 
-                result.Add(window);
+                result.Add(hwnd);
             }
 
             foreach (var hwnd in childWindows)
             {
-                SystemWindow window = new SystemWindow(hwnd);
-                result.Add(window);
+                result.Add(hwnd);
             }
 
             return result;
         }
 
-        private bool IsWindowMoved(string displayKey, SystemWindow window, User32Events eventType, DateTime time,
+        private bool IsWindowMoved(string displayKey, IntPtr hwnd, User32Events eventType, DateTime time,
             out ApplicationDisplayMetrics curDisplayMetrics, out ApplicationDisplayMetrics prevDisplayMetrics)
         {
             bool moved = false;
             curDisplayMetrics = null;
             prevDisplayMetrics = null;
 
-            if (!window.IsValid())
+            if (!User32.IsWindow(hwnd))
             {
                 return false;
             }
 
-            IntPtr hwnd = window.HWnd;
             bool isTaskBar = false;
             if (IsTaskBar(hwnd))
             {
@@ -1868,7 +1865,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             WindowPlacement windowPlacement = new WindowPlacement();
-            User32.GetWindowPlacement(window.HWnd, ref windowPlacement);
+            User32.GetWindowPlacement(hwnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
             RECT2 screenPosition = new RECT2();
@@ -1876,7 +1873,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             bool isMinimized = IsMinimized(hwnd);
             uint processId = 0;
-            uint threadId = User32.GetWindowThreadProcessId(window.HWnd, out processId);
+            uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
 
             bool isFullScreen = IsFullScreen(hwnd);
 
@@ -1901,7 +1898,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
 
-                IsTopMost = window.TopMost || IsWindowTopMost(hwnd),
+                IsTopMost = IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
 
                 PrevZorderWindow = GetPrevZorderWindow(hwnd),
@@ -2086,7 +2083,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             try
                             {
                                 RemoveInvalidCapture();
-                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey);
+                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
                             }
                             catch (Exception ex)
                             {
@@ -2352,7 +2349,7 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
         // returns true if extra restore pass is required
-        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, SystemWindow sWindow = null)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow)
         {
             bool needExtraRestorePass = false;
 
@@ -2371,9 +2368,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 RestoreCursorPos(displayKey);
             */
 
-            IEnumerable<SystemWindow> sWindows;
-            SystemWindow[] arr = new SystemWindow[1];
-            if (sWindow != null)
+            IEnumerable<IntPtr> sWindows;
+            var arr = new IntPtr[1];
+            if (sWindow != IntPtr.Zero)
             {
                 arr[0] = sWindow;
                 sWindows = arr;
@@ -2429,14 +2426,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 //ILiteCollection<ApplicationDisplayMetrics> db = null;
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
-                foreach (var window in sWindows)
+                foreach (var hWnd in sWindows)
                 {
-                    if (!window.IsValid() || string.IsNullOrEmpty(window.ClassName))
+                    if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
                     {
                         continue;
                     }
 
-                    IntPtr hWnd = window.HWnd;
                     if (!monitorApplications[displayKey].ContainsKey(hWnd))
                     {
                         continue;
@@ -2448,6 +2444,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
+                    var window = new SystemWindow(hWnd);
                     var processName = window.Process.ProcessName;
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
@@ -2520,14 +2517,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
             bool batchZorderFix = false;
 
-            foreach (var window in sWindows)
+            foreach (var hWnd in sWindows)
             {
-                if (!window.IsValid())
+                if (!User32.IsWindow(hWnd))
                 {
                     continue;
                 }
 
-                IntPtr hWnd = window.HWnd;
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
                 {
                     continue;
@@ -2535,9 +2531,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 ApplicationDisplayMetrics curDisplayMetrics;
                 ApplicationDisplayMetrics prevDisplayMetrics;
-                if (!IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
+                if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
+                var window = new SystemWindow(hWnd);
                 if (!window.Process.Responding)
                     continue;
 
@@ -2662,15 +2659,14 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
-                    IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<SystemWindow>());
-                    foreach (var window in sWindows)
+                    IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<IntPtr>());
+                    foreach (var hWnd in sWindows)
                     {
-                        if (!window.IsValid())
+                        if (!User32.IsWindow(hWnd))
                         {
                             continue;
                         }
 
-                        IntPtr hWnd = window.HWnd;
                         if (!monitorApplications[displayKey].ContainsKey(hWnd))
                         {
                             continue;
@@ -2680,10 +2676,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         ApplicationDisplayMetrics prevDisplayMetrics;
 
                         // get previous value
-                        IsWindowMoved(displayKey, window, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
                         if (prevDisplayMetrics == null)
                             continue;
 
+                        var window = new SystemWindow(hWnd);
                         if (!window.Process.Responding)
                             continue;
 
