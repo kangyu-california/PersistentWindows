@@ -1791,7 +1791,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 
                 SystemWindow window = new SystemWindow(hwnd);
-                if (!window.Visible)
+                if (!User32.IsWindowVisible(hwnd))
                     continue;
 
                 if (string.IsNullOrEmpty(window.ClassName))
