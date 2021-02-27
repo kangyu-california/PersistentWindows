@@ -616,6 +616,7 @@ namespace Ninjacrab.PersistentWindows.Common
             var length = User32.GetWindowTextLength(hwnd);
             if (length > 0)
             {
+                length++;
                 var title = new StringBuilder(length);
                 User32.GetWindowText(hwnd, title, length);
                 return title.ToString();
