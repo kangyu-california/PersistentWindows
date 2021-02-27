@@ -1577,7 +1577,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             return;
                         }
                         
-                        if (userMove)
+                        if (userMovePrev)
                         {
                             normalSessions.Add(curDisplayKey);
                         }
