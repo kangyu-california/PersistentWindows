@@ -56,13 +56,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        private bool deferCapture;
         private string curDisplayKey = null; // current display config name
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
-        private bool userMove = false;
+        private bool userMove = false; //received window event due to user move
+        private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
@@ -208,10 +208,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
+                userMovePrev = userMove;
+                userMove = false;
+
                 if (!sessionActive)
-                {
                     return;
-                }
 
                 if (restoringFromMem)
                     return;
@@ -1154,7 +1155,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || childWindows.Contains(hwnd))
                             {
-                                StartCaptureTimer(0);
+                                StartCaptureTimer(UserMoveLatency / 4);
                                 userMove = true;
                             }
                             break;
@@ -1464,14 +1465,15 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, window, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-                string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} ",
+                string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} V:{5} {6} : {7} ",
                     curDisplayMetrics,
                     curDisplayMetrics.ScreenPosition.Left,
                     curDisplayMetrics.ScreenPosition.Top,
                     curDisplayMetrics.ScreenPosition.Width,
                     curDisplayMetrics.ScreenPosition.Height,
                     window.Visible,
-                    curDisplayMetrics.Title
+                    curDisplayMetrics.Title,
+                    curDisplayMetrics.IsMinimized
                     );
                 string log2 = string.Format("\n    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
                     curDisplayMetrics.WindowPlacement.NormalPosition.Left,
@@ -1520,13 +1522,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 return; //assuming timer has already started
 
             // restart capture timer
-            deferCapture = milliSeconds > UserMoveLatency;
             captureTimer.Change(milliSeconds, Timeout.Infinite);
         }
 
         private void CancelCaptureTimer()
         {
             userMove = false;
+            userMovePrev = false;
 
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -1578,7 +1580,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (userMove)
                         {
                             normalSessions.Add(curDisplayKey);
-                            userMove = false;
                         }
 
                         CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
@@ -1722,7 +1723,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
             }
-            else if (deferCapture && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
+            else if (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
@@ -1750,7 +1751,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-                if (deferCapture && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
                     // defer acknowledge of user action by one more cycle
