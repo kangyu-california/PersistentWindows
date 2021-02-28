@@ -674,8 +674,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (deadApps.ContainsKey(curDisplayKey))
             {
                 var deadAppPos = deadApps[curDisplayKey];
-                SystemWindow window = new SystemWindow(hwnd);
-                string className = window.ClassName;
+                string className = GetWindowClassName(hwnd);
                 if (!string.IsNullOrEmpty(className))
                 {
                     uint processId = 0;
@@ -992,7 +991,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            var window = new SystemWindow(hwnd);
 
             /* need invisible window event to detect session cut-off
             // only track visible windows
@@ -1003,7 +1001,8 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             // auto track taskbar
-            if (string.IsNullOrEmpty(window.Title) && !IsTaskBar(hwnd))
+            var title = GetWindowTitle(hwnd);
+            if (string.IsNullOrEmpty(title) && !IsTaskBar(hwnd))
             {
                 return;
             }
@@ -1013,7 +1012,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 RECT2 screenPosition = new RECT2();
                 User32.GetWindowRect(hwnd, ref screenPosition);
 #if DEBUG
-                if (window.Title.Contains("Microsoft Visual Studio")
+                if (title.Contains("Microsoft Visual Studio")
                     && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
                         || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
                 {
@@ -1022,13 +1021,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
+                var window = new SystemWindow(hwnd);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
                     window.Process.ProcessName,
                     screenPosition.Left,
                     screenPosition.Top,
                     screenPosition.Width,
                     screenPosition.Height,
-                    window.Title
+                    title
                     );
                 Log.Trace(log);
 #endif
