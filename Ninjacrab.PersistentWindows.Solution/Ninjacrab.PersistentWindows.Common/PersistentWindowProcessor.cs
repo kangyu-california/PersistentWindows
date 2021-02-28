@@ -1075,7 +1075,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                                     {
-                                        if ((User32.GetKeyState(0x12) & 0x8000) != 0) //ctrl-alt key pressed
+                                        //if ((User32.GetKeyState(0x12) & 0x8000) != 0) //ctrl-alt key pressed
+                                        if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
                                             //put activated window in background
                                             User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                                                 0, 0, 0, 0,
