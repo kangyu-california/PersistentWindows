@@ -36,5 +36,5 @@
   * Bring a window to top z-order, force clear the topmost flag of obstructing window
     * Click on other window first to defocus, then hold CTRL key pressed and click on the window (or the corresponding icon on taskbar) that you want to bring to top.
   * Send a window to bottom z-order (similar to Alt-Esc which however does not work for remote desktop window)
-    * Defocus the window first, then hold CTRL ALT keys pressed and click on the window 
+    * Defocus the window first, then hold CTRL-WIN keys pressed and click on the window 
 ```
