@@ -2421,7 +2421,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             DateTime printRestoreTime = lastCaptureTime;
-            if (restoringFromDB && restoreTimes == 0)
+            if (restoringFromDB && restoreTimes < 2)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 //ILiteCollection<ApplicationDisplayMetrics> db = null;
