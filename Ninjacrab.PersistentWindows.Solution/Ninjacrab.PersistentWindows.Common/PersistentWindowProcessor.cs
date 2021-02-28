@@ -2122,6 +2122,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             });
             thread.IsBackground = false;
+            thread.Priority = ThreadPriority.BelowNormal;
             thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
             thread.Start();
         }
