@@ -953,7 +953,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 foreach (var key in monitorApplications.Keys)
                 {
-                    if (monitorApplications[key].ContainsKey(hwnd))
+                    if (!monitorApplications[key].ContainsKey(hwnd))
+                        continue;
+
+                    if (monitorApplications[key][hwnd].Count > 0)
                     {
                         // save window size of closed app to restore off-screen window later
                         if (!deadApps.ContainsKey(key))
@@ -974,11 +977,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             deadApps[key].RemoveAt(0);
                         }
-
-                        {
-                            monitorApplications[key].Remove(hwnd);
-                        }
                     }
+
+                    monitorApplications[key].Remove(hwnd);
                 }
 
                 bool found = windowTitle.Remove(hwnd);
