@@ -296,7 +296,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
 
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                    //CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
 
             });
