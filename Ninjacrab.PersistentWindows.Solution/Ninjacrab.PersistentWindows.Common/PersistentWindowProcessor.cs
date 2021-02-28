@@ -228,6 +228,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (pauseAutoRestore && !restoringFromDB && !restoringSnapshot)
                     return;
 
+                if (!restoringFromMem && !restoringFromDB)
+                    return;
+
                 Log.Trace("Restore timer expired");
                 BatchRestoreApplicationsOnCurrentDisplays();
             });
@@ -2027,23 +2030,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BatchRestoreApplicationsOnCurrentDisplays()
         {
-            if (restoreTimes == 0)
-            {
-                if (!iconBusy)
-                {
-                    // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
-                    iconBusy = true;
-                    showRestoreTip();
-                }
-            }
-
             lock (controlLock)
             {
-                if (!restoringFromMem && !restoringFromDB)
-                {
-                    return;
-                }
-
                 if (restoreNestLevel > 0)
                 {
                     // avoid overloading CPU due to too many restore threads ready to run
@@ -2051,6 +2039,17 @@ namespace Ninjacrab.PersistentWindows.Common
                     StartRestoreTimer();
                     return;
                 }
+
+                if (restoreTimes == 0)
+                {
+                    if (!iconBusy)
+                    {
+                        // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
+                        iconBusy = true;
+                        showRestoreTip();
+                    }
+                }
+
                 restoreNestLevel++;
             }
 

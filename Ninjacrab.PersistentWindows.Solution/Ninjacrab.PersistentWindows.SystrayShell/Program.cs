@@ -207,7 +207,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (!notification)
                     return;
 
-                systrayForm.notifyIconMain.ShowBalloonTip(10000);
+                systrayForm.notifyIconMain.ShowBalloonTip(5000);
             });
 
             thread.IsBackground = false;
