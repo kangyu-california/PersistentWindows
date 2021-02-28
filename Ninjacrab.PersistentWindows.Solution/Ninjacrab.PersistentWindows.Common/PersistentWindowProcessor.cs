@@ -2449,6 +2449,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     var window = new SystemWindow(hWnd);
                     var processName = window.Process.ProcessName;
+                    var className = GetWindowClassName(hWnd);
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
 
@@ -2461,20 +2462,20 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (curDisplayMetrics == null)
                         {
-                            results = db.Find(x => x.ClassName == window.ClassName && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
+                            results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
                             curDisplayMetrics = SearchDb(results);
                         }
 
                         if (curDisplayMetrics == null)
                         {
-                            results = db.Find(x => x.ClassName == window.ClassName && x.Title == title && x.ProcessName == processName);
+                            results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(results);
                         }
                     }
 
                     if (curDisplayMetrics == null)
                     {
-                        var results = db.Find(x => x.ClassName == window.ClassName && x.ProcessName == processName);
+                        var results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results);
                     }
 
@@ -2494,7 +2495,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.HWnd = hWnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
-                    curDisplayMetrics.ClassName = window.ClassName;
+                    curDisplayMetrics.ClassName = className;
                     curDisplayMetrics.IsValid = true;
 
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
