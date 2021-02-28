@@ -1426,19 +1426,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            SystemWindow prevWindow = new SystemWindow(prev);
-            if (!prevWindow.IsValid())
-            {
-                return 0;
-            }
-
             /*
             if (!prevWindow.Process.Responding)
                 return 0;
             */
 
             bool nonTopMost = false;
-            if (IsTaskBar(prevWindow.HWnd))
+            if (IsTaskBar(prev))
             {
                 Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
                 nonTopMost = true;
