@@ -631,7 +631,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private bool IsMinimized(IntPtr hwnd)
         {
-            bool result = User32.IsIconic(hwnd);
+            bool result = User32.IsIconic(hwnd) || !User32.IsWindowVisible(hwnd);
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.MINIMIZE) != 0L)
             {
@@ -1803,7 +1803,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 
                 SystemWindow window = new SystemWindow(hwnd);
+                /*
                 if (!User32.IsWindowVisible(hwnd))
+                    continue;
+                */
+                var rect = new RECT2();
+                User32.GetWindowRect(hwnd, ref rect);
+                if (rect.Width <= 1 && rect.Height <= 1)
                     continue;
 
                 if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
