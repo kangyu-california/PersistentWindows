@@ -1326,6 +1326,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     break;
                 if (result == result_prev)
                     break;
+                if (!User32.IsWindowVisible(result))
+                    continue;
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
                 {
