@@ -1308,9 +1308,10 @@ namespace Ninjacrab.PersistentWindows.Common
         private IntPtr GetPrevZorderWindow(IntPtr hWnd)
         {
             if (!User32.IsWindow(hWnd))
-            {
                 return IntPtr.Zero;
-            }
+
+            if (!User32.IsWindowVisible(hWnd))
+                return IntPtr.Zero;
 
             RECT2 rect = new RECT2();
             User32.GetWindowRect(hWnd, ref rect);
@@ -1326,8 +1327,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     break;
                 if (result == result_prev)
                     break;
-                if (!User32.IsWindowVisible(result))
-                    continue;
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
                 {
@@ -2678,6 +2677,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             continue;
                         }
+
+                        if (!User32.IsWindowVisible(hWnd))
+                            continue;
 
                         ApplicationDisplayMetrics curDisplayMetrics;
                         ApplicationDisplayMetrics prevDisplayMetrics;
