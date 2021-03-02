@@ -1310,7 +1310,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!User32.IsWindow(hWnd))
                 return IntPtr.Zero;
 
-            if (!User32.IsWindowVisible(hWnd))
+            if (IsMinimized(hWnd))
                 return IntPtr.Zero;
 
             RECT2 rect = new RECT2();
@@ -1330,6 +1330,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
                 {
+                    if (IsMinimized(result))
+                        continue;
+
                     if (fail_safe_result == IntPtr.Zero)
                         fail_safe_result = result;
                 }
@@ -2678,7 +2681,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         }
 
-                        if (!User32.IsWindowVisible(hWnd))
+                        if (IsMinimized(hWnd))
                             continue;
 
                         ApplicationDisplayMetrics curDisplayMetrics;
