@@ -48,6 +48,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
         private HashSet<IntPtr> childWindows = new HashSet<IntPtr>();
+        private HashSet<IntPtr> excludeWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -950,6 +951,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
+                excludeWindows.Remove(hwnd);
+
                 foreach (var key in monitorApplications.Keys)
                 {
                     if (!monitorApplications[key].ContainsKey(hwnd))
@@ -1128,6 +1131,16 @@ namespace Ninjacrab.PersistentWindows.Common
                                         pendingMoveEvents.Enqueue(hwnd);
                                     }
                                     
+                                    if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
+                                        && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
+                                    {
+                                        excludeWindows.Add(hwnd);
+                                    }
+                                    else
+                                    {
+                                        excludeWindows.Remove(hwnd);
+                                    }
+
                                     if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
                                     {
                                         StartCaptureTimer(UserMoveLatency / 4);
@@ -1845,11 +1858,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 */
 
+                if (excludeWindows.Contains(hwnd))
+                    continue;
+
                 result.Add(hwnd);
             }
 
             foreach (var hwnd in childWindows)
             {
+                if (excludeWindows.Contains(hwnd))
+                    continue;
+
                 result.Add(hwnd);
             }
 
