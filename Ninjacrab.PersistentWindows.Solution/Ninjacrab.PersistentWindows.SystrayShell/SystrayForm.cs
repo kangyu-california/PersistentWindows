@@ -306,7 +306,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 DateTime now = DateTime.Now;
                 var diff = now.Subtract(clickTime);
-                if (diff.TotalMilliseconds < 20)
+                if (diff.TotalMilliseconds < 40)
                 {
                     Program.LogError("ignore bogus double click");
                     return;
