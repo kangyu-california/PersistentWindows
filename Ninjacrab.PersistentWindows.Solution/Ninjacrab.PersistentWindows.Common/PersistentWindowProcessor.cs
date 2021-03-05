@@ -48,7 +48,11 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
         private HashSet<IntPtr> childWindows = new HashSet<IntPtr>();
-        private HashSet<IntPtr> excludeWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
+
+        // windows that are not to be restored
+        private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
+        private IntPtr curMovingWnd = IntPtr.Zero;
+        private Timer moveTimer;
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -207,6 +211,21 @@ namespace Ninjacrab.PersistentWindows.Common
             debugTimer.Change(2000, 2000);
 #endif            
 
+            moveTimer = new Timer(state =>
+            {
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
+                    && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
+                {
+                    Log.Event("ignore window {0}", GetWindowTitle(curMovingWnd));
+                    noRestoreWindows.Add(curMovingWnd);
+                }
+                else
+                {
+                    noRestoreWindows.Remove(curMovingWnd);
+                }
+            }
+            );
+
             captureTimer = new Timer(state =>
             {
                 userMovePrev = userMove;
@@ -322,7 +341,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // captures user dragging
             this.winEventHooks.Add(User32.SetWinEventHook(
-                User32Events.EVENT_SYSTEM_MOVESIZEEND,
+                User32Events.EVENT_SYSTEM_MOVESIZESTART,
                 User32Events.EVENT_SYSTEM_MOVESIZEEND,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
@@ -850,6 +869,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (IsMinimized(hwnd))
                         return; // minimize operation
 
+                    if (noRestoreWindows.Contains(hwnd))
+                        return;
+
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                     if (prevDisplayMetrics.IsMinimized)
@@ -951,7 +973,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
-                excludeWindows.Remove(hwnd);
+                noRestoreWindows.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1131,16 +1153,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                         pendingMoveEvents.Enqueue(hwnd);
                                     }
                                     
-                                    if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
-                                        && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
-                                    {
-                                        excludeWindows.Add(hwnd);
-                                    }
-                                    else
-                                    {
-                                        excludeWindows.Remove(hwnd);
-                                    }
-
                                     if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
                                     {
                                         StartCaptureTimer(UserMoveLatency / 4);
@@ -1152,6 +1164,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                             }
 
+                            break;
+
+                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                            curMovingWnd = hwnd;
+                            moveTimer.Change(250, Timeout.Infinite);
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
@@ -1858,7 +1875,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 */
 
-                if (excludeWindows.Contains(hwnd))
+                if (noRestoreWindows.Contains(hwnd))
                     continue;
 
                 result.Add(hwnd);
@@ -1866,7 +1883,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             foreach (var hwnd in childWindows)
             {
-                if (excludeWindows.Contains(hwnd))
+                if (noRestoreWindows.Contains(hwnd))
                     continue;
 
                 result.Add(hwnd);
