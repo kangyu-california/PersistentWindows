@@ -148,7 +148,7 @@ namespace Ninjacrab.PersistentWindows.Common
             ;
         }
 #endif
-        public bool Start()
+        public bool Start(bool auto_restore_from_db = false)
         {
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
@@ -193,11 +193,6 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             curDisplayKey = GetDisplayKey();
-            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
-            using(var persistDB = new LiteDatabase(persistDbName))
-            {
-                enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
-            }
             CaptureNewDisplayConfig(curDisplayKey);
 
 #if DEBUG
@@ -528,6 +523,19 @@ namespace Ninjacrab.PersistentWindows.Common
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
 
             initialized = true;
+
+            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
+            using(var persistDB = new LiteDatabase(persistDbName))
+            {
+                bool db_exist = persistDB.CollectionExists(curDisplayKey);
+                enableRestoreMenu(db_exist);
+                if (db_exist)
+                {
+                    restoringFromDB = true;
+                    StartRestoreTimer();
+                }
+            }
+
             return true;
         }
 

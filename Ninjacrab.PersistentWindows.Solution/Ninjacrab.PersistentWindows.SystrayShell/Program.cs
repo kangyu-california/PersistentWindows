@@ -38,6 +38,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool prompt_session_restore = false;
             bool check_upgrade = true;
             bool auto_restore_missing_windows = false;
+            bool auto_restore_from_db_at_startup = false;
 
             foreach (var arg in args)
             {
@@ -103,8 +104,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-auto_restore_missing_windows=1":
                         auto_restore_missing_windows = true;
                         break;
-                    case "-auto_restore_missing_windows=0":
-                        auto_restore_missing_windows = false;
+                    case "-auto_restore_missing_windows=2":
+                        auto_restore_from_db_at_startup = true;
+                        break;
+                    case "-auto_restore_missing_windows=3":
+                        auto_restore_from_db_at_startup = true;
+                        auto_restore_missing_windows = true;
                         break;
                 }
             }
@@ -178,7 +183,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
 
-            if (!pwp.Start())
+            if (!pwp.Start(auto_restore_from_db_at_startup))
             {
                 systrayForm.notifyIconMain.Visible = false;
                 return;
