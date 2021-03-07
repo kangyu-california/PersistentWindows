@@ -529,7 +529,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
                 enableRestoreMenu(db_exist);
-                if (db_exist)
+                if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
                     StartRestoreTimer();
