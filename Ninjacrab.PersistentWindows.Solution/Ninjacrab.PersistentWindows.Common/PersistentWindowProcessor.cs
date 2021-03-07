@@ -24,14 +24,13 @@ namespace Ninjacrab.PersistentWindows.Common
     {
         // constant
         private const int RestoreLatency = 500; // default delay in milliseconds from display change to window restore
-        private const int SlowRestoreLatency = 2000; // delay in milliseconds from power resume to window restore
-        private const int MaxRestoreLatency = 3000; // max delay in milliseconds from final restore pass to restore finish
+        private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
+        private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
         private const int MaxRestoreTimes = 4; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
-        private const int MinCaptureToRestoreLatency = 2 * CaptureLatency + 500; // delay in milliseconds from last capture to start restore
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxSnapshots = 37; // 0-9, a-z, and final one for undo
@@ -2425,7 +2424,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             // determine the time to be restored
-            DateTime lastCaptureTime;
+            DateTime lastCaptureTime = DateTime.Now;
             if (lastUserActionTime.ContainsKey(displayKey))
             {
                 lastCaptureTime = lastUserActionTime[displayKey];
@@ -2438,29 +2437,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
                 }
-                else if (restoringFromMem)
-                {
-                    // further dial last capture time back in case it is too close to now (actual restore time)
-                    DateTime now = DateTime.Now;
-                    TimeSpan ts = new TimeSpan(0, 0, 0, 0, MinCaptureToRestoreLatency);
-                    if (lastCaptureTime + ts > now)
-                    {
-                        if (restoreTimes == 0)
-                            Log.Error("New display config ${0}", curDisplayKey);
-                        /*
-                        Log.Error("Last capture time {0} is too close to restore time {1}", lastCaptureTime, now);
-                        lastCaptureTime = now.Subtract(ts);
-                        lastUserActionTime[displayKey] = lastCaptureTime;
-                        */
-                    }
-                }
-            }
-            else
-            {
-                Log.Error("Missing session cut-off time for display setting {0}", displayKey);
-                normalSessions.Remove(displayKey);
-                return false;
-                //lastCaptureTime = DateTime.Now;
             }
 
             DateTime printRestoreTime = lastCaptureTime;
