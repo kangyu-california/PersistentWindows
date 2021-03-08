@@ -206,7 +206,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (silent)
                     return;
 
-                systrayForm.notifyIconMain.Visible = false;
+                //systrayForm.notifyIconMain.Visible = false;
                 systrayForm.notifyIconMain.Visible = true;
 
                 if (!notification)
@@ -228,7 +228,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 return;
             */
 
-            systrayForm.notifyIconMain.Visible = false;
+            //systrayForm.notifyIconMain.Visible = false;
             systrayForm.notifyIconMain.Visible = true;
         }
 
