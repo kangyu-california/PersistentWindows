@@ -633,6 +633,25 @@ namespace Ninjacrab.PersistentWindows.Common
                 string size = string.Format("Res{0}x{1}", screenPosition.Width, screenPosition.Height);
                 if (curDisplayKey.Contains(size))
                     isFullScreen = true;
+
+                if (!isFullScreen)
+                {
+                    List<Display> displays = GetDisplays();
+                    foreach (var display in displays)
+                    {
+                        RECT2 screen = display.Position;
+                        RECT2 intersect = new RECT2();
+                        if (!User32.IntersectRect(out intersect, ref screenPosition, ref screen))
+                        {
+                            //must intersect with all screens
+                            isFullScreen = false;
+                            break;
+                        }
+
+                        if (intersect.Equals(screen))
+                            isFullScreen = true; //fully covers at least one screen
+                    }
+                }
             }
 
             return isFullScreen;
