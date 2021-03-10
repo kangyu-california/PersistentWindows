@@ -50,8 +50,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // windows that are not to be restored
         private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
+
+        // realtime fixing window location
         private IntPtr curMovingWnd = IntPtr.Zero;
-        private Timer moveTimer;
+        private Timer moveTimer; // when user move a window
+        private Timer foregroundTimer; // when user bring a window to foreground
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -219,6 +222,26 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
             );
+
+            foregroundTimer = new Timer(state =>
+            {
+                IntPtr hwnd = foreGroundWindow[curDisplayKey];
+
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                {
+                    if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
+                                                                  //put activated window in background
+                        User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
+                            0, 0, 0, 0,
+                            0
+                            | SetWindowPosFlags.DoNotActivate
+                            | SetWindowPosFlags.IgnoreMove
+                            | SetWindowPosFlags.IgnoreResize
+                        );
+                    else
+                        ManualFixTopmostFlag(hwnd);
+                }
+            });
 
             captureTimer = new Timer(state =>
             {
@@ -1123,22 +1146,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                 else
                                 {
                                     foreGroundWindow[curDisplayKey] = hwnd;
+                                    foregroundTimer.Change(100, Timeout.Infinite);
 
-                                    if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                                    {
-                                        //if ((User32.GetKeyState(0x12) & 0x8000) != 0) //ctrl-alt key pressed
-                                        if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
-                                            //put activated window in background
-                                            User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
-                                                0, 0, 0, 0,
-                                                0
-                                                | SetWindowPosFlags.DoNotActivate
-                                                | SetWindowPosFlags.IgnoreMove
-                                                | SetWindowPosFlags.IgnoreResize
-                                            );
-                                        else
-                                            ManualFixTopmostFlag(hwnd); //manually fix topmost flag
-                                    }
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
