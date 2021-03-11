@@ -38,6 +38,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private const int HideIconLatency = 50; // delay in millliseconds from restore finished to hide icon
 
+        private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
+        private const int SafeDistanceFromTaskbar = 300; //let cursor away from popup window of taskbar to initiate taskbar resize
+
         private bool initialized = false;
 
         // window position database
@@ -2350,7 +2353,7 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.SetActiveWindow(hTaskBar);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
                 0, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(3500); // wait to be activated
+            Thread.Sleep(PauseRestoreTaskbar); // wait to be activated
             User32.SetCursorPos(x, y);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
@@ -2388,8 +2391,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         start_x = sourceRect.Left + sourceRect.Width - 1;
                         end_x = targetRect.Left + targetRect.Width - 1;
 
-                        initial_x = start_x + 50;
-                        final_x = end_x + 50;
+                        initial_x = start_x + SafeDistanceFromTaskbar;
+                        final_x = end_x + SafeDistanceFromTaskbar;
                     }
                     else
                     {
@@ -2397,14 +2400,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         start_x = sourceRect.Left;
                         end_x = targetRect.Left;
 
-                        initial_x = start_x - 50;
-                        final_x = end_x - 50;
+                        initial_x = start_x - SafeDistanceFromTaskbar;
+                        final_x = end_x - SafeDistanceFromTaskbar;
                     }
 
                     // avoid cursor failure
                     IntPtr desktopWindow = User32.GetDesktopWindow();
                     User32.SetCursorPos(initial_x, start_y);
-                    User32.SetActiveWindow(desktopWindow);
+                    Thread.Sleep(PauseRestoreTaskbar); // wait for popup window from taskbar to disappear
 
                     IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
                     IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
@@ -2414,7 +2417,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     User32.SetActiveWindow(hTaskBar);
                     User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
                         0, 0, 0, UIntPtr.Zero);
-                    Thread.Sleep(3500); // wait to be activated
+                    Thread.Sleep(PauseRestoreTaskbar); // wait to be activated
                     User32.SetCursorPos(end_x, start_y);
                     User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                         0, 0, 0, UIntPtr.Zero);
