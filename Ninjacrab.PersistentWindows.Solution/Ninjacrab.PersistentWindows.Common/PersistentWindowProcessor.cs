@@ -285,6 +285,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 restoringFromDB = false;
                 restoringFromMem = false;
+                bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
                 ResetState();
                 Log.Trace("");
@@ -333,7 +334,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
 
-                    //CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                    if (wasRestoringSnapshot)
+                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
 
             });
