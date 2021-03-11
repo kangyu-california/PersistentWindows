@@ -908,7 +908,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                         }
 
-                        if (isNewWindow && IsOffScreen(hwnd))
+                        if (isNewWindow && IsOffScreen(hwnd) && normalSessions.Contains(curDisplayKey))
                         {
                             FixOffScreenWindow(hwnd);
                         }
