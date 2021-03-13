@@ -2361,15 +2361,15 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
-        // recover height of horizontal taskbar, or width of vertical taskbar
-        private void RecoverTaskBarArea(IntPtr hwnd, RECT2 targetRect)
+        // recover height of horizontal taskbar (TODO), or width of vertical taskbar
+        private bool RecoverTaskBarArea(IntPtr hwnd, RECT2 targetRect)
         {
             RECT2 sourceRect = new RECT2();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
             if (Math.Abs(deltaWidth) < 10)
-                return;
+                return false;
 
             List<Display> displays = GetDisplays();
             foreach (var display in displays)
@@ -2422,11 +2422,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                         0, 0, 0, UIntPtr.Zero);
 
+                    //move mouse to hide resize shape
                     User32.SetCursorPos(final_x, start_y);
                     break;
                 }
             }
 
+            return true;
         }
 
         private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
@@ -2622,10 +2624,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!dryRun)
                     {
                         bool changed = MoveTaskBar(hWnd, rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-                        restoredWindows.Add(hWnd);
-                        //RestoreCursorPos(displayKey);
-                        if (!changed)
-                            RecoverTaskBarArea(hWnd, rect);
+                        changed |= RecoverTaskBarArea(hWnd, rect);
+                        if (changed)
+                            restoredWindows.Add(hWnd);
                     }
                     continue;
                 }
