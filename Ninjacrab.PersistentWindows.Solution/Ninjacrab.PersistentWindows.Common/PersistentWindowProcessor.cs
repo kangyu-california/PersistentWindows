@@ -2325,7 +2325,7 @@ namespace Ninjacrab.PersistentWindows.Common
             //User32.GetWindowRect(hReBar, ref screenPosition);
 
             IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
-            hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
+            //hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
             User32.GetWindowRect(hTaskBar, ref sourceRect);
 
             // try place cursor to head and then tail of taskbar to guarantee move success
@@ -2335,11 +2335,11 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 switch (restoreTimes)
                 {
-                    case 1:
-                        dx = sourceRect.Width - restoreTimes * 10;
+                    case 0:
+                        dx = 2;
                         break;
                     default:
-                        dx = 1;
+                        dx = sourceRect.Width - restoreTimes * 2;
                         break;
                 }
                 dy = sourceRect.Height / 2;
@@ -2349,18 +2349,14 @@ namespace Ninjacrab.PersistentWindows.Common
                 dx = sourceRect.Width / 2;
                 switch (restoreTimes)
                 {
-                    case 1:
-                        dy = sourceRect.Height - restoreTimes * 10;
+                    case 0:
+                        dy = 2;
                         break;
                     default:
-                        dy = 1;
+                        dy = sourceRect.Height - restoreTimes * 2;
                         break;
                 }
             }
-
-            IntPtr desktopWindow = User32.GetDesktopWindow();
-            User32.SetActiveWindow(desktopWindow);
-            Thread.Sleep(PauseRestoreTaskbar); //disable popup from taskbar 
 
             User32.SetCursorPos(sourceRect.Left + dx, sourceRect.Top + dy);
             User32.SetActiveWindow(hTaskBar);
@@ -2370,6 +2366,13 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.SetCursorPos(targetX, targetY);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(1000); // wait OS finish move
+
+            // center curser
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(desktopWindow, ref rect);
+            User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 
             return true;
         }
@@ -2405,8 +2408,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
 
-            int initial_x; //avoid popup from taskbar interfere with resize cursor
-            int final_x;
             int start_y = sourceRect.Top + sourceRect.Height / 2;
             int start_x;
             int end_x;
@@ -2415,25 +2416,21 @@ namespace Ninjacrab.PersistentWindows.Common
                 //taskbar is on left edge
                 start_x = sourceRect.Left + sourceRect.Width - 1;
                 end_x = targetRect.Left + targetRect.Width - 1;
-
-                initial_x = start_x + SafeDistanceFromTaskbar;
-                final_x = end_x + SafeDistanceFromTaskbar;
             }
             else
             {
                 //taskbar is on right edge
                 start_x = sourceRect.Left;
                 end_x = targetRect.Left;
-
-                initial_x = start_x - SafeDistanceFromTaskbar;
-                final_x = end_x - SafeDistanceFromTaskbar;
             }
 
             // avoid cursor failure
+            /*
             IntPtr desktopWindow = User32.GetDesktopWindow();
             User32.SetCursorPos(initial_x, start_y);
             User32.SetActiveWindow(desktopWindow);
             Thread.Sleep(PauseRestoreTaskbar); // wait for popup window from taskbar to disappear
+            */
 
             IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
@@ -2445,12 +2442,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(PauseRestoreTaskbar); // wait to be activated
             User32.SetCursorPos(end_x, start_y);
-            Thread.Sleep(PauseRestoreTaskbar); //
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
 
             //move mouse to hide resize shape
-            //User32.SetCursorPos(final_x, start_y);
+            // center curser
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT2 rect = new RECT2();
+            User32.GetWindowRect(desktopWindow, ref rect);
+            User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 
             return true;
         }
