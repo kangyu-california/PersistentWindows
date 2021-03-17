@@ -29,7 +29,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
   **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
   
-- Alternatively for users who prefer to auto start PersistentWindows using startup menu, this can be achieved by creating a shortcut to PersistentWindows.exe in C:\Users\\<your_user_id>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup. But this method of auto start may not work as expected for slow computers (see issue #34), it is recommended to delay start by specifying -delay_start \<seconds\> on the command line, 30 seconds seems to be a safe bet.
+- Alternatively for users who prefer to auto start PersistentWindows using startup menu, this can be achieved by creating a shortcut to `PersistentWindows.exe` in your startup folder, which you can access via Run -> enter `shell:startup`. But this method of auto start may not work as expected for slow computers (see issue #34), it is recommended to delay start by specifying -delay_start \<seconds\> on the command line, 30 seconds seems to be a safe bet.
 
 
 # Use instructions
