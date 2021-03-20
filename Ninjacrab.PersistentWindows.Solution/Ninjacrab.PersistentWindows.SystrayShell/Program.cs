@@ -30,7 +30,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
-            bool delay_start = false;
+            int  halt_restore = 0; //seconds to halt interrupted restore 
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool offscreen_fix = true;
@@ -42,11 +42,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             foreach (var arg in args)
             {
-                if (delay_start)
+                if (halt_restore != 0)
                 {
-                    delay_start = false;
-                    int seconds = Int32.Parse(arg);
-                    Thread.Sleep(1000 * seconds);
+                    halt_restore = Int32.Parse(arg);
                     continue;
                 }
 
@@ -76,8 +74,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         fix_zorder = true;
                         fix_zorder_specified = true;
                         break;
-                    case "-delay_start":
-                        delay_start = true;
+                    case "-halt_restore":
+                        halt_restore = 1;
                         break;
                     case "-redraw_desktop":
                         redraw_desktop = true;
@@ -182,6 +180,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.enableOffScreenFix = offscreen_fix;
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
+            pwp.haltRestore = halt_restore;
 
             if (!pwp.Start(auto_restore_from_db_at_startup))
             {

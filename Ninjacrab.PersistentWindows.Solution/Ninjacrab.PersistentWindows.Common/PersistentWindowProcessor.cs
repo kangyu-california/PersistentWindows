@@ -95,7 +95,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool autoRestoreMissingWindows = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private bool restoreHalted = false;
-        private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
+        public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
@@ -1703,7 +1703,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 // end of restore period
                 //CancelRestoreTimer();
                 restoreTimes = 0;
-                restoreHaltTimes = 0;
                 restoreNestLevel = 0;
                 restoredWindows.Clear();
 
@@ -2147,20 +2146,9 @@ namespace Ninjacrab.PersistentWindows.Common
                         string displayKey = GetDisplayKey();
                         if (restoreHalted || !displayKey.Equals(curDisplayKey))
                         {
-                            restoreHalted = true;
-
                             // display resolution changes during restore
-                            ++restoreHaltTimes;
-                            if (restoreHaltTimes > 5)
-                            {
-                                restoreHaltTimes = 0;
-                                // immediately finish restore
-                                StartRestoreFinishedTimer(0);
-                            }
-                            else
-                            {
-                                StartRestoreTimer();
-                            }
+                            restoreHalted = true;
+                            StartRestoreFinishedTimer(haltRestore * 1000);
                         }
                         else if (restoreTimes <= MaxRestoreTimes)
                         {
