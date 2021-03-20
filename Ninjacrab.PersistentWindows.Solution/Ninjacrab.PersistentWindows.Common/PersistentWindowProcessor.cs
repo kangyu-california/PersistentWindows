@@ -748,6 +748,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void FixOffScreenWindow(IntPtr hwnd)
         {
+            var displayKey = GetDisplayKey();
+            if (!normalSessions.Contains(displayKey))
+            {
+                Log.Error("Avoid recover invisible window \"{0}\"", GetWindowTitle(hwnd));
+                return;
+            }
+
             if (deadApps.ContainsKey(curDisplayKey))
             {
                 var deadAppPos = deadApps[curDisplayKey];
