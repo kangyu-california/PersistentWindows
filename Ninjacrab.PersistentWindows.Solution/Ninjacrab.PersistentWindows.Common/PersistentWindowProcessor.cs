@@ -94,6 +94,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool autoRestoreMissingWindows = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
+        private bool restoreHalted = false;
         private int restoreHaltTimes = 0; // halt restore due to unstable display setting change
         private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
@@ -294,8 +295,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("");
                 Log.Trace("");
                 string displayKey = GetDisplayKey();
-                if (!displayKey.Equals(curDisplayKey))
+                if (restoreHalted || !displayKey.Equals(curDisplayKey))
                 {
+                    restoreHalted = false;
                     topmostWindowsFixed.Clear();
 
                     Log.Error("Restore aborted for {0}", curDisplayKey);
@@ -437,6 +439,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             if (!displayKey.Equals(curDisplayKey))
                             {
+                                restoreHalted = true;
                                 Log.Event("Restore halted due to new display setting change {0}", displayKey);
                             }
                         }
@@ -2142,8 +2145,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         CancelRestoreFinishedTimer();
                         string displayKey = GetDisplayKey();
-                        if (!displayKey.Equals(curDisplayKey))
+                        if (restoreHalted || !displayKey.Equals(curDisplayKey))
                         {
+                            restoreHalted = true;
+
                             // display resolution changes during restore
                             ++restoreHaltTimes;
                             if (restoreHaltTimes > 5)
@@ -2154,7 +2159,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                             else
                             {
-                                restoreTimes = 0;
                                 StartRestoreTimer();
                             }
                         }
@@ -2621,6 +2625,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             foreach (var hWnd in sWindows)
             {
+                if (restoreHalted)
+                    continue;
+
                 if (!User32.IsWindow(hWnd))
                 {
                     continue;
