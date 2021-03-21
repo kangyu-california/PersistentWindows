@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Net;
+using System.IO;
+using System.IO.Compression;
 
 using Ninjacrab.PersistentWindows.Common;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
@@ -32,6 +35,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private DateTime clickTime;
 
         private System.Threading.Timer clickDelayTimer;
+
+        private Dictionary<string, bool> upgradeDownloaded = new Dictionary<string, bool>();
 
         public SystrayForm()
         {
@@ -201,8 +206,46 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
                 foundUpgrade = true;
-                aboutToolStripMenuItem.Text = "Goto upgrade";
+
+                if (!upgradeDownloaded.ContainsKey(latestVersion))
+                {
+                    var src_file = $"{Program.ProjectUrl}/releases/download/{latestVersion}/{System.Windows.Forms.Application.ProductName}{latestVersion}.zip";
+                    var dst_file = $"{Program.AppdataFolder}/upgrade.zip";
+                    var dst_dir = Path.Combine($"{Program.AppdataFolder}", "upgrade");
+                    var install_dir = Application.StartupPath;
+
+                    try
+                    {
+                        cli.DownloadFile(src_file, dst_file);
+                        if (Directory.Exists(dst_dir))
+                            Directory.Delete(dst_dir, true);
+                        ZipFile.ExtractToDirectory(dst_file, dst_dir);
+                        upgradeDownloaded[latestVersion] = true;
+
+                        string batFile = Path.Combine(Program.AppdataFolder, $"pw_upgrade.bat");
+                        string content = "timeout /t 5 /nobreak > NUL";
+                        content += $"\ncopy /Y \"{dst_dir}\\*.*\" \"{install_dir}\"";
+                        content += "\nstart \"\" /B \"" + Path.Combine(install_dir, Application.ProductName) + ".exe\" " + Program.CmdArgs;
+                        File.WriteAllText(batFile, content);
+
+                        aboutToolStripMenuItem.Text = $"Upgrade to {latestVersion}";
+                    }
+                    catch (Exception ex)
+                    {
+                        Program.LogError(ex.ToString());
+                    }
+                }
             }
+        }
+
+        private void Upgrade()
+        {
+            string batFile = Path.Combine(Program.AppdataFolder, "pw_upgrade.bat");
+            Process.Start(batFile);
+
+            this.notifyIconMain.Visible = false;
+            this.notifyIconMain.Icon = null;
+            Application.Exit();
         }
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)
@@ -266,7 +309,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
             if (foundUpgrade)
-                Process.Start($"{Program.ProjectUrl}/releases/latest");
+                Upgrade();
             else
                 Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
         }

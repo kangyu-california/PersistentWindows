@@ -17,6 +17,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public static readonly string ProjectUrl = "https://www.github.com/kangyu-california/PersistentWindows";
         public static System.Drawing.Icon IdleIcon = null;
         public static System.Drawing.Icon BusyIcon = null;
+        public static string AppdataFolder = null;
+        public static string CmdArgs;
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
@@ -43,6 +45,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             foreach (var arg in args)
             {
+                CmdArgs += arg + " ";
+
                 if (halt_restore != 0)
                 {
                     halt_restore = Int32.Parse(arg);
@@ -137,6 +141,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             //appDataFolder = ".";
             appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #endif
+            AppdataFolder = appDataFolder;
+
             string icon_path = Path.Combine(appDataFolder, "pwIcon.ico");
             if (File.Exists(icon_path))
             {
