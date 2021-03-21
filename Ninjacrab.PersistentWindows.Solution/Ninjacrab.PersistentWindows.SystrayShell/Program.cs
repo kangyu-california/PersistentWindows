@@ -29,20 +29,20 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static void Main(string[] args)
         {
             bool splash = true;
+            int delay_start = 0;
+            bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
+            bool prompt_session_restore = false;
+            int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
-            int  halt_restore = 0; //seconds to halt interrupted restore 
-            int delay_start = 0;
             bool redraw_desktop = false;
-            bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool offscreen_fix = true;
             bool enhanced_offscreen_fix = false;
-            bool prompt_session_restore = false;
-            bool check_upgrade = true;
-            bool auto_upgrade = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
+            bool check_upgrade = true;
+            bool auto_upgrade = false;
 
             foreach (var arg in args)
             {
@@ -68,30 +68,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-splash=0":
                         splash = false;
                         break;
-                    case "-notification_on":
-                    case "-notification=1":
-                        notification = true;
-                        break;
-                    case "-dry_run":
-                        dry_run = true;
-                        break;
-                    case "-fix_zorder=0":
-                        fix_zorder = false;
-                        fix_zorder_specified = true;
-                        break;
-                    case "-fix_zorder":
-                    case "-fix_zorder=1":
-                        fix_zorder = true;
-                        fix_zorder_specified = true;
-                        break;
-                    case "-halt_restore":
-                        halt_restore = 1;
-                        break;
                     case "-delay_start":
                         delay_start = 1;
-                        break;
-                    case "-redraw_desktop":
-                        redraw_desktop = true;
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
@@ -108,11 +86,27 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
-                    case "-check_upgrade=0":
-                        check_upgrade = false;
+                    case "-halt_restore":
+                        halt_restore = 1;
                         break;
-                    case "-auto_upgrade=1":
-                        auto_upgrade = true;
+                    case "-notification_on":
+                    case "-notification=1":
+                        notification = true;
+                        break;
+                    case "-dry_run":
+                        dry_run = true;
+                        break;
+                    case "-fix_zorder=0":
+                        fix_zorder = false;
+                        fix_zorder_specified = true;
+                        break;
+                    case "-fix_zorder":
+                    case "-fix_zorder=1":
+                        fix_zorder = true;
+                        fix_zorder_specified = true;
+                        break;
+                    case "-redraw_desktop":
+                        redraw_desktop = true;
                         break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":
@@ -124,6 +118,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-auto_restore_missing_windows=3":
                         auto_restore_from_db_at_startup = true;
                         auto_restore_missing_windows = true;
+                        break;
+                    case "-check_upgrade=0":
+                        check_upgrade = false;
+                        break;
+                    case "-auto_upgrade=1":
+                        auto_upgrade = true;
                         break;
                 }
             }
