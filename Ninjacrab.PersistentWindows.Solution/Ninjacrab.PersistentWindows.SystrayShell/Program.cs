@@ -31,6 +31,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
             int  halt_restore = 0; //seconds to halt interrupted restore 
+            int delay_start = 0;
             bool redraw_desktop = false;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool offscreen_fix = true;
@@ -46,6 +47,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     halt_restore = Int32.Parse(arg);
                     continue;
+                }
+                else if (delay_start != 0)
+                {
+                    Thread.Sleep(Int32.Parse(arg));
                 }
 
                 switch(arg)
@@ -76,6 +81,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-halt_restore":
                         halt_restore = 1;
+                        break;
+                    case "-delay_start":
+                        delay_start = 1;
                         break;
                     case "-redraw_desktop":
                         redraw_desktop = true;

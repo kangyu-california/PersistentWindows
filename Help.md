@@ -5,7 +5,7 @@
   | --- | --- |
   | -splash=0       | No splash window at PW startup
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
-  | -halt_restore\<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep
+  | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep. Available from release 5.20
   | -redraw_desktop | redraw whole desktop windows after restore
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
