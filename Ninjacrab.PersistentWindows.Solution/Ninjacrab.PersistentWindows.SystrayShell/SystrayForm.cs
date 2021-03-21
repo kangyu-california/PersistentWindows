@@ -25,6 +25,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private bool pauseUpgradeCounter = false;
         private bool foundUpgrade = false;
 
+        public bool autoUpgrade = false;
+
         private int shiftKeyPressed = 0;
         private int controlKeyPressed = 0;
         private int altKeyPressed = 0;
@@ -228,7 +230,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         content += "\nstart \"\" /B \"" + Path.Combine(install_dir, Application.ProductName) + ".exe\" " + Program.CmdArgs;
                         File.WriteAllText(batFile, content);
 
-                        aboutToolStripMenuItem.Text = $"Upgrade to {latestVersion}";
+                        if (autoUpgrade)
+                            Upgrade();
+                        else
+                            aboutToolStripMenuItem.Text = $"Upgrade to {latestVersion}";
                     }
                     catch (Exception ex)
                     {

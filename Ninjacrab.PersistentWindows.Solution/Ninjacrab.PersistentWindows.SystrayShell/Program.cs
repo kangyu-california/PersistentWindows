@@ -40,6 +40,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool enhanced_offscreen_fix = false;
             bool prompt_session_restore = false;
             bool check_upgrade = true;
+            bool auto_upgrade = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
 
@@ -110,6 +111,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-check_upgrade=0":
                         check_upgrade = false;
                         break;
+                    case "-auto_upgrade=1":
+                        auto_upgrade = true;
+                        break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":
                         auto_restore_missing_windows = true;
@@ -165,6 +169,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             systrayForm = new SystrayForm();
             systrayForm.enableUpgradeNotice = check_upgrade;
+            systrayForm.autoUpgrade = auto_upgrade;
             if (check_upgrade)
                 systrayForm.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
             else
