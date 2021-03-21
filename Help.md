@@ -4,16 +4,17 @@
   | Command line option | Meaning |
   | --- | --- |
   | -splash=0       | No splash window at PW startup
-  | -notification=1 | Turn on balloon tip and sound notification when restoring windows
-  | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep. Available from release 5.20
-  | -redraw_desktop | redraw whole desktop windows after restore
+  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching multiple PW instances.
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
+  | -notification=1 | Turn on balloon tip and sound notification when restoring windows
+  | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep.
+  | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
-  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching second PW instance.
-  | -check_upgrade=0 | Disable version upgrade check from beginning 
-  | ‑auto_restore_missing_windows | Restore missing windows from disk without prompting user
+  | ‑auto_restore_missing_windows=1 | Restore missing windows from disk without prompting user
   | ‑auto_restore_missing_windows=2 | Automatic restore missing windows from disk at startup, user will be prompted before restore each missing window
   | ‑auto_restore_missing_windows=3 | Automatic restore missing windows from disk at startup without prompting user
+  | -check_upgrade=0 | Disable PW upgrade check from beginning
+  | -auto_upgrade=1 | Upgrade PW automatically without user interaction
 
 ---
 

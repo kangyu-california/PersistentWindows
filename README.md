@@ -22,6 +22,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Support manual save/restore window position to/from persistent database on hard drive, so that closed windows can be restored after reboot.
 - Support manual pause/resume auto restore.
 - **Support capture/restore multiple snapshot of window layout.** This feature can be used as an alternative to virtual desktops in Windows 10.
+- Support automatic upgrade
 
 # Installation
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
