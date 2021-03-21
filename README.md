@@ -18,7 +18,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Key features 
 - Keeps track of window position change in real time, and automatically restores window layout to last matching monitor setup.
 - Support remote desktop session with multiple virtual monitor resolutions.
-- Can be auto started as a task or startup menu item.
+- Can be auto started as a task.
 - Support manual save/restore window position to/from persistent database on hard drive, so that closed windows can be restored after reboot.
 - Support manual pause/resume auto restore.
 - **Support capture/restore multiple snapshot of window layout.** This feature can be used as an alternative to virtual desktops in Windows 10.
@@ -28,9 +28,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Unzip the file into any directory
 - It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
   **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
-  
-- Alternatively for users who prefer to auto start PersistentWindows using startup menu, this can be achieved by creating a shortcut to `PersistentWindows.exe` in your startup folder, which you can access via Run -> enter `shell:startup`. But this method of auto start may not work as expected for slow computers (see issue #34), it is recommended to delay start by specifying -delay_start \<seconds\> on the command line, 30 seconds seems to be a safe bet.
-
 
 # Use instructions
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. 

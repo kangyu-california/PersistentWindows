@@ -5,7 +5,7 @@
   | --- | --- |
   | -splash=0       | No splash window at PW startup
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
-  | -delay_start \<seconds\> | Delay PW invoked from auto startup memu by specified seconds
+  | -halt_restore\<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep
   | -redraw_desktop | redraw whole desktop windows after restore
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
@@ -37,8 +37,8 @@
 * Manipulate window z-order
   * Bring a window to top z-order by clear the topmost flag of obstructive window
     * Click on other window first to defocus, then Ctrl click the window (or the corresponding icon on taskbar) that you want to bring to top.
-  * Send a window to bottom z-order (similar to the function of Alt+Esc hotkeys which however does not work for remote desktop window)
-    * Defocus the window first, then hold Ctrl+Win keys and click the window
+  * Send remote desktop window (mstsc.exe) to bottom z-order (because Alt+Esc hotkey does not work for rdp window)
+    * Defocus rdp window first, then hold Ctrl+Win keys and click the rdp window
 
 * Enable/Disable auto restore for a particular window (Since release 5.19)
   * To add a (child/dialog) window for auto capture/restore, move the window using mouse
