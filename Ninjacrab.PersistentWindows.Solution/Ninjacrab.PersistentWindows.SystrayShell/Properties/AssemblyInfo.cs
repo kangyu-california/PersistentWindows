@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PersistentWindows")]
-[assembly: AssemblyCopyright("Copyright © 2014 - 2020, Min Yong Kim and all other contributors")]
+[assembly: AssemblyCopyright("Copyright © 2014 - 2021, Min Yong Kim and all other contributors")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
