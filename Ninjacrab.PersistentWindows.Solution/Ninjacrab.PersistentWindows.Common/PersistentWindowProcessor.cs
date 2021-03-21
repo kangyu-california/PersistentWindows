@@ -234,14 +234,21 @@ namespace Ninjacrab.PersistentWindows.Common
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                 {
                     if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
-                                                                  //put activated window in background
-                        User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
-                            0, 0, 0, 0,
-                            0
-                            | SetWindowPosFlags.DoNotActivate
-                            | SetWindowPosFlags.IgnoreMove
-                            | SetWindowPosFlags.IgnoreResize
-                        );
+                    {
+                        //put activated window in background
+                        var window = new SystemWindow(hwnd);
+                        var processName = window.Process.ProcessName;
+                        if (processName.Equals("mstsc"))
+                        {
+                            User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
+                                0, 0, 0, 0,
+                                0
+                                | SetWindowPosFlags.DoNotActivate
+                                | SetWindowPosFlags.IgnoreMove
+                                | SetWindowPosFlags.IgnoreResize
+                            );
+                        }
+                    }
                     else
                         ManualFixTopmostFlag(hwnd);
                 }
