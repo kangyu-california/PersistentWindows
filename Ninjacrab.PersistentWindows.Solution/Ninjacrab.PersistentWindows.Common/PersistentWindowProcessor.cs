@@ -431,7 +431,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 (s, e) =>
                 {
                     string displayKey = GetDisplayKey();
-                    Log.Info("Display settings changed {0}", displayKey);
+                    Log.Event("Display settings changed {0}", displayKey);
 
                     lock (controlLock)
                     {
