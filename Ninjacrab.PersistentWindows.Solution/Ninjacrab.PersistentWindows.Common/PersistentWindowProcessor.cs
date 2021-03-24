@@ -1184,7 +1184,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                         pendingActivateWindows.Add(hwnd);
 
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
-                                        StartCaptureTimer(UserMoveLatency);
+                                        StartCaptureTimer(UserMoveLatency / 2);
                                     else
                                         StartCaptureTimer();
 
