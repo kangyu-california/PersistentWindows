@@ -239,7 +239,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         //put activated window in background
                         var window = new SystemWindow(hwnd);
                         var processName = window.Process.ProcessName;
-                        if (processName.Equals("mstsc"))
+                        if (processName.Equals("mstsc") || processName.Contains("vnc") || processName.Contains("rdp"))
                         {
                             User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                                 0, 0, 0, 0,
