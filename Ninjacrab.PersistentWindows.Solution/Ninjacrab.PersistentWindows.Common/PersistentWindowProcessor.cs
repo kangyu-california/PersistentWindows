@@ -773,8 +773,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
-                    IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, processId);
-                    string procPath = GetProcExePath(hProcess);
+                    string procPath = GetProcExePath(processId);
                     int idx = deadAppPos.Count;
                     bool found = false;
                     foreach (var appPos in deadAppPos.Reverse<DeadAppPosition>())
@@ -1069,8 +1068,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         var lastMetric = monitorApplications[key][hwnd].Last();
                         appPos.ClassName = lastMetric.ClassName;
                         appPos.ScreenPosition = lastMetric.ScreenPosition;
-                        IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, lastMetric.ProcessId);
-                        string procPath = GetProcExePath(hProcess);
+                        string procPath = GetProcExePath(lastMetric.ProcessId);
                         appPos.ProcessPath = procPath;
                         deadApps[key].Add(appPos);
 
@@ -1800,9 +1798,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 curDisplayMetrics.ProcessExePath = processCmd[curDisplayMetrics.ProcessId];
                             else
                             {
-                                IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, curDisplayMetrics.ProcessId);
-                                string procPath = GetProcExePath(hProcess);
-                                Kernel32.CloseHandle(hProcess);
+                                string procPath = GetProcExePath(curDisplayMetrics.ProcessId);
                                 if (!String.IsNullOrEmpty(procPath))
                                 {
                                     curDisplayMetrics.ProcessExePath = procPath;
@@ -2948,14 +2944,16 @@ namespace Ninjacrab.PersistentWindows.Common
             return needExtraRestorePass;
         }
 
-        private string GetProcExePath(IntPtr hProc)
+
+        private string GetProcExePath(uint proc_id)
         {
+            IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, proc_id);
             string pathToExe = string.Empty;
 
             int nChars = 4096;
             StringBuilder buf = new StringBuilder(nChars);
 
-            bool success = Kernel32.QueryFullProcessImageName(hProc, 0, buf, ref nChars);
+            bool success = Kernel32.QueryFullProcessImageName(hProcess, 0, buf, ref nChars);
 
             if (success)
             {
@@ -2970,6 +2968,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             */
 
+            Kernel32.CloseHandle(hProcess);
             return pathToExe;
         }
 
