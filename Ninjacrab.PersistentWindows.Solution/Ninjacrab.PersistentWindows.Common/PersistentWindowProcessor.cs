@@ -58,6 +58,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private IntPtr curMovingWnd = IntPtr.Zero;
         private Timer moveTimer; // when user move a window
         private Timer foregroundTimer; // when user bring a window to foreground
+        private DateTime lastDisplayChangeTime = DateTime.Now;
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
@@ -418,6 +419,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Info("Display settings changing {0}", displayKey);
                     lock (controlLock)
                     {
+                        lastDisplayChangeTime = DateTime.Now;
+
                         if (!restoringFromMem)
                         {
                             EndDisplaySession();
@@ -965,11 +968,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             if (!screenPosition.Equals(rect) && !tidyTabWindows.Contains(hwnd))
                             {
-                                // windows ignores previous snap status when activated from minimized state
-                                var placement = prevDisplayMetrics.WindowPlacement;
-                                User32.SetWindowPlacement(hwnd, ref placement);
-                                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                                Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                //restore minimized window only applies if screen resolution has changed since minimize
+                                if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)
+                                {
+                                    // windows ignores previous snap status when activated from minimized state
+                                    var placement = prevDisplayMetrics.WindowPlacement;
+                                    User32.SetWindowPlacement(hwnd, ref placement);
+                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                    Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                }
                             }
 
                             if (!enable_offscreen_fix)
