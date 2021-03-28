@@ -1563,6 +1563,9 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             bool ret = false;
 
+            if (!displayKey.Equals(curDisplayKey))
+                return false; //abort capture if display changed too soon
+
             if (!monitorApplications.ContainsKey(displayKey))
             {
                 monitorApplications.Add(displayKey, new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>());
@@ -1855,12 +1858,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     StartCaptureTimer();
                     Log.Trace("further defer capture");
                 }
-                else
+                else if (displayKey.Equals(curDisplayKey))
                 {
                     // confirmed user moves
                     RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
                     if (movedWindows > 0)
                         Log.Trace("{0} windows captured", movedWindows);
+                }
+                else
+                {
+                    Log.Error("reject obsolete request to capture {0}", displayKey);
                 }
             }
         }
