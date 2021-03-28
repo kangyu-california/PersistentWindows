@@ -1662,40 +1662,32 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void BatchCaptureApplicationsOnCurrentDisplays(bool saveToDB = false)
         {
-            var thread = new Thread(() =>
+            try
             {
-                try
+                if (restoringFromMem)
                 {
-                    {
-                        if (restoringFromMem)
-                        {
-                            return;
-                        }
-
-                        string displayKey = GetDisplayKey();
-                        if (!displayKey.Equals(curDisplayKey))
-                        {
-                            Log.Trace("Ignore capture request for non-current display setting {0}", displayKey);
-                            return;
-                        }
-                        
-                        if (userMovePrev)
-                        {
-                            normalSessions.Add(curDisplayKey);
-                        }
-
-                        CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
+                    return;
                 }
 
-            });
-            thread.IsBackground = false;
-            thread.Name = "PersistentWindowProcessor.BeginCaptureApplicationsOnCurrentDisplays()";
-            thread.Start();
+                string displayKey = GetDisplayKey();
+                if (!displayKey.Equals(curDisplayKey))
+                {
+                    Log.Trace("Ignore capture request for non-current display setting {0}", displayKey);
+                    return;
+                }
+
+                if (userMovePrev)
+                {
+                    normalSessions.Add(curDisplayKey);
+                }
+
+                CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
         }
 
         private void CaptureNewDisplayConfig(string displayKey)
