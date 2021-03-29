@@ -978,6 +978,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                    return;
                                 }
                             }
 
