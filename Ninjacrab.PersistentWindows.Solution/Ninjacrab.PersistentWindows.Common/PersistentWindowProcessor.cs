@@ -965,7 +965,10 @@ namespace Ninjacrab.PersistentWindows.Common
                                 return; // captured without previous history info, let OS handle it
                             }
 
-                            if (!screenPosition.Equals(rect) && !tidyTabWindows.Contains(hwnd))
+                            if (screenPosition.Equals(rect))
+                                return;
+
+                            if (!tidyTabWindows.Contains(hwnd))
                             {
                                 //restore minimized window only applies if screen resolution has changed since minimize
                                 if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)
