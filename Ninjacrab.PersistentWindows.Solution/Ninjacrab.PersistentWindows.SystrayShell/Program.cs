@@ -38,6 +38,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool fix_zorder_specified = false;
             bool redraw_desktop = false;
             bool offscreen_fix = true;
+            bool fix_unminimized_window = true;
             bool enhanced_offscreen_fix = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
@@ -82,7 +83,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-offscreen_fix=0":
                     case "-fix_offscreen=0":
+                    case "-fix_offscreen_window=0":
                         offscreen_fix = false;
+                        break;
+                    case "-fix_unminimized=0":
+                    case "-fix_unminimized_window=0":
+                        fix_unminimized_window = false;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
@@ -198,6 +204,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.redirectAppDataFolder = redirect_appdata;
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
             pwp.enableOffScreenFix = offscreen_fix;
+            pwp.fixUnminimizedWindow = fix_unminimized_window;
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.haltRestore = halt_restore;

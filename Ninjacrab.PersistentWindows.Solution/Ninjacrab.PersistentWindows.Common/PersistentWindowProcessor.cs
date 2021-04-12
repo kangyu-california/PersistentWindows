@@ -93,6 +93,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool redrawDesktop = false;
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
+        public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private bool restoreHalted = false;
@@ -968,7 +969,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (screenPosition.Equals(rect))
                                 return;
 
-                            if (!tidyTabWindows.Contains(hwnd))
+                            if (fixUnminimizedWindow && !tidyTabWindows.Contains(hwnd))
                             {
                                 //restore minimized window only applies if screen resolution has changed since minimize
                                 if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)

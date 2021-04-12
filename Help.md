@@ -10,7 +10,8 @@
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
-  | -fix_offscreen=0 | Turn off auto correction of off-screen window
+  | -fix_offscreen_window=0 | Turn off auto correction of off-screen window
+  | -fix_unminimized_window=0 | Turn off auto restore of unminimized window
   | ‑auto_restore_missing_windows=1 | Restore missing windows from disk without prompting user
   | ‑auto_restore_missing_windows=2 | Automatic restore missing windows from disk at startup, user will be prompted before restore each missing window
   | ‑auto_restore_missing_windows=3 | Automatic restore missing windows from disk at startup without prompting user
