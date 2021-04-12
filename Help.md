@@ -33,17 +33,17 @@
 
 ---
 
-* Run PW with customized icon (since version 5.11)
+* Run PW with customized icon
   * Rename your customized icon file as pwIcon.ico and copy it to 'C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/', or copy it to current directory if running (second inst of) PW with -redirect_appdata switch from command console.
   * Add second icon file, rename it to pwIconBusy.ico, this icon is displayed when PW is busy restoring windows.
 
 * Manipulate window z-order
   * Bring a window to top z-order by clear the topmost flag of obstructive window
     * Click on other window first to defocus, then Ctrl click the window (or the corresponding icon on taskbar) that you want to bring to top.
-  * Send remote desktop window (mstsc.exe) to bottom z-order (because Alt+Esc hotkey does not work for rdp window)
+  * Send remote desktop or vncviewer window to bottom z-order (because Alt+Esc hotkey does not work for them)
     * Defocus rdp window first, then hold Ctrl+Win keys and click the rdp window
 
-* Enable/Disable auto restore for a particular window (Since release 5.19)
+* Enable/Disable auto restore for a particular window
   * To add a (child/dialog) window for auto capture/restore, move the window using mouse
   * To remove a window from auto capture/restore, hold Ctrl+Shift keys then move the window using mouse
 ```
