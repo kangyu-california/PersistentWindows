@@ -81,6 +81,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         offscreen_fix = false;
                         break;
                     case "-offscreen_fix=0":
+                    case "-fix_offscreen=0":
                         offscreen_fix = false;
                         break;
                     case "-prompt_session_restore":
