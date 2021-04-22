@@ -1888,7 +1888,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 });
             */
 
-            List<IntPtr> result = new List<IntPtr>();
+            HashSet<IntPtr> result = new HashSet<IntPtr>();
 
             IntPtr desktopWindow = User32.GetDesktopWindow();
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
