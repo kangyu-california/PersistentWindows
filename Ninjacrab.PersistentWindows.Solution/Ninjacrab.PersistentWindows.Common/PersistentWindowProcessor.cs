@@ -2190,7 +2190,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
 
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimes + 1 : MinRestoreTimes))
+                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimes : MinRestoreTimes))
                                 StartRestoreTimer();
                             else if (restoringSnapshot)
                                 // immediately finish restore
