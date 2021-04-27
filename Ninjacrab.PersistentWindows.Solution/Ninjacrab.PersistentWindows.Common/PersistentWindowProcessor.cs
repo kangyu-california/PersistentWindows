@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
-        private const int MaxRestoreTimes = 4; // maximum restore passes
+        private const int MaxRestoreTimes = 3; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
