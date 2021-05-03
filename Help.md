@@ -25,8 +25,6 @@
   | --- | --- |
   | Capture snapshot 0 | Double click PW icon
   | Restore snapshot 0 | Click PW icon
-  | Capture snapshot N | Shift click PW icon N times (N = 1, 2, 3)
-  | Restore snapshot N |  Ctrl click PW icon N times
   | Capture snapshot X | Double click PW icon then immediately press key X (X represents a digit [0-9] or a letter [a-z])
   | Restore snapshot X | Click PW icon then immediately press key X
   | Undo last snapshot restore | Alt click PW icon
