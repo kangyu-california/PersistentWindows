@@ -277,8 +277,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             char snapshot_char = Program.EnterSnapshotName();
             int id = Program.SnapshotCharToId(snapshot_char);
             if (id != -1)
+            {
+                // for debug issue #109 only
+                //Program.ChangeZorderMethod();
+
                 Program.RestoreSnapshot(id);
+            }
         }
+
 
         private void PauseResumeAutoRestore(object sender, EventArgs e)
         {

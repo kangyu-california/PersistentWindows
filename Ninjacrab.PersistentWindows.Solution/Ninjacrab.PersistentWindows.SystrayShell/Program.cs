@@ -275,6 +275,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
+        static public void ChangeZorderMethod()
+        {
+            pwp.fixZorderMethod++;
+            systrayForm.notifyIconMain.Text = $"{Application.ProductName} {Application.ProductVersion} {pwp.fixZorderMethod}";
+        }
+
         static public char SnapshotIdToChar(int id)
         {
             char c;

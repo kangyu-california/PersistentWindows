@@ -88,6 +88,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool restoringSnapshot = false;
         public bool dryRun = false; // only capturre, no actual restore
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
+        public int fixZorderMethod = 1; // bit i represent restore method for pass i
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
@@ -2697,7 +2698,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
-                    if ((restoreTimes & 1) == 1)
+                    if (((fixZorderMethod >> restoreTimes) & 1) == 1)
                         batchZorderFix = true;
                     else
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
