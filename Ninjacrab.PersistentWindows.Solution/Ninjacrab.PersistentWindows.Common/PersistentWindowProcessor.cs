@@ -96,6 +96,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
+        public bool restoreOneWindowPerProcess = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
@@ -103,7 +104,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
         private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
-        private HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -303,7 +303,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringFromDB)
                 {
                     dbMatchWindow.Clear();
-                    dbMatchProcess.Clear();
                 }
 
                 int numWindowRestored = restoredWindows.Count;
@@ -2883,6 +2882,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoringFromDB && restoreTimes == 0)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
+                HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
                 // launch process in db
@@ -2900,10 +2900,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     // launch once per process id
-                    if (dbMatchProcess.Contains(curDisplayMetrics.ProcessId))
-                        continue;
+                    if (restoreOneWindowPerProcess)
+                    {
+                        if (dbMatchProcess.Contains(curDisplayMetrics.ProcessId))
+                            continue;
 
-                    dbMatchProcess.Add(curDisplayMetrics.ProcessId);
+                        dbMatchProcess.Add(curDisplayMetrics.ProcessId);
+                    }
 
                     if (!yes_to_all)
                     {
