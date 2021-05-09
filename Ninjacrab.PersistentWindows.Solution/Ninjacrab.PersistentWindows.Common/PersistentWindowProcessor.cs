@@ -103,6 +103,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
         private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
+        private HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -184,13 +185,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
-            // remove outdated db files
             var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
+            bool found_latest_db_file_version = false;
+            if (File.Exists(persistDbName))
+                found_latest_db_file_version = true;
             foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
             {
                 var fname = file.Name;
-                if (!fname.Contains(db_version))
+                if (found_latest_db_file_version && !fname.Contains(db_version))
                 {
+                    // remove outdated db files
                     try
                     {
                         file.Delete();
@@ -199,6 +204,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         Log.Error(ex.ToString());
                     }
+                }
+                else
+                {
+                    //load outdated db
+                    persistDbName = file.FullName;
+                    break;
                 }
             }
 
@@ -292,6 +303,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (restoringFromDB)
                 {
                     dbMatchWindow.Clear();
+                    dbMatchProcess.Clear();
                 }
 
                 int numWindowRestored = restoredWindows.Count;
@@ -567,7 +579,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             initialized = true;
 
-            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
@@ -1732,7 +1743,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     keys.Add(key);
                 }
-
+                
                 foreach (var key in keys)
                 {
                     multiwindowProcess[key] = 0;
@@ -2003,6 +2014,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
                 IsMinimized = isMinimized,
+                IsInvisible = !User32.IsWindowVisible(hwnd),
 
                 CaptureTime = time,
                 WindowPlacement = windowPlacement,
@@ -2879,10 +2891,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 bool yes_to_all = autoRestoreMissingWindows | false;
                 foreach (var curDisplayMetrics in results)
                 {
+                    if (curDisplayMetrics.IsInvisible)
+                        continue;
+
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                     {
                         continue;
                     }
+
+                    // launch once per process id
+                    if (dbMatchProcess.Contains(curDisplayMetrics.ProcessId))
+                        continue;
+
+                    dbMatchProcess.Add(curDisplayMetrics.ProcessId);
 
                     if (!yes_to_all)
                     {
@@ -2909,6 +2930,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // already launched
                             continue;
                         }
+
                         multiwindowProcess[curDisplayMetrics.ProcessName]++;
                     }
 

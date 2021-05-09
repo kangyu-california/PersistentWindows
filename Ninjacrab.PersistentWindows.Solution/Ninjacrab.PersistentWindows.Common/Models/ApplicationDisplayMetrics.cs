@@ -27,6 +27,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public string Title { get; set; }
         public bool IsFullScreen { get; set; }
         public bool IsMinimized { get; set; }
+        public bool IsInvisible { get; set; }
 
         // for restore window position to display session end time
         public DateTime CaptureTime { get; set; }
