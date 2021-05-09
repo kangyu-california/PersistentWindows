@@ -2960,6 +2960,11 @@ namespace Ninjacrab.PersistentWindows.Common
                                     processPath = $"\"{processPath}\"";
                                 }
 
+                                if (processPath.StartsWith("usr\\bin\\mintty.exe"))
+                                {
+                                    processPath = processPath.Replace("usr\\bin\\mintty.exe", "\"C:\\Program Files\\Git\\usr\\bin\\mintty.exe\"");
+                                }
+
                                 Log.Event("launch process {0}", processPath);
                                 string batFile = Path.Combine(appDataFolder, $"pw_exec{i}.bat");
                                 ++i;
