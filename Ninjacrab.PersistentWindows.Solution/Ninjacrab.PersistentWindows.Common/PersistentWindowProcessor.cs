@@ -196,6 +196,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (found_latest_db_file_version && !fname.Contains(db_version))
                 {
                     // remove outdated db files
+                    /*
                     try
                     {
                         file.Delete();
@@ -204,6 +205,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         Log.Error(ex.ToString());
                     }
+                    */
                 }
                 else
                 {
