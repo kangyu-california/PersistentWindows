@@ -207,7 +207,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     */
                 }
-                else
+                else if (!found_latest_db_file_version)
                 {
                     //load outdated db
                     persistDbName = file.FullName;
