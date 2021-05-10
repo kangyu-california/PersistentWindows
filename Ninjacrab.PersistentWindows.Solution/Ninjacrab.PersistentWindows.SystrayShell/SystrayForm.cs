@@ -350,7 +350,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     User32.GetAsyncKeyState(i);
                 }
-
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                contextMenuStripSysTray.Show(Cursor.Position);
             }
         }
 
