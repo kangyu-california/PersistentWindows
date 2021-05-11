@@ -33,6 +33,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
+            bool halt_restore_specified = false;
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
@@ -50,8 +51,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 CmdArgs += arg + " ";
 
-                if (halt_restore != 0)
+                if (halt_restore_specified)
                 {
+                    halt_restore_specified = false;
                     halt_restore = Int32.Parse(arg);
                     continue;
                 }
@@ -59,6 +61,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     delay_start = 0;
                     Thread.Sleep(Int32.Parse(arg) * 1000);
+                    continue;
                 }
 
                 switch(arg)
@@ -96,7 +99,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         prompt_session_restore = true;
                         break;
                     case "-halt_restore":
-                        halt_restore = 1;
+                        halt_restore_specified = true;
                         break;
                     case "-notification_on":
                     case "-notification=1":
