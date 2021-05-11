@@ -57,7 +57,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
                 else if (delay_start != 0)
                 {
-                    Thread.Sleep(Int32.Parse(arg));
+                    delay_start = 0;
+                    Thread.Sleep(Int32.Parse(arg) * 1000);
                 }
 
                 switch(arg)
