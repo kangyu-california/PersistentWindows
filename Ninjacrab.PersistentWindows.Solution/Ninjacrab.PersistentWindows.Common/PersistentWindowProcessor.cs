@@ -2955,7 +2955,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     }
                                 }
 
-                                if (processPath.Contains(" ") && !processPath.Contains("\""))
+                                if (processPath.Contains(" ") && !processPath.Contains("\"") && !processPath.Contains(".exe "))
                                 {
                                     processPath = $"\"{processPath}\"";
                                 }
