@@ -43,32 +43,31 @@ namespace Ninjacrab.PersistentWindows.Common
         {
         }
 
-        private void Yes_Click(object sender, EventArgs e)
+        private void Button_Click(object sender, EventArgs e)
         {
             var button = (Button)sender;
             buttonName = button.Name;
             Close();
+        }
+
+        private void Yes_Click(object sender, EventArgs e)
+        {
+            Button_Click(sender, e);
         }
 
         private void YesToAll_Click(object sender, EventArgs e)
         {
-            var button = (Button)sender;
-            buttonName = button.Name;
-            Close();
+            Button_Click(sender, e);
         }
 
         private void No_Click(object sender, EventArgs e)
         {
-            var button = (Button)sender;
-            buttonName = button.Name;
-            Close();
+            Button_Click(sender, e);
         }
 
         private void NoToAll_Click(object sender, EventArgs e)
         {
-            var button = (Button)sender;
-            buttonName = button.Name;
-            Close();
+            Button_Click(sender, e);
         }
 
     }
