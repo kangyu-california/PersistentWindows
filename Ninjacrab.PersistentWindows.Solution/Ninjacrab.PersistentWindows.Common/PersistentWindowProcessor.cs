@@ -68,6 +68,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // capture control
         private Timer captureTimer;
         private string curDisplayKey = null; // current display config name
+        public bool stickyDisplayConfig = false;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
@@ -318,7 +319,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace("");
                 Log.Trace("");
                 string displayKey = GetDisplayKey();
-                if (restoreHalted || !displayKey.Equals(curDisplayKey))
+                if (restoreHalted || (!displayKey.Equals(curDisplayKey) && !stickyDisplayConfig))
                 {
                     restoreHalted = false;
                     topmostWindowsFixed.Clear();
@@ -326,7 +327,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error("Restore aborted for {0}", curDisplayKey);
 
                     // do restore again, while keeping previous capture time unchanged
-                    curDisplayKey = displayKey;
+                    if (!stickyDisplayConfig)
+                        curDisplayKey = displayKey;
                     if (normalSessions.Contains(curDisplayKey))
                     {
                         Log.Event("Restart restore for {0}", curDisplayKey);
@@ -457,7 +459,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (sessionLocked)
                         {
-                            curDisplayKey = displayKey;
+                            if (!stickyDisplayConfig)
+                                curDisplayKey = displayKey;
                             //wait for session unlock to start restore
                         }
                         else if (restoringFromMem)
@@ -471,7 +474,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         else
                         {
                             // change display on the fly
-                            curDisplayKey = displayKey;
+                            if (!stickyDisplayConfig)
+                                curDisplayKey = displayKey;
                             if (normalSessions.Contains(curDisplayKey))
                             {
                                 restoringFromMem = true;
@@ -2154,7 +2158,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         CancelRestoreFinishedTimer();
                         string displayKey = GetDisplayKey();
-                        if (restoreHalted || !displayKey.Equals(curDisplayKey))
+                        if (restoreHalted || (!displayKey.Equals(curDisplayKey) && !stickyDisplayConfig))
                         {
                             // display resolution changes during restore
                             restoreHalted = true;
@@ -2168,7 +2172,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             try
                             {
                                 RemoveInvalidCapture();
-                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
+                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(stickyDisplayConfig ? curDisplayKey : displayKey, IntPtr.Zero);
                             }
                             catch (Exception ex)
                             {
@@ -2501,11 +2505,11 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (restoringSnapshot)
                 {
-                    if (!snapshotTakenTime.ContainsKey(curDisplayKey)
-                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
+                    if (!snapshotTakenTime.ContainsKey(displayKey)
+                        || !snapshotTakenTime[displayKey].ContainsKey(snapshotId))
                         return false;
 
-                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
+                    lastCaptureTime = snapshotTakenTime[displayKey][snapshotId];
                 }
             }
 
@@ -2602,7 +2606,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Trace("Restore time {0}", printRestoreTime);
             if (restoreTimes == 0)
             {
-                Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
+                Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, displayKey);
             }
 
             bool batchZorderFix = false;

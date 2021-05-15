@@ -32,6 +32,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             int delay_start = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
+            bool sticky_display_config = false; // experiment switch to speed up restore by pre-restore when monitor goes to sleep 
             int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             bool halt_restore_specified = false;
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
@@ -94,6 +95,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-fix_unminimized=0":
                     case "-fix_unminimized_window=0":
                         fix_unminimized_window = false;
+                        break;
+                    case "-sticky_display_config=1":
+                        sticky_display_config = true;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
@@ -217,6 +221,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.restoreOneWindowPerProcess = restore_one_window_per_process;
             pwp.haltRestore = halt_restore;
+            pwp.stickyDisplayConfig = sticky_display_config;
 
             if (!pwp.Start(auto_restore_from_db_at_startup))
             {
