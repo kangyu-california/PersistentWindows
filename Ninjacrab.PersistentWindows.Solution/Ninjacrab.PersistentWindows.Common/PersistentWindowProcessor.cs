@@ -638,20 +638,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         | SetWindowPosFlags.IgnoreResize
                     );
 
-                    /*
-                    User32.SetWindowPos(
-                        dlg.Handle,
-                        new IntPtr(-1), // set dialog to topmost
-                        0, //rect.Left,
-                        0, //rect.Top,
-                        0, //rect.Width,
-                        0, //rect.Height,
-                        0
-                        //| SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
-                    */
                     dlg.ShowDialog();
                 }
 
@@ -1003,7 +989,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 IntPtr desktopWindow = User32.GetDesktopWindow();
                                 User32.GetWindowRect(desktopWindow, ref rect);
-                                //User32.MoveWindow(hwnd, 200, 200, 400, 300, true);
                                 User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
@@ -1561,9 +1546,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 0, //rect.Width,
                 0, //rect.Height,
                 0
-                //| SetWindowPosFlags.DoNotRedraw
-                //| SetWindowPosFlags.DoNotSendChangingEvent
-                //| SetWindowPosFlags.DoNotChangeOwnerZOrder
                 | SetWindowPosFlags.DoNotActivate
                 | SetWindowPosFlags.IgnoreMove
                 | SetWindowPosFlags.IgnoreResize
@@ -2091,13 +2073,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     monitorApplications[displayKey].Remove(hwnd);
                     moved = true;
                 }
-                /*
-                else if (eventType == User32Events.EVENT_SYSTEM_FOREGROUND)
-                {
-                    // when close/reopen session, OS/user may activate existing window (possibly with different position)
-                    // just ignore it
-                }
-                */
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
@@ -2261,14 +2236,6 @@ namespace Ninjacrab.PersistentWindows.Common
             return false;
         }
 
-        /*
-        private void TestMoveTaskBar()
-        {
-            Thread.Sleep(3000);
-            IntPtr hwnd = User32.FindWindowEx(IntPtr.Zero, IntPtr.Zero, "Shell_TrayWnd", null);
-            MoveTaskBar(hwnd, 300, 15);
-        }
-        */
 
         private void RestoreFullScreenWindow(IntPtr hwnd)
         {
@@ -2514,11 +2481,6 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Info("");
             Log.Info("Restoring windows pass {0} for {1}", restoreTimes, displayKey);
 
-            /*
-            if (restoreTimes == 0)
-                RestoreCursorPos(displayKey);
-            */
-
             IEnumerable<IntPtr> sWindows;
             var arr = new IntPtr[1];
             if (sWindow != IntPtr.Zero)
@@ -2551,7 +2513,6 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoringFromDB && restoreTimes < 2)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
-                //ILiteCollection<ApplicationDisplayMetrics> db = null;
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
                 foreach (var hWnd in sWindows)
@@ -2887,9 +2848,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
-                // launch process in db
+                // launch missing process according to db
                 var results = db.FindAll(); // find process not yet started
-                var i = 0;
+                var i = 0; //.bat file id
                 bool yes_to_all = autoRestoreMissingWindows | false;
                 foreach (var curDisplayMetrics in results)
                 {
