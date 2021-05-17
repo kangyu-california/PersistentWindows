@@ -62,7 +62,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // control shared by capture and restore
         private Object databaseLock = new Object(); // lock access to window position database
-        private Object controlLock = new Object();
         private LiteDatabase singletonLock; //prevent second PW inst from running
 
         // capture control
@@ -424,7 +423,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     string displayKey = GetDisplayKey();
                     Log.Trace("");
                     Log.Info("Display settings changing {0}", displayKey);
-                    lock (controlLock)
                     {
                         lastDisplayChangeTime = DateTime.Now;
 
@@ -443,7 +441,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
 
-                    lock (controlLock)
                     {
                         EndDisplaySession();
 
@@ -488,7 +485,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         case PowerModes.Suspend:
                             Log.Event("System suspending");
-                            lock (controlLock)
                             {
                                 sessionActive = false;
                                 if (promptSessionRestore)
@@ -502,7 +498,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         case PowerModes.Resume:
                             Log.Event("System Resuming");
-                            lock (controlLock)
                             {
                                 if (!sessionLocked)
                                 {
@@ -528,7 +523,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     case SessionSwitchReason.SessionLock:
                         Log.Event("Session closing: reason {0}", args.Reason);
-                        lock (controlLock)
                         {
                             sessionLocked = true;
                             sessionActive = false;
@@ -539,7 +533,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         break;
                     case SessionSwitchReason.SessionUnlock:
                         Log.Event("Session opening: reason {0}", args.Reason);
-                        lock (controlLock)
                         {
                             sessionLocked = false;
                             if (pauseAutoRestore && promptSessionRestore)
@@ -1706,7 +1699,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void ResetState()
         {
-            lock (controlLock)
             {
                 // end of restore period
                 //CancelRestoreTimer();
@@ -2201,7 +2193,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(ex.ToString());
                 }
 
-                lock (controlLock)
                 {
                     restoreNestLevel--;
                 }
