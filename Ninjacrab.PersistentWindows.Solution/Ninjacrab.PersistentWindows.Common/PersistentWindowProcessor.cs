@@ -2151,8 +2151,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreNestLevel++;
             }
 
-            var thread = new Thread(() =>
-            {
+
                 try
                 {
                     {
@@ -2208,11 +2207,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     restoreNestLevel--;
                 }
-            });
-            thread.IsBackground = false;
-            thread.Priority = ThreadPriority.BelowNormal;
-            thread.Name = "PersistentWindowProcessor.RestoreApplicationsOnCurrentDisplays()";
-            thread.Start();
         }
 
         private string GetWindowClassName(IntPtr hwnd)
