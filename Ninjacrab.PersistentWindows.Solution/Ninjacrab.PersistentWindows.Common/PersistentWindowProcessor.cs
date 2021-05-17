@@ -36,8 +36,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxSnapshots = 37; // 0-9, a-z, and final one for undo
         private const int MaxHistoryQueueLength = 40; // must be bigger than MaxSnapshots + 1
 
-        private const int HideIconLatency = 50; // delay in millliseconds from restore finished to hide icon
-
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
         private const int SafeDistanceFromTaskbar = 300; //let cursor away from popup window of taskbar to initiate taskbar resize
 
@@ -129,7 +127,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public int snapshotId;
 
         private bool iconBusy = false;
-        private Timer hideIconTimer;
 
         // callbacks
         public delegate void CallBack();
@@ -328,7 +325,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
 
                         //restore icon to idle
-                        hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
+                        hideRestoreTip();
+                        iconBusy = false;
                         sessionActive = true;
                         using (var persistDB = new LiteDatabase(persistDbName))
                         {
@@ -343,7 +341,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (redrawDesktop)
                         User32.RedrawWindow(IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, User32.RedrawWindowFlags.Invalidate);
 
-                    hideIconTimer.Change(HideIconLatency, Timeout.Infinite);
+                    hideRestoreTip();
+                    iconBusy = false;
 
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
@@ -358,11 +357,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             });
 
-            hideIconTimer = new Timer(stage =>
-            {
-                hideRestoreTip();
-                iconBusy = false;
-            });
 
             winEventsCaptureDelegate = WinEventProc;
 
@@ -2171,7 +2165,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < (extraZorderPass ? MaxRestoreTimes : MinRestoreTimes))
-                                StartRestoreTimer();
+                                StartRestoreTimer(milliSecond : 0);
                             else if (restoringSnapshot)
                                 // immediately finish restore
                                 StartRestoreFinishedTimer(milliSecond: 0);
