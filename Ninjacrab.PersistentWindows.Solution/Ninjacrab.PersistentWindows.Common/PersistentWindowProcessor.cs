@@ -288,17 +288,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 BatchCaptureApplicationsOnCurrentDisplays();
             });
 
-            restoreTimer = new Timer(state =>
-            {
-                if (pauseAutoRestore && !restoringFromDB && !restoringSnapshot)
-                    return;
-
-                if (!restoringFromMem && !restoringFromDB)
-                    return;
-
-                Log.Trace("Restore timer expired");
-                BatchRestoreApplicationsOnCurrentDisplays();
-            });
+            restoreTimer = new Timer(state => { TimerRestore(); });
             
             restoreFinishedTimer = new Timer(state =>
             {
@@ -479,7 +469,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (normalSessions.Contains(curDisplayKey))
                             {
                                 restoringFromMem = true;
-                                StartRestoreTimer();
+                                StartRestoreTimer(milliSecond : 0);
                             }
                             else
                             {
@@ -2126,10 +2116,20 @@ namespace Ninjacrab.PersistentWindows.Common
             return moved;
         }
 
+        private void TimerRestore()
+        {
+            if (pauseAutoRestore && !restoringFromDB && !restoringSnapshot)
+                return;
+
+            if (!restoringFromMem && !restoringFromDB)
+                return;
+
+            Log.Trace("Restore timer expired");
+            BatchRestoreApplicationsOnCurrentDisplays();
+        }
+
         private void BatchRestoreApplicationsOnCurrentDisplays()
         {
-            lock (controlLock)
-            {
                 if (restoreNestLevel > 0)
                 {
                     // avoid overloading CPU due to too many restore threads ready to run
@@ -2149,7 +2149,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 restoreNestLevel++;
-            }
 
 
                 try
@@ -2167,7 +2166,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             bool extraZorderPass = false;
 
-                            lock(databaseLock)
                             try
                             {
                                 RemoveInvalidCapture();
