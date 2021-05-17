@@ -13,11 +13,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
-        private Timer uiRefreshTimer = new Timer();
-
-        public volatile bool enableRefresh = false;
-        public bool enableRestoreFromDB = false;
-
         private bool pauseAutoRestore = false;
 
         public bool enableUpgradeNotice = true;
@@ -42,10 +37,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         public SystrayForm()
         {
-            uiRefreshTimer.Interval = 2000;
-            uiRefreshTimer.Tick += new EventHandler(TimerEventProcessor);
-            uiRefreshTimer.Enabled = true;
-
             clickDelayTimer = new System.Threading.Timer(state =>
             {
                 TimerCallBack();
@@ -146,31 +137,25 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         }
 
-        private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
+        //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
+        public void UpdateMenuEnable(bool enableRestoreFromDB)
         {
-            if (enableRefresh)
+            restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+
+            if (enableUpgradeNotice)
             {
-#if DEBUG
-                Program.LogEvent("ui refresh timer triggered");
-#endif
-                restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
-                enableRefresh = false;
-
-                if (enableUpgradeNotice)
+                if (pauseUpgradeCounter)
                 {
-                    if (pauseUpgradeCounter)
+                    pauseUpgradeCounter = false;
+                }
+                else
+                {
+                    if (skipUpgradeCounter == 0)
                     {
-                        pauseUpgradeCounter = false;
+                        CheckUpgrade();
                     }
-                    else
-                    {
-                        if (skipUpgradeCounter == 0)
-                        {
-                            CheckUpgrade();
-                        }
 
-                        skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
-                    }
+                    skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
                 }
             }
         }
