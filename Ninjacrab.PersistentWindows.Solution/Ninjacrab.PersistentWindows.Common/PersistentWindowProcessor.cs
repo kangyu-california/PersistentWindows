@@ -61,7 +61,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private DateTime lastDisplayChangeTime = DateTime.Now;
 
         // control shared by capture and restore
-        private Object databaseLock = new Object(); // lock access to window position database
         private LiteDatabase singletonLock; //prevent second PW inst from running
 
         // capture control
@@ -811,7 +810,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PostActivateWindows()
         {
-            lock(databaseLock)
             {
                 try
                 {
@@ -1816,7 +1814,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 StartCaptureTimer();
                 Log.Trace("defer capture");
             }
-            else lock(databaseLock)
+            else // lock(databaseLock)
             {
                 var appWindows = CaptureWindowsOfInterest();
                 DateTime now = DateTime.Now;
