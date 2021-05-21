@@ -12,7 +12,7 @@
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen window
-  | -fix_unminimized_window=0 | Turn off auto restore of unminimized window
+  | -fix_unminimized_window=0 | Turn off auto restore of unminimized window. Use this switch to avoid undesirable window shifting during window activation, which comes with Event id 9999 : "restore minimized window ...." in event viewer.
   | ‑auto_restore_missing_windows=1 | Restore missing windows from disk without prompting user
   | ‑auto_restore_missing_windows=2 | Automatic restore missing windows from disk at startup, user will be prompted before restore each missing window
   | ‑auto_restore_missing_windows=3 | Automatic restore missing windows from disk at startup without prompting user
@@ -43,7 +43,7 @@
   * Send remote desktop or vncviewer window to bottom z-order (because Alt+Esc hotkey does not work for them)
     * Defocus rdp window first, then hold Ctrl+Win keys and click the rdp window
 
-* Enable/Disable auto restore for a particular window
-  * To add a (child/dialog) window for auto capture/restore, move the window using mouse
-  * To remove a window from auto capture/restore, hold Ctrl+Shift keys then move the window using mouse
+* Enable/Disable auto restore for a child or dialog window
+  * To add such window for auto capture/restore, move the window using mouse
+  * To remove such window from auto capture/restore, hold Ctrl+Shift keys then move the window
 ```
