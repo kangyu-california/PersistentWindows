@@ -155,7 +155,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         CheckUpgrade();
                     }
 
-                    skipUpgradeCounter = (skipUpgradeCounter + 1) % 7;
+                    skipUpgradeCounter = (skipUpgradeCounter + 1) % 31;
                 }
             }
         }
