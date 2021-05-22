@@ -336,10 +336,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     User32.GetAsyncKeyState(i);
                 }
             }
-            else if (e.Button == MouseButtons.Right)
-            {
-                contextMenuStripSysTray.Show(Cursor.Position);
-            }
         }
 
         private void IconMouseDoubleClick(object sender, MouseEventArgs e)
@@ -385,6 +381,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 clickCount++;
                 clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                contextMenuStripSysTray.Show(Cursor.Position);
             }
         }
     }
