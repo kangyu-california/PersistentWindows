@@ -97,7 +97,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private int restoreTimes = 0; //multiple passes need to fully restore
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
-        private int restoreNestLevel = 0; // nested restore call level
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
         private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
@@ -1094,7 +1093,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 RECT2 screenPosition = new RECT2();
                 User32.GetWindowRect(hwnd, ref screenPosition);
-#if DEBUG
+//#if DEBUG
+#if PDEBUG
                 if (title.Contains("Microsoft Visual Studio")
                     && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
                         || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
@@ -1695,7 +1695,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 // end of restore period
                 //CancelRestoreTimer();
                 restoreTimes = 0;
-                restoreNestLevel = 0;
                 restoredWindows.Clear();
 
                 // reset counter of multiwindowProcess
@@ -2114,14 +2113,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BatchRestoreApplicationsOnCurrentDisplays()
         {
-                if (restoreNestLevel > 0)
-                {
-                    // avoid overloading CPU due to too many restore threads ready to run
-                    Log.Trace("restore busy");
-                    StartRestoreTimer();
-                    return;
-                }
-
                 if (restoreTimes == 0)
                 {
                     if (!iconBusy)
@@ -2131,9 +2122,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         showRestoreTip();
                     }
                 }
-
-                restoreNestLevel++;
-
 
                 try
                 {
@@ -2185,9 +2173,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Error(ex.ToString());
                 }
 
-                {
-                    restoreNestLevel--;
-                }
         }
 
         private string GetWindowClassName(IntPtr hwnd)
@@ -2606,9 +2591,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
+#if PDEBUG
                 var window = new SystemWindow(hWnd);
                 if (!window.Process.Responding)
                     continue;
+#endif
 
                 RECT2 rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
@@ -2682,6 +2669,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
+#if PDEBUG
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         windowPlacement.NormalPosition.Left,
@@ -2689,6 +2677,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         windowPlacement.NormalPosition.Width,
                         windowPlacement.NormalPosition.Height,
                         success);
+#endif
                 }
 
                 // recover previous screen position
@@ -2710,6 +2699,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     restoredWindows.Add(hWnd);
 
+#if PDEBUG
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         rect.Left,
@@ -2717,6 +2707,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         rect.Width,
                         rect.Height,
                         success);
+#endif
                 }
 
                 if (!success)
@@ -3005,7 +2996,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        #region IDisposable
+#region IDisposable
         public virtual void Dispose(bool disposing)
         {
             StopRunningThreads();
@@ -3034,7 +3025,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             Dispose(false);
         }
-        #endregion
+#endregion
     }
 
 }
