@@ -1093,8 +1093,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 RECT2 screenPosition = new RECT2();
                 User32.GetWindowRect(hwnd, ref screenPosition);
-//#if DEBUG
-#if PDEBUG
                 if (title.Contains("Microsoft Visual Studio")
                     && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
                         || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
@@ -1102,6 +1100,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
+//#if DEBUG
+#if PDEBUG
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
                 var window = new SystemWindow(hwnd);
@@ -1871,7 +1871,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (User32.GetAncestor(hwnd, 1) != desktopWindow)
                     continue;
 
-                SystemWindow window = new SystemWindow(hwnd);
                 /*
                 if (!User32.IsWindowVisible(hwnd))
                     continue;
@@ -1894,6 +1893,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 
                 // workaround runtime overflow exception in release build
+                //SystemWindow window = new SystemWindow(hwnd);
                 //WindowStyleFlags style = window.Style;
 
                 /*
