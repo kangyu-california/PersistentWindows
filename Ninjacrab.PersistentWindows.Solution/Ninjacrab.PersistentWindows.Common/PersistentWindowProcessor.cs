@@ -460,7 +460,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                 if (promptSessionRestore && !pauseAutoRestore)
                                 {
                                     PromptSessionRestore();
-                                    return;
                                 }
                                 restoringFromMem = true;
                                 StartRestoreTimer(milliSecond : 0);
@@ -499,7 +498,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                     if (promptSessionRestore && !pauseAutoRestore)
                                     {
                                         PromptSessionRestore();
-                                        return;
                                     }
                                     // force restore in case OS does not generate display changed event
                                     restoringFromMem = true;
@@ -531,7 +529,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (promptSessionRestore && !pauseAutoRestore)
                             {
                                 PromptSessionRestore();
-                                return;
                             }
                             // force restore in case OS does not generate display changed event
                             restoringFromMem = true;
@@ -574,8 +571,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PromptSessionRestore()
         {
+                sessionActive = false; // no new capture
                 pauseAutoRestore = true;
-                sessionActive = false;
 
                 using (var dlg = new System.Windows.Forms.Form())
                 {
@@ -629,8 +626,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 */
 
                 pauseAutoRestore = false;
-                restoringFromMem = true;
-                StartRestoreTimer();
         }
 
         private bool IsFullScreen(IntPtr hwnd)
