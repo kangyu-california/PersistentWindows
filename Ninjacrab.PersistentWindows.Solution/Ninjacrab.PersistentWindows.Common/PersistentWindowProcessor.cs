@@ -582,8 +582,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PromptSessionRestore()
         {
-            Thread promptRestore = new Thread(() =>
-            {
                 using (var dlg = new System.Windows.Forms.Form())
                 {
                     dlg.Size = new Size(300, 200);
@@ -638,14 +636,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 pauseAutoRestore = false;
                 restoringFromMem = true;
                 StartRestoreTimer();
-            }
-            );
-
-            promptRestore.Name = "prompt_restore";
-            promptRestore.Priority = ThreadPriority.Highest;
-            promptRestore.Start();
-
-            runningThreads.Add(promptRestore);
         }
 
         private bool IsFullScreen(IntPtr hwnd)
