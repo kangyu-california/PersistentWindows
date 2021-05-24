@@ -2731,9 +2731,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevDisplayMetrics == null)
                             continue;
 
+                        /*
                         var window = new SystemWindow(hWnd);
                         if (!window.Process.Responding)
                             continue;
+                        */
 
                         IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
                         /*
