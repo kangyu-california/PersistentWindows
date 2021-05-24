@@ -462,7 +462,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     PromptSessionRestore();
                                 }
                                 restoringFromMem = true;
-                                StartRestoreTimer(milliSecond : 0);
+                                StartRestoreTimer();
                             }
                             else
                             {
