@@ -457,10 +457,8 @@ namespace Ninjacrab.PersistentWindows.Common
                                 curDisplayKey = displayKey;
                             if (normalSessions.Contains(curDisplayKey))
                             {
-                                if (promptSessionRestore)
+                                if (promptSessionRestore && !pauseAutoRestore)
                                 {
-                                    pauseAutoRestore = true;
-                                    sessionActive = false;
                                     PromptSessionRestore();
                                     return;
                                 }
@@ -486,8 +484,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             Log.Event("System suspending");
                             {
                                 sessionActive = false;
-                                if (promptSessionRestore)
-                                    pauseAutoRestore = true;
                                 if (!sessionLocked)
                                 {
                                     EndDisplaySession();
@@ -500,7 +496,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 if (!sessionLocked)
                                 {
-                                    if (pauseAutoRestore && promptSessionRestore)
+                                    if (promptSessionRestore && !pauseAutoRestore)
                                     {
                                         PromptSessionRestore();
                                         return;
@@ -525,8 +521,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             sessionLocked = true;
                             sessionActive = false;
-                            if (promptSessionRestore)
-                                pauseAutoRestore = true;
                             EndDisplaySession();
                         }
                         break;
@@ -534,7 +528,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Event("Session opening: reason {0}", args.Reason);
                         {
                             sessionLocked = false;
-                            if (pauseAutoRestore && promptSessionRestore)
+                            if (promptSessionRestore && !pauseAutoRestore)
                             {
                                 PromptSessionRestore();
                                 return;
@@ -548,8 +542,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
-                        if (promptSessionRestore)
-                            pauseAutoRestore = true;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
@@ -582,6 +574,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PromptSessionRestore()
         {
+                pauseAutoRestore = true;
+                sessionActive = false;
+
                 using (var dlg = new System.Windows.Forms.Form())
                 {
                     dlg.Size = new Size(300, 200);
