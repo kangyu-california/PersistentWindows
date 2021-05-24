@@ -457,6 +457,13 @@ namespace Ninjacrab.PersistentWindows.Common
                                 curDisplayKey = displayKey;
                             if (normalSessions.Contains(curDisplayKey))
                             {
+                                if (promptSessionRestore)
+                                {
+                                    pauseAutoRestore = true;
+                                    sessionActive = false;
+                                    PromptSessionRestore();
+                                    return;
+                                }
                                 restoringFromMem = true;
                                 StartRestoreTimer(milliSecond : 0);
                             }
