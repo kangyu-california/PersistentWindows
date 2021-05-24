@@ -1097,8 +1097,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
-//#if DEBUG
-#if PDEBUG
+#if DEBUG
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
                 var window = new SystemWindow(hwnd);
@@ -2588,7 +2587,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-#if PDEBUG
+#if DEBUG
                 var window = new SystemWindow(hWnd);
                 if (!window.Process.Responding)
                     continue;
@@ -2666,7 +2665,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
-#if PDEBUG
+#if DEBUG
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         windowPlacement.NormalPosition.Left,
@@ -2696,7 +2695,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     restoredWindows.Add(hWnd);
 
-#if PDEBUG
+#if DEBUG
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         window.Process.ProcessName,
                         rect.Left,
