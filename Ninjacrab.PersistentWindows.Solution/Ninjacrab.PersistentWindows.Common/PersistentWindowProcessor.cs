@@ -540,14 +540,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
-                        remoteSession = args.Reason == SessionSwitchReason.RemoteConnect;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
                     case SessionSwitchReason.RemoteConnect:
+                        remoteSession = true;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                     case SessionSwitchReason.ConsoleConnect:
+                        remoteSession = false;
                         Log.Trace("Session opening: reason {0}", args.Reason);
                         break;
                 }
