@@ -2144,12 +2144,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             restoreTimes++;
 
-
+                            bool slow_restore = remoteSession && !restoringSnapshot;
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < (extraZorderPass ? MaxRestoreTimes : MinRestoreTimes))
-                                StartRestoreTimer(milliSecond : remoteSession ? RestoreLatency : 0);
+                                StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
                             else
-                                StartRestoreFinishedTimer(milliSecond: remoteSession ? MaxRestoreLatency : 0);
+                                StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : 0);
                         }
                         else
                         {
