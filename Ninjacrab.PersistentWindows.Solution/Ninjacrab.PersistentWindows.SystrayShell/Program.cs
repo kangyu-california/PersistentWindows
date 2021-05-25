@@ -239,8 +239,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void ShowRestoreTip()
         {
-            var thread = new Thread(() =>
-            {
                 systrayForm.notifyIconMain.Icon = BusyIcon;
 
                 if (silent)
@@ -253,10 +251,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     return;
 
                 systrayForm.notifyIconMain.ShowBalloonTip(5000);
-            });
-
-            thread.IsBackground = false;
-            thread.Start();
         }
 
         static void HideRestoreTip()
