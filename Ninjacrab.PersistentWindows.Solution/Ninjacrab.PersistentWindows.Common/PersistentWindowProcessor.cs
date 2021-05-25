@@ -95,6 +95,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool autoRestoreMissingWindows = false;
         public bool restoreOneWindowPerProcess = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
+        private Object restoreLock = new object();
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
@@ -2097,6 +2098,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
 
             Log.Trace("Restore timer expired");
+
+            lock(restoreLock)
             BatchRestoreApplicationsOnCurrentDisplays();
         }
 
