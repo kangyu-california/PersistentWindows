@@ -1544,6 +1544,7 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
+#if DEBUG
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} visible:{6} minimized:{7}",
                     curDisplayMetrics,
                     curDisplayMetrics.ScreenPosition.Left,
@@ -1561,6 +1562,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.WindowPlacement.NormalPosition.Height
                     );
                 Log.Trace(log + log2);
+#endif
 
                 if (eventType != 0)
                     curDisplayMetrics.IsValid = true;
@@ -2411,7 +2413,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 // map to the first matching db entry
+#if DEBUG
                 Log.Trace("restore window position with matching process name {0}", result.ProcessName);
+#endif
                 return result;
             }
 
