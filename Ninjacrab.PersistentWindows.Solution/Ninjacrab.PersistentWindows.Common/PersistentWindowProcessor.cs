@@ -119,6 +119,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // session control
         private bool sessionLocked = false; //requires password to unlock
         public bool sessionActive = true;
+        private bool remoteSession = false;
 
         // restore time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
@@ -539,6 +540,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     case SessionSwitchReason.RemoteDisconnect:
                     case SessionSwitchReason.ConsoleDisconnect:
                         sessionActive = false;
+                        remoteSession = args.Reason == SessionSwitchReason.RemoteConnect;
                         Log.Trace("Session closing: reason {0}", args.Reason);
                         break;
 
@@ -2139,10 +2141,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             // force next restore, as Windows OS might not send expected message during restore
                             if (restoreTimes < (extraZorderPass ? MaxRestoreTimes : MinRestoreTimes))
-                                StartRestoreTimer(milliSecond : 0);
+                                StartRestoreTimer(milliSecond : remoteSession ? RestoreLatency : 0);
                             else
-                                // immediately finish restore
-                                StartRestoreFinishedTimer(milliSecond: 0);
+                                StartRestoreFinishedTimer(milliSecond: remoteSession ? MaxRestoreLatency : 0);
                         }
                         else
                         {
