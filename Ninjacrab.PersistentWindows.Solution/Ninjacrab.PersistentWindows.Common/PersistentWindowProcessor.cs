@@ -1082,6 +1082,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
+#if DEBUG
                 RECT2 screenPosition = new RECT2();
                 User32.GetWindowRect(hwnd, ref screenPosition);
                 if (title.Contains("Microsoft Visual Studio")
@@ -1091,7 +1092,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
-#if DEBUG
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
                 var window = new SystemWindow(hwnd);
