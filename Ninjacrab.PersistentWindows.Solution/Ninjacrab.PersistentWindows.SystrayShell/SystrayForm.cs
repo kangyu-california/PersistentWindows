@@ -319,7 +319,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void IconMouseClick(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left)
+            if (!doubleClick && e.Button == MouseButtons.Left)
             {
                 firstClick = true;
                 clickTime = DateTime.Now;
@@ -343,10 +343,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 DateTime now = DateTime.Now;
-                var diff = now.Subtract(clickTime);
-                if (diff.TotalMilliseconds < 40)
+                var ms = now.Subtract(clickTime).TotalMilliseconds;
+                Console.WriteLine("{0}", ms);
+                if (ms < 30 || ms > 200)
                 {
-                    Program.LogError("ignore bogus double click");
+                    Program.LogError($"ignore bogus double click {ms} ms");
                     return;
                 }
 
