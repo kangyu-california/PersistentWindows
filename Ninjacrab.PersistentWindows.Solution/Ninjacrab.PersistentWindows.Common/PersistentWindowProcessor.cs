@@ -460,7 +460,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                             if (normalSessions.Contains(curDisplayKey))
                             {
-                                if (promptSessionRestore && !pauseAutoRestore)
+                                if (promptSessionRestore)
                                 {
                                     PromptSessionRestore();
                                 }
@@ -498,7 +498,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 if (!sessionLocked)
                                 {
-                                    if (promptSessionRestore && !pauseAutoRestore)
+                                    if (promptSessionRestore)
                                     {
                                         PromptSessionRestore();
                                     }
@@ -529,7 +529,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Event("Session opening: reason {0}", args.Reason);
                         {
                             sessionLocked = false;
-                            if (promptSessionRestore && !pauseAutoRestore)
+                            if (promptSessionRestore)
                             {
                                 PromptSessionRestore();
                             }
@@ -576,8 +576,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PromptSessionRestore()
         {
+                if (pauseAutoRestore)
+                    return;
                 sessionActive = false; // no new capture
-                bool pauseAutoRestore_save = pauseAutoRestore;
                 pauseAutoRestore = true;
 
                 using (var dlg = new System.Windows.Forms.Form())
@@ -631,7 +632,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     System.Windows.Forms.MessageBoxIcon.None);
                 */
 
-                pauseAutoRestore = pauseAutoRestore_save;
+                pauseAutoRestore = false;
         }
 
         private bool IsFullScreen(IntPtr hwnd)
