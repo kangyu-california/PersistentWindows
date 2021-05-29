@@ -577,6 +577,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void PromptSessionRestore()
         {
                 sessionActive = false; // no new capture
+                bool pauseAutoRestore_save = pauseAutoRestore;
                 pauseAutoRestore = true;
 
                 using (var dlg = new System.Windows.Forms.Form())
@@ -630,7 +631,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     System.Windows.Forms.MessageBoxIcon.None);
                 */
 
-                pauseAutoRestore = false;
+                pauseAutoRestore = pauseAutoRestore_save;
         }
 
         private bool IsFullScreen(IntPtr hwnd)
