@@ -83,6 +83,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool restoringFromDB = false; // manual restore from DB in progress
         public bool restoringSnapshot = false;
         public bool dryRun = false; // only capturre, no actual restore
+        public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 1; // bit i represent restore method for pass i
         public bool pauseAutoRestore = false;
@@ -451,8 +452,12 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else
                         {
+                            if (showDesktop)
+                                ShowDesktop();
+
                             // change display on the fly
                             curDisplayKey = displayKey;
+
                             if (normalSessions.Contains(curDisplayKey))
                             {
                                 if (promptSessionRestore && !pauseAutoRestore)
@@ -2936,6 +2941,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Kernel32.CloseHandle(hProcess);
             return pathToExe;
+        }
+
+        void ShowDesktop()
+        {
+            Process process = new Process();
+            process.StartInfo.FileName = "explorer.exe";
+            process.StartInfo.Arguments = "shell:::{3080F90D-D7AD-11D9-BD98-0000947B0257}";
+            process.StartInfo.UseShellExecute = true;
+            // Start process and handlers
+            process.Start();
+            process.WaitForExit();
         }
 
         private List<IntPtr> GetWindows(string procName)

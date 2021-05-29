@@ -37,6 +37,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
+            bool show_desktop = false; //show desktop when display changes
             bool redraw_desktop = false;
             bool offscreen_fix = true;
             bool fix_unminimized_window = true;
@@ -79,6 +80,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
+                        break;
+                    case "-show_desktop_when_display_changes":
+                        LogEvent("show desktop = 1");
+                        show_desktop = true;
                         break;
                     case "-enhanced_offscreen_fix":
                         enhanced_offscreen_fix = true;
@@ -208,6 +213,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
+            pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
@@ -363,6 +369,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.restoringFromMem = true;
             pwp.StartRestoreTimer();
         }
+
         static void GetProcessInfo()
         {
             Process process = new Process();
