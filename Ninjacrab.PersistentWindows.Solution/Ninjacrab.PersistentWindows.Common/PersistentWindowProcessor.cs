@@ -576,63 +576,56 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void PromptSessionRestore()
         {
-                if (pauseAutoRestore)
-                    return;
-                sessionActive = false; // no new capture
-                pauseAutoRestore = true;
+            if (pauseAutoRestore)
+                return;
 
-                using (var dlg = new System.Windows.Forms.Form())
-                {
-                    dlg.Size = new Size(300, 200);
-                    dlg.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-                    dlg.TopMost = true;
-                    dlg.Icon = Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
-                    dlg.MinimizeBox = false;
-                    dlg.MaximizeBox = false;
-                    dlg.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-                    dlg.Text = $"{System.Windows.Forms.Application.ProductName}";
-                    var button1 = new System.Windows.Forms.Button();
-                    button1.Text = "OK";
-                    // Set the position of the button on the form.
-                    button1.Location = new Point(110, 120);
+            sessionActive = false; // no new capture
+            pauseAutoRestore = true;
 
-                    var label = new System.Windows.Forms.Label();
-                    label.Size = new Size(250, 50);
-                    label.Location = new Point(30, 50);
-                    label.Text = "Press OK to restore window layout";
-                    label.Font = new System.Drawing.Font(label.Font.Name, 10F);
+            using (var dlg = new System.Windows.Forms.Form())
+            {
+                dlg.Size = new Size(300, 200);
+                dlg.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                dlg.TopMost = true;
+                dlg.Icon = Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
+                dlg.MinimizeBox = false;
+                dlg.MaximizeBox = false;
+                dlg.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+                dlg.Text = $"{System.Windows.Forms.Application.ProductName}";
+                var button1 = new System.Windows.Forms.Button();
+                button1.Text = "OK";
+                // Set the position of the button on the form.
+                button1.Location = new Point(110, 120);
 
-                    dlg.CancelButton = button1;
-                    dlg.Controls.Add(button1);
-                    dlg.Controls.Add(label);
+                var label = new System.Windows.Forms.Label();
+                label.Size = new Size(250, 50);
+                label.Location = new Point(30, 50);
+                label.Text = "Press OK to restore window layout";
+                label.Font = new System.Drawing.Font(label.Font.Name, 10F);
 
-                    dlg.Activate();
+                dlg.CancelButton = button1;
+                dlg.Controls.Add(button1);
+                dlg.Controls.Add(label);
 
-                    User32.SetWindowPos(
-                        dlg.Handle,
-                        new IntPtr(-1), // set dialog to topmost
-                        0, //rect.Left,
-                        0, //rect.Top,
-                        0, //rect.Width,
-                        0, //rect.Height,
-                        0
-                        | SetWindowPosFlags.DoNotActivate
-                        | SetWindowPosFlags.IgnoreMove
-                        | SetWindowPosFlags.IgnoreResize
-                    );
+                dlg.Activate();
 
-                    dlg.ShowDialog();
-                }
+                User32.SetWindowPos(
+                    dlg.Handle,
+                    new IntPtr(-1), // set dialog to topmost
+                    0, //rect.Left,
+                    0, //rect.Top,
+                    0, //rect.Width,
+                    0, //rect.Height,
+                    0
+                    | SetWindowPosFlags.DoNotActivate
+                    | SetWindowPosFlags.IgnoreMove
+                    | SetWindowPosFlags.IgnoreResize
+                );
 
-                /*
-                System.Windows.Forms.MessageBox.Show(
-                    $@"Press OK to start restore for {curDisplayKey}",
-                    $"{System.Windows.Forms.Application.ProductName}",
-                    System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.None);
-                */
+                dlg.ShowDialog();
+            }
 
-                pauseAutoRestore = false;
+            pauseAutoRestore = false;
         }
 
         private bool IsFullScreen(IntPtr hwnd)
