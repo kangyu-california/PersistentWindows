@@ -39,13 +39,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             clickDelayTimer = new System.Threading.Timer(state =>
             {
-                TimerCallBack();
+                ClickTimerCallBack();
             });
 
             InitializeComponent();
         }
 
-        private void TimerCallBack()
+        private void ClickTimerCallBack()
         {
             pauseUpgradeCounter = true;
 
