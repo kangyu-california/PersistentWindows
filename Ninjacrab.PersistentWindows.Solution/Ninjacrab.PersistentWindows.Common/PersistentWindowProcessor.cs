@@ -124,6 +124,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // restore time
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
+        private Dictionary<string, DateTime> lastUserActionTimeBackup = new Dictionary<string, DateTime>();
         private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
         public int snapshotId;
 
@@ -418,6 +419,21 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Info("Display settings changing {0}", displayKey);
                     {
                         lastDisplayChangeTime = DateTime.Now;
+
+                        // undo disqualified capture time
+                        if (lastUserActionTime.ContainsKey(curDisplayKey))
+                        {
+                            var lastCaptureTime = lastUserActionTime[curDisplayKey];
+                            var diff = lastDisplayChangeTime - lastCaptureTime;
+                            if (diff.TotalMilliseconds < 1000)
+                            {
+                                if (lastUserActionTimeBackup.ContainsKey(curDisplayKey))
+                                {
+                                    lastUserActionTime[curDisplayKey] = lastUserActionTimeBackup[curDisplayKey];
+                                    Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
+                                }
+                            }
+                        }
 
                         if (!restoringFromMem)
                         {
@@ -1710,6 +1726,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         monitorApplications[displayKey][hwnd].Last().IsValid = true;
                 }
 
+                if (lastUserActionTime.ContainsKey(displayKey))
+                    lastUserActionTimeBackup[displayKey] = lastUserActionTime[displayKey];
                 lastUserActionTime[displayKey] = time;
 
                 Log.Trace("Capture time {0}", time);
@@ -2449,8 +2467,6 @@ namespace Ninjacrab.PersistentWindows.Common
             DateTime lastCaptureTime = DateTime.Now;
             if (lastUserActionTime.ContainsKey(displayKey))
             {
-                lastCaptureTime = lastUserActionTime[displayKey];
-
                 if (restoringSnapshot)
                 {
                     if (!snapshotTakenTime.ContainsKey(curDisplayKey)
@@ -2458,6 +2474,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         return false;
 
                     lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
+                }
+                else
+                {
+                    lastCaptureTime = lastUserActionTime[displayKey];
                 }
             }
 
