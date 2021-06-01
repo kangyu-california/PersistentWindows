@@ -60,14 +60,16 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 #if DEBUG
             Console.Write(message);
 #endif
- 
+            message = message.Substring(message.IndexOf("::") + 3);
             eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9999, 0);
         }
 
         public static void Event(string format, params object[] args)
         {
             var message = Format(format, args);
+#if DEBUG
             Console.Write(message);
+#endif
             message = message.Substring(message.IndexOf("::") + 3);
             eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9990, 0);
         }
@@ -80,7 +82,14 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
         /// <returns></returns>
         private static string Format(string format, params object[] args)
         {
-            return string.Format($"{DateTime.Now} :: {format}\n", args);
+            if (string.IsNullOrEmpty(format))
+            {
+                return "\n";
+            }
+
+            bool arg_null = args.Length == 0;
+            return arg_null ? $"{DateTime.Now} :: " + format + "\n":
+                $"{DateTime.Now} :: " + string.Format(format, args) + "\n";
         }
 
     }
