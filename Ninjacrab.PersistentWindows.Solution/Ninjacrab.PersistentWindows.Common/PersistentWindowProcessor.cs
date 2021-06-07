@@ -931,7 +931,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (prevDisplayMetrics.IsMinimized)
                     {
                         if (prevDisplayMetrics.IsFullScreen)
+                        {
+                            RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                            User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                             RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                        }
                         else if (!IsFullScreen(hwnd))
                         {
                             RECT2 screenPosition = new RECT2();
