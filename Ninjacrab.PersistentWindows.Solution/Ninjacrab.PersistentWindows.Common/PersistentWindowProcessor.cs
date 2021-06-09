@@ -1707,17 +1707,23 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoreTimes = 0;
                 restoredWindows.Clear();
 
-                // reset counter of multiwindowProcess
-                var keys = new List<string>();
-                foreach (var key in multiwindowProcess.Keys)
-                {
-                    keys.Add(key);
-                }
-                
-                foreach (var key in keys)
-                {
-                    multiwindowProcess[key] = 0;
-                }
+            }
+
+            ResetMultiWindowProcess();
+        }
+
+        private void ResetMultiWindowProcess()
+        {
+            // reset counter of multiwindowProcess
+            var keys = new List<string>();
+            foreach (var key in multiwindowProcess.Keys)
+            {
+                keys.Add(key);
+            }
+            
+            foreach (var key in keys)
+            {
+                multiwindowProcess[key] = 0;
             }
         }
 
@@ -2156,6 +2162,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 RemoveInvalidCapture();
                                 extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
+
+                                if (restoringFromDB)
+                                    ResetMultiWindowProcess();
                             }
                             catch (Exception ex)
                             {
@@ -2488,7 +2497,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             DateTime printRestoreTime = lastCaptureTime;
-            if (restoringFromDB && restoreTimes < 2)
+            if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
@@ -2505,6 +2514,8 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
+                    if (!User32.IsWindowVisible(hWnd))
+                        continue;
                     if (childWindows.Contains(hWnd))
                         continue;
                     if (!IsDbPersistentWindow(hWnd))
@@ -2837,7 +2848,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 // launch missing process according to db
                 var results = db.FindAll(); // find process not yet started
                 var i = 0; //.bat file id
-                bool yes_to_all = autoRestoreMissingWindows | false;
+                bool yes_to_all = autoRestoreMissingWindows;
                 foreach (var curDisplayMetrics in results)
                 {
                     if (curDisplayMetrics.IsInvisible)
