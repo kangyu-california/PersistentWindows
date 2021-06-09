@@ -1784,6 +1784,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
                         if (!IsDbPersistentWindow(hWnd))
                             continue;
+                        if (!User32.IsWindowVisible(hWnd))
+                            continue;
 
                         try
                         {
