@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.960
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{FA5C1FB9-45F3-434F-9176-71A2D8EDA5B2}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninjacrab.PersistentWindows.Common", "Ninjacrab.PersistentWindows.Common\Ninjacrab.PersistentWindows.Common.csproj", "{4CC8B3FB-214B-42AB-8AAE-E7DC5E266EF0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ninjacrab.PersistentWindows.SystrayShell", "Ninjacrab.PersistentWindows.SystrayShell\Ninjacrab.PersistentWindows.SystrayShell.csproj", "{A728279C-F567-4E54-8BC6-90A66DC3EF57}"
