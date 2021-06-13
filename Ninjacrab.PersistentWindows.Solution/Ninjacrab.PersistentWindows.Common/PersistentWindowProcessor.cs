@@ -47,7 +47,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
-        private HashSet<IntPtr> childWindows = new HashSet<IntPtr>();
+        private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
+        private IntPtr desktopWindow = User32.GetDesktopWindow();
 
         // windows that are not to be restored
         private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
@@ -988,28 +989,22 @@ namespace Ninjacrab.PersistentWindows.Common
 
         }
 
-        private bool IsChildWindow(IntPtr hwnd)
-        {
-            if (IsTaskBar(hwnd))
-                return false;
 
-            return User32.GetAncestor(hwnd, 1) != User32.GetDesktopWindow()
-                || User32.GetParent(hwnd) != User32.GetDesktopWindow();
-        }
-
-        private bool IsDbPersistentWindow(IntPtr hwnd)
+        private bool IsTopLevelWindow(IntPtr hwnd)
         {
             if (IsTaskBar(hwnd))
                 return true;
 
+            if (User32.GetAncestor(hwnd, 1) != desktopWindow)
+                return false;
+
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
-            return (style & (long)WindowStyleFlags.MINIMIZEBOX) != 0L;
+            return (style & (long)WindowStyleFlags.MINIMIZEBOX) != 0L
+                || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
-            // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
-            if (IsChildWindow(hwnd))
             {
                 switch (eventType)
                 {
@@ -1017,11 +1012,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                     case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                         // only care about child windows that are moved by user
-                        childWindows.Add(hwnd);
+                        allUserMoveWindows.Add(hwnd);
                         break;
 
                     case User32Events.EVENT_OBJECT_DESTROY:
-                        childWindows.Remove(hwnd);
+                        allUserMoveWindows.Remove(hwnd);
                         break;
 
                     default:
@@ -1251,7 +1246,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
-                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || childWindows.Contains(hwnd))
+                            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
                             {
                                 StartCaptureTimer(UserMoveLatency / 4);
                                 userMove = true;
@@ -1780,11 +1775,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (!monitorApplications[displayKey].ContainsKey(hWnd))
                             continue;
-                        if (childWindows.Contains(hWnd))
-                            continue;
-                        if (!IsDbPersistentWindow(hWnd))
-                            continue;
-                        if (!User32.IsWindowVisible(hWnd))
+                        if (!IsTopLevelWindow(hWnd))
                             continue;
 
                         try
@@ -1881,15 +1872,19 @@ namespace Ninjacrab.PersistentWindows.Common
             */
 
             HashSet<IntPtr> result = new HashSet<IntPtr>();
-
-            IntPtr desktopWindow = User32.GetDesktopWindow();
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
 
             for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
             {
                 // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
-                if (User32.GetAncestor(hwnd, 1) != desktopWindow)
+                if (!IsTopLevelWindow(hwnd))
                     continue;
+
+                if (IsTaskBar(hwnd))
+                {
+                    result.Add(hwnd);
+                    continue;
+                }
 
                 /*
                 if (!User32.IsWindowVisible(hwnd))
@@ -1902,12 +1897,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
                     continue;
-
-                if (IsTaskBar(hwnd))
-                {
-                    result.Add(hwnd);
-                    continue;
-                }
 
                 if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
@@ -1936,7 +1925,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 result.Add(hwnd);
             }
 
-            foreach (var hwnd in childWindows)
+            foreach (var hwnd in allUserMoveWindows)
             {
                 if (noRestoreWindows.Contains(hwnd))
                     continue;
@@ -2434,7 +2423,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible)
         {
             foreach (var result in results)
             {
@@ -2442,6 +2431,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     continue;
                 }
+
+                if (result.IsInvisible != invisible)
+                    continue;
 
                 // map to the first matching db entry
 #if DEBUG
@@ -2516,12 +2508,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
-                    if (!User32.IsWindowVisible(hWnd))
+                    if (!IsTopLevelWindow(hWnd))
                         continue;
-                    if (childWindows.Contains(hWnd))
-                        continue;
-                    if (!IsDbPersistentWindow(hWnd))
-                        continue;
+
+                    bool invisible = !User32.IsWindowVisible(hWnd);
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     var window = new SystemWindow(hWnd);
@@ -2535,31 +2525,31 @@ namespace Ninjacrab.PersistentWindows.Common
                         string title = windowTitle[hWnd];
                         var id = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>().Id;
                         var results = db.Find(x => x.Id == id);
-                        curDisplayMetrics = SearchDb(results);
+                        curDisplayMetrics = SearchDb(results, invisible);
 
                         if (curDisplayMetrics == null)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
-                            curDisplayMetrics = SearchDb(results);
+                            curDisplayMetrics = SearchDb(results, invisible);
                         }
 
                         if (curDisplayMetrics == null)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
-                            curDisplayMetrics = SearchDb(results);
+                            curDisplayMetrics = SearchDb(results, invisible);
                         }
                     }
 
                     if (curDisplayMetrics == null)
                     {
                         var results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results);
+                        curDisplayMetrics = SearchDb(results, invisible);
                     }
 
                     if (curDisplayMetrics == null && !IsTaskBar(hWnd))
                     {
                         var results = db.Find(x => x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results);
+                        curDisplayMetrics = SearchDb(results, invisible);
                     }
 
                     if (curDisplayMetrics == null)
@@ -2853,9 +2843,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 bool yes_to_all = autoRestoreMissingWindows;
                 foreach (var curDisplayMetrics in results)
                 {
-                    if (curDisplayMetrics.IsInvisible)
-                        continue;
-
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                     {
                         continue;
