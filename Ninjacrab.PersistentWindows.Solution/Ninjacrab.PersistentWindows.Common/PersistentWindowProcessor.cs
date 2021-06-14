@@ -2424,10 +2424,13 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible, bool ignoreInvisible = false)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible, bool ignoreInvisible = false, bool ignoreDbMatch = false)
         {
             foreach (var result in results)
             {
+                if (!ignoreDbMatch && dbMatchWindow.Contains(result.Id))
+                    continue; // match only once, except for query using exact id
+
                 if (!ignoreInvisible && result.IsInvisible != invisible)
                     continue;
 
@@ -2487,11 +2490,15 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             DateTime printRestoreTime = lastCaptureTime;
+            var foundDbProcess = new Dictionary<uint, HashSet<string>>(); //avoid resstore db process for the second window with same process id but different class name
+
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                 var foundDbHwnd = new HashSet<IntPtr>();
+
+                dbMatchWindow.Clear();
 
                 for (dbMatchLevel = 0; dbMatchLevel < 6; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
@@ -2523,7 +2530,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (id != 0)
                     {
                         results = db.Find(x => x.Id == id);
-                        curDisplayMetrics = SearchDb(results, invisible);
+                        curDisplayMetrics = SearchDb(results, invisible, ignoreInvisible: true, ignoreDbMatch: true);
                     }
 
                     if (windowTitle.ContainsKey(hWnd))
@@ -2546,20 +2553,19 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (curDisplayMetrics == null && dbMatchLevel == 3)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
-                        if (dbMatchLevel == 3)
-                            curDisplayMetrics = SearchDb(results, invisible);
+                        curDisplayMetrics = SearchDb(results, invisible);
                     }
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 4)
+                    if (curDisplayMetrics == null && dbMatchLevel == 4)
                     {
-                        results = db.Find(x => x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results, invisible);
+                        results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
+                        curDisplayMetrics = SearchDb(results, invisible, ignoreInvisible:true);
                     }
 
                     if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 5)
                     {
                         results = db.Find(x => x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results, invisible, ignoreInvisible:true);
+                        curDisplayMetrics = SearchDb(results, invisible);
                     }
 
                     if (curDisplayMetrics == null)
@@ -2573,15 +2579,34 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue; //avoid restore multiple times
                     }
 
+                    dbMatchWindow.Add(curDisplayMetrics.Id);
+                    foundDbHwnd.Add(hWnd);
+
+                    if (dbMatchLevel >= 5 && foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId))
+                    {
+                        Log.Error($"fuzzy matching db process {curDisplayMetrics.ProcessName} class {curDisplayMetrics.ClassName} with {className}");
+                        continue; //pretend window with same process id but different class name has been restored
+                    }
+
+                    try
+                    {
+                        if (!foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId))
+                        {
+                            foundDbProcess.Add(curDisplayMetrics.ProcessId, new HashSet<string>());
+                        }
+                        foundDbProcess[curDisplayMetrics.ProcessId].Add(className);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e.ToString());
+                    }
+
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
                     curDisplayMetrics.ClassName = className;
                     curDisplayMetrics.IsValid = true;
-
-                    dbMatchWindow.Add(curDisplayMetrics.Id);
-                    foundDbHwnd.Add(hWnd);
 
                     printRestoreTime = curDisplayMetrics.CaptureTime;
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
@@ -2855,8 +2880,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 foreach (var curDisplayMetrics in results)
                 {
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
-                    {
                         continue;
+
+                    if (foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId)
+                            && !foundDbProcess[curDisplayMetrics.ProcessId].Contains(curDisplayMetrics.ClassName))
+                    {
+                        Log.Error($"skip restore process {curDisplayMetrics.ProcessName} class {curDisplayMetrics.ClassName}");
+                        continue; //ignore same process id but different class name
                     }
 
                     // launch once per process id
