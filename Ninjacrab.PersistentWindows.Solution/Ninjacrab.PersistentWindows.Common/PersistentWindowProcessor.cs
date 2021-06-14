@@ -96,6 +96,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool autoRestoreMissingWindows = false;
         public bool restoreOneWindowPerProcess = false;
         private int restoreTimes = 0; //multiple passes need to fully restore
+        private int dbMatchLevel = 0;
         private Object restoreLock = new object();
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
@@ -2495,18 +2496,19 @@ namespace Ninjacrab.PersistentWindows.Common
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                var foundDbMatch = new HashSet<IntPtr>();
 
+                for (dbMatchLevel = 0; dbMatchLevel < 5; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
-                    if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
-                    {
+                    if (foundDbMatch.Contains(hWnd))
                         continue;
-                    }
+
+                    if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
+                        continue;
 
                     if (!monitorApplications[displayKey].ContainsKey(hWnd))
-                    {
                         continue;
-                    }
 
                     if (!IsTopLevelWindow(hWnd))
                         continue;
@@ -2520,35 +2522,42 @@ namespace Ninjacrab.PersistentWindows.Common
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
 
+                    var id = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>().Id;
+
+                    IEnumerable<ApplicationDisplayMetrics> results;
+                    if (dbMatchLevel == 0 && id != 0)
+                    {
+                        results = db.Find(x => x.Id == id);
+                        curDisplayMetrics = SearchDb(results, invisible);
+                    }
+
                     if (windowTitle.ContainsKey(hWnd))
                     {
                         string title = windowTitle[hWnd];
-                        var id = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>().Id;
-                        var results = db.Find(x => x.Id == id);
-                        curDisplayMetrics = SearchDb(results, invisible);
 
-                        if (curDisplayMetrics == null)
+                        if (curDisplayMetrics == null && dbMatchLevel == 1)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
                             curDisplayMetrics = SearchDb(results, invisible);
                         }
 
-                        if (curDisplayMetrics == null)
+                        if (curDisplayMetrics == null && dbMatchLevel == 2)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(results, invisible);
                         }
                     }
 
-                    if (curDisplayMetrics == null)
+                    if (curDisplayMetrics == null && dbMatchLevel == 3)
                     {
-                        var results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results, invisible);
+                        results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
+                        if (dbMatchLevel == 3)
+                            curDisplayMetrics = SearchDb(results, invisible);
                     }
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd))
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 4)
                     {
-                        var results = db.Find(x => x.ProcessName == processName);
+                        results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, invisible);
                     }
 
@@ -2558,6 +2567,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         continue;
                     }
 
+                    if (dbMatchWindow.Contains(curDisplayMetrics.Id))
+                    {
+                        continue; //avoid restore multiple times
+                    }
+
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
                     curDisplayMetrics.ProcessId = processId;
@@ -2565,12 +2579,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.ClassName = className;
                     curDisplayMetrics.IsValid = true;
 
-                    if (dbMatchWindow.Contains(curDisplayMetrics.Id))
-                    {
-                        continue; //avoid restore multiple times
-                    }
-
                     dbMatchWindow.Add(curDisplayMetrics.Id);
+                    foundDbMatch.Add(hWnd);
 
                     printRestoreTime = curDisplayMetrics.CaptureTime;
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
