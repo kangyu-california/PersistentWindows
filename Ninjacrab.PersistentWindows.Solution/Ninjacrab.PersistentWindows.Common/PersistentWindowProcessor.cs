@@ -2491,12 +2491,12 @@ namespace Ninjacrab.PersistentWindows.Common
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-                var foundDbMatch = new HashSet<IntPtr>();
+                var foundDbHwnd = new HashSet<IntPtr>();
 
                 for (dbMatchLevel = 0; dbMatchLevel < 6; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
-                    if (foundDbMatch.Contains(hWnd))
+                    if (foundDbHwnd.Contains(hWnd))
                         continue;
 
                     if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
@@ -2581,7 +2581,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     curDisplayMetrics.IsValid = true;
 
                     dbMatchWindow.Add(curDisplayMetrics.Id);
-                    foundDbMatch.Add(hWnd);
+                    foundDbHwnd.Add(hWnd);
 
                     printRestoreTime = curDisplayMetrics.CaptureTime;
                     curDisplayMetrics.CaptureTime = lastCaptureTime;
