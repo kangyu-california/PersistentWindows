@@ -2424,11 +2424,11 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible, bool ignoreInvisible = false)
         {
             foreach (var result in results)
             {
-                if (result.IsInvisible != invisible)
+                if (!ignoreInvisible && result.IsInvisible != invisible)
                     continue;
 
                 // map to the first matching db entry
@@ -2493,7 +2493,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
                 var foundDbMatch = new HashSet<IntPtr>();
 
-                for (dbMatchLevel = 0; dbMatchLevel < 5; ++dbMatchLevel)
+                for (dbMatchLevel = 0; dbMatchLevel < 6; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
                     if (foundDbMatch.Contains(hWnd))
@@ -2554,6 +2554,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, invisible);
+                    }
+
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 5)
+                    {
+                        results = db.Find(x => x.ProcessName == processName);
+                        curDisplayMetrics = SearchDb(results, invisible, ignoreInvisible:true);
                     }
 
                     if (curDisplayMetrics == null)
