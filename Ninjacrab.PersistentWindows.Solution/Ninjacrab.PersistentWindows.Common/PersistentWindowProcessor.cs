@@ -2428,11 +2428,6 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             foreach (var result in results)
             {
-                if (dbMatchWindow.Contains(result.Id))
-                {
-                    continue;
-                }
-
                 if (result.IsInvisible != invisible)
                     continue;
 
@@ -2525,7 +2520,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     var id = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>().Id;
 
                     IEnumerable<ApplicationDisplayMetrics> results;
-                    if (dbMatchLevel == 0 && id != 0)
+                    if (id != 0)
                     {
                         results = db.Find(x => x.Id == id);
                         curDisplayMetrics = SearchDb(results, invisible);
