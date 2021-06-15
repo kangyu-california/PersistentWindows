@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
-        private const int MaxRestoreTimes = 3; // maximum restore passes
+        private const int MaxRestoreTimes = 7; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
@@ -86,7 +86,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 1; // bit i represent restore method for pass i
+        public int fixZorderMethod = 65; // bit i represent restore method for pass i
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
@@ -2146,7 +2146,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             restoreHalted = true;
                             StartRestoreFinishedTimer(haltRestore * 1000);
                         }
-                        else if (restoreTimes <= MaxRestoreTimes)
+                        else if (restoreTimes < MaxRestoreTimes)
                         {
                             bool extraZorderPass = false;
 
@@ -2166,11 +2166,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             restoreTimes++;
 
                             bool slow_restore = remoteSession && !restoringSnapshot;
+                            bool extra_restore = extraZorderPass;
                             // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < (extraZorderPass ? MaxRestoreTimes : MinRestoreTimes))
+                            if (restoreTimes < (extra_restore? MaxRestoreTimes : MinRestoreTimes))
                                 StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
                             else
-                                StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : 0);
+                                StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
                         }
                         else
                         {
@@ -2687,7 +2688,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder && restoreTimes < MaxRestoreTimes)
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
                     needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
 
@@ -2862,6 +2863,36 @@ namespace Ninjacrab.PersistentWindows.Common
                 catch (Exception ex)
                 {
                     Log.Error(ex.ToString());
+                }
+            }
+
+            // clear topmost
+            foreach (var hWnd in sWindows)
+            {
+                if (restoreHalted)
+                    continue;
+
+                if (!User32.IsWindow(hWnd))
+                {
+                    continue;
+                }
+
+                if (!monitorApplications[displayKey].ContainsKey(hWnd))
+                {
+                    continue;
+                }
+
+                ApplicationDisplayMetrics curDisplayMetrics;
+                ApplicationDisplayMetrics prevDisplayMetrics;
+                if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
+                    continue;
+
+                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                {
+                    //Log.Error("Found topmost window {0}", GetWindowTitle(hWnd));
+                    FixTopMostWindow(hWnd);
+                    topmostWindowsFixed.Add(hWnd);
+                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
                 }
             }
 
