@@ -2125,65 +2125,63 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void BatchRestoreApplicationsOnCurrentDisplays()
         {
-                if (restoreTimes == 0)
+            if (restoreTimes == 0)
+            {
+                if (!iconBusy)
                 {
-                    if (!iconBusy)
+                    // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
+                    iconBusy = true;
+                    showRestoreTip();
+                }
+            }
+
+            try
+            {
+                CancelRestoreFinishedTimer();
+                string displayKey = GetDisplayKey();
+                if (restoreHalted || !displayKey.Equals(curDisplayKey))
+                {
+                    // display resolution changes during restore
+                    restoreHalted = true;
+                    StartRestoreFinishedTimer(haltRestore * 1000);
+                }
+                else if (restoreTimes < MaxRestoreTimes)
+                {
+                    bool extraZorderPass = false;
+
+                    try
                     {
-                        // fix issue 22, avoid frequent restore tip activation due to fast display setting switch
-                        iconBusy = true;
-                        showRestoreTip();
-                    }
-                }
+                        RemoveInvalidCapture();
+                        extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
 
-                try
-                {
+                        if (restoringFromDB)
+                            ResetMultiWindowProcess();
+                    }
+                    catch (Exception ex)
                     {
-                        CancelRestoreFinishedTimer();
-                        string displayKey = GetDisplayKey();
-                        if (restoreHalted || !displayKey.Equals(curDisplayKey))
-                        {
-                            // display resolution changes during restore
-                            restoreHalted = true;
-                            StartRestoreFinishedTimer(haltRestore * 1000);
-                        }
-                        else if (restoreTimes < MaxRestoreTimes)
-                        {
-                            bool extraZorderPass = false;
-
-                            try
-                            {
-                                RemoveInvalidCapture();
-                                extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
-
-                                if (restoringFromDB)
-                                    ResetMultiWindowProcess();
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex.ToString());
-                            }
-
-                            restoreTimes++;
-
-                            bool slow_restore = remoteSession && !restoringSnapshot;
-                            bool extra_restore = extraZorderPass;
-                            // force next restore, as Windows OS might not send expected message during restore
-                            if (restoreTimes < (extra_restore? MaxRestoreTimes : MinRestoreTimes))
-                                StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
-                            else
-                                StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
-                        }
-                        else
-                        {
-                            // immediately finish restore
-                            StartRestoreFinishedTimer(0);
-                        }
+                        Log.Error(ex.ToString());
                     }
+
+                    restoreTimes++;
+
+                    bool slow_restore = remoteSession && !restoringSnapshot;
+                    bool extra_restore = extraZorderPass;
+                    // force next restore, as Windows OS might not send expected message during restore
+                    if (restoreTimes < (extra_restore? MaxRestoreTimes : MinRestoreTimes))
+                        StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
+                    else
+                        StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
                 }
-                catch (Exception ex)
+                else
                 {
-                    Log.Error(ex.ToString());
+                    // immediately finish restore
+                    StartRestoreFinishedTimer(0);
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
 
         }
 
