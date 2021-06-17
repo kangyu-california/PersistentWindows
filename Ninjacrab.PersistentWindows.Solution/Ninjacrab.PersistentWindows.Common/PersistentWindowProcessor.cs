@@ -2147,12 +2147,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (restoreTimes < MaxRestoreTimes)
                 {
-                    bool extraZorderPass = false;
+                    bool zorderFixed = false;
 
                     try
                     {
                         RemoveInvalidCapture();
-                        extraZorderPass = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
+                        zorderFixed = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
 
                         if (restoringFromDB)
                             ResetMultiWindowProcess();
@@ -2165,9 +2165,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     restoreTimes++;
 
                     bool slow_restore = remoteSession && !restoringSnapshot;
-                    bool extra_restore = extraZorderPass;
+                    bool extra_restore = zorderFixed;
                     // force next restore, as Windows OS might not send expected message during restore
-                    if (restoreTimes < (extra_restore? MaxRestoreTimes : MinRestoreTimes))
+                    if (restoreTimes < (extra_restore ? MaxRestoreTimes : MinRestoreTimes))
                         StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
                     else
                         StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
@@ -2443,10 +2443,9 @@ namespace Ninjacrab.PersistentWindows.Common
             return null;
         }
 
-        // returns true if extra restore pass is required
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow)
         {
-            bool needExtraRestorePass = false;
+            bool zorderFixed = false;
 
             if (!monitorApplications.ContainsKey(displayKey)
                 || monitorApplications[displayKey].Count == 0)
@@ -2688,7 +2687,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
                 {
-                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
+                    zorderFixed = true; //force next pass for topmost flag fix and zorder check
 
                     if (((fixZorderMethod >> restoreTimes) & 1) == 1)
                         batchZorderFix = true;
@@ -2890,7 +2889,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     //Log.Error("Found topmost window {0}", GetWindowTitle(hWnd));
                     FixTopMostWindow(hWnd);
                     topmostWindowsFixed.Add(hWnd);
-                    needExtraRestorePass = true; //force next pass for topmost flag fix and zorder check
+                    zorderFixed = true; //force next pass for topmost flag fix and zorder check
                 }
             }
 
@@ -3003,7 +3002,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            return needExtraRestorePass;
+            return zorderFixed;
         }
 
 
