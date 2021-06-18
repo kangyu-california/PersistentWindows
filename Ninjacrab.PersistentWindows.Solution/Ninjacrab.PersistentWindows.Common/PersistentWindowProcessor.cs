@@ -131,6 +131,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public int snapshotId;
 
         private bool iconBusy = false;
+        private bool taskbarReady = false;
 
         // callbacks
         public delegate void CallBack();
@@ -1884,6 +1885,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (IsTaskBar(hwnd))
                 {
                     result.Add(hwnd);
+                    if (!taskbarReady)
+                    {
+                        taskbarReady = true;
+                        hideRestoreTip();
+                    }
                     continue;
                 }
 
