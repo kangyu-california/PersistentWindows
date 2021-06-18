@@ -1885,9 +1885,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (IsTaskBar(hwnd))
                 {
                     result.Add(hwnd);
-                    if (!taskbarReady)
+                    if (!taskbarReady && GetRealTaskBar(hwnd) != IntPtr.Zero)
                     {
                         taskbarReady = true;
+
+                        //show icon on taskbar
                         hideRestoreTip();
                     }
                     continue;
@@ -2406,9 +2408,7 @@ namespace Ninjacrab.PersistentWindows.Common
             Thread.Sleep(PauseRestoreTaskbar); // wait for popup window from taskbar to disappear
             */
 
-            IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
-            IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
-            hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
+            IntPtr hTaskBar = GetRealTaskBar(hwnd);
 
             User32.SetCursorPos(start_x, start_y);
             User32.SetActiveWindow(hTaskBar);
@@ -2427,6 +2427,20 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 
             return true;
+        }
+
+        private static IntPtr GetRealTaskBar(IntPtr hwnd)
+        {
+            IntPtr hTaskBar = IntPtr.Zero;
+            IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
+            if (hReBar != IntPtr.Zero)
+            {
+                IntPtr hTBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
+                if (hTBar != IntPtr.Zero)
+                    hTaskBar = User32.FindWindowEx(hTBar, IntPtr.Zero, "MSTaskListWClass", null);
+            }
+
+            return hTaskBar;
         }
 
         private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, bool invisible, bool ignoreInvisible = false, bool ignoreDbMatch = false)
