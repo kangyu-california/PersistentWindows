@@ -392,7 +392,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
             else if (e.Button == MouseButtons.Right)
             {
-                clickDelayTimer.Change(100, System.Threading.Timeout.Infinite);
+                clickDelayTimer.Change(0, System.Threading.Timeout.Infinite);
             }
         }
     }
