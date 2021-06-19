@@ -47,6 +47,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void ClickTimerCallBack()
         {
+            if (clickCount == 0)
+            {
+                // fix context menu position
+                contextMenuStripSysTray.Show(Cursor.Position);
+                return;
+            }
+
             pauseUpgradeCounter = true;
 
             int keyPressed = -1;
@@ -385,7 +392,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
             else if (e.Button == MouseButtons.Right)
             {
-                contextMenuStripSysTray.Show(Cursor.Position);
+                clickDelayTimer.Change(100, System.Threading.Timeout.Infinite);
             }
         }
     }
