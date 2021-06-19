@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
         private const int MinRestoreTimes = 2; // minimum restore passes
-        private const int MaxRestoreTimes = 7; // maximum restore passes
+        private const int MaxRestoreTimes = 4; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
@@ -86,7 +86,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 65; // bit i represent restore method for pass i
+        public int fixZorderMethod = 9; // bit i represent restore method for pass i
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
