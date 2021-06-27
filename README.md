@@ -41,6 +41,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ![image](https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png)
 
 # Known issues
+ - **A PC reboot triggered by Windows feature/security upgrade sometimes causes PW icon to disappear, reboot a second time usually fixes it, or you will need to terminate PW process in taskmgr and manually launch it.**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
 - **PW may stuck at busy status when restoring previous layout if your running Microsoft Visual Studio Code window has a pending update mark. The root cause is unknown, simply proceed to update VScode will let PW resume to normal again.** 
 
