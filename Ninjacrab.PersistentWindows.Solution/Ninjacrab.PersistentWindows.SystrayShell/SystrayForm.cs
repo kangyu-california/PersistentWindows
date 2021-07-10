@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Net;
+using System.Timers;
 using System.IO;
 using System.IO.Compression;
 
@@ -31,21 +32,29 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private DateTime clickTime;
 
-        private System.Threading.Timer clickDelayTimer;
+        private System.Timers.Timer clickDelayTimer;
 
         private Dictionary<string, bool> upgradeDownloaded = new Dictionary<string, bool>();
 
         public SystrayForm()
         {
-            clickDelayTimer = new System.Threading.Timer(state =>
-            {
-                ClickTimerCallBack();
-            });
-
             InitializeComponent();
+
+            clickDelayTimer = new System.Timers.Timer(1000);
+            clickDelayTimer.Elapsed += ClickTimerCallBack;
+            clickDelayTimer.SynchronizingObject = this.contextMenuStripSysTray;
+            clickDelayTimer.AutoReset = false;
+            clickDelayTimer.Enabled = false;
         }
 
-        private void ClickTimerCallBack()
+        public void StartTimer(int milliseconds)
+        {
+            clickDelayTimer.Interval = milliseconds;
+            clickDelayTimer.AutoReset = false;
+            clickDelayTimer.Enabled = true;
+        }
+
+        private void ClickTimerCallBack(Object source, ElapsedEventArgs e)
         {
             if (clickCount == 0)
             {
@@ -388,11 +397,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 Console.WriteLine("Up");
 
                 clickCount++;
-                clickDelayTimer.Change(400, System.Threading.Timeout.Infinite);
+                StartTimer(400);
             }
             else if (e.Button == MouseButtons.Right)
             {
-                clickDelayTimer.Change(0, System.Threading.Timeout.Infinite);
+                StartTimer(5);
             }
         }
     }
