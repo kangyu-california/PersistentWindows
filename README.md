@@ -28,7 +28,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
 - Unzip the file into any directory
 - It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
-  **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
+  - **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
+
+  - **Specify command option "-delay_start 10" in Edit Action dialog to avoid startup failure after window upgrade**
 
 # Use instructions
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. 
@@ -41,7 +43,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ![image](https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png)
 
 # Known issues
- - **A PC reboot triggered by Windows feature/security upgrade sometimes causes PW icon to disappear, reboot a second time usually fixes it, or you will need to terminate PW process in taskmgr and manually launch it.**
+ - **A PC reboot triggered by Windows feature/security upgrade has recently caused PW icon to disappear, please add PW command option "-delay_start 10" in task scheduler and reboot again**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
 - **PW may stuck at busy status when restoring previous layout if your running Microsoft Visual Studio Code window has a pending update mark. The root cause is unknown, simply proceed to update VScode will let PW resume to normal again.** 
 
