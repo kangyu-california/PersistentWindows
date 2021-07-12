@@ -48,7 +48,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - **PW may stuck at busy status when restoring previous layout if your running Microsoft Visual Studio Code window has a pending update mark. The root cause is unknown, simply proceed to update VScode will let PW resume to normal again.** 
 
 # Tips to digest before reporting a bug
-- Window z-order can be restored in addition to two-dementional layout. This feature is disabled by default. To turn on this feature, run PersistentWindows.exe -fix_zorder
-- Window z-order fix is automatically enabled just for snapshot restore, which has a very very small chance to leave a window sticky at top z-order. The remedy is: Click on the sticky topmost window first, then hold CTRL key pressed and click on the window (or the corresponding icon on taskbar) that you want to bring to top.
+- Window z-order can be restored in addition to two-dementional layout. This feature is is enabled for snapshot restore only.
 - To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
 
