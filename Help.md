@@ -3,11 +3,11 @@
 * PW command line options
   | Command line option | Meaning |
   | --- | --- |
+  | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
+  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
   | -splash=0       | No splash window at PW startup
-  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option allows launching multiple PW instances.
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
-  | -delay_start \<seconds\> | Delay application startup by specified seconds
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
@@ -43,7 +43,7 @@
   * Send remote desktop or vncviewer window to bottom z-order (because Alt+Esc hotkey does not work for them)
     * Defocus rdp window first, then hold Ctrl+Win keys and click the rdp window
 
-* Enable/Disable auto restore for a child or dialog window
+* Enable/Disable auto restore for any (child or dialog) window
   * To add such window for auto capture/restore, move the window using mouse
   * To remove such window from auto capture/restore, hold Ctrl+Shift keys then move the window
 ```

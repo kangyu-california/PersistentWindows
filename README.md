@@ -30,7 +30,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
   - **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
 
-  - **Specify command option "-delay_start 10" in Edit Action dialog to avoid startup failure after window upgrade**
+  - **Specify command option "-delay_start 10" in Edit Action dialog to avoid startup failure after Windows upgrade**
 
 # Use instructions
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. 
