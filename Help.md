@@ -6,6 +6,7 @@
   | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
   | -splash=0       | No splash window at PW startup
+  | -ignore_process "notepad.exe;foo" | avoid restore window for process notepad and foo
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
