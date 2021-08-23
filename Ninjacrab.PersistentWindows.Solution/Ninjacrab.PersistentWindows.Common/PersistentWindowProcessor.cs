@@ -116,6 +116,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 { "WindowsTerminal.exe", "wt.exe"},
             };
 
+        private HashSet<string> ignoreProcess = new HashSet<string>();
+
         private string appDataFolder;
         public bool redirectAppDataFolder = false;
 
@@ -591,6 +593,18 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             return true;
+        }
+
+        public void SetIgnoreProcess(string ignore_process)
+        {
+            string[] ps = ignore_process.Split(';');
+            foreach (var p in ps)
+            {
+                var s = p;
+                if (s.EndsWith(".exe"))
+                    s = s.Substring(0, s.Length - 4);
+                ignoreProcess.Add(s);
+            }
         }
 
         private void PromptSessionRestore()
@@ -2017,6 +2031,17 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
                 }
+
+                if (ignoreProcess.Count > 0)
+                {
+                    SystemWindow w = new SystemWindow(hwnd);
+                    if (ignoreProcess.Contains(w.Process.ProcessName))
+                    {
+                        noRestoreWindows.Add(hwnd);
+                        return false;
+                    }
+                }
+
                 moved = true;
             }
             else

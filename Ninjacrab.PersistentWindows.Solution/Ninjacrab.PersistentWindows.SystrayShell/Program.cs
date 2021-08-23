@@ -34,6 +34,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool prompt_session_restore = false;
             int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             bool halt_restore_specified = false;
+            string ignore_process = "";
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
@@ -64,6 +65,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     Thread.Sleep(Int32.Parse(arg) * 1000);
                     continue;
                 }
+                else if (ignore_process.Length > 0)
+                {
+                    ignore_process = arg;
+                    continue;
+                }
 
                 switch(arg)
                 {
@@ -80,6 +86,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
+                        break;
+                    case "-ignore_process":
+                        ignore_process = "_foo_";
                         break;
                     case "-show_desktop_when_display_changes":
                         LogEvent("show desktop = 1");
@@ -223,6 +232,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.restoreOneWindowPerProcess = restore_one_window_per_process;
             pwp.haltRestore = halt_restore;
+            if (ignore_process.Length > 0)
+                pwp.SetIgnoreProcess(ignore_process);
 
             if (!pwp.Start(auto_restore_from_db_at_startup))
             {
