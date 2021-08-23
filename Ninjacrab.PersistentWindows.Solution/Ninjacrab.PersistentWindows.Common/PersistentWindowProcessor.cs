@@ -2529,7 +2529,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 dbMatchWindow.Clear();
 
-                for (dbMatchLevel = 0; dbMatchLevel < 6; ++dbMatchLevel)
+                for (dbMatchLevel = 0; dbMatchLevel < 5; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
                     if (foundDbHwnd.Contains(hWnd))
@@ -2571,30 +2571,24 @@ namespace Ninjacrab.PersistentWindows.Common
 
                         if (curDisplayMetrics == null && dbMatchLevel == 1)
                         {
-                            results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName && x.ProcessId == processId);
-                            curDisplayMetrics = SearchDb(results, rect, invisible);
-                        }
-
-                        if (curDisplayMetrics == null && dbMatchLevel == 2)
-                        {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(results, rect, invisible);
                         }
                     }
 
-                    if (curDisplayMetrics == null && dbMatchLevel == 3)
+                    if (curDisplayMetrics == null && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
                     }
 
-                    if (curDisplayMetrics == null && dbMatchLevel == 4)
+                    if (curDisplayMetrics == null && dbMatchLevel == 3)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible, ignoreInvisible:true);
                     }
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 5)
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 4)
                     {
                         results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
