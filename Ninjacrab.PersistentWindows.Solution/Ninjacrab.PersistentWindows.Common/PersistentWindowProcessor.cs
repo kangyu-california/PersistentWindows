@@ -2544,8 +2544,6 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             DateTime printRestoreTime = lastCaptureTime;
-            var foundDbProcess = new Dictionary<uint, HashSet<string>>(); //avoid resstore db process for the second window with same process id but different class name
-
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
@@ -2625,25 +2623,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     dbMatchWindow.Add(curDisplayMetrics.Id);
                     foundDbHwnd.Add(hWnd);
-
-                    if (dbMatchLevel >= 5 && foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId))
-                    {
-                        Log.Error($"fuzzy matching db process {curDisplayMetrics.ProcessName} class {curDisplayMetrics.ClassName} with {className}");
-                        continue; //pretend window with same process id but different class name has been restored
-                    }
-
-                    try
-                    {
-                        if (!foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId))
-                        {
-                            foundDbProcess.Add(curDisplayMetrics.ProcessId, new HashSet<string>());
-                        }
-                        foundDbProcess[curDisplayMetrics.ProcessId].Add(className);
-                    }
-                    catch (Exception e)
-                    {
-                        Log.Error(e.ToString());
-                    }
 
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
@@ -2955,13 +2934,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                         continue;
-
-                    if (foundDbProcess.ContainsKey(curDisplayMetrics.ProcessId)
-                            && !foundDbProcess[curDisplayMetrics.ProcessId].Contains(curDisplayMetrics.ClassName))
-                    {
-                        Log.Error($"skip restore process {curDisplayMetrics.ProcessName} class {curDisplayMetrics.ClassName}");
-                        continue; //ignore same process id but different class name
-                    }
 
                     // launch once per process id
                     if (restoreOneWindowPerProcess)
