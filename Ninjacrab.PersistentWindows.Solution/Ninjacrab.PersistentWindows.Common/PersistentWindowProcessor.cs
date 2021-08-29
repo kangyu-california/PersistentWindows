@@ -102,7 +102,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
-        private HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
         private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
             {
                 // avoid launch process multiple times
@@ -294,12 +293,6 @@ namespace Ninjacrab.PersistentWindows.Common
             
             restoreFinishedTimer = new Timer(state =>
             {
-                // clear DbMatchWindow flag in db
-                if (restoringFromDB)
-                {
-                    dbMatchWindow.Clear();
-                }
-
                 int numWindowRestored = restoredWindows.Count;
                 int restorePass = restoreTimes;
 
@@ -2468,15 +2461,12 @@ namespace Ninjacrab.PersistentWindows.Common
             return hTaskBar;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT2 rect, bool invisible, bool ignoreInvisible = false, bool ignoreDbMatch = false)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT2 rect, bool invisible, bool ignoreInvisible = false)
         {
             ApplicationDisplayMetrics choice = null;
             int best_delta = Int32.MaxValue;
             foreach (var result in results)
             {
-                if (!ignoreDbMatch && dbMatchWindow.Contains(result.Id))
-                    continue; // match only once, except for query using exact id
-
                 if (!ignoreInvisible && result.IsInvisible != invisible)
                     continue;
 
@@ -2543,13 +2533,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
+            HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
             DateTime printRestoreTime = lastCaptureTime;
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-
-                dbMatchWindow.Clear();
 
                 for (dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
