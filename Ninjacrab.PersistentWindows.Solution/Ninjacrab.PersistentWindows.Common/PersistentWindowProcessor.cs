@@ -2540,7 +2540,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
-                for (dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
+                for (dbMatchLevel = 0; dbMatchLevel < 3; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
                     if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
@@ -2583,13 +2583,15 @@ namespace Ninjacrab.PersistentWindows.Common
                         curDisplayMetrics = SearchDb(results, rect, invisible);
                     }
 
+                    /*
                     if (curDisplayMetrics == null && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible, ignoreInvisible:true);
                     }
+                    */
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 3)
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
@@ -2916,6 +2918,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 bool yes_to_all = autoRestoreMissingWindows;
                 foreach (var curDisplayMetrics in results)
                 {
+                    if (curDisplayMetrics.IsInvisible)
+                        continue;
+
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                         continue;
 
