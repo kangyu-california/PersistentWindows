@@ -94,7 +94,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
-        public bool restoreOneWindowPerProcess = false;
+        public bool restoreOneWindowPerProcess = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private int dbMatchLevel = 0;
         private Object restoreLock = new object();
@@ -102,13 +102,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
-        private Dictionary<string, int> multiwindowProcess = new Dictionary<string, int>()
-            {
-                // avoid launch process multiple times
-                { "chrome", 0},
-                { "firefox", 0 },
-                { "opera", 0},
-            };
 
         private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
             {
@@ -1712,23 +1705,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 restoredWindows.Clear();
 
             }
-
-            ResetMultiWindowProcess();
-        }
-
-        private void ResetMultiWindowProcess()
-        {
-            // reset counter of multiwindowProcess
-            var keys = new List<string>();
-            foreach (var key in multiwindowProcess.Keys)
-            {
-                keys.Add(key);
-            }
-            
-            foreach (var key in keys)
-            {
-                multiwindowProcess[key] = 0;
-            }
         }
 
         private void RecordLastUserActionTime(DateTime time, string displayKey)
@@ -2179,9 +2155,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         RemoveInvalidCapture();
                         zorderFixed = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
-
-                        if (restoringFromDB)
-                            ResetMultiWindowProcess();
                     }
                     catch (Exception ex)
                     {
@@ -2949,17 +2922,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
 
                         yes_to_all = runProcessDlg.buttonName.Equals("YesToAll");
-                    }
-
-                    if (multiwindowProcess.ContainsKey(curDisplayMetrics.ProcessName))
-                    {
-                        if (multiwindowProcess[curDisplayMetrics.ProcessName] > 0)
-                        {
-                            // already launched
-                            continue;
-                        }
-
-                        multiwindowProcess[curDisplayMetrics.ProcessName]++;
                     }
 
                     if (!String.IsNullOrEmpty(curDisplayMetrics.ProcessExePath))

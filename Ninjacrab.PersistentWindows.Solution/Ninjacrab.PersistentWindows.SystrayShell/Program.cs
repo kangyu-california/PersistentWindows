@@ -45,7 +45,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool enhanced_offscreen_fix = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
-            bool restore_one_window_per_process = false;
+            bool restore_one_window_per_process = true;
             bool check_upgrade = true;
             bool auto_upgrade = false;
 
@@ -145,8 +145,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         auto_restore_from_db_at_startup = true;
                         auto_restore_missing_windows = true;
                         break;
-                    case "-restore_one_window_per_process=1":
-                        restore_one_window_per_process = true;
+                    case "-restore_one_window_per_process=0":
+                        restore_one_window_per_process = false;
                         break;
                     case "-check_upgrade=0":
                         check_upgrade = false;
