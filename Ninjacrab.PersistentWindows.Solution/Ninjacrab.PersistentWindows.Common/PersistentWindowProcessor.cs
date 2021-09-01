@@ -94,7 +94,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
-        public bool restoreOneWindowPerProcess = true;
+        public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private int dbMatchLevel = 0;
         private Object restoreLock = new object();
@@ -2904,8 +2904,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                         continue;
 
-                    // launch once per process id
-                    if (restoreOneWindowPerProcess)
+                    if (launchOncePerProcessId)
                     {
                         if (dbMatchProcess.Contains(curDisplayMetrics.ProcessId))
                             continue;

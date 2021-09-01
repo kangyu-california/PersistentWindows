@@ -45,7 +45,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool enhanced_offscreen_fix = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
-            bool restore_one_window_per_process = true;
+            bool launch_once_per_process_id = true;
             bool check_upgrade = true;
             bool auto_upgrade = false;
 
@@ -145,8 +145,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         auto_restore_from_db_at_startup = true;
                         auto_restore_missing_windows = true;
                         break;
-                    case "-restore_one_window_per_process=0":
-                        restore_one_window_per_process = false;
+                    case "-invoke_multi_window_process_only_once=0":
+                        launch_once_per_process_id = false;
                         break;
                     case "-check_upgrade=0":
                         check_upgrade = false;
@@ -230,7 +230,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.fixUnminimizedWindow = fix_unminimized_window;
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
-            pwp.restoreOneWindowPerProcess = restore_one_window_per_process;
+            pwp.launchOncePerProcessId = launch_once_per_process_id;
             pwp.haltRestore = halt_restore;
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);

@@ -17,7 +17,7 @@
   | ‑auto_restore_missing_windows=1 | Restore missing windows from disk without prompting user
   | ‑auto_restore_missing_windows=2 | Automatic restore missing windows from disk at startup, user will be prompted before restore each missing window
   | ‑auto_restore_missing_windows=3 | Automatic restore missing windows from disk at startup without prompting user
-  | -restore_one_window_per_process=1 | Avoid launching multiple windows corresponding to one process when restore from DB.
+  | -invoke_multi_window_process_only_once=0 | Launch an application multiple times to restore multiple windows of the same process from DB.
   | -check_upgrade=0 | Disable PW upgrade check from beginning
   | -auto_upgrade=1 | Upgrade PW automatically without user interaction
 
