@@ -37,7 +37,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxHistoryQueueLength = 40; // must be bigger than MaxSnapshots + 1
 
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
-        private const int SafeDistanceFromTaskbar = 300; //let cursor away from popup window of taskbar to initiate taskbar resize
 
         private bool initialized = false;
 
@@ -52,6 +51,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // windows that are not to be restored
         private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
+        private HashSet<IntPtr> noRestoreWindowsTmp = new HashSet<IntPtr>(); //user moved windows during restore
 
         // realtime fixing window location
         private IntPtr curMovingWnd = IntPtr.Zero;
@@ -343,9 +343,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
 
-                    if (wasRestoringSnapshot)
+                    if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
+
+                noRestoreWindowsTmp.Clear();
 
             });
 
@@ -1127,6 +1129,12 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (restoringSnapshot)
                                 return;
                             // let it trigger next restore
+                            break;
+
+                        case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                        case User32Events.EVENT_SYSTEM_MINIMIZESTART:
+                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            noRestoreWindowsTmp.Add(hwnd);
                             break;
 
                         default:
@@ -2609,17 +2617,16 @@ namespace Ninjacrab.PersistentWindows.Common
             foreach (var hWnd in sWindows)
             {
                 if (restoreHalted)
-                    continue;
+                    break;
 
                 if (!User32.IsWindow(hWnd))
-                {
                     continue;
-                }
 
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
-                {
                     continue;
-                }
+
+                if (noRestoreWindowsTmp.Contains(hWnd))
+                    continue;
 
                 ApplicationDisplayMetrics curDisplayMetrics;
                 ApplicationDisplayMetrics prevDisplayMetrics;
