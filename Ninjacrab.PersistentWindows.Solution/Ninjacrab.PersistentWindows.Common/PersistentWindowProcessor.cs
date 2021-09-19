@@ -937,7 +937,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (prevDisplayMetrics.IsFullScreen)
                         {
-                            RestoreFullScreenWindow(hwnd); //the window was minimized from full screen status
+                            //the window was minimized from full screen status
+                            RestoreFullScreenWindow(hwnd, prevDisplayMetrics.ScreenPosition);
                         }
                         else if (!IsFullScreen(hwnd))
                         {
@@ -2216,12 +2217,26 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
 
-        private void RestoreFullScreenWindow(IntPtr hwnd)
+        private void RestoreFullScreenWindow(IntPtr hwnd, RECT2 rect)
         {
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
                 return;
+            }
+
+            RECT2 intersect = new RECT2();
+
+            bool wrong_screen = false;
+            RECT2 cur_rect = new RECT2();
+            User32.GetWindowRect(hwnd, ref cur_rect);
+            if (!User32.IntersectRect(out intersect, ref cur_rect, ref rect))
+                wrong_screen = true;
+
+            if (wrong_screen)
+            {
+                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
             }
 
             RECT2 screenPosition = new RECT2();
@@ -2726,7 +2741,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !prevDisplayMetrics.IsMinimized)
                     {
-                        RestoreFullScreenWindow(hWnd);
+                        RestoreFullScreenWindow(hWnd, prevDisplayMetrics.ScreenPosition);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
                     {
