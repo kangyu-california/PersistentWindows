@@ -222,6 +222,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.showRestoreTip = ShowRestoreTip;
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
+            pwp.enableRestoreSnapshotMenu = EnableRestoreSnapshotMenu;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
@@ -283,6 +284,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             systrayForm.UpdateMenuEnable(enableRestoreDB);
         }
 
+        static void EnableRestoreSnapshotMenu(bool enable)
+        {
+            systrayForm.EnableSnapshotRestore(enable);
+        }
+
         static public void CaptureSnapshot(int id, bool prompt = true)
         {
             pwp.TakeSnapshot(id);
@@ -293,7 +299,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
             }
 
-            systrayForm.EnableSnapshotRestore();
+            EnableRestoreSnapshotMenu(true);
         }
 
         static public void ChangeZorderMethod()

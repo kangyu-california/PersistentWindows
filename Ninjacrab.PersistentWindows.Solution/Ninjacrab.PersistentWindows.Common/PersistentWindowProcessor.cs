@@ -325,6 +325,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                         }
+                        enableRestoreSnapshotMenu(snapshotTakenTime.Count > 0);
                     }
                 }
                 else
@@ -343,6 +344,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
+                    enableRestoreSnapshotMenu(snapshotTakenTime.Count > 0);
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
