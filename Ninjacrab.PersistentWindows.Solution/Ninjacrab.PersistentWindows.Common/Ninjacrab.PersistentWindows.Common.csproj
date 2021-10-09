@@ -37,7 +37,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="ManagedWinapi">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>$(NuGetPackageRoot)\managedwinapi\0.3.0\ManagedWinapi.dll</HintPath>
