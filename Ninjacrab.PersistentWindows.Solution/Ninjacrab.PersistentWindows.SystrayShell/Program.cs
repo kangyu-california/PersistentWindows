@@ -291,7 +291,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void CaptureSnapshot(int id, bool prompt = true)
         {
-            pwp.TakeSnapshot(id);
+            if (!pwp.TakeSnapshot(id))
+                return;
+
             if (!silent)
             {
                 char c = SnapshotIdToChar(id);

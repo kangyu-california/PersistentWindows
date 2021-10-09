@@ -325,7 +325,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                         }
-                        enableRestoreSnapshotMenu(snapshotTakenTime.Count > 0);
+                        enableRestoreSnapshotMenu(snapshotTakenTime.ContainsKey(curDisplayKey));
                     }
                 }
                 else
@@ -344,7 +344,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
                     }
-                    enableRestoreSnapshotMenu(snapshotTakenTime.Count > 0);
+                    enableRestoreSnapshotMenu(snapshotTakenTime.ContainsKey(curDisplayKey));
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
@@ -1312,17 +1312,17 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        public void TakeSnapshot(int snapshotId)
+        public bool TakeSnapshot(int snapshotId)
         {
             if (String.IsNullOrEmpty(curDisplayKey))
-                return;
+                return false;
 
             normalSessions.Add(curDisplayKey);
 
             if (restoringSnapshot)
             {
                 Log.Error("wait for snapshot {0} restore to finish", snapshotId);
-                return;
+                return false;
             }
 
             {
@@ -1347,6 +1347,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 snapshotTakenTime[curDisplayKey][snapshotId] = now;
                 Log.Event("Snapshot {0} is captured", snapshotId);
             }
+
+            return true;
         }
 
         public void RestoreSnapshot(int id)
