@@ -137,6 +137,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.restoreSnapshotMenuItem.Size = new System.Drawing.Size(135, 22);
             this.restoreSnapshotMenuItem.Text = "R&estore snapshot";
             this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshotClickHandler);
+            this.restoreSnapshotMenuItem.Enabled = false;
+
             // suspend/resume auto restore
             // 
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";

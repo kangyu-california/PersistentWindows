@@ -134,6 +134,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public delegate void CallBackBool(bool en);
         public CallBackBool enableRestoreMenu;
+        public CallBackBool enableRestoreSnapshotMenu;
 
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;

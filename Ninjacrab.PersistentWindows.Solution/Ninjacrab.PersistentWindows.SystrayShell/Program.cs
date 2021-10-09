@@ -292,6 +292,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (prompt)
                     systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
             }
+
+            systrayForm.EnableSnapshotRestore();
         }
 
         static public void ChangeZorderMethod()

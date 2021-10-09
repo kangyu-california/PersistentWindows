@@ -175,6 +175,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
         }
+        
+        public void EnableSnapshotRestore()
+        {
+            restoreSnapshotMenuItem.Enabled = true;
+        }
 
         private void CheckUpgrade()
         {
