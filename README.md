@@ -1,9 +1,6 @@
 # PersistentWindows
-The code is forked from http://www.ninjacrab.com/persistent-windows/ with massive enhancements to achieve more reliable user experience.
-
-It seems to be a perfect solution to this unsolved Windows problem since Windows 7 era
+The code is forked from http://www.ninjacrab.com/persistent-windows/ to solve a long-standing issue on Windows 7/10.
 https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
-
 
 # Original description
 ```
