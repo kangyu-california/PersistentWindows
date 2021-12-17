@@ -96,7 +96,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool autoRestoreMissingWindows = false;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
-        private int dbMatchLevel = 0;
         private Object restoreLock = new object();
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
@@ -2539,7 +2538,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
-                for (dbMatchLevel = 0; dbMatchLevel < 3; ++dbMatchLevel)
+                for (int dbMatchLevel = 0; dbMatchLevel < 3; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
                     if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
