@@ -247,8 +247,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
                     {
                         //put activated window in background
-                        var window = new SystemWindow(hwnd);
-                        var processName = window.Process.ProcessName;
+                        var process = GetProcess(hwnd);
+                        var processName = process.ProcessName;
                         if (processName.Equals("mstsc") || processName.Contains("vnc") || processName.Contains("rdp"))
                         {
                             User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
@@ -1110,9 +1110,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
-                var window = new SystemWindow(hwnd);
+                var process = GetProcess(hwnd);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
-                    window.Process.ProcessName,
+                    process.ProcessName,
                     screenPosition.Left,
                     screenPosition.Top,
                     screenPosition.Width,
@@ -2008,8 +2008,8 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 //newly created window or new display setting
-                var window = new SystemWindow(hwnd);
-                curDisplayMetrics.ProcessName = window.Process.ProcessName;
+                var process = GetProcess(hwnd);
+                curDisplayMetrics.ProcessName = process.ProcessName;
 
                 if (!windowTitle.ContainsKey(hwnd))
                 {
@@ -2654,8 +2654,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 
 #if DEBUG
-                var window = new SystemWindow(hWnd);
-                if (!window.Process.Responding)
+                var process = GetProcess(hWnd);
+                if (!process.Responding)
                     continue;
 #endif
 
@@ -2733,7 +2733,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 #if DEBUG
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        window.Process.ProcessName,
+                        process.ProcessName,
                         windowPlacement.NormalPosition.Left,
                         windowPlacement.NormalPosition.Top,
                         windowPlacement.NormalPosition.Width,
@@ -2763,7 +2763,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
 #if DEBUG
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        window.Process.ProcessName,
+                        process.ProcessName,
                         rect.Left,
                         rect.Top,
                         rect.Width,
@@ -3026,6 +3026,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Kernel32.CloseHandle(hProcess);
             return pathToExe;
+        }
+
+        private Process GetProcess(IntPtr hwnd)
+        {
+            uint pid;
+            User32.GetWindowThreadProcessId(hwnd, out pid);
+            Process r = Process.GetProcessById((int)pid);
+            return r;
         }
 
         void ShowDesktop()
