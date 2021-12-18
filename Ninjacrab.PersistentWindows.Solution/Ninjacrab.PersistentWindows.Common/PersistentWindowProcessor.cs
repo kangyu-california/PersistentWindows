@@ -1593,16 +1593,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (eventType != 0)
                     curDisplayMetrics.IsValid = true;
 
+                if (prevDisplayMetrics != null)
+                    curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
+
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
                 {
                     monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
-                    monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
                 else
                 {
                     TrimQueue(displayKey, hWnd);
-                    monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 }
+
+                monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 ret = true;
             }
 
@@ -1778,8 +1781,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             var curDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
                             windowTitle[hWnd] = curDisplayMetrics.Title;
-                            var window = new SystemWindow(hWnd);
-                            curDisplayMetrics.ProcessName = window.Process.ProcessName;
 
                             if (processCmd.ContainsKey(curDisplayMetrics.ProcessId))
                                 curDisplayMetrics.ProcessExePath = processCmd[curDisplayMetrics.ProcessId];
@@ -2007,6 +2008,9 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 //newly created window or new display setting
+                var window = new SystemWindow(hwnd);
+                curDisplayMetrics.ProcessName = window.Process.ProcessName;
+
                 if (!windowTitle.ContainsKey(hwnd))
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
@@ -2014,8 +2018,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (ignoreProcess.Count > 0)
                 {
-                    SystemWindow w = new SystemWindow(hwnd);
-                    if (ignoreProcess.Contains(w.Process.ProcessName))
+                    if (ignoreProcess.Contains(curDisplayMetrics.ProcessName))
                     {
                         noRestoreWindows.Add(hwnd);
                         return false;
@@ -2556,8 +2559,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     User32.GetWindowRect(hWnd, ref rect);
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
-                    var window = new SystemWindow(hWnd);
-                    var processName = window.Process.ProcessName;
+                    ApplicationDisplayMetrics oldDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
+                    var processName = oldDisplayMetrics.ProcessName;
                     var className = GetWindowClassName(hWnd);
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
@@ -3041,8 +3044,7 @@ namespace Ninjacrab.PersistentWindows.Common
             List<IntPtr> result = new List<IntPtr>();
             foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
             {
-                SystemWindow window = new SystemWindow(hwnd);
-                string pName = window.Process.ProcessName;
+                string pName = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>().ProcessName;
                 if (pName.Equals(procName))
                 {
                     result.Add(hwnd);
