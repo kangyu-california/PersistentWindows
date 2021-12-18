@@ -16,7 +16,18 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
     }
 
     // workaround LiteDB compatibility issue in RECT data structure
-    public struct RECT2
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+        public POINT(int x, int y)
+        {
+            X = x;
+            Y = y;
+        }
+    }
+
+    public struct RECT
     {
         public int Left { get; set; }
         public int Top { get; set; }

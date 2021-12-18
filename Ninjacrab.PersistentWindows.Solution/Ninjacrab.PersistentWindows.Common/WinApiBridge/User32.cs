@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using System.Runtime.InteropServices;
-using ManagedWinapi.Windows;
 
 namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
@@ -65,10 +64,123 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         MOUSEEVENTF_MOVE = 0x0001,
     }
 
+    //copied from ManagedWinapi
+    public enum WindowStyleFlags
+    {
+        //
+        // Summary:
+        //     WS_POPUP
+        POPUP = int.MinValue,
+        //
+        // Summary:
+        //     WS_POPUPWINDOW
+        POPUPWINDOW = -2138570752,
+        //
+        // Summary:
+        //     WS_OVERLAPPED
+        OVERLAPPED = 0,
+        //
+        // Summary:
+        //     WS_TILED
+        TILED = 0,
+        //
+        // Summary:
+        //     WS_TABSTOP
+        TABSTOP = 65536,
+        //
+        // Summary:
+        //     WS_MAXIMIZEBOX
+        MAXIMIZEBOX = 65536,
+        //
+        // Summary:
+        //     WS_GROUP
+        GROUP = 131072,
+        //
+        // Summary:
+        //     WS_MINIMIZEBOX
+        MINIMIZEBOX = 131072,
+        //
+        // Summary:
+        //     WS_THICKFRAME
+        THICKFRAME = 262144,
+        //
+        // Summary:
+        //     WS_SIZEBOX
+        SIZEBOX = 262144,
+        //
+        // Summary:
+        //     WS_SYSMENU
+        SYSMENU = 524288,
+        //
+        // Summary:
+        //     WS_HSCROLL
+        HSCROLL = 1048576,
+        //
+        // Summary:
+        //     WS_VSCROLL
+        VSCROLL = 2097152,
+        //
+        // Summary:
+        //     WS_DLGFRAME
+        DLGFRAME = 4194304,
+        //
+        // Summary:
+        //     WS_BORDER
+        BORDER = 8388608,
+        //
+        // Summary:
+        //     WS_CAPTION
+        CAPTION = 12582912,
+        //
+        // Summary:
+        //     WS_TILEDWINDOW
+        TILEDWINDOW = 13565952,
+        //
+        // Summary:
+        //     WS_OVERLAPPEDWINDOW
+        OVERLAPPEDWINDOW = 13565952,
+        //
+        // Summary:
+        //     WS_MAXIMIZE
+        MAXIMIZE = 16777216,
+        //
+        // Summary:
+        //     WS_CLIPCHILDREN
+        CLIPCHILDREN = 33554432,
+        //
+        // Summary:
+        //     WS_CLIPSIBLINGS
+        CLIPSIBLINGS = 67108864,
+        //
+        // Summary:
+        //     WS_DISABLED
+        DISABLED = 134217728,
+        //
+        // Summary:
+        //     WS_VISIBLE
+        VISIBLE = 268435456,
+        //
+        // Summary:
+        //     WS_MINIMIZE
+        MINIMIZE = 536870912,
+        //
+        // Summary:
+        //     WS_ICONIC
+        ICONIC = 536870912,
+        //
+        // Summary:
+        //     WS_CHILD
+        CHILD = 1073741824,
+        //
+        // Summary:
+        //     WS_CHILDWINDOW
+        CHILDWINDOW = 1073741824
+    }
+
     public class User32
     {
         #region EnumDisplayMonitors
-        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT2 lprcMonitor, IntPtr dwData);
+        public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
         [DllImport("user32.dll")]
         public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumDelegate lpfnEnum, IntPtr dwData);
         #endregion
@@ -98,11 +210,11 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT2 lpRect);
+        public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool IntersectRect([Out] out RECT2 lprcDst, [In] ref RECT2 lprcSrc1, [In] ref RECT2 lprcSrc2);
+        public static extern bool IntersectRect([Out] out RECT lprcDst, [In] ref RECT lprcSrc1, [In] ref RECT lprcSrc2);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

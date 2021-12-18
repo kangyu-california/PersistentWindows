@@ -36,10 +36,6 @@
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="ManagedWinapi">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(NuGetPackageRoot)\managedwinapi\0.3.0\ManagedWinapi.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Diagnostics\Log.cs" />
@@ -72,9 +68,6 @@
   <ItemGroup>
     <PackageReference Include="LiteDB">
       <Version>5.0.9</Version>
-    </PackageReference>
-    <PackageReference Include="ManagedWinapi">
-      <Version>0.3.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

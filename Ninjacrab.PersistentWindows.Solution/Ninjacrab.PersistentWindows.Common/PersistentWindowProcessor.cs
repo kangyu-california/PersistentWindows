@@ -12,7 +12,6 @@ using System.Drawing;
 using Microsoft.Win32;
 
 using LiteDB;
-using ManagedWinapi.Windows;
 
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.Models;
@@ -657,7 +656,7 @@ namespace Ninjacrab.PersistentWindows.Common
             bool isFullScreen = false;
             if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
             {
-                RECT2 screenPosition = new RECT2();
+                RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
 
                 string size = string.Format("Res{0}x{1}", screenPosition.Width, screenPosition.Height);
@@ -669,8 +668,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     List<Display> displays = GetDisplays();
                     foreach (var display in displays)
                     {
-                        RECT2 screen = display.Position;
-                        RECT2 intersect = new RECT2();
+                        RECT screen = display.Position;
+                        RECT intersect = new RECT();
                         if (!User32.IntersectRect(out intersect, ref screenPosition, ref screen))
                         {
                             //must intersect with all screens
@@ -723,7 +722,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
 
             const int MinSize = 10;
-            RECT2 rect = new RECT2();
+            RECT rect = new RECT();
             User32.GetWindowRect(hwnd, ref rect);
             if (rect.Width <= MinSize || rect.Height <= MinSize)
                 return false;
@@ -775,7 +774,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
 
                         // found match
-                        RECT2 r= appPos.ScreenPosition;
+                        RECT r= appPos.ScreenPosition;
                         User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
                         Log.Error("Recover invisible window \"{0}\"", GetWindowTitle(hwnd));
                         found = true;
@@ -790,14 +789,14 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
-            RECT2 rect = new RECT2();
+            RECT rect = new RECT();
             User32.GetWindowRect(hwnd, ref rect);
 
             IntPtr desktopWindow = User32.GetDesktopWindow();
-            RECT2 rectDesk = new RECT2();
+            RECT rectDesk = new RECT();
             User32.GetWindowRect(desktopWindow, ref rectDesk);
 
-            RECT2 intersection = new RECT2();
+            RECT intersection = new RECT();
             bool overlap = User32.IntersectRect(out intersection, ref rect, ref rectDesk);
             if (overlap && intersection.Equals(rectDesk))
             {
@@ -839,7 +838,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 // ctrl click received (mannually fix topmost flag)
                 {
-                    RECT2 rect = new RECT2();
+                    RECT rect = new RECT();
                     User32.GetWindowRect(hwnd, ref rect);
 
                     IntPtr prevWnd = hwnd;
@@ -855,10 +854,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(prevWnd))
                             continue;
 
-                        RECT2 prevRect = new RECT2();
+                        RECT prevRect = new RECT();
                         User32.GetWindowRect(prevWnd, ref prevRect);
 
-                        RECT2 intersection = new RECT2();
+                        RECT intersection = new RECT();
                         if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                         {
                             if (IsWindowTopMost(prevWnd))
@@ -944,10 +943,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                         else if (!IsFullScreen(hwnd))
                         {
-                            RECT2 screenPosition = new RECT2();
+                            RECT screenPosition = new RECT();
                             User32.GetWindowRect(hwnd, ref screenPosition);
 
-                            RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                            RECT rect = prevDisplayMetrics.ScreenPosition;
                             if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
                                || prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
                                || rect.Left <= -25600)
@@ -1099,7 +1098,7 @@ namespace Ninjacrab.PersistentWindows.Common
             try
             {
 #if DEBUG
-                RECT2 screenPosition = new RECT2();
+                RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
                 if (title.Contains("Microsoft Visual Studio")
                     && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
@@ -1401,7 +1400,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (IsMinimized(hWnd))
                 return IntPtr.Zero;
 
-            RECT2 rect = new RECT2();
+            RECT rect = new RECT();
             User32.GetWindowRect(hWnd, ref rect);
 
             IntPtr fail_safe_result = IntPtr.Zero;
@@ -1425,10 +1424,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         fail_safe_result = result;
                 }
 
-                RECT2 prevRect = new RECT2();
+                RECT prevRect = new RECT();
                 User32.GetWindowRect(result, ref prevRect);
 
-                RECT2 intersection = new RECT2();
+                RECT intersection = new RECT();
                 if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                 {
                     if (monitorApplications[curDisplayKey].ContainsKey(result))
@@ -1894,7 +1893,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!User32.IsWindowVisible(hwnd))
                     continue;
                 */
-                var rect = new RECT2();
+                var rect = new RECT();
                 User32.GetWindowRect(hwnd, ref rect);
                 if (rect.Width <= 1 && rect.Height <= 1)
                     continue;
@@ -1963,7 +1962,7 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowPlacement(hwnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
-            RECT2 screenPosition = new RECT2();
+            RECT screenPosition = new RECT();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
             bool isMinimized = IsMinimized(hwnd);
@@ -2224,7 +2223,7 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
 
-        private void RestoreFullScreenWindow(IntPtr hwnd, RECT2 rect)
+        private void RestoreFullScreenWindow(IntPtr hwnd, RECT rect)
         {
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
@@ -2232,10 +2231,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            RECT2 intersect = new RECT2();
+            RECT intersect = new RECT();
 
             bool wrong_screen = false;
-            RECT2 cur_rect = new RECT2();
+            RECT cur_rect = new RECT();
             User32.GetWindowRect(hwnd, ref cur_rect);
             if (!User32.IntersectRect(out intersect, ref cur_rect, ref rect))
                 wrong_screen = true;
@@ -2246,7 +2245,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
             }
 
-            RECT2 screenPosition = new RECT2();
+            RECT screenPosition = new RECT();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
             // window caption center might be occupied by other controls 
@@ -2264,13 +2263,13 @@ namespace Ninjacrab.PersistentWindows.Common
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
-        private void RestoreSnapWindow(IntPtr hwnd, RECT2 target_pos)
+        private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
         {
             List<Display> displays = GetDisplays();
             foreach (var display in displays)
             {
-                RECT2 screen = display.Position;
-                RECT2 intersect = new RECT2();
+                RECT screen = display.Position;
+                RECT intersect = new RECT();
                 if (User32.IntersectRect(out intersect, ref target_pos, ref screen))
                 {
                     if (intersect.Equals(target_pos))
@@ -2286,7 +2285,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
-        private bool MoveTaskBar(IntPtr hwnd, RECT2 targetRect)
+        private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
         {
             // simulate mouse drag, assuming taskbar is unlocked
             /*
@@ -2297,7 +2296,7 @@ namespace Ninjacrab.PersistentWindows.Common
             int targetX = targetRect.Left + targetRect.Width / 2;
             int targetY = targetRect.Top + targetRect.Height / 2;
 
-            RECT2 sourceRect = new RECT2();
+            RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
             // avoid unnecessary move
@@ -2311,7 +2310,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
             }
 
-            RECT2 intersect = new RECT2();
+            RECT intersect = new RECT();
             User32.IntersectRect(out intersect, ref sourceRect, ref targetRect);
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
@@ -2365,7 +2364,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             // center curser
             IntPtr desktopWindow = User32.GetDesktopWindow();
-            RECT2 rect = new RECT2();
+            RECT rect = new RECT();
             User32.GetWindowRect(desktopWindow, ref rect);
             User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 
@@ -2373,16 +2372,16 @@ namespace Ninjacrab.PersistentWindows.Common
         }
 
         // recover height of horizontal taskbar (TODO), or width of vertical taskbar
-        private bool RecoverTaskBarArea(IntPtr hwnd, RECT2 targetRect)
+        private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
         {
-            RECT2 sourceRect = new RECT2();
+            RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
             if (Math.Abs(deltaWidth) < 10)
                 return false;
 
-            RECT2 intersect = new RECT2();
+            RECT intersect = new RECT();
             if (!User32.IntersectRect(out intersect, ref sourceRect, ref targetRect))
                 return false;
             if (!intersect.Equals(sourceRect) && !intersect.Equals(targetRect))
@@ -2392,7 +2391,7 @@ namespace Ninjacrab.PersistentWindows.Common
             bool left_edge = false;
             foreach (var display in displays)
             {
-                RECT2 screen = display.Position;
+                RECT screen = display.Position;
                 if (User32.IntersectRect(out intersect, ref sourceRect, ref screen))
                 {
                     if (Math.Abs(targetRect.Left - screen.Left) < 5)
@@ -2441,7 +2440,7 @@ namespace Ninjacrab.PersistentWindows.Common
             //move mouse to hide resize shape
             // center curser
             IntPtr desktopWindow = User32.GetDesktopWindow();
-            RECT2 rect = new RECT2();
+            RECT rect = new RECT();
             User32.GetWindowRect(desktopWindow, ref rect);
             User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
 
@@ -2462,7 +2461,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return hTaskBar;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT2 rect, bool invisible, bool ignoreInvisible = false)
+        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT rect, bool invisible, bool ignoreInvisible = false)
         {
             ApplicationDisplayMetrics choice = null;
             int best_delta = Int32.MaxValue;
@@ -2555,7 +2554,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     bool invisible = !User32.IsWindowVisible(hWnd);
 
-                    RECT2 rect = new RECT2();
+                    RECT rect = new RECT();
                     User32.GetWindowRect(hWnd, ref rect);
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
@@ -2659,7 +2658,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 #endif
 
-                RECT2 rect = prevDisplayMetrics.ScreenPosition;
+                RECT rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
                 if (IsTaskBar(hWnd))
@@ -2752,7 +2751,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
                     {
-                        RECT2 cur_rect = new RECT2();
+                        RECT cur_rect = new RECT();
                         User32.GetWindowRect(hWnd, ref cur_rect);
                         if (!cur_rect.Equals(rect))
                         {

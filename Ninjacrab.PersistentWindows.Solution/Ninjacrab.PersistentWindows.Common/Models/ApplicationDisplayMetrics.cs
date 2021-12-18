@@ -1,5 +1,4 @@
 using System;
-using ManagedWinapi.Windows;
 
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
@@ -10,7 +9,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
     {
         public string ClassName { get; set; }
         public string ProcessPath { get; set; }
-        public RECT2 ScreenPosition { get; set; }
+        public RECT ScreenPosition { get; set; }
     }
 
     public class ApplicationDisplayMetrics
@@ -33,7 +32,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
         public DateTime CaptureTime { get; set; }
 
         // window position
-        public RECT2 ScreenPosition { get; set; }
+        public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only
 

@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using ManagedWinapi.Windows;
 
 namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
@@ -37,7 +36,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         /// <summary>
         /// The window's coordinates when the window is in the restored position.
         /// </summary>
-        public RECT2 NormalPosition { get; set; }
+        public RECT NormalPosition { get; set; }
 
         /// <summary>
         /// Gets the default (empty) value.
