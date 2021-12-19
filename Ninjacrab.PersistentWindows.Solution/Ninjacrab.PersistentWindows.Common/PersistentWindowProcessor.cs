@@ -2597,10 +2597,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     var processName = oldDisplayMetrics.ProcessName;
                     var className = GetWindowClassName(hWnd);
                     IntPtr realHwnd = hWnd;
+                    bool isCoreAppWindow = false;
                     if (className.Equals("ApplicationFrameWindow"))
                     {
                         realHwnd = GetCoreAppWindow(hWnd);
                         className = GetWindowClassName(realHwnd);
+                        if (realHwnd != hWnd)
+                            isCoreAppWindow = true;
                     }
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
@@ -2632,7 +2635,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     */
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && dbMatchLevel == 2)
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && !isCoreAppWindow && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
