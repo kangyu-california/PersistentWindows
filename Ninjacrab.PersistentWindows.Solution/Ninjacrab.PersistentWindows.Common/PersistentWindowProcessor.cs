@@ -1939,6 +1939,32 @@ namespace Ninjacrab.PersistentWindows.Common
             return result;
         }
 
+        private IntPtr GetCoreAppWindow(IntPtr hwnd)
+        {
+            uint processId = 0;
+            User32.GetWindowThreadProcessId(hwnd, out processId);
+
+            IntPtr prevChild = IntPtr.Zero;
+            int i = 0;
+            while (true && i < 10)
+            {
+                IntPtr currChild;
+                currChild = User32.FindWindowEx(hwnd, prevChild, null, null);
+                if (currChild == IntPtr.Zero)
+                    break;
+                uint realProcessId = 0;
+                User32.GetWindowThreadProcessId(currChild, out realProcessId);
+                if (realProcessId != processId)
+                {
+                    hwnd = currChild;
+                    break;
+                }
+                prevChild = currChild;
+                ++i;
+            }
+            return hwnd;
+        }
+
         private bool IsWindowMoved(string displayKey, IntPtr hwnd, User32Events eventType, DateTime time,
             out ApplicationDisplayMetrics curDisplayMetrics, out ApplicationDisplayMetrics prevDisplayMetrics)
         {
@@ -1966,8 +1992,17 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowRect(hwnd, ref screenPosition);
 
             bool isMinimized = IsMinimized(hwnd);
+
+            IntPtr realHwnd = hwnd;
+            string className = GetWindowClassName(hwnd);
+            if (className.Equals("ApplicationFrameWindow"))
+            {
+                //retrieve info about windows core app hidden under top window
+                realHwnd = GetCoreAppWindow(hwnd);
+                className = GetWindowClassName(realHwnd);
+            }
             uint processId = 0;
-            uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
+            uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
 
             bool isFullScreen = IsFullScreen(hwnd);
 
@@ -1980,7 +2015,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //ProcessName = window.Process.ProcessName,
                 ProcessName = "",
 
-                ClassName = GetWindowClassName(hwnd),
+                ClassName = className,
                 Title = isTaskBar ? "$taskbar$" : GetWindowTitle(hwnd, use_cache: false),
 
                 //full screen app such as mstsc may not have maximize box
@@ -2007,7 +2042,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 //newly created window or new display setting
-                var process = GetProcess(hwnd);
+                var process = GetProcess(realHwnd);
                 curDisplayMetrics.ProcessName = process.ProcessName;
 
                 if (!windowTitle.ContainsKey(hwnd))
@@ -2561,8 +2596,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics oldDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
                     var processName = oldDisplayMetrics.ProcessName;
                     var className = GetWindowClassName(hWnd);
+                    IntPtr realHwnd = hWnd;
+                    if (className.Equals("ApplicationFrameWindow"))
+                    {
+                        realHwnd = GetCoreAppWindow(hWnd);
+                        className = GetWindowClassName(realHwnd);
+                    }
                     uint processId = 0;
-                    uint threadId = User32.GetWindowThreadProcessId(hWnd, out processId);
+                    uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
 
                     IEnumerable<ApplicationDisplayMetrics> results;
 
