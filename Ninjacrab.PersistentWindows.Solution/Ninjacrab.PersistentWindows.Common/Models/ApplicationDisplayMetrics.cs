@@ -21,6 +21,7 @@ namespace Ninjacrab.PersistentWindows.Common.Models
 
         // general window info
         public IntPtr HWnd { get; set; }
+        public uint WindowId { get; set; }
         public string ClassName { get; set; }
         public string ProcessName { get; set; }
         public string Title { get; set; }

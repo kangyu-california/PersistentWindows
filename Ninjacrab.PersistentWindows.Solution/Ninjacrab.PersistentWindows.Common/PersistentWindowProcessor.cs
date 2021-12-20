@@ -1592,9 +1592,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (eventType != 0)
                     curDisplayMetrics.IsValid = true;
 
-                if (prevDisplayMetrics != null)
-                    curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
-
                 if (!monitorApplications[displayKey].ContainsKey(hWnd))
                 {
                     monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
@@ -2044,6 +2041,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //newly created window or new display setting
                 var process = GetProcess(realHwnd);
                 curDisplayMetrics.ProcessName = process.ProcessName;
+                curDisplayMetrics.WindowId = (uint)hwnd;
 
                 if (!windowTitle.ContainsKey(hwnd))
                 {
@@ -2101,6 +2099,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
+                curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
+                curDisplayMetrics.WindowId = prevDisplayMetrics.WindowId;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
@@ -2496,34 +2496,6 @@ namespace Ninjacrab.PersistentWindows.Common
             return hTaskBar;
         }
 
-        private ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT rect, bool invisible, bool ignoreInvisible = false)
-        {
-            ApplicationDisplayMetrics choice = null;
-            int best_delta = Int32.MaxValue;
-            foreach (var result in results)
-            {
-                if (!ignoreInvisible && result.IsInvisible != invisible)
-                    continue;
-
-                // match with the best similar db entry
-                int delta = Math.Abs(rect.Left - result.ScreenPosition.Left) +
-                    Math.Abs(rect.Top - result.ScreenPosition.Top) +
-                    Math.Abs(rect.Width - result.ScreenPosition.Width) +
-                    Math.Abs(rect.Height - result.ScreenPosition.Height);
-                if (delta < best_delta)
-                {
-                    choice = result;
-                    best_delta = delta;
-                }
-            }
-
-#if DEBUG
-            if (choice != null)
-                Log.Trace("restore window position with matching process name {0}", choice.ProcessName);
-#endif
-            return choice;
-        }
-
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow)
         {
             bool zorderFixed = false;
@@ -2569,13 +2541,44 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
+
+            ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT rect, bool invisible, bool ignoreInvisible = false)
+            {
+                ApplicationDisplayMetrics choice = null;
+                int best_delta = Int32.MaxValue;
+                foreach (var result in results)
+                {
+                    if (dbMatchWindow.Contains(result.Id))
+                        continue; //id already matched (to another window) 
+                    if (!ignoreInvisible && result.IsInvisible != invisible)
+                        continue;
+
+                    // match with the best similar db entry
+                    int delta = Math.Abs(rect.Left - result.ScreenPosition.Left) +
+                        Math.Abs(rect.Top - result.ScreenPosition.Top) +
+                        Math.Abs(rect.Width - result.ScreenPosition.Width) +
+                        Math.Abs(rect.Height - result.ScreenPosition.Height);
+                    if (delta < best_delta)
+                    {
+                        choice = result;
+                        best_delta = delta;
+                    }
+                }
+
+    #if DEBUG
+                if (choice != null)
+                    Log.Trace("restore window position with matching process name {0}", choice.ProcessName);
+    #endif
+                return choice;
+            }
+
             DateTime printRestoreTime = lastCaptureTime;
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
 
-                for (int dbMatchLevel = 0; dbMatchLevel < 3; ++dbMatchLevel)
+                for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
                     if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
@@ -2594,6 +2597,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     ApplicationDisplayMetrics curDisplayMetrics = null;
                     ApplicationDisplayMetrics oldDisplayMetrics = monitorApplications[displayKey][hWnd].Last<ApplicationDisplayMetrics>();
+
                     var processName = oldDisplayMetrics.ProcessName;
                     var className = GetWindowClassName(hWnd);
                     IntPtr realHwnd = hWnd;
@@ -2603,39 +2607,47 @@ namespace Ninjacrab.PersistentWindows.Common
                         realHwnd = GetCoreAppWindow(hWnd);
                         className = GetWindowClassName(realHwnd);
                         if (realHwnd != hWnd)
+                        {
                             isCoreAppWindow = true;
+                        }
                     }
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
 
                     IEnumerable<ApplicationDisplayMetrics> results;
 
+                    if (dbMatchLevel == 0)
+                    {
+                        results = db.Find(x => x.ClassName == className && x.ProcessId == processId && x.WindowId == oldDisplayMetrics.WindowId && x.ProcessName == processName);
+                        curDisplayMetrics = SearchDb(results, rect, invisible);
+                    }
+
                     if (windowTitle.ContainsKey(hWnd))
                     {
                         string title = windowTitle[hWnd];
 
-                        if (curDisplayMetrics == null && dbMatchLevel == 0)
+                        if (curDisplayMetrics == null && dbMatchLevel == 1)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(results, rect, invisible);
                         }
                     }
 
-                    if (curDisplayMetrics == null && dbMatchLevel == 1)
+                    if (curDisplayMetrics == null && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
                     }
 
                     /*
-                    if (curDisplayMetrics == null && dbMatchLevel == 2)
+                    if (curDisplayMetrics == null && dbMatchLevel == 3)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible, ignoreInvisible:true);
                     }
                     */
 
-                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && !isCoreAppWindow && dbMatchLevel == 2)
+                    if (curDisplayMetrics == null && !IsTaskBar(hWnd) && !isCoreAppWindow && dbMatchLevel == 3)
                     {
                         results = db.Find(x => x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
@@ -2656,6 +2668,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
+                    curDisplayMetrics.WindowId = (uint)hWnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
                     curDisplayMetrics.ClassName = className;
