@@ -7,6 +7,7 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
     public class Log
     {
         static EventLog eventLog;
+        public static bool silent = false;
         static Log()
         {
             eventLog = new EventLog("Application");
@@ -29,6 +30,8 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Trace(string format, params object[] args)
         {
+            if (silent)
+                return;
 #if DEBUG
             var message = Format(format, args);
             Console.Write(message);
@@ -37,6 +40,8 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Info(string format, params object[] args)
         {
+            if (silent)
+                return;
 #if DEBUG
             var message = Format(format, args);
             Console.Write(message);
@@ -45,6 +50,9 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Error(string format, params object[] args)
         {
+            if (silent)
+                return;
+
             var message = Format(format, args);
             if (message.Contains("Cannot create a file when that file already exists"))
             {
@@ -57,6 +65,7 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
                 // ignore window move failure due to lack of admin privilege
                 return;
             }
+
 #if DEBUG
             Console.Write(message);
 #endif
@@ -66,6 +75,9 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
 
         public static void Event(string format, params object[] args)
         {
+            if (silent)
+                return;
+
             var message = Format(format, args);
 #if DEBUG
             Console.Write(message);

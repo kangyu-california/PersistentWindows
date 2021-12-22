@@ -74,6 +74,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 switch(arg)
                 {
                     case "-silent":
+                        Log.silent = true;
                         silent = true;
                         splash = false;
                         break;
