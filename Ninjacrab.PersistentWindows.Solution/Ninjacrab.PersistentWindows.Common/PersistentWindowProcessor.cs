@@ -2040,6 +2040,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 //newly created window or new display setting
                 var process = GetProcess(realHwnd);
+                if (process == null)
+                    return false;
                 curDisplayMetrics.ProcessName = process.ProcessName;
                 curDisplayMetrics.WindowId = (uint)hwnd;
 
@@ -3086,9 +3088,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private Process GetProcess(IntPtr hwnd)
         {
-            uint pid;
-            User32.GetWindowThreadProcessId(hwnd, out pid);
-            Process r = Process.GetProcessById((int)pid);
+            Process r = null;
+            try
+            {
+                uint pid;
+                User32.GetWindowThreadProcessId(hwnd, out pid);
+                r = Process.GetProcessById((int)pid);
+            }
+            catch (Exception ex)
+            {
+                Log.Trace(ex.ToString());
+            }
             return r;
         }
 
