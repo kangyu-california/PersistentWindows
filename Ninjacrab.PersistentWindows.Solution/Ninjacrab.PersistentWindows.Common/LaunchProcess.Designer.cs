@@ -72,6 +72,7 @@ namespace Ninjacrab.PersistentWindows.Common
             // 
             // LaunchProcess
             // 
+            this.AcceptButton = this.Yes;
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.Notice);

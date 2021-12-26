@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 
 using Ninjacrab.PersistentWindows.Common;
+using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 using Ninjacrab.PersistentWindows.Common.Diagnostics;
 
 namespace Ninjacrab.PersistentWindows.SystrayShell
@@ -224,6 +225,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
             pwp.enableRestoreSnapshotMenu = EnableRestoreSnapshotMenu;
+            pwp.enterDbEntryName = EnterDbEntryName;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
@@ -362,6 +364,15 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             return profileDlg.snapshot_name;
         }
 
+        static public string EnterDbEntryName()
+        {
+            var dlg = new NameDbEntry();
+            dlg.Icon = IdleIcon;
+            dlg.ShowDialog(systrayForm);
+
+            return dlg.db_entry_name;
+        }
+
         static public void CaptureToDisk()
         {
             GetProcessInfo();
@@ -371,6 +382,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void RestoreFromDisk()
         {
             pwp.restoringFromDB = true;
+            pwp.dbDisplayKey = pwp.curDisplayKey;
+            if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+            {
+                pwp.dbDisplayKey += EnterDbEntryName();
+            }
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }
 

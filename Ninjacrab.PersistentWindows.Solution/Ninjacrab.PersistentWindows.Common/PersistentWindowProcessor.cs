@@ -63,7 +63,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        private string curDisplayKey = null; // current display config name
+        public string curDisplayKey = null; // current display config name
+        public string dbDisplayKey = null;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
@@ -129,6 +130,9 @@ namespace Ninjacrab.PersistentWindows.Common
         public delegate void CallBack();
         public CallBack showRestoreTip;
         public CallBack hideRestoreTip;
+
+        public delegate string CallBackS();
+        public CallBackS enterDbEntryName;
 
         public delegate void CallBackBool(bool en);
         public CallBackBool enableRestoreMenu;
@@ -1750,6 +1754,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (saveToDB)
             {
+                var dbDisplayKey = displayKey;
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                {
+                    dbDisplayKey += enterDbEntryName();
+                }
+
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
                     var ids = new HashSet<int>();
@@ -1760,7 +1770,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             ids.Add(displayMetrics.Id);
                     }
 
-                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                    var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                     if (db.Count() > 0)
                         db.DeleteMany(_ => !ids.Contains(_.Id));
                         //db.DeleteAll();
@@ -2578,8 +2588,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (restoringFromDB)
             using(var persistDB = new LiteDatabase(persistDbName))
             {
-                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
-
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                 for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
@@ -2968,7 +2977,7 @@ namespace Ninjacrab.PersistentWindows.Common
             using(var persistDB = new LiteDatabase(persistDbName))
             {
                 HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
-                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(displayKey);
+                var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
 
                 // launch missing process according to db
                 var results = db.FindAll(); // find process not yet started
