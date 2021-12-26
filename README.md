@@ -16,9 +16,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Keeps track of window position change in real time, and automatically restores window layout to last matching monitor setup.
 - Support remote desktop session with multiple virtual monitor resolutions.
 - Can be auto started as a task.
-- Support manual save/restore window position to/from persistent database on hard drive, so that closed windows can be restored after reboot.
-- Support manual pause/resume auto restore.
-- **Support capture/restore multiple snapshot of window layout.** This feature can be used as an alternative to virtual desktops in Windows 10.
+- Save/restore window position to/from persistent database on hard drive, so that closed windows can be restored after reboot. **Multiple named captures can be saved to hard drive.**
+- Pause/resume auto restore.
+- **Capture/Restore multiple snapshot of window layout.** This feature can be used as an alternative to virtual desktops in Windows 10. A snapshot is a light-weighted capture residing in memory rather than on hard drive.
 - Support automatic upgrade
 
 # Installation
