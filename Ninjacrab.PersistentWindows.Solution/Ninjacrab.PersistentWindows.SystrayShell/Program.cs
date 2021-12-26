@@ -374,13 +374,13 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void CaptureToDisk()
         {
-            GetProcessInfo();
             pwp.dbDisplayKey = pwp.curDisplayKey;
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
                 pwp.dbDisplayKey += EnterDbEntryName();
             }
 
+            GetProcessInfo();
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
         }
 
