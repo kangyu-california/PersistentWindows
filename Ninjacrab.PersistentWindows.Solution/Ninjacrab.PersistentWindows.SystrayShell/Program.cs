@@ -225,7 +225,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
             pwp.enableRestoreSnapshotMenu = EnableRestoreSnapshotMenu;
-            pwp.enterDbEntryName = EnterDbEntryName;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
@@ -376,6 +375,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void CaptureToDisk()
         {
             GetProcessInfo();
+            pwp.dbDisplayKey = pwp.curDisplayKey;
+            if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+            {
+                pwp.dbDisplayKey += EnterDbEntryName();
+            }
+
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
         }
 

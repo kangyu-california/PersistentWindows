@@ -131,9 +131,6 @@ namespace Ninjacrab.PersistentWindows.Common
         public CallBack showRestoreTip;
         public CallBack hideRestoreTip;
 
-        public delegate string CallBackS();
-        public CallBackS enterDbEntryName;
-
         public delegate void CallBackBool(bool en);
         public CallBackBool enableRestoreMenu;
         public CallBackBool enableRestoreSnapshotMenu;
@@ -1754,12 +1751,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (saveToDB)
             {
-                var dbDisplayKey = displayKey;
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                {
-                    dbDisplayKey += enterDbEntryName();
-                }
-
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
                     var ids = new HashSet<int>();
