@@ -38,11 +38,11 @@ namespace Ninjacrab.PersistentWindows.Common
             // 
             this.hint.AutoSize = true;
             this.hint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hint.Location = new System.Drawing.Point(182, 85);
+            this.hint.Location = new System.Drawing.Point(237, 98);
             this.hint.Name = "hint";
-            this.hint.Size = new System.Drawing.Size(239, 25);
+            this.hint.Size = new System.Drawing.Size(128, 25);
             this.hint.TabIndex = 0;
-            this.hint.Text = "Type the name of db entry";
+            this.hint.Text = "Enter a name";
             this.hint.Click += new System.EventHandler(this.hint_Click);
             // 
             // textBox1
@@ -57,7 +57,7 @@ namespace Ninjacrab.PersistentWindows.Common
             // button1
             // 
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(263, 207);
+            this.button1.Location = new System.Drawing.Point(268, 208);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(62, 36);
             this.button1.TabIndex = 2;
