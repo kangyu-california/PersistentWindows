@@ -1753,17 +1753,17 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
-                    var ids = new HashSet<int>();
+                    var ids = new HashSet<int>(); //db entries that need update
                     foreach (var hwnd in monitorApplications[displayKey].Keys)
                     {
                         var displayMetrics = monitorApplications[displayKey][hwnd].Last<ApplicationDisplayMetrics>();
-                        if (displayMetrics.Id > 0)
+                        if (displayKey == dbDisplayKey && displayMetrics.Id > 0)
                             ids.Add(displayMetrics.Id);
                     }
 
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                     if (db.Count() > 0)
-                        db.DeleteMany(_ => !ids.Contains(_.Id));
+                        db.DeleteMany(_ => !ids.Contains(_.Id)); //remove invalid entries (destroyed window since last capture to db)
                         //db.DeleteAll();
 
                     var appWindows = CaptureWindowsOfInterest();
@@ -1789,6 +1789,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                     curDisplayMetrics.ProcessExePath = procPath;
                                 }
                             }
+
+                            if (displayKey != dbDisplayKey)
+                                curDisplayMetrics.Id = 0; //reset db id
 
                             if (curDisplayMetrics.Id == 0)
                             {
