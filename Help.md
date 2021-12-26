@@ -6,6 +6,7 @@
   | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
   | -splash=0       | No splash window at PW startup
+  | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | avoid restore window for process notepad and foo
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
@@ -33,6 +34,11 @@
   | Undo last snapshot restore | Alt click PW icon
 
 ---
+* Create named capture to disk
+  * Ctrl click "Capture windows to disk" menu, enter a name in dialog
+
+* Restore named capture from disk
+  * Ctrl click "Restore windows from disk" menu, enter previous name in dialog
 
 * Run PW with customized icon
   * Rename your customized icon file as pwIcon.ico and copy it to 'C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/', or copy it to current directory if running (second inst of) PW with -redirect_appdata switch from command console.
