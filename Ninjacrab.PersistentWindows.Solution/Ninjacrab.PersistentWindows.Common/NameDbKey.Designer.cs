@@ -75,6 +75,7 @@ namespace Ninjacrab.PersistentWindows.Common
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.hint);
             this.Name = "NameDbEntry";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Name of DB Entry";
             this.ResumeLayout(false);
             this.PerformLayout();
