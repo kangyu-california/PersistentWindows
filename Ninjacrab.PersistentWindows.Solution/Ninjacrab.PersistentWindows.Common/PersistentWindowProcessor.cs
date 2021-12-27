@@ -2547,6 +2547,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
+            HashSet<IntPtr> windowMatchDb = new HashSet<IntPtr>(); //existing window matches db
 
             ApplicationDisplayMetrics SearchDb(IEnumerable<ApplicationDisplayMetrics> results, RECT rect, bool invisible, bool ignoreInvisible = false)
             {
@@ -2586,6 +2587,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
                 foreach (var hWnd in sWindows)
                 {
+                    if (windowMatchDb.Contains(hWnd))
+                        continue;
                     if (!User32.IsWindow(hWnd) || string.IsNullOrEmpty(GetWindowClassName(hWnd)))
                         continue;
 
@@ -2665,11 +2668,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
-                    {
                         continue; //avoid restore multiple times
-                    }
 
                     dbMatchWindow.Add(curDisplayMetrics.Id);
+                    windowMatchDb.Add(hWnd);
 
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
