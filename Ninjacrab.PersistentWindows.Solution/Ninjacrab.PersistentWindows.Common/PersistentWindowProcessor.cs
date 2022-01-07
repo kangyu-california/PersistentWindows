@@ -2718,6 +2718,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (noRestoreWindowsTmp.Contains(hWnd))
                     continue;
 
+                if (User32.IsHungAppWindow(hWnd))
+                {
+                    Log.Error("avoid restore unresponsive window {0}", GetWindowTitle(hWnd));
+                    continue;
+                }
+
                 ApplicationDisplayMetrics curDisplayMetrics;
                 ApplicationDisplayMetrics prevDisplayMetrics;
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
