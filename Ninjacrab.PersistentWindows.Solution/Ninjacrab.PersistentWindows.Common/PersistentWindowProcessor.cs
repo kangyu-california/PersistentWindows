@@ -2272,12 +2272,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            RECT intersect = new RECT();
-
             bool wrong_screen = false;
             RECT cur_rect = new RECT();
             User32.GetWindowRect(hwnd, ref cur_rect);
+
+            RECT intersect = new RECT();
             if (!User32.IntersectRect(out intersect, ref cur_rect, ref rect))
+                wrong_screen = true;
+
+            // #140, need extra check for wrong screen
+            POINT middle = new POINT();
+            middle.X = (cur_rect.Left + cur_rect.Right) / 2;
+            middle.Y = (cur_rect.Top + cur_rect.Bottom) / 2;
+            if (!User32.PtInRect(ref rect, middle))
                 wrong_screen = true;
 
             if (wrong_screen)

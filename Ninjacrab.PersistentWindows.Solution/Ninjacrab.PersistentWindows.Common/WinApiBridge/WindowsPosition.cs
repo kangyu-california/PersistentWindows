@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 {
+    /*
     [StructLayout(LayoutKind.Sequential)]
     public struct WindowsPosition
     {
@@ -14,8 +15,10 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public int Height;
         public int Flags;
     }
+    */
 
     // workaround LiteDB compatibility issue in RECT data structure
+    [StructLayout(LayoutKind.Sequential)]
     public struct POINT
     {
         public int X;
@@ -27,6 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct RECT
     {
         public int Left { get; set; }
@@ -48,9 +52,12 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
                 return Right - Left;
             }
         }
+
+        /*
         public override string ToString()
         {
             return string.Format("({0}, {1}), {2} x {3}", Left, Top, Width, Height);
         }
+        */
     }
 }

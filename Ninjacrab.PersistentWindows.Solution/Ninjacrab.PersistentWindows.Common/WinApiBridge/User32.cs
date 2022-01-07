@@ -217,6 +217,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool IntersectRect([Out] out RECT lprcDst, [In] ref RECT lprcSrc1, [In] ref RECT lprcSrc2);
 
         [DllImport("user32.dll")]
+        public static extern bool PtInRect([In] ref RECT lprc, POINT pt);
+
+        [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool IsWindowVisible(IntPtr hWnd);
 
