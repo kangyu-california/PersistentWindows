@@ -6,10 +6,10 @@
   | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
   | -splash=0       | No splash window at PW startup
+  | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | avoid restore window for process notepad and foo
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
-  | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
@@ -47,7 +47,7 @@
 * Manipulate window z-order
   * Bring a window to top z-order by clear the topmost flag of obstructive window
     * Click on other window first to defocus, then Ctrl click the window (or the corresponding icon on taskbar) that you want to bring to top.
-  * Send remote desktop or vncviewer window to bottom z-order (because Alt+Esc hotkey does not work for them)
+  * Send remote desktop or vncviewer window to bottom z-order (because Alt+Esc hotkey may not work for them on Windows7 or old Windows 10 versions)
     * Defocus rdp window first, then hold Ctrl+Win keys and click the rdp window
 
 * Enable/Disable auto restore for any (child or dialog) window

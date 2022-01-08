@@ -13,13 +13,12 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ```
 # Key features 
-- Keeps track of window position change in real time, and automatically restores window layout to last matching monitor setup.
-- Support remote desktop session with multiple virtual monitor resolutions.
-- Can be auto started as a task.
-- Save/restore window position to/from persistent database on hard drive, so that closed windows can be restored after reboot. **Multiple named captures can be saved to hard drive.**
+- Keeps track of window position change in real time (including taskbar window), and automatically restores window layout to last matching monitor setup.
+- Support remote desktop session with multiple display configurations.
+- Support desktop layout captures (up to 8192) on hard drive in liteDB format, so that closed windows can be restored after reboot.
+- Take desktop layout snapshots in memory (max 36 for each display configuration), window z-order is preserved in snapshot. This feature can be used as an alternative to virtual desktops on Windows 10.
 - Pause/resume auto restore.
-- **Capture/Restore multiple snapshot of window layout.** This feature can be used as an alternative to virtual desktops in Windows 10. A snapshot is a light-weighted capture residing in memory rather than on hard drive.
-- Support automatic upgrade
+- Support automatic upgrade.
 
 # Installation
 - Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
@@ -34,10 +33,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - PersistentWindows minimizes itself as an icon in the systray area on task bar.
 - In taskbar settings, turn on PW to let the icon always appear on taskbar, the icon will change to red color during restore, providing visual hint to user to avoid maneuver window
   ![taskbar setting](showicon.png)
-- To save current window layout to persistent storage, right click the icon and select "Capture windows to disk"; To restore saved window layout from persistent storage, or to recover closed windows after reboot, right click the icon and select "Restore windows from disk"
-- To pause PersistentWindows, select menu "Pause auto restore"; To resume PersistentWindows, select menu "Resume auto restore", and window layout will be restored to the moment when pause is executed.
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
 ![image](https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png)
+- Do monthly check on Help menu which is renamed when new PW upgrade is available.
 
 # Known issues
  - **A PC reboot triggered by Windows feature/security upgrade has recently caused PW icon to disappear, please add PW command option "-delay_start 10" in task scheduler and reboot again**
