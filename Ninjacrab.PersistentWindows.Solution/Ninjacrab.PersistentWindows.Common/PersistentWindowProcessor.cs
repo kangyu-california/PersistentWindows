@@ -937,26 +937,26 @@ namespace Ninjacrab.PersistentWindows.Common
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                     if (prevDisplayMetrics.IsMinimized)
                     {
+                        RECT target_rect = prevDisplayMetrics.ScreenPosition;
                         if (prevDisplayMetrics.IsFullScreen)
                         {
                             //the window was minimized from full screen status
-                            RestoreFullScreenWindow(hwnd, prevDisplayMetrics.ScreenPosition);
+                            RestoreFullScreenWindow(hwnd, target_rect);
                         }
-                        else if (!IsFullScreen(hwnd))
+                        else if (!IsFullScreen(hwnd) || IsWrongMonitor(hwnd, target_rect))
                         {
                             RECT screenPosition = new RECT();
                             User32.GetWindowRect(hwnd, ref screenPosition);
 
-                            RECT rect = prevDisplayMetrics.ScreenPosition;
                             if (prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.ShowMinimized
                                || prevDisplayMetrics.WindowPlacement.ShowCmd == ShowWindowCommands.Minimize
-                               || rect.Left <= -25600)
+                               || target_rect.Left <= -25600)
                             {
                                 Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
                                 return; // captured without previous history info, let OS handle it
                             }
 
-                            if (screenPosition.Equals(rect))
+                            if (screenPosition.Equals(target_rect))
                                 return;
 
                             if (fixUnminimizedWindow && !tidyTabWindows.Contains(hwnd))
@@ -974,7 +974,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                         placement.ShowCmd = ShowWindowCommands.Maximize;
                                     }
                                     User32.SetWindowPlacement(hwnd, ref placement);
-                                    User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                                    User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
                                     return;
                                 }
@@ -986,8 +986,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (IsOffScreen(hwnd))
                             {
                                 IntPtr desktopWindow = User32.GetDesktopWindow();
-                                User32.GetWindowRect(desktopWindow, ref rect);
-                                User32.MoveWindow(hwnd, rect.Left + 200, rect.Top + 200, 400, 300, true);
+                                User32.GetWindowRect(desktopWindow, ref target_rect);
+                                User32.MoveWindow(hwnd, target_rect.Left + 200, target_rect.Top + 200, 400, 300, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
@@ -2270,8 +2270,19 @@ namespace Ninjacrab.PersistentWindows.Common
             return false;
         }
 
+        private bool IsWrongMonitor(IntPtr hwnd, RECT target_rect)
+        {
+            RECT cur_rect = new RECT();
+            User32.GetWindowRect(hwnd, ref cur_rect);
 
-        private void RestoreFullScreenWindow(IntPtr hwnd, RECT rect)
+            // #140, need extra check for wrong screen
+            POINT middle = new POINT();
+            middle.X = (cur_rect.Left + cur_rect.Right) / 2;
+            middle.Y = (cur_rect.Top + cur_rect.Bottom) / 2;
+            return !User32.PtInRect(ref target_rect, middle);
+        }
+
+        private void RestoreFullScreenWindow(IntPtr hwnd, RECT target_rect)
         {
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
@@ -2284,19 +2295,16 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.GetWindowRect(hwnd, ref cur_rect);
 
             RECT intersect = new RECT();
-            if (!User32.IntersectRect(out intersect, ref cur_rect, ref rect))
+            if (!User32.IntersectRect(out intersect, ref cur_rect, ref target_rect))
                 wrong_screen = true;
 
             // #140, need extra check for wrong screen
-            POINT middle = new POINT();
-            middle.X = (cur_rect.Left + cur_rect.Right) / 2;
-            middle.Y = (cur_rect.Top + cur_rect.Bottom) / 2;
-            if (!User32.PtInRect(ref rect, middle))
+            if (IsWrongMonitor(hwnd, target_rect))
                 wrong_screen = true;
 
             if (wrong_screen)
             {
-                User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                 Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
             }
 
