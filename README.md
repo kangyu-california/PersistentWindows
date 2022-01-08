@@ -15,7 +15,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Key features 
 - Keeps track of window position change in real time (including taskbar window), and automatically restores window layout to last matching monitor setup.
 - Support remote desktop session with multiple display configurations.
-- Support desktop layout captures (up to 8192) on hard drive in liteDB format, so that closed windows can be restored after reboot.
+- Support desktop layout captures (>= 32) on hard drive in liteDB format, so that closed windows can be restored after reboot.
 - Take desktop layout snapshots in memory (max 36 for each display configuration), window z-order is preserved in snapshot. This feature can be used as an alternative to virtual desktops on Windows 10.
 - Pause/resume auto restore.
 - Support automatic upgrade.
