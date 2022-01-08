@@ -1119,7 +1119,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 var process = GetProcess(hwnd);
                 string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
-                    process.ProcessName,
+                    (process == null) ? "" : process.ProcessName,
                     screenPosition.Left,
                     screenPosition.Top,
                     screenPosition.Width,
@@ -1253,7 +1253,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 var diff = now.Subtract(lastUnminimizeTime);
                                 if (diff.TotalMilliseconds < 200)
                                 {
-                                    Log.Error($"window \"{windowTitle[hwnd]}\" is hidden by tidytab");
+                                    Log.Error($"window \"{title}\" is hidden by tidytab");
                                     tidyTabWindows.Add(hwnd);
                                     if (lastUnminimizeWindow != IntPtr.Zero)
                                         tidyTabWindows.Add(lastUnminimizeWindow);
