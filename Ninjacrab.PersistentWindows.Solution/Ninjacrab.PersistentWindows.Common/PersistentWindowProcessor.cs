@@ -966,6 +966,13 @@ namespace Ninjacrab.PersistentWindows.Common
                                 {
                                     // windows ignores previous snap status when activated from minimized state
                                     var placement = prevDisplayMetrics.WindowPlacement;
+                                    if (placement.ShowCmd == ShowWindowCommands.Maximize)
+                                    {
+                                        //restore normal first
+                                        placement.ShowCmd = ShowWindowCommands.Normal;
+                                        User32.SetWindowPlacement(hwnd, ref placement);
+                                        placement.ShowCmd = ShowWindowCommands.Maximize;
+                                    }
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
