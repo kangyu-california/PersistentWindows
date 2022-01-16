@@ -239,7 +239,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         if (autoUpgrade)
                             Upgrade();
                         else
-                            aboutToolStripMenuItem.Text = $"Upgrade to {latestVersion}";
+                            upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
                     }
                     catch (Exception ex)
                     {
@@ -310,7 +310,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
         {
-            if (enableUpgradeNotice)
+            if (foundUpgrade)
+                Upgrade();
+            else if (enableUpgradeNotice)
             {
                 enableUpgradeNotice = false;
                 upgradeNoticeMenuItem.Text = "Enable upgrade notice";
@@ -325,10 +327,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
-            if (foundUpgrade)
-                Upgrade();
-            else
-                Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
+            Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
