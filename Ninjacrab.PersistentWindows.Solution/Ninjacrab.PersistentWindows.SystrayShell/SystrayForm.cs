@@ -311,7 +311,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
         {
             if (foundUpgrade)
+            {
                 Upgrade();
+            }
             else if (enableUpgradeNotice)
             {
                 enableUpgradeNotice = false;

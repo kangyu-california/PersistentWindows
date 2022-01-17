@@ -2434,14 +2434,15 @@ namespace Ninjacrab.PersistentWindows.Common
             return true;
         }
 
-        // recover height of horizontal taskbar (TODO), or width of vertical taskbar
+        // recover height of horizontal taskbar or width of vertical taskbar
         private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
         {
             RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
-            if (Math.Abs(deltaWidth) < 10)
+            int deltaHeight = sourceRect.Height - targetRect.Height;
+            if (Math.Abs(deltaWidth) < 10 && Math.Abs(deltaHeight) < 10)
                 return false;
 
             RECT intersect = new RECT();
@@ -2451,34 +2452,60 @@ namespace Ninjacrab.PersistentWindows.Common
                 return false;
 
             List<Display> displays = GetDisplays();
+            bool top_edge = false;
             bool left_edge = false;
             foreach (var display in displays)
             {
                 RECT screen = display.Position;
                 if (User32.IntersectRect(out intersect, ref sourceRect, ref screen))
                 {
-                    if (Math.Abs(targetRect.Left - screen.Left) < 5)
+                    if (deltaWidth != 0 && Math.Abs(targetRect.Left - screen.Left) < 5)
                         left_edge = true;
+                    if (deltaHeight != 0 && Math.Abs(targetRect.Top - screen.Top) < 5)
+                        top_edge = true;
                     break;
                 }
             }
 
             Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
 
-            int start_y = sourceRect.Top + sourceRect.Height / 2;
+            int start_y;
             int start_x;
-            int end_x;
-            if (left_edge)
+            int end_x = -25600;
+            int end_y = -25600;
+            if (deltaWidth != 0)
             {
-                //taskbar is on left edge
-                start_x = sourceRect.Left + sourceRect.Width - 1;
-                end_x = targetRect.Left + targetRect.Width - 1;
+                //restore width
+                start_y = sourceRect.Top + sourceRect.Height / 2;
+                if (left_edge)
+                {
+                    //taskbar is on left edge
+                    start_x = sourceRect.Left + sourceRect.Width - 1;
+                    end_x = targetRect.Left + targetRect.Width - 1;
+                }
+                else
+                {
+                    //taskbar is on right edge
+                    start_x = sourceRect.Left;
+                    end_x = targetRect.Left;
+                }
             }
             else
             {
-                //taskbar is on right edge
-                start_x = sourceRect.Left;
-                end_x = targetRect.Left;
+                //restore height
+                start_x = sourceRect.Left+ sourceRect.Width / 2;
+                if (top_edge)
+                {
+                    //taskbar is on top edge
+                    start_y = sourceRect.Top + sourceRect.Height - 1;
+                    end_y = targetRect.Top + targetRect.Height - 1;
+                }
+                else
+                {
+                    //taskbar is on bottom edge
+                    start_y = sourceRect.Top;
+                    end_y = targetRect.Top;
+                }
             }
 
             // avoid cursor failure
@@ -2496,7 +2523,11 @@ namespace Ninjacrab.PersistentWindows.Common
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN,
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(PauseRestoreTaskbar); // wait to be activated
-            User32.SetCursorPos(end_x, start_y);
+            if (deltaWidth != 0)
+                User32.SetCursorPos(end_x, start_y);
+            else
+                User32.SetCursorPos(start_x, end_y);
+
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
 
