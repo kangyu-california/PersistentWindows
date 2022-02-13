@@ -356,6 +356,17 @@ namespace Ninjacrab.PersistentWindows.Common
 
             winEventsCaptureDelegate = WinEventProc;
 
+            /* TODO:
+            this.winEventHooks.Add(User32.SetWinEventHook(
+                User32Events.EVENT_SYSTEM_MENUSTART,
+                User32Events.EVENT_SYSTEM_MENUEND,
+                IntPtr.Zero,
+                winEventsCaptureDelegate,
+                0,
+                0,
+                (uint)User32Events.WINEVENT_OUTOFCONTEXT));
+            */
+
             // captures new window, user click, snap and minimize
             this.winEventHooks.Add(User32.SetWinEventHook(
                 User32Events.EVENT_SYSTEM_FOREGROUND,
@@ -1020,6 +1031,14 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 switch (eventType)
                 {
+                    case User32Events.EVENT_SYSTEM_MENUSTART:
+                    case User32Events.EVENT_SYSTEM_MENUEND:
+                        if (idObject == 0 || idObject == -1)
+                        {
+                            //TODO:
+                            //context sensitive menu
+                        }
+                        break;
                     case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                     case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                     case User32Events.EVENT_SYSTEM_MOVESIZEEND:
