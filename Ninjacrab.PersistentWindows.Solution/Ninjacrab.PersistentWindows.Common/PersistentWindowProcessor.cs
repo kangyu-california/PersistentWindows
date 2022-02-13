@@ -477,6 +477,26 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (showDesktop)
                                 ShowDesktop();
 
+                            //remove capture in gaming mode
+                            if (displayKey != curDisplayKey && monitorApplications.ContainsKey(curDisplayKey))
+                            {
+                                bool gaming_mode = true;
+                                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                                {
+                                    if (monitorApplications[curDisplayKey][hwnd].Count > 1)
+                                    {
+                                        gaming_mode = false;
+                                        break;
+                                    }
+                                }
+
+                                if (gaming_mode)
+                                {
+                                    monitorApplications.Remove(curDisplayKey);
+                                    Log.Error("finish gaming mode {0}", curDisplayKey);
+                                }
+                            }
+
                             // change display on the fly
                             curDisplayKey = displayKey;
 
