@@ -69,6 +69,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
+        private Dictionary<string, int> windowActiveCnt = new Dictionary<string, int>();
         private bool userMove = false; //received window event due to user move
         private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
@@ -477,25 +478,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (showDesktop)
                                 ShowDesktop();
 
-                            //remove capture in gaming mode
-                            if (displayKey != curDisplayKey && monitorApplications.ContainsKey(curDisplayKey))
-                            {
-                                bool gaming_mode = true;
-                                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
-                                {
-                                    if (monitorApplications[curDisplayKey][hwnd].Count > 1)
-                                    {
-                                        gaming_mode = false;
-                                        break;
-                                    }
-                                }
-
-                                if (gaming_mode)
-                                {
-                                    monitorApplications.Remove(curDisplayKey);
-                                    Log.Error("finish gaming mode {0}", curDisplayKey);
-                                }
-                            }
+                            // reset foreground window counter for gaming mode
+                            if (windowActiveCnt.ContainsKey(curDisplayKey))
+                                windowActiveCnt[curDisplayKey] = 0;
 
                             // change display on the fly
                             curDisplayKey = displayKey;
@@ -606,6 +591,8 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
                 enableRestoreMenu(db_exist);
+                if (db_exist)
+                    normalSessions.Add(curDisplayKey);
                 if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
@@ -854,6 +841,18 @@ namespace Ninjacrab.PersistentWindows.Common
                             ActivateWindow(hwnd);
                     }
 
+                    if (pendingWindows.Count > 0)
+                    {
+                        if (!windowActiveCnt.ContainsKey(curDisplayKey))
+                            windowActiveCnt.Add(curDisplayKey, 0);
+                        windowActiveCnt[curDisplayKey]++;
+                        if (windowActiveCnt[curDisplayKey] >= 2)
+                        {
+                            normalSessions.Add(curDisplayKey);
+                            Log.Error("normal session {0} due to active count {1}", curDisplayKey, windowActiveCnt[curDisplayKey]);
+                        }
+                    }
+
                     pendingActivateWindows.Clear();
                 }
                 catch (Exception ex)
@@ -1063,6 +1062,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                     case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                         // only care about child windows that are moved by user
+                        //normalSessions.Add(curDisplayKey);
                         allUserMoveWindows.Add(hwnd);
                         break;
 
@@ -1215,7 +1215,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                     foreGroundWindow[curDisplayKey] = hwnd;
                                     foregroundTimer.Change(100, Timeout.Infinite);
 
-
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
                                     // keep restart capture timer would eventually discard these moves
@@ -1225,6 +1224,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
+                                    Log.Error("activate {0}", GetWindowTitle(hwnd));
                                     if (!pendingActivateWindows.Contains(hwnd))
                                         pendingActivateWindows.Add(hwnd);
 
@@ -1233,7 +1233,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     else
                                         StartCaptureTimer();
 
-                                    userMove = true;
+                                    //userMove = true;
                                 }
                             }
 
@@ -1282,6 +1282,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
                                 StartCaptureTimer(UserMoveLatency / 4);
+                                Log.Event("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 userMove = true;
                             }
                             break;
@@ -1306,7 +1307,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
                             {
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                userMove = true;
+                                Log.Event("{0} {1}", eventType, GetWindowTitle(hwnd));
+                                if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
+                                    userMove = true;
                             }
                             break;
                     }
@@ -1730,6 +1733,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (userMovePrev)
                 {
                     normalSessions.Add(curDisplayKey);
+                    Log.Error("normal session {0} due to user move", curDisplayKey, userMovePrev);
                 }
 
                 CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
@@ -1894,7 +1898,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     // confirmed user moves
                     RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
                     if (movedWindows > 0)
+                    {
                         Log.Trace("{0} windows captured", movedWindows);
+                    }
                 }
                 else
                 {
@@ -2218,6 +2224,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (!restoringFromMem && !restoringFromDB)
                 return;
+
+            if (restoringFromDB || restoringSnapshot)
+                normalSessions.Add(curDisplayKey);
 
             Log.Trace("Restore timer expired");
 
