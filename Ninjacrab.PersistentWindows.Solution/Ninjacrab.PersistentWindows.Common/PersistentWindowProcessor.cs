@@ -849,7 +849,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (windowActiveCnt[curDisplayKey] >= 2)
                         {
                             normalSessions.Add(curDisplayKey);
-                            Log.Error("normal session {0} due to active count {1}", curDisplayKey, windowActiveCnt[curDisplayKey]);
+                            Log.Trace("normal session {0} due to active count {1}", curDisplayKey, windowActiveCnt[curDisplayKey]);
                         }
                     }
 
@@ -1224,7 +1224,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    Log.Error("activate {0}", GetWindowTitle(hwnd));
+                                    Log.Trace("activate {0}", GetWindowTitle(hwnd));
                                     if (!pendingActivateWindows.Contains(hwnd))
                                         pendingActivateWindows.Add(hwnd);
 
@@ -1282,7 +1282,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             {
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                Log.Event("{0} {1}", eventType, GetWindowTitle(hwnd));
+                                Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 userMove = true;
                             }
                             break;
@@ -1307,7 +1307,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
                             {
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                Log.Event("{0} {1}", eventType, GetWindowTitle(hwnd));
+                                Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
                                     userMove = true;
                             }
@@ -1733,7 +1733,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (userMovePrev)
                 {
                     normalSessions.Add(curDisplayKey);
-                    Log.Error("normal session {0} due to user move", curDisplayKey, userMovePrev);
+                    Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
                 }
 
                 CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
