@@ -303,12 +303,12 @@ namespace Ninjacrab.PersistentWindows.Common
                     restoreHalted = false;
                     topmostWindowsFixed.Clear();
 
-                    Log.Error("Restore aborted for {0}", curDisplayKey);
+                    Log.Trace("Restore aborted for {0}", curDisplayKey);
 
-                    // do restore again, while keeping previous capture time unchanged
                     curDisplayKey = displayKey;
                     if (normalSessions.Contains(curDisplayKey))
                     {
+                        // do restore again, while keeping previous capture time unchanged
                         Log.Event("Restart restore for {0}", curDisplayKey);
                         restoringFromMem = true;
                         StartRestoreTimer();
@@ -483,10 +483,9 @@ namespace Ninjacrab.PersistentWindows.Common
                                 windowActiveCnt[curDisplayKey] = 0;
 
                             // change display on the fly
-                            curDisplayKey = displayKey;
-
-                            if (normalSessions.Contains(curDisplayKey))
+                            if (normalSessions.Contains(displayKey))
                             {
+                                curDisplayKey = displayKey;
                                 if (promptSessionRestore)
                                 {
                                     PromptSessionRestore();
@@ -496,7 +495,8 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                             else
                             {
-                                Log.Error($"No need to restore {curDisplayKey} display session");
+                                //Log.Error($"No need to restore {curDisplayKey} display session");
+                                StartRestoreFinishedTimer(0);
                             }
                         }
                     }
