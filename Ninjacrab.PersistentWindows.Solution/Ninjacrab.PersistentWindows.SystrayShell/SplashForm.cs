@@ -32,8 +32,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
     Version {Application.ProductVersion}
                 
     Author:        Min Yong Kim
-    Contributors:  Kang Yu, Sean Aitken";
+    Contributors:  Kang Yu, Sean Aitken
+    ";
 
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(Program.Contributors);
         }
     }
 }

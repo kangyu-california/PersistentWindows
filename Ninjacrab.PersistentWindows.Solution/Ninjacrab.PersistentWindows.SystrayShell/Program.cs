@@ -16,6 +16,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// The main entry point for the application.
         /// </summary>
         public static readonly string ProjectUrl = "https://www.github.com/kangyu-california/PersistentWindows";
+        public static readonly string Contributors = $@"{ProjectUrl}/graphs/contributors";
         public static System.Drawing.Icon IdleIcon = null;
         public static System.Drawing.Icon BusyIcon = null;
         public static string AppdataFolder = null;

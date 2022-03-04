@@ -34,6 +34,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.label1 = new System.Windows.Forms.Label();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -63,13 +64,24 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Courier New", 12F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(216, 185);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(310, 23);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Full List Of Contributors";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
             // SplashForm
             // 
             this.ClientSize = new System.Drawing.Size(671, 353);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label1);
-            //this.Icon = global::Ninjacrab.PersistentWindows.SystrayShell.Properties.Resources.pwIcon;
-            this.Icon = Program.IdleIcon;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SplashForm";
@@ -85,5 +97,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Timer timer1;
+        private Label label2;
     }
 }
