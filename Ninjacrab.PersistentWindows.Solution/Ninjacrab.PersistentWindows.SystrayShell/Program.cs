@@ -21,6 +21,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public static System.Drawing.Icon BusyIcon = null;
         public static string AppdataFolder = null;
         public static string CmdArgs;
+        public static bool NoGui = false;
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
@@ -75,6 +76,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 switch(arg)
                 {
+                    case "-nogui":
+                        NoGui = true;
+                        break;
                     case "-silent":
                         Log.silent = true;
                         silent = true;
@@ -261,7 +265,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     return;
 
                 //systrayForm.notifyIconMain.Visible = false;
-                systrayForm.notifyIconMain.Visible = true;
+                if (!NoGui)
+                    systrayForm.notifyIconMain.Visible = true;
 
                 if (!notification)
                     return;
@@ -279,7 +284,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             */
 
             //systrayForm.notifyIconMain.Visible = false;
-            systrayForm.notifyIconMain.Visible = true;
+            if (!NoGui)
+                systrayForm.notifyIconMain.Visible = true;
         }
 
         static void EnableRestoreMenu(bool enableRestoreDB)
