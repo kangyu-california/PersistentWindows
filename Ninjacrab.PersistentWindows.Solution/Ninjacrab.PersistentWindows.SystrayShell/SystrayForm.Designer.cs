@@ -79,7 +79,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.notifyIconMain.BalloonTipTitle = "";
             this.notifyIconMain.BalloonTipText = "Please wait while restoring windows";
             this.notifyIconMain.BalloonTipIcon = ToolTipIcon.Info;
-            if (Program.NoGui)
+            if (!Program.Gui)
                 this.notifyIconMain.Visible = false;
             this.notifyIconMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.IconMouseDown);
             this.notifyIconMain.MouseUp += new System.Windows.Forms.MouseEventHandler(this.IconMouseUp);

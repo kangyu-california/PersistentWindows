@@ -21,7 +21,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public static System.Drawing.Icon BusyIcon = null;
         public static string AppdataFolder = null;
         public static string CmdArgs;
-        public static bool NoGui = false;
+        public static bool Gui = true;
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
@@ -77,7 +77,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 switch(arg)
                 {
                     case "-nogui":
-                        NoGui = true;
+                    case "-gui=0":
+                        Gui = false;
                         break;
                     case "-silent":
                         Log.silent = true;
@@ -265,7 +266,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     return;
 
                 //systrayForm.notifyIconMain.Visible = false;
-                if (!NoGui)
+                if (Gui)
                     systrayForm.notifyIconMain.Visible = true;
 
                 if (!notification)
@@ -284,7 +285,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             */
 
             //systrayForm.notifyIconMain.Visible = false;
-            if (!NoGui)
+            if (Gui)
                 systrayForm.notifyIconMain.Visible = true;
         }
 
