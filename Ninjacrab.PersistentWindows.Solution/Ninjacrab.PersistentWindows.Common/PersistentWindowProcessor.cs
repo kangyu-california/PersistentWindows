@@ -2725,15 +2725,15 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     IEnumerable<ApplicationDisplayMetrics> results;
 
-                    if (dbMatchLevel == 0)
-                    {
-                        results = db.Find(x => x.ClassName == className && x.ProcessId == processId && x.WindowId == oldDisplayMetrics.WindowId && x.ProcessName == processName);
-                        curDisplayMetrics = SearchDb(results, rect, invisible);
-                    }
-
                     if (windowTitle.ContainsKey(hWnd))
                     {
                         string title = windowTitle[hWnd];
+
+                        if (dbMatchLevel == 0)
+                        {
+                            results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessId == processId && x.WindowId == oldDisplayMetrics.WindowId && x.ProcessName == processName);
+                            curDisplayMetrics = SearchDb(results, rect, invisible);
+                        }
 
                         if (curDisplayMetrics == null && dbMatchLevel == 1)
                         {
