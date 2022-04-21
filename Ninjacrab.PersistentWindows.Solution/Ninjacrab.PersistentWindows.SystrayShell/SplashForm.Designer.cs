@@ -85,6 +85,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SplashForm";
+            this.Icon = Program.IdleIcon;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Load += new System.EventHandler(this.SplashForm_Load);
             this.ResumeLayout(false);
