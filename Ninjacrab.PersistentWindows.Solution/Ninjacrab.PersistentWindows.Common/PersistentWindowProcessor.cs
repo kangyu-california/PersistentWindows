@@ -716,7 +716,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 length++;
                 var title = new StringBuilder(length);
                 User32.GetWindowText(hwnd, title, length);
-                return title.ToString();
+                var t = title.ToString();
+                t = t.Trim();
+                return t;
             }
 
             //return hwnd.ToString("X8");
@@ -2728,7 +2730,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (windowTitle.ContainsKey(hWnd))
                     {
                         string title = windowTitle[hWnd];
-
                         if (dbMatchLevel == 0)
                         {
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessId == processId && x.WindowId == oldDisplayMetrics.WindowId && x.ProcessName == processName);
@@ -2740,12 +2741,23 @@ namespace Ninjacrab.PersistentWindows.Common
                             results = db.Find(x => x.ClassName == className && x.Title == title && x.ProcessName == processName);
                             curDisplayMetrics = SearchDb(results, rect, invisible);
                         }
+
                     }
 
                     if (curDisplayMetrics == null && dbMatchLevel == 2)
                     {
                         results = db.Find(x => x.ClassName == className && x.ProcessName == processName);
                         curDisplayMetrics = SearchDb(results, rect, invisible);
+                    }
+
+                    if (windowTitle.ContainsKey(hWnd))
+                    {
+                        if (curDisplayMetrics == null && dbMatchLevel == 2)
+                        {
+                            string title = windowTitle[hWnd];
+                            results = db.Find(x => x.Title == title && x.ProcessName == processName);
+                            curDisplayMetrics = SearchDb(results, rect, invisible);
+                        }
                     }
 
                     /*
