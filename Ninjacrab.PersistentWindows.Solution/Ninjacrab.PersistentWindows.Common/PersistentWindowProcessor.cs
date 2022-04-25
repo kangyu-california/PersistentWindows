@@ -996,6 +996,12 @@ namespace Ninjacrab.PersistentWindows.Common
                                 //restore minimized window only applies if screen resolution has changed since minimize
                                 if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)
                                 {
+                                    long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+                                    if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
+                                    {
+                                        return;
+                                    }
+
                                     // windows ignores previous snap status when activated from minimized state
                                     var placement = prevDisplayMetrics.WindowPlacement;
                                     if (placement.ShowCmd == ShowWindowCommands.Maximize)
