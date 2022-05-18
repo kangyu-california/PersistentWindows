@@ -1576,11 +1576,6 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
-            /*
-            if (!prevWindow.Process.Responding)
-                return 0;
-            */
-
             bool nonTopMost = false;
             if (IsTaskBar(prev))
             {
@@ -2995,12 +2990,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (prevDisplayMetrics == null)
                             continue;
 
-                        /*
-                        var window = new SystemWindow(hWnd);
-                        if (!window.Process.Responding)
-                            continue;
-                        */
-
                         IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
                         /*
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
@@ -3012,15 +3001,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         {
                             if (!User32.IsWindow(prevZwnd))
                                 continue;
-
-                            /*
-                            SystemWindow prevWindow = new SystemWindow(prevZwnd);
-                            if (!prevWindow.IsValid())
-                                continue;
-
-                            if (!prevWindow.Process.Responding)
-                                continue;
-                            */
                         }
                         catch (Exception)
                         {
