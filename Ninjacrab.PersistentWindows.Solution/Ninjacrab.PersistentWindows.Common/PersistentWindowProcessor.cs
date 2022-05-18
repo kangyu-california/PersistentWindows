@@ -2168,6 +2168,12 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // key collision between dead window and new window with the same hwnd
                     Log.Error("Invalid entry");
+                    Log.Error("title={0}, process {1} vs {2}, classname {3} vs {4}",
+                        GetWindowTitle(hwnd),
+                        prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId,
+                        prevDisplayMetrics.ClassName, curDisplayMetrics.ClassName
+                        );
+                    EndDisplaySession();
                     monitorApplications[displayKey].Remove(hwnd);
                     moved = true;
                 }
