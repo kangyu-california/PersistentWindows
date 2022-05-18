@@ -67,10 +67,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Courier New", 10.8F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(216, 185);
+            this.label2.Font = new System.Drawing.Font("Courier New", 10F, System.Drawing.FontStyle.Underline);
+            this.label2.Location = new System.Drawing.Point(222, 204);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(296, 21);
+            this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;
             this.label2.Text = "Recognize All Contributors";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
