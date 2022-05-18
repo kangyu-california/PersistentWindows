@@ -41,7 +41,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Courier New", 10F);
-            this.label1.Location = new System.Drawing.Point(184, 69);
+            this.label1.Location = new System.Drawing.Point(160, 51);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(49, 20);
             this.label1.TabIndex = 0;
@@ -68,7 +68,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Courier New", 10F, System.Drawing.FontStyle.Underline);
-            this.label2.Location = new System.Drawing.Point(222, 204);
+            this.label2.Location = new System.Drawing.Point(200, 202);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;
