@@ -1,6 +1,7 @@
 
+
 ## PersistentWindows Quick Help
-* Command Line Options
+### Command Line Options
   | Command line option | Meaning |
   | --- | --- |
   | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PersistentWindows autostart fails to show icon due to Windows upgrade.
@@ -26,7 +27,7 @@
 
 ---
 
-* Command shortcut to capture/restore snapshot
+### Command shortcut to capture/restore snapshot
   | Snapshot command | Shortcut|
   | --- | --- |
   | Capture snapshot 0 | Double click PersistentWindows icon
@@ -36,6 +37,7 @@
   | Undo last snapshot restore | Alt click PersistentWindows icon
 
 ---
+### Other Features
 * Create named capture to disk
   * Ctrl click "Capture windows to disk" menu, enter a name in dialog
 
