@@ -3,15 +3,14 @@ The code is forked from http://www.ninjacrab.com/persistent-windows/ to solve a 
 https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
 
 # Original description
-```
-What is PersistentWindows?
-A poorly named utility that persists window positions and size when the monitor display count/resolution adjusts 
+> What is PersistentWindows?
+>
+> A poorly named utility that persists window positions and size when the monitor display count/resolution adjusts 
 and restores back to it’s previous settings.
-
-For those of you with multi-monitors running on a mixture of DisplayPort and any other connection, you can run 
+> 
+> For those of you with multi-monitors running on a mixture of DisplayPort and any other connection, you can run 
 this tool and not have to worry about re-arranging when all is back to normal.
 
-```
 # Key features 
 - Keeps track of window position change in real time (including taskbar window), and automatically restores window layout to last matching monitor setup.
 - Support remote desktop session with multiple display configurations.
