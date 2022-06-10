@@ -1,17 +1,17 @@
 
-## PersistentWindows quick help
-* PW command line options
+## PersistentWindows Quick Help
+* Command Line Options
   | Command line option | Meaning |
   | --- | --- |
-  | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
-  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
-  | -gui=0 | Do not display PW icon on taskbar, effectively run PW as a service
-  | -splash=0       | No splash window at PW startup
+  | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PersistentWindows autostart fails to show icon due to Windows upgrade.
+  | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PersistentWindows instances.
+  | -gui=0 | Do not display PersistentWindows icon on taskbar, effectively run PW as a service
+  | -splash=0       | No splash window at PersistentWindows startup
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | avoid restore window for process notepad and foo
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
-  | -slow_restore | Avoid PW restore finish too soon
+  | -slow_restore | Avoid PersistentWindows restore finish too soon
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
@@ -21,19 +21,19 @@
   | ‑auto_restore_missing_windows=2 | Automatic restore missing windows from disk at startup, user will be prompted before restore each missing window
   | ‑auto_restore_missing_windows=3 | Automatic restore missing windows from disk at startup without prompting user
   | -invoke_multi_window_process_only_once=0 | Launch an application multiple times to restore multiple windows of the same process from DB.
-  | -check_upgrade=0 | Disable PW upgrade check from beginning
-  | -auto_upgrade=1 | Upgrade PW automatically without user interaction
+  | -check_upgrade=0 | Disable PersistentWindows upgrade check from beginning
+  | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
 
 ---
 
 * Command shortcut to capture/restore snapshot
   | Snapshot command | Shortcut|
   | --- | --- |
-  | Capture snapshot 0 | Double click PW icon
-  | Restore snapshot 0 | Click PW icon
-  | Capture snapshot X | Double click PW icon then immediately press key X (X represents a digit [0-9] or a letter [a-z])
-  | Restore snapshot X | Click PW icon then immediately press key X
-  | Undo last snapshot restore | Alt click PW icon
+  | Capture snapshot 0 | Double click PersistentWindows icon
+  | Restore snapshot 0 | Click PersistentWindows icon
+  | Capture snapshot X | Double click PersistentWindows icon then immediately press key X (X represents a digit [0-9] or a letter [a-z])
+  | Restore snapshot X | Click PersistentWindows icon then immediately press key X
+  | Undo last snapshot restore | Alt click PersistentWindows icon
 
 ---
 * Create named capture to disk
@@ -42,9 +42,9 @@
 * Restore named capture from disk
   * Ctrl click "Restore windows from disk" menu, enter previous name in dialog
 
-* Run PW with customized icon
-  * Rename your customized icon file as pwIcon.ico and copy it to 'C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/', or copy it to current directory if running (second inst of) PW with -redirect_appdata switch from command console.
-  * Add second icon file, rename it to pwIconBusy.ico, this icon is displayed when PW is busy restoring windows.
+* Run PersistentWindows with customized icon
+  * Rename your customized icon file as pwIcon.ico and copy it to 'C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/', or copy it to current directory if running (second inst of) PersistentWindows with -redirect_appdata switch from command console.
+  * Add second icon file, rename it to pwIconBusy.ico, this icon is displayed when PersistentWindows is busy restoring windows.
 
 * Manipulate window z-order
   * Bring a window to top z-order by clear the topmost flag of obstructive window
