@@ -284,7 +284,7 @@ namespace Ninjacrab.PersistentWindows.Common
             });
 
             restoreTimer = new Timer(state => { TimerRestore(); });
-            
+
             restoreFinishedTimer = new Timer(state =>
             {
                 int numWindowRestored = restoredWindows.Count;
@@ -587,7 +587,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             initialized = true;
 
-            using(var persistDB = new LiteDatabase(persistDbName))
+            using (var persistDB = new LiteDatabase(persistDbName))
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
                 enableRestoreMenu(db_exist);
@@ -795,7 +795,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue;
 
                         // found match
-                        RECT r= appPos.ScreenPosition;
+                        RECT r = appPos.ScreenPosition;
                         User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
                         Log.Error("Recover invisible window \"{0}\"", GetWindowTitle(hwnd));
                         found = true;
@@ -1262,7 +1262,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     {
                                         pendingMoveEvents.Enqueue(hwnd);
                                     }
-                                    
+
                                     if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
                                     {
                                         StartCaptureTimer(UserMoveLatency / 4);
@@ -1348,8 +1348,8 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             try
             {
+                if (monitorApplications.ContainsKey(curDisplayKey))
                 {
-                    if (monitorApplications.ContainsKey(curDisplayKey))
                     foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                     {
                         for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
@@ -1382,9 +1382,9 @@ namespace Ninjacrab.PersistentWindows.Common
             }
 
             {
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
 
-                foreach(var hwnd in monitorApplications[curDisplayKey].Keys)
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
                     int count = monitorApplications[curDisplayKey][hwnd].Count;
                     if (count > 0)
@@ -1422,7 +1422,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (id != MaxSnapshots - 1)
             {
                 // MaxSnapshots - 1 is for undo snapshot restore
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture : true);
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 snapshotTakenTime[curDisplayKey][MaxSnapshots - 1] = DateTime.Now;
             }
 
@@ -1433,7 +1433,7 @@ namespace Ninjacrab.PersistentWindows.Common
             restoringSnapshot = true;
             snapshotId = id;
             restoringFromMem = true;
-            StartRestoreTimer(milliSecond : 0 /*wait mouse settle still for taskbar restore*/);
+            StartRestoreTimer(milliSecond: 0 /*wait mouse settle still for taskbar restore*/);
             Log.Event("restore snapshot {0}", id);
         }
 
@@ -1642,10 +1642,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 Log.Trace(log2);
 #endif
 
-                if (eventType != 0)
+                bool new_window = !monitorApplications[displayKey].ContainsKey(hWnd);
+                if (eventType != 0 || new_window)
                     curDisplayMetrics.IsValid = true;
 
-                if (!monitorApplications[displayKey].ContainsKey(hWnd))
+                if (new_window)
                 {
                     monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
                 }
@@ -1739,7 +1740,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
                 }
 
-                CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB : saveToDB); //implies auto delayed capture
+                CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB: saveToDB); //implies auto delayed capture
             }
             catch (Exception ex)
             {
@@ -1751,7 +1752,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private void CaptureNewDisplayConfig(string displayKey)
         {
             normalSessions.Add(displayKey);
-            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture : true);
+            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
         }
 
         private void EndDisplaySession()
@@ -1817,7 +1818,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                     if (db.Count() > 0)
                         db.DeleteMany(_ => !ids.Contains(_.Id)); //remove invalid entries (destroyed window since last capture to db)
-                        //db.DeleteAll();
+                                                                 //db.DeleteAll();
 
                     var appWindows = CaptureWindowsOfInterest();
                     foreach (var hWnd in appWindows)
@@ -1899,7 +1900,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 else if (displayKey.Equals(curDisplayKey))
                 {
                     // confirmed user moves
-                    RecordLastUserActionTime(time: DateTime.Now, displayKey : displayKey);
+                    RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
                     if (movedWindows > 0)
                     {
                         Log.Trace("{0} windows captured", movedWindows);
@@ -2239,8 +2240,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Trace("Restore timer expired");
 
-            lock(restoreLock)
-            BatchRestoreApplicationsOnCurrentDisplays();
+            lock (restoreLock)
+                BatchRestoreApplicationsOnCurrentDisplays();
         }
 
         private void BatchRestoreApplicationsOnCurrentDisplays()
@@ -2285,7 +2286,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     bool extra_restore = zorderFixed;
                     // force next restore, as Windows OS might not send expected message during restore
                     if (restoreTimes < (extra_restore ? MaxRestoreTimes : MinRestoreTimes))
-                        StartRestoreTimer(milliSecond : slow_restore ? RestoreLatency : 0);
+                        StartRestoreTimer(milliSecond: slow_restore ? RestoreLatency : 0);
                     else
                         StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
                 }
@@ -2395,7 +2396,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (intersect.Equals(target_pos))
                         continue;
                     if (Math.Abs(intersect.Width - target_pos.Width) < 10
-                        && Math.Abs(intersect.Height - target_pos.Height)  < 10)
+                        && Math.Abs(intersect.Height - target_pos.Height) < 10)
                     {
                         User32.MoveWindow(hwnd, intersect.Left, intersect.Top, intersect.Width, intersect.Height, true);
                         Log.Error("restore snap window {0}", GetWindowTitle(hwnd));
@@ -2550,7 +2551,7 @@ namespace Ninjacrab.PersistentWindows.Common
             else
             {
                 //restore height
-                start_x = sourceRect.Left+ sourceRect.Width / 2;
+                start_x = sourceRect.Left + sourceRect.Width / 2;
                 if (top_edge)
                 {
                     //taskbar is on top edge
@@ -2682,20 +2683,18 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-    #if DEBUG
+#if DEBUG
                 if (choice != null)
                     Log.Trace("restore window position with matching process name {0}", choice.ProcessName);
-    #endif
+#endif
                 return choice;
             }
 
             DateTime printRestoreTime = lastCaptureTime;
-            if (restoringFromDB)
-            using(var persistDB = new LiteDatabase(persistDbName))
+            if (restoringFromDB) using (var persistDB = new LiteDatabase(persistDbName))
             {
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
-                for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel)
-                foreach (var hWnd in sWindows)
+                for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel) foreach (var hWnd in sWindows)
                 {
                     if (windowMatchDb.Contains(hWnd))
                         continue;
@@ -3002,8 +3001,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             continue; //avoid topmost
                         */
 
-                        if (prevZwnd != IntPtr.Zero)
-                        try
+                        if (prevZwnd != IntPtr.Zero) try
                         {
                             if (!User32.IsWindow(prevZwnd))
                                 continue;
@@ -3080,8 +3078,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
-            if (restoringFromDB && restoreTimes == 0)
-            using(var persistDB = new LiteDatabase(persistDbName))
+            if (restoringFromDB && restoreTimes == 0) using (var persistDB = new LiteDatabase(persistDbName))
             {
                 HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
@@ -3269,14 +3266,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
         public void StopRunningThreads()
         {
-            foreach(var thd in runningThreads)
+            foreach (var thd in runningThreads)
             {
                 if (thd.IsAlive)
                     thd.Abort();
             }
         }
 
-#region IDisposable
+        #region IDisposable
         public virtual void Dispose(bool disposing)
         {
             StopRunningThreads();
@@ -3305,7 +3302,7 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             Dispose(false);
         }
-#endregion
+        #endregion
     }
 
 }
