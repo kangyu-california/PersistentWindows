@@ -2001,24 +2001,11 @@ namespace Ninjacrab.PersistentWindows.Common
             uint processId = 0;
             User32.GetWindowThreadProcessId(hwnd, out processId);
 
-            IntPtr prevChild = IntPtr.Zero;
-            int i = 0;
-            while (true && i < 10)
-            {
-                IntPtr currChild;
-                currChild = User32.FindWindowEx(hwnd, prevChild, null, null);
-                if (currChild == IntPtr.Zero)
-                    break;
-                uint realProcessId = 0;
-                User32.GetWindowThreadProcessId(currChild, out realProcessId);
-                if (realProcessId != processId)
-                {
-                    hwnd = currChild;
-                    break;
-                }
-                prevChild = currChild;
-                ++i;
-            }
+            IntPtr coreHwnd;
+            //currChild = User32.FindWindowEx(hwnd, prevChild, null, null);
+            coreHwnd = User32.FindWindowEx(hwnd, IntPtr.Zero, "Windows.UI.Core.AppWindow", null);
+            if (coreHwnd != IntPtr.Zero)
+                return coreHwnd;
             return hwnd;
         }
 
@@ -2167,16 +2154,18 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
                 {
-                    // key collision between dead window and new window with the same hwnd
+                    // TODO: GetCoreAppWindow() may fail mysteriously
                     Log.Error("Invalid entry");
                     Log.Error("title={0}, process {1} vs {2}, classname {3} vs {4}",
                         GetWindowTitle(hwnd),
                         prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId,
                         prevDisplayMetrics.ClassName, curDisplayMetrics.ClassName
                         );
-                    EndDisplaySession();
-                    monitorApplications[displayKey].Remove(hwnd);
-                    moved = true;
+                    realHwnd = GetCoreAppWindow(hwnd);
+                    return false;
+                    //EndDisplaySession();
+                    //monitorApplications[displayKey].Remove(hwnd);
+                    //moved = true;
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
