@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
 using System.Drawing;
@@ -323,9 +324,11 @@ namespace Ninjacrab.PersistentWindows.Common
                         sessionActive = true;
                         using (var persistDB = new LiteDatabase(persistDbName))
                         {
-                            enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+                            bool db_exist = persistDB.CollectionExists(curDisplayKey);
+                            new Task(() => { enableRestoreMenu(db_exist); }).Start();
                         }
-                        enableRestoreSnapshotMenu(snapshotTakenTime.ContainsKey(curDisplayKey));
+                        bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+                        new Task(() => { enableRestoreSnapshotMenu(snapshot_exist); }).Start();
                     }
                 }
                 else
@@ -342,9 +345,11 @@ namespace Ninjacrab.PersistentWindows.Common
                     sessionActive = true;
                     using (var persistDB = new LiteDatabase(persistDbName))
                     {
-                        enableRestoreMenu(persistDB.CollectionExists(curDisplayKey));
+                        bool db_exist = persistDB.CollectionExists(curDisplayKey);
+                        new Task(() => { enableRestoreMenu(db_exist); }).Start();
                     }
-                    enableRestoreSnapshotMenu(snapshotTakenTime.ContainsKey(curDisplayKey));
+                    bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+                    new Task(() => { enableRestoreSnapshotMenu(snapshot_exist); }).Start();
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
