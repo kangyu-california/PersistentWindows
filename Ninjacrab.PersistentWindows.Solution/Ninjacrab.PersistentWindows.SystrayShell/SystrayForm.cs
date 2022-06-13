@@ -157,11 +157,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         }
 
         //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
-        public void UpdateMenuEnable(bool enableRestoreFromDB)
+        public void UpdateMenuEnable(bool enableRestoreFromDB, bool checkUpgrade)
         {
             restoreToolStripMenuItemEnabled = enableRestoreFromDB;
 
-            if (enableUpgradeNotice)
+            if (checkUpgrade && enableUpgradeNotice)
             {
                 if (pauseUpgradeCounter)
                 {

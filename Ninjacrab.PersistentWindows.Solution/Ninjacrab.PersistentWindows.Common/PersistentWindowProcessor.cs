@@ -134,8 +134,9 @@ namespace Ninjacrab.PersistentWindows.Common
         public CallBack hideRestoreTip;
 
         public delegate void CallBackBool(bool en);
-        public CallBackBool enableRestoreMenu;
         public CallBackBool enableRestoreSnapshotMenu;
+        public delegate void CallBackBool2(bool en, bool en2);
+        public CallBackBool2 enableRestoreMenu;
 
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
@@ -298,6 +299,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 ResetState();
                 Log.Trace("");
                 Log.Trace("");
+                bool checkUpgrade = true;
                 string displayKey = GetDisplayKey();
                 if (restoreHalted || !displayKey.Equals(curDisplayKey))
                 {
@@ -318,6 +320,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     else
                     {
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
+                        checkUpgrade = false;
 
                         //restore icon to idle
                         hideRestoreTip();
@@ -345,7 +348,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 using (var persistDB = new LiteDatabase(persistDbName))
                 {
                     bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                    enableRestoreMenu(db_exist);
+                    enableRestoreMenu(db_exist, checkUpgrade);
                 }
                 bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
@@ -590,7 +593,7 @@ namespace Ninjacrab.PersistentWindows.Common
             using (var persistDB = new LiteDatabase(persistDbName))
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                enableRestoreMenu(db_exist);
+                enableRestoreMenu(db_exist, true);
                 if (db_exist)
                     normalSessions.Add(curDisplayKey);
                 if (db_exist && auto_restore_from_db)

@@ -289,9 +289,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 systrayForm.notifyIconMain.Visible = true;
         }
 
-        static void EnableRestoreMenu(bool enableRestoreDB)
+        static void EnableRestoreMenu(bool enableRestoreDB, bool checkUpgrade)
         {
-            systrayForm.UpdateMenuEnable(enableRestoreDB);
+            systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
         }
 
         static void EnableRestoreSnapshotMenu(bool enable)
