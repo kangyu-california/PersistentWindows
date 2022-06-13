@@ -313,6 +313,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         Log.Event("Restart restore for {0}", curDisplayKey);
                         restoringFromMem = true;
                         StartRestoreTimer();
+                        return;
                     }
                     else
                     {
@@ -322,13 +323,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         hideRestoreTip();
                         iconBusy = false;
                         sessionActive = true;
-                        using (var persistDB = new LiteDatabase(persistDbName))
-                        {
-                            bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                            enableRestoreMenu(db_exist);
-                        }
-                        bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
-                        enableRestoreSnapshotMenu(snapshot_exist);
                     }
                 }
                 else
@@ -343,17 +337,18 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
-                    using (var persistDB = new LiteDatabase(persistDbName))
-                    {
-                        bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                        enableRestoreMenu(db_exist);
-                    }
-                    bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
-                    enableRestoreSnapshotMenu(snapshot_exist);
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
+
+                using (var persistDB = new LiteDatabase(persistDbName))
+                {
+                    bool db_exist = persistDB.CollectionExists(curDisplayKey);
+                    enableRestoreMenu(db_exist);
+                }
+                bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+                enableRestoreSnapshotMenu(snapshot_exist);
 
                 noRestoreWindowsTmp.Clear();
 
