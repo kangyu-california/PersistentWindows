@@ -325,10 +325,10 @@ namespace Ninjacrab.PersistentWindows.Common
                         using (var persistDB = new LiteDatabase(persistDbName))
                         {
                             bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                            new Task(() => { enableRestoreMenu(db_exist); }).Start();
+                            enableRestoreMenu(db_exist);
                         }
                         bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
-                        new Task(() => { enableRestoreSnapshotMenu(snapshot_exist); }).Start();
+                        enableRestoreSnapshotMenu(snapshot_exist);
                     }
                 }
                 else
@@ -346,10 +346,10 @@ namespace Ninjacrab.PersistentWindows.Common
                     using (var persistDB = new LiteDatabase(persistDbName))
                     {
                         bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                        new Task(() => { enableRestoreMenu(db_exist); }).Start();
+                        enableRestoreMenu(db_exist);
                     }
                     bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
-                    new Task(() => { enableRestoreSnapshotMenu(snapshot_exist); }).Start();
+                    enableRestoreSnapshotMenu(snapshot_exist);
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);

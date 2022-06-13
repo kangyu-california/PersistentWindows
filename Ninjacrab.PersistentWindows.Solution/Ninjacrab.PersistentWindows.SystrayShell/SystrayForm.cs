@@ -14,6 +14,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
+        public bool restoreToolStripMenuItemEnabled;
+        public bool restoreSnapshotMenuItemEnabled;
+
         private bool pauseAutoRestore = false;
 
         public bool enableUpgradeNotice = true;
@@ -156,7 +159,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         public void UpdateMenuEnable(bool enableRestoreFromDB)
         {
-            restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+            restoreToolStripMenuItemEnabled = enableRestoreFromDB;
 
             if (enableUpgradeNotice)
             {
@@ -178,7 +181,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         
         public void EnableSnapshotRestore(bool enable)
         {
-            restoreSnapshotMenuItem.Enabled = enable;
+            restoreSnapshotMenuItemEnabled = enable;
         }
 
         private void CheckUpgrade()
@@ -392,7 +395,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if ((User32.GetKeyState(0x12) & 0x8000) != 0)
                     altKeyPressed++;
-
+            }
+            else
+            {
+                restoreSnapshotMenuItem.Enabled = restoreSnapshotMenuItemEnabled;
+                restoreToolStripMenuItem.Enabled = restoreToolStripMenuItemEnabled;
             }
         }
 
