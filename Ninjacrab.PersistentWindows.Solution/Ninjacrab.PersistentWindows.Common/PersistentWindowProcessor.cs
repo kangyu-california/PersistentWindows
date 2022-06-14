@@ -26,7 +26,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int RestoreLatency = 500; // default delay in milliseconds from display change to window restore
         private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
-        private const int MinRestoreTimes = 3; // minimum restore passes
+        private const int MinRestoreTimes = 2; // minimum restore passes
         private const int MaxRestoreTimes = 4; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
@@ -1201,7 +1201,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     {
-                        if (restoreTimes >= MinRestoreTimes)
+                        if (restoreTimes >= MinRestoreTimes || !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             StartRestoreTimer();
