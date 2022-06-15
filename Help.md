@@ -5,6 +5,7 @@
   | --- | --- |
   | -delay_start \<seconds\> | Delay application startup by specified seconds, useful if PW autostart fails to show icon due to Windows upgrade.
   | -redirect_appdata | Use current dir instead of user appdata dir to store database file, this option is also useful for launching multiple PW instances.
+  | -gui=0 | Do not display PW icon on taskbar, effectively run PW as a service
   | -splash=0       | No splash window at PW startup
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -silent         | No splash window, no balloon tip hint, no event logging
