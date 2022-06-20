@@ -1204,6 +1204,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         if (restoreTimes >= MinRestoreTimes || !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
+                            CancelRestoreFinishedTimer();
                             StartRestoreTimer();
                         }
                     }
