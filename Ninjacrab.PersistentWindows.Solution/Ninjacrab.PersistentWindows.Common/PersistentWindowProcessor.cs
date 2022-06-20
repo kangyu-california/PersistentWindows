@@ -1200,8 +1200,9 @@ namespace Ninjacrab.PersistentWindows.Common
                             return;
                     }
 
+                    if (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
-                        if (restoreTimes >= MinRestoreTimes || !restoringSnapshot)
+                        if (!restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             CancelRestoreFinishedTimer();
@@ -2279,7 +2280,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     bool extra_restore = zorderFixed;
                     // force next restore, as Windows OS might not send expected message during restore
                     if (restoreTimes < (extra_restore ? MaxRestoreTimes : MinRestoreTimes))
-                        StartRestoreTimer(milliSecond: slow_restore ? RestoreLatency : 0);
+                        StartRestoreTimer();
                     else
                         StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
                 }
