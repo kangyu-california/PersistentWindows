@@ -1202,7 +1202,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
-                        if (!restoringSnapshot)
+                        if (restoreTimes >= MinRestoreTimes || !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             CancelRestoreFinishedTimer();
