@@ -2094,7 +2094,15 @@ namespace Ninjacrab.PersistentWindows.Common
                 var process = GetProcess(realHwnd);
                 if (process == null)
                     return false;
-                curDisplayMetrics.ProcessName = process.ProcessName;
+                try
+                {
+                    curDisplayMetrics.ProcessName = process.ProcessName;
+                }
+                catch(Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                    return false;
+                }
                 curDisplayMetrics.WindowId = (uint)hwnd;
 
                 if (!windowTitle.ContainsKey(hwnd))
