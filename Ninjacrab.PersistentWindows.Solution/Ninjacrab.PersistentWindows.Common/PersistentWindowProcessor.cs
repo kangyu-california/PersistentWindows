@@ -99,6 +99,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
+        public bool slowRestore = false;
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
@@ -1202,7 +1203,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     if (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
-                        if (restoreTimes >= MinRestoreTimes && !restoringSnapshot)
+                        if ((slowRestore || restoreTimes >= MinRestoreTimes) && !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             CancelRestoreFinishedTimer();

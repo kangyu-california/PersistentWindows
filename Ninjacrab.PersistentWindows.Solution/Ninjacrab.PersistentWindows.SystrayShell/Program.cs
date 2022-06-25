@@ -35,6 +35,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             int delay_start = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
+            bool slow_restore = false;
             int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             bool halt_restore_specified = false;
             string ignore_process = "";
@@ -119,6 +120,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
+                        break;
+                    case "-slow_restore":
+                        slow_restore = true;
                         break;
                     case "-halt_restore":
                         halt_restore_specified = true;
@@ -241,6 +245,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.launchOncePerProcessId = launch_once_per_process_id;
             pwp.haltRestore = halt_restore;
+            pwp.slowRestore = slow_restore;
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
 
