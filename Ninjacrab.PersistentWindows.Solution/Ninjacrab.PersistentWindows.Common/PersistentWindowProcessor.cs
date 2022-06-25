@@ -2143,7 +2143,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (prevIndex < 0)
                 {
                     Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
-                    if (restoringFromMem)
+                    if (restoringFromMem && monitorApplications[displayKey][hwnd].Count < 2)
                     {
                         //the window did not exist when snapshot was taken
                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
