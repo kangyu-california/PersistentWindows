@@ -169,11 +169,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
-            while (String.IsNullOrEmpty(PersistentWindowProcessor.GetDisplayKey()))
-            {
-                Thread.Sleep(5000);
-            }
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -387,7 +382,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void CaptureToDisk()
         {
-            pwp.dbDisplayKey = pwp.curDisplayKey;
+            pwp.dbDisplayKey = pwp.GetDisplayKey();
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
                 pwp.dbDisplayKey += EnterDbEntryName();
@@ -400,7 +395,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void RestoreFromDisk()
         {
             pwp.restoringFromDB = true;
-            pwp.dbDisplayKey = pwp.curDisplayKey;
+            pwp.dbDisplayKey = pwp.GetDisplayKey();
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
                 pwp.dbDisplayKey += EnterDbEntryName();

@@ -64,7 +64,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        public string curDisplayKey = null; // current display config name
+        public static string curDisplayKey; // current display config name
         public string dbDisplayKey = null;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
@@ -160,6 +160,11 @@ namespace Ninjacrab.PersistentWindows.Common
 #endif
         public bool Start(bool auto_restore_from_db = false)
         {
+            while (String.IsNullOrEmpty(GetDisplayKey()))
+            {
+                Thread.Sleep(5000);
+            }
+
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
@@ -1668,7 +1673,7 @@ namespace Ninjacrab.PersistentWindows.Common
             return ret;
         }
 
-        public static string GetDisplayKey()
+        public string GetDisplayKey()
         {
             DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
             metrics.AcquireMetrics();
