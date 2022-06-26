@@ -88,7 +88,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool dryRun = false; // only capturre, no actual restore
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 9; // bit i represent restore method for pass i
+        public int fixZorderMethod = 1; // bit i represent restore method for pass i
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
