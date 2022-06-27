@@ -308,12 +308,24 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void EnableRestoreMenu(bool enableRestoreDB, bool checkUpgrade)
         {
-            systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
+            if (systrayForm.InvokeRequired)
+                systrayForm.BeginInvoke((Action) delegate ()
+                {
+                    systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
+                });
+            else
+                systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
         }
 
         static void EnableRestoreSnapshotMenu(bool enable)
         {
-            systrayForm.EnableSnapshotRestore(enable);
+            if (systrayForm.InvokeRequired)
+                systrayForm.BeginInvoke((Action) delegate ()
+                {
+                    systrayForm.EnableSnapshotRestore(enable);
+                });
+            else
+                systrayForm.EnableSnapshotRestore(enable);
         }
 
         static public void CaptureSnapshot(int id, bool prompt = true)
