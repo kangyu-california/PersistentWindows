@@ -285,9 +285,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 ShowRestoreTipDelegate(systrayForm.notifyIconMain);
         }
 
-        static void HideRestoreTip()
+        static void HideRestoreTipDelegate(NotifyIcon ni)
         {
-            systrayForm.notifyIconMain.Icon = IdleIcon;
+            ni.Icon = IdleIcon;
 
             /*
             if (silent)
@@ -296,7 +296,14 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             //systrayForm.notifyIconMain.Visible = false;
             if (Gui)
-                systrayForm.notifyIconMain.Visible = true;
+                ni.Visible = true;
+        }
+        static void HideRestoreTip()
+        {
+            if (systrayForm.InvokeRequired)
+                systrayForm.BeginInvoke(new SystrayFormDelegate(HideRestoreTipDelegate), systrayForm.notifyIconMain);
+            else
+                HideRestoreTipDelegate(systrayForm.notifyIconMain);
         }
 
         static void EnableRestoreMenu(bool enableRestoreDB, bool checkUpgrade)
