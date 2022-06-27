@@ -258,10 +258,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Run();
         }
 
-        private delegate void SystrayFormDelegate(NotifyIcon ni);
-
-        static private void ShowRestoreTipDelegate(NotifyIcon ni)
+        static private void ShowRestoreTipDelegate()
         {
+            NotifyIcon ni = systrayForm.notifyIconMain;
             ni.Icon = BusyIcon;
 
             if (silent)
@@ -279,14 +278,18 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void ShowRestoreTip()
         {
-            if (systrayForm.InvokeRequired)
-                systrayForm.BeginInvoke(new SystrayFormDelegate(ShowRestoreTipDelegate), systrayForm.notifyIconMain);
+            if (systrayForm.contextMenuStripSysTray.InvokeRequired)
+                systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
+                {
+                    ShowRestoreTipDelegate();
+                });
             else
-                ShowRestoreTipDelegate(systrayForm.notifyIconMain);
+                ShowRestoreTipDelegate();
         }
 
-        static void HideRestoreTipDelegate(NotifyIcon ni)
+        static void HideRestoreTipDelegate()
         {
+            NotifyIcon ni = systrayForm.notifyIconMain;
             ni.Icon = IdleIcon;
 
             /*
@@ -300,16 +303,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         }
         static void HideRestoreTip()
         {
-            if (systrayForm.InvokeRequired)
-                systrayForm.BeginInvoke(new SystrayFormDelegate(HideRestoreTipDelegate), systrayForm.notifyIconMain);
+            if (systrayForm.contextMenuStripSysTray.InvokeRequired)
+                systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
+                {
+                    HideRestoreTipDelegate();
+                });
             else
-                HideRestoreTipDelegate(systrayForm.notifyIconMain);
+                HideRestoreTipDelegate();
         }
 
         static void EnableRestoreMenu(bool enableRestoreDB, bool checkUpgrade)
         {
-            if (systrayForm.InvokeRequired)
-                systrayForm.BeginInvoke((Action) delegate ()
+            if (systrayForm.contextMenuStripSysTray.InvokeRequired)
+                systrayForm.contextMenuStripSysTray.BeginInvoke((Action) delegate ()
                 {
                     systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
                 });
@@ -319,8 +325,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static void EnableRestoreSnapshotMenu(bool enable)
         {
-            if (systrayForm.InvokeRequired)
-                systrayForm.BeginInvoke((Action) delegate ()
+            if (systrayForm.contextMenuStripSysTray.InvokeRequired)
+                systrayForm.contextMenuStripSysTray.BeginInvoke((Action) delegate ()
                 {
                     systrayForm.EnableSnapshotRestore(enable);
                 });

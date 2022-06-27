@@ -15,7 +15,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         public System.Windows.Forms.NotifyIcon notifyIconMain;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
+        public System.Windows.Forms.ContextMenuStrip contextMenuStripSysTray;
 
         private ToolStripMenuItem captureToolStripMenuItem;
         private ToolStripMenuItem restoreToolStripMenuItem;
