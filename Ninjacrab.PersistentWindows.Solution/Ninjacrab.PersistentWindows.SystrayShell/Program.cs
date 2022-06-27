@@ -258,21 +258,31 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Run();
         }
 
+        private delegate void SystrayFormDelegate(NotifyIcon ni);
+
+        static private void ShowRestoreTipDelegate(NotifyIcon ni)
+        {
+            ni.Icon = BusyIcon;
+
+            if (silent)
+                return;
+
+            //systrayForm.notifyIconMain.Visible = false;
+            if (Gui)
+                ni.Visible = true;
+
+            if (!notification)
+                return;
+
+            ni.ShowBalloonTip(5000);
+        }
+
         static void ShowRestoreTip()
         {
-                systrayForm.notifyIconMain.Icon = BusyIcon;
-
-                if (silent)
-                    return;
-
-                //systrayForm.notifyIconMain.Visible = false;
-                if (Gui)
-                    systrayForm.notifyIconMain.Visible = true;
-
-                if (!notification)
-                    return;
-
-                systrayForm.notifyIconMain.ShowBalloonTip(5000);
+            if (systrayForm.InvokeRequired)
+                systrayForm.BeginInvoke(new SystrayFormDelegate(ShowRestoreTipDelegate), systrayForm.notifyIconMain);
+            else
+                ShowRestoreTipDelegate(systrayForm.notifyIconMain);
         }
 
         static void HideRestoreTip()
