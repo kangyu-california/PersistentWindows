@@ -258,58 +258,53 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             Application.Run();
         }
 
-        static private void ShowRestoreTipDelegate()
-        {
-            NotifyIcon ni = systrayForm.notifyIconMain;
-            ni.Icon = BusyIcon;
-
-            if (silent)
-                return;
-
-            //systrayForm.notifyIconMain.Visible = false;
-            if (Gui)
-                ni.Visible = true;
-
-            if (!notification)
-                return;
-
-            ni.ShowBalloonTip(5000);
-        }
-
         static void ShowRestoreTip()
         {
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
                 {
-                    ShowRestoreTipDelegate();
+                    ShowRestoreTip();
                 });
             else
-                ShowRestoreTipDelegate();
+            {
+                NotifyIcon ni = systrayForm.notifyIconMain;
+                ni.Icon = BusyIcon;
+
+                if (silent)
+                    return;
+
+                //systrayForm.notifyIconMain.Visible = false;
+                if (Gui)
+                    ni.Visible = true;
+
+                if (!notification)
+                    return;
+
+                ni.ShowBalloonTip(5000);
+            }
         }
 
-        static void HideRestoreTipDelegate()
-        {
-            NotifyIcon ni = systrayForm.notifyIconMain;
-            ni.Icon = IdleIcon;
-
-            /*
-            if (silent)
-                return;
-            */
-
-            //systrayForm.notifyIconMain.Visible = false;
-            if (Gui)
-                ni.Visible = true;
-        }
         static void HideRestoreTip()
         {
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
                 {
-                    HideRestoreTipDelegate();
+                    HideRestoreTip();
                 });
             else
-                HideRestoreTipDelegate();
+            {
+                NotifyIcon ni = systrayForm.notifyIconMain;
+                ni.Icon = IdleIcon;
+
+                /*
+                if (silent)
+                    return;
+                */
+
+                //systrayForm.notifyIconMain.Visible = false;
+                if (Gui)
+                    ni.Visible = true;
+            }
         }
 
         static void EnableRestoreMenu(bool enableRestoreDB, bool checkUpgrade)
@@ -317,7 +312,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action) delegate ()
                 {
-                    systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
+                    EnableRestoreMenu(enableRestoreDB, checkUpgrade);
                 });
             else
                 systrayForm.UpdateMenuEnable(enableRestoreDB, checkUpgrade);
@@ -328,7 +323,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action) delegate ()
                 {
-                    systrayForm.EnableSnapshotRestore(enable);
+                    EnableRestoreSnapshotMenu(enable);
                 });
             else
                 systrayForm.EnableSnapshotRestore(enable);
