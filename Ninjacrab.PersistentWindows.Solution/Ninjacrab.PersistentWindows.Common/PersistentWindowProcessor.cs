@@ -2171,11 +2171,10 @@ namespace Ninjacrab.PersistentWindows.Common
                 curDisplayMetrics.WindowId = prevDisplayMetrics.WindowId;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
-                    || prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
+                    && prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
                 {
                     // TODO: GetCoreAppWindow() may fail mysteriously
-                    Log.Error("Invalid entry");
-                    Log.Error("title={0}, process {1} vs {2}, classname {3} vs {4}",
+                    Log.Error("Inconsistent window entry with title={0}, process {1} vs {2}, classname {3} vs {4}",
                         GetWindowTitle(hwnd),
                         prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId,
                         prevDisplayMetrics.ClassName, curDisplayMetrics.ClassName
@@ -2185,6 +2184,16 @@ namespace Ninjacrab.PersistentWindows.Common
                     //EndDisplaySession();
                     //monitorApplications[displayKey].Remove(hwnd);
                     //moved = true;
+                }
+                else if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
+                    && prevDisplayMetrics.ClassName == curDisplayMetrics.ClassName)
+                {
+                    Log.Error("Window title changed from {0} to {1}, process changed from {2} to {3}",
+                        GetWindowTitle(hwnd), curDisplayMetrics.Title,
+                        prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId
+                        );
+                    windowTitle[hwnd] = curDisplayMetrics.Title;
+                    moved = true;
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
