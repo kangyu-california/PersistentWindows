@@ -26,7 +26,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int RestoreLatency = 500; // default delay in milliseconds from display change to window restore
         private const int SlowRestoreLatency = 1000; // delay in milliseconds from power resume to window restore
         private const int MaxRestoreLatency = 2000; // max delay in milliseconds from final restore pass to restore finish
-        private const int MinRestoreTimes = 1; // minimum restore passes
+        private const int MinRestoreTimes = 2; // minimum restore passes
         private const int MaxRestoreTimes = 5; // maximum restore passes
 
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
@@ -2302,7 +2302,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     bool slow_restore = remoteSession && !restoringSnapshot;
                     bool extra_restore = zorderFixed;
                     // force next restore, as Windows OS might not send expected message during restore
-                    if (restoreTimes < (extra_restore ? MaxRestoreTimes : MinRestoreTimes))
+                    if (restoreTimes < (extra_restore ? MaxRestoreTimes : restoringSnapshot ? 1 : MinRestoreTimes))
                         StartRestoreTimer();
                     else
                         StartRestoreFinishedTimer(milliSecond: slow_restore ? MaxRestoreLatency : RestoreLatency);
@@ -2912,7 +2912,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 bool success = true;
-                if (restoreTimes >= MinRestoreTimes || curDisplayMetrics.NeedUpdateWindowPlacement)
+                if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
                     if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun)
