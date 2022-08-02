@@ -11,6 +11,7 @@
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | avoid restore window for process notepad and foo
   | -prompt_session_restore | Upon resuming last session, ask user before restore window layout, this may help to reduce total restore time for remote desktop session on slow internet connection.
+  | -slow_restore | Avoid PW restore finish too soon
   | -halt_restore \<seconds\> | Delay auto restore by specified seconds in case monitor fails to go to sleep due to fast off-on-off switching.
   | -redraw_desktop | redraw whole desktop windows after restore
   | -fix_zorder=1   | Turn on z-order fix for automatic restore
