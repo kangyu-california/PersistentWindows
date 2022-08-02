@@ -230,6 +230,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.hideRestoreTip = HideRestoreTip;
             pwp.enableRestoreMenu = EnableRestoreMenu;
             pwp.enableRestoreSnapshotMenu = EnableRestoreSnapshotMenu;
+            pwp.changeIconText = ChangeIconText;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
             pwp.redirectAppDataFolder = redirect_appdata;
@@ -344,10 +345,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             EnableRestoreSnapshotMenu(true);
         }
 
-        static public void ChangeZorderMethod()
+        static public void ChangeIconText(string text)
         {
-            pwp.fixZorderMethod++;
-            systrayForm.notifyIconMain.Text = $"{Application.ProductName} {Application.ProductVersion} {pwp.fixZorderMethod}";
+            if (systrayForm.contextMenuStripSysTray.InvokeRequired)
+                systrayForm.contextMenuStripSysTray.BeginInvoke((Action) delegate ()
+                {
+                    ChangeIconText(text);
+                });
+            else
+            {
+                if (String.IsNullOrEmpty(text))
+                    text = $"{Application.ProductName} {Application.ProductVersion}";
+                systrayForm.notifyIconMain.Text = text.Substring(0, Math.Min(40, text.Length));
+            }
         }
 
         static public char SnapshotIdToChar(int id)

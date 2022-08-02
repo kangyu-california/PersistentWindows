@@ -138,6 +138,8 @@ namespace Ninjacrab.PersistentWindows.Common
         public CallBackBool enableRestoreSnapshotMenu;
         public delegate void CallBackBool2(bool en, bool en2);
         public CallBackBool2 enableRestoreMenu;
+        public delegate void CallBackStr(string text);
+        public CallBackStr changeIconText;
 
         private PowerModeChangedEventHandler powerModeChangedHandler;
         private EventHandler displaySettingsChangingHandler;
@@ -358,6 +360,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
+                changeIconText(null);
 
                 noRestoreWindowsTmp.Clear();
 
@@ -2879,6 +2882,8 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
                 }
 
+                changeIconText($"Restore {GetWindowTitle(hWnd)}");
+
                 if (!dryRun)
                 {
                     if (prevDisplayMetrics.IsMinimized)
@@ -2988,6 +2993,7 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 try
                 {
+                    changeIconText($"restore zorder");
                     IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<IntPtr>());
                     foreach (var hWnd in sWindows)
                     {
