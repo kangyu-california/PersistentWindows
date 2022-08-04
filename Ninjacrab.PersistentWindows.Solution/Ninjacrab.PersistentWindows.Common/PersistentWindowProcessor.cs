@@ -47,6 +47,8 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
+        private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
+        private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private IntPtr desktopWindow = User32.GetDesktopWindow();
 
         // windows that are not to be restored
@@ -299,6 +301,9 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 int numWindowRestored = restoredWindows.Count;
                 int restorePass = restoreTimes;
+
+                unResponsiveWindows.Clear();
+                noRecordWindows.Clear();
 
                 restoringFromDB = false;
                 restoringFromMem = false;
@@ -2152,6 +2157,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (prevIndex < 0)
                 {
                     Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
+                    noRecordWindows.Add(hwnd);
+
                     if (restoringFromMem && monitorApplications[displayKey][hwnd].Count < 2)
                     {
                         //the window did not exist when snapshot was taken
@@ -2853,6 +2860,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (User32.IsHungAppWindow(hWnd))
                 {
                     Log.Error("avoid restore unresponsive window {0}", GetWindowTitle(hWnd));
+                    unResponsiveWindows.Add(hWnd);
                     continue;
                 }
 
@@ -2991,6 +2999,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (AllowRestoreZorder() && batchZorderFix)
             {
+                HashSet<IntPtr> risky_windows = unResponsiveWindows;
+                risky_windows.IntersectWith(noRecordWindows);
+                if (risky_windows.Count == 0)
                 try
                 {
                     changeIconText($"restore zorder");
