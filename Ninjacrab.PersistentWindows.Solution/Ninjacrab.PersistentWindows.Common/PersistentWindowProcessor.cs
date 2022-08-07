@@ -80,6 +80,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
+        public bool fullScreenGamingMode = false;
 
         // restore control
         private Timer restoreTimer;
@@ -322,16 +323,9 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("Restore aborted for {0}", curDisplayKey);
 
                     curDisplayKey = displayKey;
-                    if (normalSessions.Contains(curDisplayKey))
+                    if (fullScreenGamingMode || !normalSessions.Contains(curDisplayKey))
                     {
-                        // do restore again, while keeping previous capture time unchanged
-                        Log.Event("Restart restore for {0}", curDisplayKey);
-                        restoringFromMem = true;
-                        StartRestoreTimer();
-                        return;
-                    }
-                    else
-                    {
+                        fullScreenGamingMode = false;
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
                         checkUpgrade = false;
 
@@ -339,6 +333,14 @@ namespace Ninjacrab.PersistentWindows.Common
                         hideRestoreTip();
                         iconBusy = false;
                         sessionActive = true;
+                    }
+                    else
+                    {
+                        // do restore again, while keeping previous capture time unchanged
+                        Log.Event("Restart restore for {0}", curDisplayKey);
+                        restoringFromMem = true;
+                        StartRestoreTimer();
+                        return;
                     }
                 }
                 else
@@ -500,7 +502,15 @@ namespace Ninjacrab.PersistentWindows.Common
                                 windowActiveCnt[curDisplayKey] = 0;
 
                             // change display on the fly
-                            if (normalSessions.Contains(displayKey))
+                            Shell32.QUERY_USER_NOTIFICATION_STATE pquns;
+                            int error = Shell32.SHQueryUserNotificationState(out pquns);
+                            if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
+                            {
+                                fullScreenGamingMode = true;
+                                Log.Event($"enter full-screen gaming mode {displayKey}");
+                                StartRestoreFinishedTimer(0);
+                            }
+                            else if (normalSessions.Contains(displayKey))
                             {
                                 curDisplayKey = displayKey;
                                 if (promptSessionRestore)
