@@ -40,7 +40,8 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Known issues
  - **A PC reboot triggered by Windows feature/security upgrade has recently caused PW icon to disappear, please add PW command option "-delay_start 10" in task scheduler and reboot again**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
-- **PW may stuck at busy status when restoring previous layout if the window being restored suddenly becomes unresponsive. You may find out the culprit window in Task Manager by using "analyze wait chain" as follows **
+- **PW may stuck at busy status during restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "analyze wait chain". The unresponsive app might need a immediate hot-upgrade, or need be killed to let PW proceed**
+
 ![image](https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png)
 
 - **Some Windows built-in apps (such as Sticky Notes) can not be simply launched (when restore from disk), user need to manually launch them**
