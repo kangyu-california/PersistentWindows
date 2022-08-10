@@ -40,10 +40,12 @@ this tool and not have to worry about re-arranging when all is back to normal.
 # Known issues
  - **A PC reboot triggered by Windows feature/security upgrade has recently caused PW icon to disappear, please add PW command option "-delay_start 10" in task scheduler and reboot again**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
-- **PW may stuck at busy status when restoring previous layout if your running Microsoft Visual Studio Code window has a pending update mark. The root cause is unknown, simply proceed to update VScode will let PW resume to normal again.** 
+- **PW may stuck at busy status when restoring previous layout if the window being restored suddenly becomes unresponsive. You may find out the culprit window in Task Manager by using "analyze wait chain" as follows **
+![image](https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png)
+
 - **Some Windows built-in apps (such as Sticky Notes) can not be simply launched (when restore from disk), user need to manually launch them**
 
 # Tips to digest before reporting a bug
-- Window z-order can be restored in addition to two-dementional layout. This feature is is enabled for snapshot restore only.
+- Window z-order can be restored in addition to two-dementional layout. This feature is enabled for snapshot restore only.
 - To help me diagnose a bug, please run Event Viewer, locate to "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy paste the content of these events to new issue report.
 
