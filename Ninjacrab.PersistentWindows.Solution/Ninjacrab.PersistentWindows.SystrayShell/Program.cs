@@ -176,7 +176,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             string appDataFolder = redirect_appdata ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     productName);
-#if DEBUG
+#if VERBOSE_DEBUG
             //avoid db path conflict with release version
             //appDataFolder = ".";
             appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
