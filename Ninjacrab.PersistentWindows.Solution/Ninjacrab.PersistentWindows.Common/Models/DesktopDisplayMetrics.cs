@@ -24,6 +24,12 @@ namespace Ninjacrab.PersistentWindows.Common.Models
                         return dp1.Position.Top.CompareTo(dp2.Position.Top);
                     }
 
+                    if (dp1.Position.Width != dp2.Position.Width)
+                        return dp1.Position.Width.CompareTo(dp2.Position.Width);
+
+                    if (dp1.Position.Height != dp2.Position.Height)
+                        return dp1.Position.Height.CompareTo(dp2.Position.Height);
+
                     return 0;
                 }
             );
