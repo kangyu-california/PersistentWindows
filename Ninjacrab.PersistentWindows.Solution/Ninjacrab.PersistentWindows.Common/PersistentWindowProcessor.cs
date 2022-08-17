@@ -1375,19 +1375,19 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void RemoveInvalidCapture()
         {
-                if (monitorApplications.ContainsKey(curDisplayKey))
+            if (monitorApplications.ContainsKey(curDisplayKey))
+            {
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
-                    foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                    for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
                     {
-                        for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
+                        if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
                         {
-                            if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
-                            {
-                                monitorApplications[curDisplayKey][hwnd].RemoveAt(i);
-                            }
+                            monitorApplications[curDisplayKey][hwnd].RemoveAt(i);
                         }
                     }
                 }
+            }
         }
 
         public bool TakeSnapshot(int snapshotId)
