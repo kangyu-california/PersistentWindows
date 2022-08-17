@@ -1894,7 +1894,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 StartCaptureTimer();
                 Log.Trace("defer capture");
             }
-            else // lock(databaseLock)
+            else lock(restoreLock)
             {
                 var appWindows = CaptureWindowsOfInterest();
                 DateTime now = DateTime.Now;
