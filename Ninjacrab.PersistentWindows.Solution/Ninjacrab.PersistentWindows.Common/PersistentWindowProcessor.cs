@@ -157,7 +157,7 @@ namespace Ninjacrab.PersistentWindows.Common
         // running thread
         private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
-#if VERBOSE_DEBUG
+#if DEBUG
         private void DebugInterval()
         {
             ;
@@ -174,7 +174,7 @@ namespace Ninjacrab.PersistentWindows.Common
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
 
-#if VERBOSE_DEBUG
+#if DEBUG
             //avoid db path conflict with release version
             //appDataFolder = ".";
             appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
@@ -227,7 +227,7 @@ namespace Ninjacrab.PersistentWindows.Common
             curDisplayKey = GetDisplayKey();
             CaptureNewDisplayConfig(curDisplayKey);
 
-#if VERBOSE_DEBUG
+#if DEBUG
             //TestSetWindowPos();
 
             var debugTimer = new Timer(state =>
@@ -1179,7 +1179,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
-#if VERBOSE_DEBUG
+#if DEBUG
                 RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
                 if (title.Contains("Microsoft Visual Studio")
@@ -1645,7 +1645,7 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-#if VERBOSE_DEBUG
+#if DEBUG
                 string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} visible:{6} minimized:{7}",
                     curDisplayMetrics,
                     curDisplayMetrics.ScreenPosition.Left,
@@ -2716,7 +2716,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
-#if VERBOSE_DEBUG
+#if DEBUG
                 if (choice != null)
                     Log.Trace("restore window position with matching process name {0}", choice.ProcessName);
 #endif
@@ -2875,7 +2875,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-#if VERBOSE_DEBUG
+#if DEBUG
                 var process = GetProcess(hWnd);
                 if (!process.Responding)
                     continue;
@@ -2955,7 +2955,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
-#if VERBOSE_DEBUG
+#if DEBUG
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         process.ProcessName,
                         windowPlacement.NormalPosition.Left,
@@ -2985,7 +2985,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                     restoredWindows.Add(hWnd);
 
-#if VERBOSE_DEBUG
+#if DEBUG
                     Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         process.ProcessName,
                         rect.Left,
