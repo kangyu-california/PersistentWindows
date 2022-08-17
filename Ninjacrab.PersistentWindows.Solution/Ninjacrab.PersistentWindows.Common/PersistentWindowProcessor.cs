@@ -1375,6 +1375,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void RemoveInvalidCapture()
         {
+            if (restoringSnapshot || restoringFromDB)
+                return;
+
             if (monitorApplications.ContainsKey(curDisplayKey))
             {
                 foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
