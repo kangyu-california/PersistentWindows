@@ -21,8 +21,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Installation
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
-- Unzip the file into any directory
-- It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
+- Unzip the file into any directory.
+    * Note, the program can be run from any directory, but the program saves its data in `C:\Users\[User]\AppData\Local\PersistentWindows`
+- It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows when a user logs on.
   - Make sure to select `Run only when user is logged on`, and disable `Stop the task if it runs longer than (3 days)` in the task property settings.
   - Specify the command option `-delay_start 10` in the Edit Action dialog to avoid startup failures after Windows upgrades
 
