@@ -31,9 +31,13 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Run PersistentWindows.exe as normal user, a splash window will pop up, indicating the program has started successfully. 
 - PersistentWindows minimizes itself as an icon in the systray area on task bar.
 - In taskbar settings, turn on PW to let the icon always appear on taskbar, the icon will change to red color during restore, providing visual hint to user to avoid maneuver window
-  ![taskbar setting](showicon.png)
+
+  <img src="showicon.png" alt="taskbar setting" width="250" />
+
 - To help restoring taskbar window, make sure taskbar is unlocked (i.e. it can be dragged using mouse), also please do NOT move mouse during window recovery.
-![image](https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png)
+
+  <img src="https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png" alt="image" width="350"/>
+
 - Check menu every month for software upgrade notice.
 
 ## Known Issues
@@ -41,7 +45,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with admin privilege to fully recover window layout. There is an option to "Run with highest priviledges" when you create auto start PersistentWindows task in Task Scheduler.
 - **PW may stuck at busy status during restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "analyze wait chain". The unresponsive app might need a immediate hot-upgrade, or need be killed to let PW proceed**
 
-![image](https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png)
+  <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="350"/>
 
 - **Some Windows built-in apps (such as Sticky Notes) can not be simply launched (when restore from disk), user need to manually launch them**
 
