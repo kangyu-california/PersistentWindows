@@ -1,6 +1,5 @@
 # PersistentWindows
-The code is forked from http://www.ninjacrab.com/persistent-windows/ to solve a long-standing issue on Windows 7/10.
-https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1
+The code is forked from [ninjacrab.com/persistent-windows](http://www.ninjacrab.com/persistent-windows/) to solve a long-standing [issue](https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1) on Windows 7/10.
 
 ## Original Description
 > What is PersistentWindows?
@@ -20,7 +19,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Support automatic upgrade.
 
 ## Installation
-- Download the latest PersistentWindows*.zip file from https://github.com/kangyu-california/PersistentWindows/releases
+- Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory
 - It is highly recommended to create a task in Task Scheduler to automatically start PersistentWindows triggered by user log on.
   - **Make sure to select "Run only when user is logged on", and disable "Stop the task if it runs longer than (3 days)" in task property settings.**
