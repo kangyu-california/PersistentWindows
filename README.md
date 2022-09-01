@@ -49,6 +49,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - **PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed**
 
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="350"/>
+  <img src="https://user-images.githubusercontent.com/59128756/187988981-b2564618-2724-4e1e-a718-cd0786a4251e.png" alt="wait chain" width="350"/>
 
 - **Some Windows built-in apps (such as Sticky Notes) cannot be easily launched when restoring from disk. The user needs to manually launch them**
 
