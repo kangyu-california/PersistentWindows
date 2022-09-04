@@ -1946,6 +1946,22 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
                 }
 
+                if (remoteSession && movedWindows > 0)
+                {
+                    int minimized_windows = 0;
+                    foreach (var hwnd in appWindows)
+                    {
+                        if (IsMinimized(hwnd))
+                            ++minimized_windows;
+                    }
+
+                    if (minimized_windows * 100 / movedWindows >= 80)
+                    {
+                        Log.Error("suspicious massive window minimization, postpone recognition as user move");
+                        return;
+                    }
+                }
+
                 if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
