@@ -1955,7 +1955,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             ++minimized_windows;
                     }
 
-                    if (minimized_windows * 100 / movedWindows >= 80)
+                    if (minimized_windows >= MaxUserMoves && minimized_windows * 100 / movedWindows >= 80)
                     {
                         Log.Error("suspicious massive window minimization, postpone recognition as user move");
                         return;
