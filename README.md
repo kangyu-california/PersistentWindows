@@ -57,5 +57,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Tips To Digest Before Reporting A Bug
 - The window z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
-- To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report.
+- To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report, as shown in following example
+<img src="https://user-images.githubusercontent.com/59128756/190280503-a96ce57f-a6f0-4aad-9748-221bbb4f9207.png" alt="image" width="800"/>
 
