@@ -252,14 +252,17 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
+        private void Exit()
+        {
+            //this.notifyIconMain.Visible = false;
+            //this.notifyIconMain.Icon = null;
+            Application.Exit();
+        }
         private void Upgrade()
         {
             string batFile = Path.Combine(Program.AppdataFolder, "pw_upgrade.bat");
             Process.Start(batFile);
-
-            this.notifyIconMain.Visible = false;
-            this.notifyIconMain.Icon = null;
-            Application.Exit();
+            Exit();
         }
 
         private void CaptureWindowClickHandler(object sender, EventArgs e)
@@ -337,9 +340,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
-            this.notifyIconMain.Visible = false;
-            this.notifyIconMain.Icon = null;
-            Application.Exit();
+            Exit();
         }
 
         private void IconMouseClick(object sender, MouseEventArgs e)
