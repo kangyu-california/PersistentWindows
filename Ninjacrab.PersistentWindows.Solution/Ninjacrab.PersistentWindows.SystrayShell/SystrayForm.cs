@@ -8,6 +8,7 @@ using System.IO;
 using System.IO.Compression;
 
 using Ninjacrab.PersistentWindows.Common;
+using Ninjacrab.PersistentWindows.Common.Diagnostics;
 using Ninjacrab.PersistentWindows.Common.WinApiBridge;
 
 namespace Ninjacrab.PersistentWindows.SystrayShell
@@ -256,6 +257,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             //this.notifyIconMain.Visible = false;
             //this.notifyIconMain.Icon = null;
+            Log.Exit();
             Application.Exit();
         }
         private void Upgrade()

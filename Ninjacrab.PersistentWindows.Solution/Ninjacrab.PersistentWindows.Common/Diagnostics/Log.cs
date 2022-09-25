@@ -24,6 +24,11 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
             File.Delete(fileName);
         }
 
+        public static void Exit()
+        {
+            eventLog.Close();
+        }
+
         /// <summary>
         /// Occurs when something is logged. STATIC EVENT!
         /// </summary>
