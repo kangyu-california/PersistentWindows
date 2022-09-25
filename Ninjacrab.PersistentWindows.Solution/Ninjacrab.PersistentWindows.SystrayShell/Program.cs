@@ -31,6 +31,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         [STAThread]
         static void Main(string[] args)
         {
+            LogInit();
+
             bool splash = true;
             int delay_start = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
@@ -100,7 +102,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         ignore_process = "_foo_";
                         break;
                     case "-show_desktop_when_display_changes":
-                        LogEvent("show desktop = 1");
                         show_desktop = true;
                         break;
                     case "-enhanced_offscreen_fix":
@@ -502,9 +503,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
         }
 
-        public static void LogEvent(string format, params object[] args)
+        public static void LogInit()
         {
-            Log.Event(format, args);
+            Log.Init();
         }
 
         public static void LogError(string format, params object[] args)

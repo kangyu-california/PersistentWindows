@@ -8,7 +8,7 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
     {
         static EventLog eventLog;
         public static bool silent = false;
-        static Log()
+        public static void Init()
         {
             eventLog = new EventLog("Application");
             //eventLog.Source = System.Windows.Forms.Application.ProductName;
