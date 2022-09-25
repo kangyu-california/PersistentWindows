@@ -31,7 +31,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         [STAThread]
         static void Main(string[] args)
         {
-            LogInit();
+            Log.Init();
 
             bool splash = true;
             int delay_start = 0;
@@ -501,11 +501,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     pwp.processCmd[processId] = fields[1];
                 }
             }
-        }
-
-        public static void LogInit()
-        {
-            Log.Init();
         }
 
         public static void LogError(string format, params object[] args)

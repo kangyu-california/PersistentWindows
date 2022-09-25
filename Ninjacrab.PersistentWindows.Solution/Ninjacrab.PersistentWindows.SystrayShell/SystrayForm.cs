@@ -255,7 +255,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void Exit()
         {
-            //this.notifyIconMain.Visible = false;
+#if DEBUG
+            this.notifyIconMain.Visible = false;
+#endif
             //this.notifyIconMain.Icon = null;
             Log.Exit();
             Application.Exit();
