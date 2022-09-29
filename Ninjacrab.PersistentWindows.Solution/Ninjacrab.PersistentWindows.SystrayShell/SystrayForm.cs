@@ -28,7 +28,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         public bool autoUpgrade = false;
 
         private int shiftKeyPressed = 0;
-        private int controlKeyPressed = 0;
         private int altKeyPressed = 0;
         private int clickCount = 0;
         private bool firstClick = false;
@@ -91,31 +90,21 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 }
             }
 
-            int totalSpecialKeyPressed = shiftKeyPressed + controlKeyPressed + altKeyPressed;
+            int totalSpecialKeyPressed = shiftKeyPressed + altKeyPressed;
 
-            if (clickCount > 3)
+            if (clickCount > 2)
             {
             }
             else if (totalSpecialKeyPressed > clickCount)
             {
                 //no more than one key can be pressed
             }
-            else if (shiftKeyPressed == clickCount && shiftKeyPressed != 0)
-            {
-                // take counted snapshot
-                Program.CaptureSnapshot(clickCount);
-            }
-            else if (controlKeyPressed == clickCount && controlKeyPressed != 0)
-            {
-                //restore counted snapshot
-                Program.RestoreSnapshot(clickCount);
-            }
             else if (altKeyPressed == clickCount && altKeyPressed != 0)
             {
                 //restore previous workspace (not necessarily a snapshot)
                 Program.RestoreSnapshot(36); //MaxSnapShot - 1
             }
-            else if (totalSpecialKeyPressed == 0)
+            else
             {
                 if (keyPressed < 0)
                 {
@@ -123,7 +112,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         //restore unnamed(default) snapshot
                         Program.RestoreSnapshot(0);
                     else if (clickCount == 2 && firstClick && doubleClick)
-                        Program.CaptureSnapshot(0);
+                        Program.CaptureSnapshot(0, delayCapture: shiftKeyPressed > 0);
                 }
                 else
                 {
@@ -143,7 +132,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     }
                     else if (clickCount == 2 && firstClick && doubleClick)
                     {
-                        Program.CaptureSnapshot(snapshot);
+                        Program.CaptureSnapshot(snapshot, delayCapture: shiftKeyPressed > 0);
                     }
                 }
             }
@@ -152,7 +141,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             doubleClick = false;
             firstClick = false;
             shiftKeyPressed = 0;
-            controlKeyPressed = 0;
             altKeyPressed = 0;
 
         }
@@ -282,10 +270,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         private void CaptureSnapshotClickHandler(object sender, EventArgs e)
         {
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
             char snapshot_char = Program.EnterSnapshotName();
             int id = Program.SnapshotCharToId(snapshot_char);
             if (id != -1)
-                Program.CaptureSnapshot(id, prompt : false);
+                Program.CaptureSnapshot(id, prompt : false, delayCapture: shift_key_pressed);
         }
 
         private void RestoreSnapshotClickHandler(object sender, EventArgs e)
@@ -394,9 +383,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
-
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0)
-                    controlKeyPressed++;
 
                 if ((User32.GetKeyState(0x12) & 0x8000) != 0)
                     altKeyPressed++;

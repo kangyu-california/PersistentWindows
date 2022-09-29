@@ -27,6 +27,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static SystrayForm systrayForm = null;
         static bool silent = false; //suppress all balloon tip & sound prompt
         static bool notification = false; //pop balloon when auto restore
+        static int delay_capture_ms = 5000;
 
         [STAThread]
         static void Main(string[] args)
@@ -35,6 +36,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             bool splash = true;
             int delay_start = 0;
+            int delay_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             bool slow_restore = false;
@@ -71,6 +73,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     Thread.Sleep(Int32.Parse(arg) * 1000);
                     continue;
                 }
+                else if (delay_capture != 0)
+                {
+                    delay_capture = 0;
+                    delay_capture_ms = Int32.Parse(arg) * 1000;
+                    continue;
+                }
                 else if (ignore_process.Length > 0)
                 {
                     ignore_process = arg;
@@ -94,6 +102,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-delay_start":
                         delay_start = 1;
+                        break;
+                    case "-delay_capture":
+                        delay_capture = 1;
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
@@ -331,8 +342,11 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 systrayForm.EnableSnapshotRestore(enable);
         }
 
-        static public void CaptureSnapshot(int id, bool prompt = true)
+        static public void CaptureSnapshot(int id, bool prompt = true, bool delayCapture = false)
         {
+            if (delayCapture)
+                Thread.Sleep(delay_capture_ms);
+
             if (!pwp.TakeSnapshot(id))
                 return;
 
@@ -423,11 +437,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
         static public void CaptureToDisk()
         {
+            //shift key pressed, delay capture
+            bool delay_capture = false;
+            if ((User32.GetKeyState(0x10) & 0x8000) != 0)
+                delay_capture = true;
+
             pwp.dbDisplayKey = pwp.GetDisplayKey();
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
                 pwp.dbDisplayKey += EnterDbEntryName();
             }
+
+            if (delay_capture)
+                Thread.Sleep(delay_capture_ms);
 
             GetProcessInfo();
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
