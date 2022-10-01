@@ -72,7 +72,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
-        private Dictionary<string, int> windowActiveCnt = new Dictionary<string, int>();
         private bool userMove = false; //received window event due to user move
         private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
@@ -499,10 +498,6 @@ namespace Ninjacrab.PersistentWindows.Common
                             if (showDesktop)
                                 ShowDesktop();
 
-                            // reset foreground window counter for gaming mode
-                            if (windowActiveCnt.ContainsKey(curDisplayKey))
-                                windowActiveCnt[curDisplayKey] = 0;
-
                             // change display on the fly
                             Shell32.QUERY_USER_NOTIFICATION_STATE pquns;
                             int error = Shell32.SHQueryUserNotificationState(out pquns);
@@ -870,18 +865,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (User32.IsWindow(hwnd))
                             ActivateWindow(hwnd);
-                    }
-
-                    if (pendingWindows.Count > 0)
-                    {
-                        if (!windowActiveCnt.ContainsKey(curDisplayKey))
-                            windowActiveCnt.Add(curDisplayKey, 0);
-                        windowActiveCnt[curDisplayKey]++;
-                        if (windowActiveCnt[curDisplayKey] >= 2)
-                        {
-                            normalSessions.Add(curDisplayKey);
-                            Log.Trace("normal session {0} due to active count {1}", curDisplayKey, windowActiveCnt[curDisplayKey]);
-                        }
                     }
 
                     pendingActivateWindows.Clear();
