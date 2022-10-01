@@ -71,7 +71,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
-        private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         private bool userMove = false; //received window event due to user move
         private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
@@ -324,7 +323,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     Log.Trace("Restore aborted for {0}", curDisplayKey);
 
                     curDisplayKey = displayKey;
-                    if (fullScreenGamingMode || !normalSessions.Contains(curDisplayKey))
+                    if (fullScreenGamingMode)
                     {
                         fullScreenGamingMode = false;
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
@@ -507,7 +506,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                 Log.Event($"enter full-screen gaming mode {displayKey}");
                                 StartRestoreFinishedTimer(0);
                             }
-                            else if (normalSessions.Contains(displayKey))
+                            else
                             {
                                 curDisplayKey = displayKey;
                                 if (promptSessionRestore)
@@ -516,11 +515,6 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                                 restoringFromMem = true;
                                 StartRestoreTimer();
-                            }
-                            else
-                            {
-                                //Log.Error($"No need to restore {curDisplayKey} display session");
-                                StartRestoreFinishedTimer(0);
                             }
                         }
                     }
@@ -615,8 +609,6 @@ namespace Ninjacrab.PersistentWindows.Common
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
                 enableRestoreMenu(db_exist, true);
-                if (db_exist)
-                    normalSessions.Add(curDisplayKey);
                 if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
@@ -792,11 +784,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private void FixOffScreenWindow(IntPtr hwnd)
         {
             var displayKey = GetDisplayKey();
-            if (!normalSessions.Contains(displayKey))
-            {
-                Log.Error("Avoid recover invisible window \"{0}\"", GetWindowTitle(hwnd));
-                return;
-            }
 
             if (deadApps.ContainsKey(curDisplayKey))
             {
@@ -964,7 +951,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             }
                         }
 
-                        if (isNewWindow && IsOffScreen(hwnd) && normalSessions.Contains(curDisplayKey))
+                        if (isNewWindow && IsOffScreen(hwnd))
                         {
                             FixOffScreenWindow(hwnd);
                         }
@@ -1412,8 +1399,6 @@ namespace Ninjacrab.PersistentWindows.Common
             if (String.IsNullOrEmpty(curDisplayKey))
                 return false;
 
-            normalSessions.Add(curDisplayKey);
-
             if (restoringSnapshot)
             {
                 Log.Error("wait for snapshot {0} restore to finish", snapshotId);
@@ -1775,7 +1760,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (userMovePrev)
                 {
-                    normalSessions.Add(curDisplayKey);
                     Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
                 }
 
@@ -1790,7 +1774,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
-            normalSessions.Add(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
         }
 
@@ -2297,9 +2280,6 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (!restoringFromMem && !restoringFromDB)
                 return;
-
-            if (restoringFromDB || restoringSnapshot)
-                normalSessions.Add(curDisplayKey);
 
             Log.Trace("Restore timer expired");
 
