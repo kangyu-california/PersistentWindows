@@ -36,7 +36,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
 
             bool splash = true;
             int delay_start = 0;
-            int delay_capture = 0;
+            int delay_manual_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             bool slow_restore = false;
@@ -73,9 +73,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     Thread.Sleep(Int32.Parse(arg) * 1000);
                     continue;
                 }
-                else if (delay_capture != 0)
+                else if (delay_manual_capture != 0)
                 {
-                    delay_capture = 0;
+                    delay_manual_capture = 0;
                     delay_capture_ms = Int32.Parse(arg) * 1000;
                     continue;
                 }
@@ -103,8 +103,8 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-delay_start":
                         delay_start = 1;
                         break;
-                    case "-delay_capture":
-                        delay_capture = 1;
+                    case "-delay_manual_capture":
+                        delay_manual_capture = 1;
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
