@@ -29,6 +29,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MinRestoreTimes = 2; // minimum restore passes
         private const int MaxRestoreTimes = 5; // maximum restore passes
 
+        public int UserForcedCaptureLatency = 0;
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
@@ -1701,6 +1702,12 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
+            if (UserForcedCaptureLatency > 0)
+            {
+                captureTimer.Change(UserForcedCaptureLatency, Timeout.Infinite);
+                return;
+            }
+
             // ignore defer timer request to capture user move ASAP
             if (userMove)
                 return; //assuming timer has already started

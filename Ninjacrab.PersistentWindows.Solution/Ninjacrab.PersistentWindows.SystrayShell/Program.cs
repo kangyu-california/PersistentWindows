@@ -27,21 +27,23 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static SystrayForm systrayForm = null;
         static bool silent = false; //suppress all balloon tip & sound prompt
         static bool notification = false; //pop balloon when auto restore
-        static int delay_capture_ms = 5000;
+        static int delay_manual_capture_ms = 5000;
 
         [STAThread]
         static void Main(string[] args)
         {
             Log.Init();
 
+            pwp = new PersistentWindowProcessor();
+
             bool splash = true;
             int delay_start = 0;
             int delay_manual_capture = 0;
+            int delay_auto_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             bool slow_restore = false;
-            int  halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
-            bool halt_restore_specified = false;
+            int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
@@ -61,10 +63,10 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 CmdArgs += arg + " ";
 
-                if (halt_restore_specified)
+                if (halt_restore > 1)
                 {
-                    halt_restore_specified = false;
-                    halt_restore = Int32.Parse(arg);
+                    halt_restore = 0;
+                    pwp.haltRestore = Int32.Parse(arg);
                     continue;
                 }
                 else if (delay_start != 0)
@@ -76,12 +78,19 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 else if (delay_manual_capture != 0)
                 {
                     delay_manual_capture = 0;
-                    delay_capture_ms = Int32.Parse(arg) * 1000;
+                    delay_manual_capture_ms = Int32.Parse(arg) * 1000;
+                    continue;
+                }
+                else if (delay_auto_capture != 0)
+                {
+                    delay_auto_capture = 0;
+                    pwp.UserForcedCaptureLatency = Int32.Parse(arg) * 1000;
                     continue;
                 }
                 else if (ignore_process.Length > 0)
                 {
-                    ignore_process = arg;
+                    ignore_process = "";
+                    pwp.SetIgnoreProcess(arg);
                     continue;
                 }
 
@@ -105,6 +114,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-delay_manual_capture":
                         delay_manual_capture = 1;
+                        break;
+                    case "-delay_auto_capture":
+                        delay_auto_capture = 1;
                         break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
@@ -137,7 +149,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         slow_restore = true;
                         break;
                     case "-halt_restore":
-                        halt_restore_specified = true;
+                        halt_restore = 1;
                         break;
                     case "-notification_on":
                     case "-notification=1":
@@ -223,7 +235,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             else
                 systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
-            pwp = new PersistentWindowProcessor();
             pwp.icon = IdleIcon;
             pwp.dryRun = dry_run;
             if (fix_zorder_specified)
@@ -252,7 +263,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.launchOncePerProcessId = launch_once_per_process_id;
-            pwp.haltRestore = halt_restore;
             pwp.slowRestore = slow_restore;
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
@@ -345,7 +355,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void CaptureSnapshot(int id, bool prompt = true, bool delayCapture = false)
         {
             if (delayCapture)
-                Thread.Sleep(delay_capture_ms);
+                Thread.Sleep(delay_manual_capture_ms);
 
             if (!pwp.TakeSnapshot(id))
                 return;
@@ -449,7 +459,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             }
 
             if (delay_capture)
-                Thread.Sleep(delay_capture_ms);
+                Thread.Sleep(delay_manual_capture_ms);
 
             GetProcessInfo();
             pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
