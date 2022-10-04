@@ -2947,6 +2947,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         RestoreZorder(hWnd, prevDisplayMetrics.PrevZorderWindow);
                 }
 
+                bool restore_minimized_to_fullscreen = false;
                 bool success = true;
                 if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
@@ -2960,18 +2961,27 @@ namespace Ninjacrab.PersistentWindows.Common
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
-                    else if (restoreTimes == 0 && prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
+                    else if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
-                        windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
-                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        if (IsMinimized(hWnd))
+                        {
+                            restore_minimized_to_fullscreen = true;
+                            User32.ShowWindow(hWnd, User32.SW_NORMAL);
+                        }
+                        else
+                        {
+                            windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
+                            User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                            windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
+                        }
                     }
 
-                    if (!dryRun)
+                    if (!dryRun && !restore_minimized_to_fullscreen)
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
+
 #if DEBUG
                     Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                         process.ProcessName,
@@ -2986,7 +2996,8 @@ namespace Ninjacrab.PersistentWindows.Common
                 // recover previous screen position
                 if (!dryRun)
                 {
-                    success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                    if (!restore_minimized_to_fullscreen)
+                        success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                     if (prevDisplayMetrics.IsFullScreen && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !prevDisplayMetrics.IsMinimized)
                     {
                         RestoreFullScreenWindow(hWnd, prevDisplayMetrics.ScreenPosition);

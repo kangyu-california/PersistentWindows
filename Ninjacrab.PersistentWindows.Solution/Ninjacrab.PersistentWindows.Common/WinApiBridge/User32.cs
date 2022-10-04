@@ -374,8 +374,10 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ShowWindowAsync(IntPtr hWnd, int cmd);
 
-        public const int SW_SHOWMINNOACTIVE = 7;
+        public const int SW_NORMAL = 1;
         public const int SW_SHOW = 5;
+        public const int SW_SHOWMINNOACTIVE = 7;
+        public const int SW_RESTORE = 9;
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
