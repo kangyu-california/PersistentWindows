@@ -2272,6 +2272,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
+                    //minimize start
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
 
@@ -2283,8 +2284,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     // no need to save z-order as unminimize always bring window to top
                     return true;
                 }
+                else if (!curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
+                {
+                    //minimize end
+                    return true;
+                }
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
+                    //remain minimized
                     return false;
                 }
                 else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
