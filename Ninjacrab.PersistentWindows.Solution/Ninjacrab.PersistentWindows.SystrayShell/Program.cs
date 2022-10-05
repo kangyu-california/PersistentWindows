@@ -45,6 +45,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool slow_restore = false;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
+            int debug_process = 0;
             bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
@@ -87,6 +88,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     pwp.UserForcedCaptureLatency = Int32.Parse(arg) * 1000;
                     continue;
                 }
+                else if (debug_process != 0)
+                {
+                    debug_process = 0;
+                    pwp.debugProcess = Int32.Parse(arg);
+                    continue;
+                }
                 else if (ignore_process.Length > 0)
                 {
                     ignore_process = "";
@@ -123,6 +130,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-ignore_process":
                         ignore_process = "_foo_";
+                        break;
+                    case "-debug_process":
+                        debug_process = 1;
                         break;
                     case "-show_desktop_when_display_changes":
                         show_desktop = true;
@@ -352,22 +362,25 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 systrayForm.EnableSnapshotRestore(enable);
         }
 
+        static System.Threading.Timer snapshot_timer; 
         static public void CaptureSnapshot(int id, bool prompt = true, bool delayCapture = false)
         {
-            if (delayCapture)
-                Thread.Sleep(delay_manual_capture_ms);
-
-            if (!pwp.TakeSnapshot(id))
-                return;
-
-            if (!silent)
+            snapshot_timer = new System.Threading.Timer(state =>
             {
-                char c = SnapshotIdToChar(id);
-                if (prompt)
-                    systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
-            }
+                if (!pwp.TakeSnapshot(id))
+                    return;
 
-            EnableRestoreSnapshotMenu(true);
+                if (!silent)
+                {
+                    char c = SnapshotIdToChar(id);
+                    if (prompt)
+                        systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
+                }
+
+                EnableRestoreSnapshotMenu(true);
+            });
+
+            snapshot_timer.Change(delayCapture ? delay_manual_capture_ms : 0, Timeout.Infinite);
         }
 
         static public void ChangeIconText(string text)

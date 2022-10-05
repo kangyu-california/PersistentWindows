@@ -113,6 +113,8 @@ namespace Ninjacrab.PersistentWindows.Common
             };
 
         private HashSet<string> ignoreProcess = new HashSet<string>();
+        public int debugProcess = 0;
+        private IntPtr debugWindow = IntPtr.Zero;
 
         private Dictionary<IntPtr, string> windowProcess = new Dictionary<IntPtr, string>();
 
@@ -1137,8 +1139,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
 
             /* need invisible window event to detect session cut-off
-            // only track visible windows
-            if (!window.Visible)
+            if (!User32.IsWindowVisible(hwnd))
             {
                 return;
             }
@@ -1179,31 +1180,37 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
             }
 
+            if (debugWindow != IntPtr.Zero && hwnd != debugWindow)
+            {
+                return;
+            }
+
             try
             {
-#if DEBUG
-                RECT screenPosition = new RECT();
-                User32.GetWindowRect(hwnd, ref screenPosition);
-                if (title.Contains("Microsoft Visual Studio")
-                    && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
-                        || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
+                if (hwnd == debugWindow)
                 {
-                    return;
+                    RECT screenPosition = new RECT();
+                    User32.GetWindowRect(hwnd, ref screenPosition);
+                    if (title.Contains("Microsoft Visual Studio")
+                        && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
+                            || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
+                    {
+                        return;
+                    }
+
+                    Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
+
+                    var process = GetProcess(hwnd);
+                    string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
+                        (process == null) ? "" : process.ProcessName,
+                        screenPosition.Left,
+                        screenPosition.Top,
+                        screenPosition.Width,
+                        screenPosition.Height,
+                        title
+                        );
+                    Log.Trace(log);
                 }
-
-                Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
-
-                var process = GetProcess(hwnd);
-                string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
-                    (process == null) ? "" : process.ProcessName,
-                    screenPosition.Left,
-                    screenPosition.Top,
-                    screenPosition.Width,
-                    screenPosition.Height,
-                    title
-                    );
-                Log.Trace(log);
-#endif
 
                 if (restoringFromMem)
                 {
@@ -1601,6 +1608,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 return 0;
             }
 
+            /*
+            if (IsMinimized(prev))
+                return 0;
+            */
+
             bool nonTopMost = false;
             if (IsTaskBar(prev))
             {
@@ -1645,27 +1657,29 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-#if DEBUG
-                string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} visible:{6} minimized:{7}",
-                    curDisplayMetrics,
-                    curDisplayMetrics.ScreenPosition.Left,
-                    curDisplayMetrics.ScreenPosition.Top,
-                    curDisplayMetrics.ScreenPosition.Width,
-                    curDisplayMetrics.ScreenPosition.Height,
-                    curDisplayMetrics.Title,
-                    User32.IsWindowVisible(hWnd),
-                    curDisplayMetrics.IsMinimized
-                    );
-                Log.Trace(log);
+                if (curDisplayMetrics.ProcessId == debugProcess)
+                {
+                    debugWindow = hWnd;
+                    string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
+                        curDisplayMetrics,
+                        curDisplayMetrics.ScreenPosition.Left,
+                        curDisplayMetrics.ScreenPosition.Top,
+                        curDisplayMetrics.ScreenPosition.Width,
+                        curDisplayMetrics.ScreenPosition.Height,
+                        curDisplayMetrics.Title,
+                        curDisplayMetrics.IsFullScreen,
+                        curDisplayMetrics.IsMinimized
+                        );
+                    Log.Trace(log);
 
-                string log2 = string.Format("    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
-                    curDisplayMetrics.WindowPlacement.NormalPosition.Left,
-                    curDisplayMetrics.WindowPlacement.NormalPosition.Top,
-                    curDisplayMetrics.WindowPlacement.NormalPosition.Width,
-                    curDisplayMetrics.WindowPlacement.NormalPosition.Height
-                    );
-                Log.Trace(log2);
-#endif
+                    string log2 = string.Format("    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Left,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Top,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Width,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Height
+                        );
+                    Log.Trace(log2);
+                }
 
                 bool new_window = !monitorApplications[displayKey].ContainsKey(hWnd);
                 if (eventType != 0 || new_window)
@@ -1682,6 +1696,31 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
                 ret = true;
+            }
+            else
+            {
+                if (curDisplayMetrics.ProcessId == debugProcess)
+                {
+                    string log = string.Format("Not Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
+                        curDisplayMetrics,
+                        curDisplayMetrics.ScreenPosition.Left,
+                        curDisplayMetrics.ScreenPosition.Top,
+                        curDisplayMetrics.ScreenPosition.Width,
+                        curDisplayMetrics.ScreenPosition.Height,
+                        curDisplayMetrics.Title,
+                        curDisplayMetrics.IsFullScreen,
+                        curDisplayMetrics.IsMinimized
+                        );
+                    Log.Trace(log);
+
+                    string log2 = string.Format("    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Left,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Top,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Width,
+                        curDisplayMetrics.WindowPlacement.NormalPosition.Height
+                        );
+                    Log.Trace(log2);
+                }
             }
 
             return ret;
