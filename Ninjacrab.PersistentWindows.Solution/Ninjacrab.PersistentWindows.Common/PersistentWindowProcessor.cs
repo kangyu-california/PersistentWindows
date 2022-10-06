@@ -2284,23 +2284,24 @@ namespace Ninjacrab.PersistentWindows.Common
                     // no need to save z-order as unminimize always bring window to top
                     return true;
                 }
-                else if (!curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
-                {
-                    //minimize end
-                    return true;
-                }
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
                     //remain minimized
                     return false;
                 }
-                else if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
+
+                if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
                     moved = true;
                 }
                 else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
+                    moved = true;
+                }
+                else if (!curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
+                {
+                    //minimize end
                     moved = true;
                 }
 
@@ -2938,11 +2939,13 @@ namespace Ninjacrab.PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-#if DEBUG
-                var process = GetProcess(hWnd);
-                if (!process.Responding)
-                    continue;
-#endif
+                Process process = null;
+                if (hWnd == debugWindow)
+                {
+                    process = GetProcess(hWnd);
+                    if (!process.Responding)
+                        continue;
+                }
 
                 RECT rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
@@ -3005,10 +3008,13 @@ namespace Ninjacrab.PersistentWindows.Common
                         restore_minimized_to_fullscreen = true;
                         restore_fullscreen = true;
                         User32.ShowWindow(hWnd, User32.SW_NORMAL);
+                        IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        rect = prevDisplayMetrics.ScreenPosition;
+                        windowPlacement = prevDisplayMetrics.WindowPlacement;
                     }
                 }
 
-                if (!restore_minimized_to_fullscreen && curDisplayMetrics.NeedUpdateWindowPlacement)
+                if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
                     if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun)
@@ -3023,10 +3029,20 @@ namespace Ninjacrab.PersistentWindows.Common
                     else if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && windowPlacement.ShowCmd == ShowWindowCommands.Normal && !dryRun)
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
+                        restore_minimized_to_fullscreen = false;
                         restore_fullscreen = true;
                         windowPlacement.ShowCmd = ShowWindowCommands.Minimize;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+
+                        if (hWnd == debugWindow)
+                        Log.Event("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                            process.ProcessName,
+                            windowPlacement.NormalPosition.Left,
+                            windowPlacement.NormalPosition.Top,
+                            windowPlacement.NormalPosition.Width,
+                            windowPlacement.NormalPosition.Height,
+                            success);
                     }
 
                     if (!dryRun)
@@ -3034,22 +3050,24 @@ namespace Ninjacrab.PersistentWindows.Common
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
 
-#if DEBUG
-                    Log.Info("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        process.ProcessName,
-                        windowPlacement.NormalPosition.Left,
-                        windowPlacement.NormalPosition.Top,
-                        windowPlacement.NormalPosition.Width,
-                        windowPlacement.NormalPosition.Height,
-                        success);
-#endif
                 }
 
                 // recover previous screen position
                 if (!dryRun)
                 {
                     if (!restore_minimized_to_fullscreen)
+                    {
                         success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        if (hWnd == debugWindow)
+                        Log.Event("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                            process.ProcessName,
+                            rect.Left,
+                            rect.Top,
+                            rect.Width,
+                            rect.Height,
+                            success);
+                    }
+
                     if (restore_fullscreen)
                     {
                         RestoreFullScreenWindow(hWnd, prevDisplayMetrics.ScreenPosition);
@@ -3064,16 +3082,6 @@ namespace Ninjacrab.PersistentWindows.Common
                         }
                     }
                     restoredWindows.Add(hWnd);
-
-#if DEBUG
-                    Log.Info("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                        process.ProcessName,
-                        rect.Left,
-                        rect.Top,
-                        rect.Width,
-                        rect.Height,
-                        success);
-#endif
                 }
 
                 if (!success)
