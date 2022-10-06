@@ -487,7 +487,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void RestoreFromDisk()
         {
             pwp.restoringFromDB = true;
-            pwp.curDisplayKey = pwp.dbDisplayKey = pwp.GetDisplayKey();
+            pwp.dbDisplayKey = pwp.GetDisplayKey();
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
                 pwp.dbDisplayKey += EnterDbEntryName();
@@ -498,7 +498,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static public void RestoreSnapshot(int id)
         {
             pwp.dbDisplayKey = null;
-            pwp.curDisplayKey = pwp.GetDisplayKey();
             pwp.RestoreSnapshot(id);
         }
 

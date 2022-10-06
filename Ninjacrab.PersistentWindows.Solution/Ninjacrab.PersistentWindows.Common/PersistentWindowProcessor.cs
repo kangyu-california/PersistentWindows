@@ -67,7 +67,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        public string curDisplayKey; // current display config name
+        private string curDisplayKey; // current display config name
         public string dbDisplayKey = null;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
