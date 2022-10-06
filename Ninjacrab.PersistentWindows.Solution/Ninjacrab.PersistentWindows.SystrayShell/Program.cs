@@ -464,12 +464,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         {
             capture_to_hdd_timer = new System.Threading.Timer(state =>
             {
-                pwp.dbDisplayKey = pwp.GetDisplayKey();
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                {
-                    pwp.dbDisplayKey += EnterDbEntryName();
-                }
-
                 GetProcessInfo();
                 pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
 
@@ -480,6 +474,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool delay_capture = false;
             if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                 delay_capture = true;
+
+            pwp.dbDisplayKey = pwp.GetDisplayKey();
+            if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+            {
+                pwp.dbDisplayKey += EnterDbEntryName();
+            }
 
             capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture_ms : 0, Timeout.Infinite);
         }

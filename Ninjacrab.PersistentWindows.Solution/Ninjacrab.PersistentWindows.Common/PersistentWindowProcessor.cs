@@ -1699,7 +1699,7 @@ namespace Ninjacrab.PersistentWindows.Common
             }
             else
             {
-                if (curDisplayMetrics.ProcessId == debugProcess)
+                if (curDisplayMetrics != null && curDisplayMetrics.ProcessId == debugProcess)
                 {
                     string log = string.Format("Not Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
                         curDisplayMetrics,
