@@ -375,6 +375,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public static extern bool ShowWindowAsync(IntPtr hWnd, int cmd);
 
         public const int SW_NORMAL = 1;
+        public const int SW_MAXIMIZE = 3;
         public const int SW_SHOW = 5;
         public const int SW_SHOWMINNOACTIVE = 7;
         public const int SW_RESTORE = 9;
