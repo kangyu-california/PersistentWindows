@@ -30,6 +30,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private const int MaxRestoreTimes = 5; // maximum restore passes
 
         public int UserForcedCaptureLatency = 0;
+        public int UserForcedRestoreLatency = 0;
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
@@ -517,7 +518,7 @@ namespace Ninjacrab.PersistentWindows.Common
                                     PromptSessionRestore();
                                 }
                                 restoringFromMem = true;
-                                StartRestoreTimer();
+                                StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
                             }
                         }
                     }

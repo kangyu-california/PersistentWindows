@@ -43,6 +43,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             bool slow_restore = false;
+            int delay_auto_restore = 0;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
             int debug_process = 0;
@@ -86,6 +87,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     delay_auto_capture = 0;
                     pwp.UserForcedCaptureLatency = Int32.Parse(arg) * 1000;
+                    continue;
+                }
+                else if (delay_auto_restore != 0)
+                {
+                    delay_auto_restore = 0;
+                    pwp.UserForcedRestoreLatency = Int32.Parse(arg) * 1000;
                     continue;
                 }
                 else if (debug_process != 0)
@@ -160,6 +167,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                         break;
                     case "-halt_restore":
                         halt_restore = 1;
+                        break;
+                    case "-delay_auto_restore":
+                        delay_auto_restore = 1;
                         break;
                     case "-notification_on":
                     case "-notification=1":
