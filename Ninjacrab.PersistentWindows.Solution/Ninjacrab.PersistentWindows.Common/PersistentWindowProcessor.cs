@@ -970,15 +970,16 @@ namespace Ninjacrab.PersistentWindows.Common
 
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
-                    if (prevDisplayMetrics.IsMinimized)
+                    RECT target_rect = prevDisplayMetrics.ScreenPosition;
+                    if (prevDisplayMetrics.IsFullScreen)
                     {
-                        RECT target_rect = prevDisplayMetrics.ScreenPosition;
-                        if (prevDisplayMetrics.IsFullScreen)
-                        {
-                            //the window was minimized from full screen status
-                            RestoreFullScreenWindow(hwnd, target_rect);
-                        }
-                        else if (!IsFullScreen(hwnd) || IsWrongMonitor(hwnd, target_rect))
+                        //the window was minimized from full screen status
+                        //it is possible that minimize status have not been captured yet
+                        RestoreFullScreenWindow(hwnd, target_rect);
+                    }
+                    else if (prevDisplayMetrics.IsMinimized)
+                    {
+                        if (!IsFullScreen(hwnd) || IsWrongMonitor(hwnd, target_rect))
                         {
                             RECT screenPosition = new RECT();
                             User32.GetWindowRect(hwnd, ref screenPosition);
