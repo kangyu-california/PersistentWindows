@@ -968,6 +968,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (noRestoreWindows.Contains(hwnd))
                         return;
 
+                    if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                    {
+                        if (!User32.SetForegroundWindow(hwnd))
+                        {
+                            Log.Error($"fail to bring window {GetWindowTitle(hwnd)} to foreground");
+                        }
+                    }
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                     RECT target_rect = prevDisplayMetrics.ScreenPosition;
