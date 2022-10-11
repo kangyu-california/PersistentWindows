@@ -117,7 +117,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public int debugProcess = 0;
         private IntPtr debugWindow = IntPtr.Zero;
 
-        private Dictionary<IntPtr, string> windowProcess = new Dictionary<IntPtr, string>();
+        private Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
 
         private string appDataFolder;
         public bool redirectAppDataFolder = false;
@@ -1104,7 +1104,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 noRestoreWindows.Remove(hwnd);
-                windowProcess.Remove(hwnd);
+                windowProcessName.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1164,7 +1164,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (ignoreProcess.Count > 0)
             {
                 string processName;
-                if (!windowProcess.ContainsKey(hwnd))
+                if (!windowProcessName.ContainsKey(hwnd))
                 {
                     var process = GetProcess(hwnd);
                     if (process != null)
@@ -1172,18 +1172,18 @@ namespace Ninjacrab.PersistentWindows.Common
                         try
                         {
                             processName = process.ProcessName;
-                            windowProcess.Add(hwnd, processName);
+                            windowProcessName.Add(hwnd, processName);
                         }
                         catch(Exception ex)
                         {
                             Log.Error(ex.ToString());
-                            windowProcess.Add(hwnd, "avoid trigger exception again");
+                            windowProcessName.Add(hwnd, "avoid trigger exception again");
                         }
                     }
                 }
                 else
                 {
-                    processName = windowProcess[hwnd];
+                    processName = windowProcessName[hwnd];
                     if (ignoreProcess.Contains(processName))
                         return;
                 }
