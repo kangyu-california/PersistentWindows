@@ -102,6 +102,7 @@ namespace Ninjacrab.PersistentWindows.Common
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
+        private Object dbLock = new object();
         public bool slowRestore = false;
         private bool restoreHalted = false;
         public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
@@ -367,6 +368,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 bool db_exist = false;
                 try
                 {
+                    lock(dbLock)
                     using (var persistDB = new LiteDatabase(persistDbName))
                     {
                         db_exist = persistDB.CollectionExists(curDisplayKey);
