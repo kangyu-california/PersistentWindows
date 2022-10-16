@@ -364,11 +364,21 @@ namespace Ninjacrab.PersistentWindows.Common
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
 
-                using (var persistDB = new LiteDatabase(persistDbName))
+                bool db_exist = false;
+                try
                 {
-                    bool db_exist = persistDB.CollectionExists(curDisplayKey);
-                    enableRestoreMenu(db_exist, checkUpgrade);
+                    using (var persistDB = new LiteDatabase(persistDbName))
+                    {
+                        db_exist = persistDB.CollectionExists(curDisplayKey);
+                    }
                 }
+                catch (Exception e)
+                {
+                    Log.Error(e.ToString());
+                }
+
+                enableRestoreMenu(db_exist, checkUpgrade);
+
                 bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
                 changeIconText(null);
