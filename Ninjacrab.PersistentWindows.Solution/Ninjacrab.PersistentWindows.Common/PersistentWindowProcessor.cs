@@ -517,13 +517,7 @@ namespace Ninjacrab.PersistentWindows.Common
                             // change display on the fly
                             Shell32.QUERY_USER_NOTIFICATION_STATE pquns;
                             int error = Shell32.SHQueryUserNotificationState(out pquns);
-                            if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
-                            {
-                                fullScreenGamingMode = true;
-                                Log.Event($"enter full-screen gaming mode {displayKey}");
-                                StartRestoreFinishedTimer(0);
-                            }
-                            else if (normalSessions.Contains(displayKey))
+                            if (normalSessions.Contains(displayKey))
                             {
                                 curDisplayKey = displayKey;
                                 if (promptSessionRestore)
@@ -532,6 +526,12 @@ namespace Ninjacrab.PersistentWindows.Common
                                 }
                                 restoringFromMem = true;
                                 StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
+                            }
+                            else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
+                            {
+                                fullScreenGamingMode = true;
+                                Log.Event($"enter full-screen gaming mode {displayKey}");
+                                StartRestoreFinishedTimer(0);
                             }
                             else
                             {
