@@ -260,6 +260,9 @@ namespace Ninjacrab.PersistentWindows.Common
 
             foregroundTimer = new Timer(state =>
             {
+                if (!foreGroundWindow.ContainsKey(curDisplayKey))
+                    return;
+
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
