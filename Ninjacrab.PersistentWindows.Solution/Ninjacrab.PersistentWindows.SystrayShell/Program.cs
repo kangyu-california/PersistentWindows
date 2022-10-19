@@ -98,7 +98,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 else if (debug_process != 0)
                 {
                     debug_process = 0;
-                    pwp.debugProcess = Int32.Parse(arg);
+                    pwp.SetDebugProcess(arg);
                     continue;
                 }
                 else if (ignore_process.Length > 0)

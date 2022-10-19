@@ -116,8 +116,8 @@ namespace Ninjacrab.PersistentWindows.Common
             };
 
         private HashSet<string> ignoreProcess = new HashSet<string>();
-        public int debugProcess = 0;
-        private IntPtr debugWindow = IntPtr.Zero;
+        private HashSet<string> debugProcess = new HashSet<string>();
+        private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
 
         private Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
 
@@ -658,6 +658,18 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        public void SetDebugProcess(string debug_process)
+        {
+            string[] ps = debug_process.Split(';');
+            foreach (var p in ps)
+            {
+                var s = p;
+                if (s.EndsWith(".exe"))
+                    s = s.Substring(0, s.Length - 4);
+                debugProcess.Add(s);
+            }
+        }
+
         private void PromptSessionRestore()
         {
             if (pauseAutoRestore)
@@ -1133,6 +1145,7 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 noRestoreWindows.Remove(hwnd);
                 windowProcessName.Remove(hwnd);
+                debugWindows.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1189,7 +1202,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            if (ignoreProcess.Count > 0)
+            if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
             {
                 string processName;
                 if (!windowProcessName.ContainsKey(hwnd))
@@ -1214,31 +1227,37 @@ namespace Ninjacrab.PersistentWindows.Common
                     processName = windowProcessName[hwnd];
                     if (ignoreProcess.Contains(processName))
                         return;
+                    if (debugProcess.Contains(processName))
+                    {
+                        debugWindows.Add(hwnd);
+                    }
                 }
             }
 
 #if DEBUG
-            if (debugWindow != IntPtr.Zero && hwnd != debugWindow)
+            if (title.Contains("Microsoft Visual Studio")
+                && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
+                    || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
             {
                 return;
             }
+
+            /*
+            if (debugProcess.Count > 0 && !debugWindows.Contains(hwnd))
+            {
+                return;
+            }
+            */
 #endif
 
             try
             {
-                if (hwnd == debugWindow)
+                if (debugWindows.Contains(hwnd))
                 {
-                    RECT screenPosition = new RECT();
-                    User32.GetWindowRect(hwnd, ref screenPosition);
-                    if (title.Contains("Microsoft Visual Studio")
-                        && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
-                            || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
-                    {
-                        return;
-                    }
-
                     Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
 
+                    RECT screenPosition = new RECT();
+                    User32.GetWindowRect(hwnd, ref screenPosition);
                     var process = GetProcess(hwnd);
                     string log = string.Format("Received message of process {0} at ({1}, {2}) of size {3} x {4} with title: {5}",
                         (process == null) ? "" : process.ProcessName,
@@ -1698,9 +1717,8 @@ namespace Ninjacrab.PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-                if (curDisplayMetrics.ProcessId == debugProcess)
+                if (debugWindows.Contains(hWnd))
                 {
-                    debugWindow = hWnd;
                     string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
                         curDisplayMetrics,
                         curDisplayMetrics.ScreenPosition.Left,
@@ -2960,7 +2978,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     continue;
 
                 Process process = null;
-                if (hWnd == debugWindow)
+                if (debugWindows.Contains(hWnd))
                 {
                     process = GetProcess(hWnd);
                     if (!process.Responding)
@@ -3053,7 +3071,7 @@ namespace Ninjacrab.PersistentWindows.Common
                         restore_fullscreen = true;
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
 
-                        if (hWnd == debugWindow)
+                        if (debugWindows.Contains(hWnd))
                         Log.Event("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                             process.ProcessName,
                             windowPlacement.NormalPosition.Left,
@@ -3074,7 +3092,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (!restore_minimized_to_fullscreen)
                     {
                         success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
-                        if (hWnd == debugWindow)
+                        if (debugWindows.Contains(hWnd))
                         Log.Event("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                             process.ProcessName,
                             rect.Left,
