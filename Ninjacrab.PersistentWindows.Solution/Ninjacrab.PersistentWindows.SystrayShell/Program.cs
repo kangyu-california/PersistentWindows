@@ -123,6 +123,9 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     case "-splash=0":
                         splash = false;
                         break;
+                    case "-enable_auto_restore_by_manual_capture":
+                        pwp.manualNormalSession = true;
+                        break;
                     case "-delay_start":
                         delay_start = 1;
                         break;

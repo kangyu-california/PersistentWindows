@@ -74,6 +74,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
+        public bool manualNormalSession = false; //user need to manually take snapshot or save/restore from db to flag normal session
         private bool userMove = false; //received window event due to user move
         private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
@@ -1838,7 +1839,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     return;
                 }
 
-                if (userMovePrev)
+                if (saveToDB || (userMovePrev && !manualNormalSession))
                 {
                     normalSessions.Add(curDisplayKey);
                     Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
@@ -1855,7 +1856,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
         private void CaptureNewDisplayConfig(string displayKey)
         {
-            normalSessions.Add(displayKey);
+            if (!manualNormalSession)
+                normalSessions.Add(displayKey);
             CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
         }
 
