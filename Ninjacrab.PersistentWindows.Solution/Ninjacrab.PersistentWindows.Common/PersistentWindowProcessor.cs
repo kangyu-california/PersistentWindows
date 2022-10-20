@@ -1203,9 +1203,9 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            string processName;
             if (!windowProcessName.ContainsKey(hwnd))
             {
+                string processName;
                 var process = GetProcess(hwnd);
                 //if (process != null)
                 {
@@ -1224,14 +1224,13 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
             {
+                string processName;
+                processName = windowProcessName[hwnd];
+                if (ignoreProcess.Contains(processName))
+                    return;
+                if (debugProcess.Contains(processName))
                 {
-                    processName = windowProcessName[hwnd];
-                    if (ignoreProcess.Contains(processName))
-                        return;
-                    if (debugProcess.Contains(processName))
-                    {
-                        debugWindows.Add(hwnd);
-                    }
+                    debugWindows.Add(hwnd);
                 }
             }
 
