@@ -1203,27 +1203,27 @@ namespace Ninjacrab.PersistentWindows.Common
                 return;
             }
 
-            if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
+            string processName;
+            if (!windowProcessName.ContainsKey(hwnd))
             {
-                string processName;
-                if (!windowProcessName.ContainsKey(hwnd))
+                var process = GetProcess(hwnd);
+                //if (process != null)
                 {
-                    var process = GetProcess(hwnd);
-                    if (process != null)
+                    try
                     {
-                        try
-                        {
-                            processName = process.ProcessName;
-                            windowProcessName.Add(hwnd, processName);
-                        }
-                        catch(Exception ex)
-                        {
-                            Log.Error(ex.ToString());
-                            windowProcessName.Add(hwnd, "avoid trigger exception again");
-                        }
+                        processName = process.ProcessName;
+                        windowProcessName.Add(hwnd, processName);
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                        windowProcessName.Add(hwnd, "avoid trigger exception again");
                     }
                 }
-                else
+            }
+
+            if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
+            {
                 {
                     processName = windowProcessName[hwnd];
                     if (ignoreProcess.Contains(processName))
@@ -2484,6 +2484,12 @@ namespace Ninjacrab.PersistentWindows.Common
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
                 return;
+                /*
+                style |= (long)WindowStyleFlags.CAPTION;
+                User32.SetWindowLong(hwnd, User32.GWL_STYLE, style);
+                User32.ShowWindow(hwnd, User32.SW_RESTORE);
+                Log.Error("restore caption style for {0}", GetWindowTitle(hwnd));
+                */
             }
 
             bool wrong_screen = false;
@@ -3038,14 +3044,14 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 bool success = true;
 
-                bool restore_minimized_to_fullscreen = false;
+                bool need_move_window = true;
                 bool restore_fullscreen = false;
                 if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && !dryRun)
                 {
                     if (curDisplayMetrics.IsMinimized)
                     {
                         Log.Error("restore minimized window to full screen {0}", GetWindowTitle(hWnd));
-                        restore_minimized_to_fullscreen = true;
+                        need_move_window = false;
                         restore_fullscreen = true;
                         User32.ShowWindow(hWnd, User32.SW_NORMAL);
                         IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
@@ -3069,20 +3075,31 @@ namespace Ninjacrab.PersistentWindows.Common
                     else if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && !dryRun)
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
-                        restore_minimized_to_fullscreen = false;
-                        restore_fullscreen = true;
-                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        long style = User32.GetWindowLong(hWnd, User32.GWL_STYLE);
+                        if (windowProcessName[hWnd].Equals("mstsc") && (style & (long)WindowStyleFlags.CAPTION) != 0L)
+                        {
+                            //already has caption bar, bypass normal window move and go directly to mouse double click simulation
+                            need_move_window = false;
+                            restore_fullscreen = true;
+                        }
+                        else
+                        {
+                            need_move_window = true;
+                            restore_fullscreen = true;
 
-                        if (debugWindows.Contains(hWnd))
-                        Log.Event("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                            process.ProcessName,
-                            windowPlacement.NormalPosition.Left,
-                            windowPlacement.NormalPosition.Top,
-                            windowPlacement.NormalPosition.Width,
-                            windowPlacement.NormalPosition.Height,
-                            success);
+                            windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                            if (debugWindows.Contains(hWnd))
+                            Log.Event("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
+                                process.ProcessName,
+                                windowPlacement.NormalPosition.Left,
+                                windowPlacement.NormalPosition.Top,
+                                windowPlacement.NormalPosition.Width,
+                                windowPlacement.NormalPosition.Height,
+                                success);
+                        }
                     }
-                    if (!dryRun)
+
+                    if (!dryRun && need_move_window)
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
@@ -3091,7 +3108,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 // recover previous screen position
                 if (!dryRun)
                 {
-                    if (!restore_minimized_to_fullscreen)
+                    if (need_move_window)
                     {
                         success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                         if (debugWindows.Contains(hWnd))

@@ -377,6 +377,7 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
         public const int SW_NORMAL = 1;
         public const int SW_MAXIMIZE = 3;
         public const int SW_SHOW = 5;
+        public const int SW_MINIMIZE = 6;
         public const int SW_SHOWMINNOACTIVE = 7;
         public const int SW_RESTORE = 9;
 
@@ -420,6 +421,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern long GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern int SetWindowLong(IntPtr hWnd, int nIndex, long dwNewLong);
 
         public const int GWL_EXSTYLE = -20;
         public const long WS_EX_TOPMOST = 0x00000008L;
