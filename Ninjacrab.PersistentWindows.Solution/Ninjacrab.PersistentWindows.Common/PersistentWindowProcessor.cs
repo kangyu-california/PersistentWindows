@@ -71,6 +71,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private string curDisplayKey; // current display config name
         public string dbDisplayKey = null;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
+        private Dictionary<IntPtr, string> cacheWindowTitle = new Dictionary<IntPtr, string>(); // speed up WinEvent handling 
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
@@ -766,6 +767,9 @@ namespace Ninjacrab.PersistentWindows.Common
             if (use_cache && windowTitle.ContainsKey(hwnd))
                 return windowTitle[hwnd];
 
+            if (use_cache && cacheWindowTitle.ContainsKey(hwnd))
+                return cacheWindowTitle[hwnd];
+
             var length = User32.GetWindowTextLength(hwnd);
             if (length > 0)
             {
@@ -774,10 +778,16 @@ namespace Ninjacrab.PersistentWindows.Common
                 User32.GetWindowText(hwnd, title, length);
                 var t = title.ToString();
                 t = t.Trim();
+
+                if (use_cache)
+                    cacheWindowTitle[hwnd] = t;
+
                 return t;
             }
 
             //return hwnd.ToString("X8");
+            if (use_cache)
+                cacheWindowTitle[hwnd] = "";
             return "";
         }
 
@@ -1179,6 +1189,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 }
 
                 bool found = windowTitle.Remove(hwnd);
+                cacheWindowTitle.Remove(hwnd);
 
                 if (sessionActive && found)
                 {
