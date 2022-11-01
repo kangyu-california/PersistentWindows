@@ -1911,6 +1911,18 @@ namespace Ninjacrab.PersistentWindows.Common
             }
         }
 
+        private ApplicationDisplayMetrics GetLastValidMetrics(IntPtr hwnd)
+        {
+            if (!monitorApplications.ContainsKey(curDisplayKey))
+                return null;
+            if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                return null;
+            var dm = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
+            if (dm != null || dm.IsValid)
+                return dm;
+            return null;
+        }
+
         private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false, bool immediateCapture = false)
         {
             Log.Trace("");
@@ -1990,11 +2002,19 @@ namespace Ninjacrab.PersistentWindows.Common
                 var appWindows = CaptureWindowsOfInterest();
                 DateTime now = DateTime.Now;
                 int movedWindows = 0;
+                int prev_minimized_windows = 0;
 
                 foreach (var hwnd in appWindows)
                 {
                     try
                     {
+                        var dm = GetLastValidMetrics(hwnd);
+                        if (dm != null)
+                        {
+                            if (dm.IsMinimized)
+                                prev_minimized_windows++;
+                        }
+
                         if (CaptureWindow(hwnd, 0, now, displayKey))
                         {
                             movedWindows++;
@@ -2013,11 +2033,14 @@ namespace Ninjacrab.PersistentWindows.Common
                     {
                         if (IsMinimized(hwnd))
                             ++minimized_windows;
+
                     }
 
-                    if (minimized_windows >= MaxUserMoves && minimized_windows * 100 / movedWindows >= 80)
+                    int delta_minimized_windows = minimized_windows - prev_minimized_windows;
+                    if (delta_minimized_windows >= MaxUserMoves && delta_minimized_windows * 100 / movedWindows >= 80)
                     {
                         Log.Error("suspicious massive window minimization, postpone recognition as user move");
+                        Thread.Sleep(5000);
                         return;
                     }
                 }
