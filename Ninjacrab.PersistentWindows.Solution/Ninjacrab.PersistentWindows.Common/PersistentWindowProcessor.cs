@@ -1918,7 +1918,7 @@ namespace Ninjacrab.PersistentWindows.Common
             if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 return null;
             var dm = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
-            if (dm != null || dm.IsValid)
+            if (dm != null && dm.IsValid)
                 return dm;
             return null;
         }
