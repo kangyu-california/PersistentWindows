@@ -135,6 +135,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
         private Dictionary<string, DateTime> lastUserActionTimeBackup = new Dictionary<string, DateTime>();
         private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
+        private DateTime lastRestoreFinishTime = DateTime.Now;
         public int snapshotId;
 
         private bool iconBusy = false;
@@ -365,6 +366,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     iconBusy = false;
 
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
+                    lastRestoreFinishTime = DateTime.Now;
                     sessionActive = true;
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
@@ -2039,8 +2041,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     int delta_minimized_windows = minimized_windows - prev_minimized_windows;
                     if (delta_minimized_windows >= MaxUserMoves && delta_minimized_windows * 100 / movedWindows >= 80)
                     {
-                        Log.Error("suspicious massive window minimization, postpone recognition as user move");
-                        Thread.Sleep(5000);
+                        var diff = DateTime.Now - lastRestoreFinishTime;
+                        if (diff.TotalSeconds < 5.0)
+                        {
+                            sessionActive = false;
+                            StartRestoreTimer();
+                            Log.Error("suspicious massive window minimization, restart restore");
+                        }
                         return;
                     }
                 }
