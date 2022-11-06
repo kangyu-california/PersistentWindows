@@ -2039,14 +2039,15 @@ namespace Ninjacrab.PersistentWindows.Common
                     }
 
                     int delta_minimized_windows = minimized_windows - prev_minimized_windows;
-                    if (delta_minimized_windows >= MaxUserMoves && delta_minimized_windows * 100 / movedWindows >= 80)
+                    if (delta_minimized_windows >= MaxUserMoves)
                     {
                         var diff = DateTime.Now - lastRestoreFinishTime;
-                        if (diff.TotalSeconds < 5.0)
+                        Log.Error($"suspicious massive window minimization {diff.TotalSeconds} second after last restore");
+                        if (diff.TotalSeconds < 10.0)
                         {
                             sessionActive = false;
                             StartRestoreTimer();
-                            Log.Error("suspicious massive window minimization, restart restore");
+                            Log.Error("restart restore");
                         }
                         return;
                     }
@@ -3038,7 +3039,10 @@ namespace Ninjacrab.PersistentWindows.Common
 
                 if (IsTaskBar(hWnd))
                 {
-                    if (!dryRun)
+                    if (dryRun)
+                        continue;
+
+                    if (!remoteSession || !restoringFromMem)
                     {
                         bool changed_edge = MoveTaskBar(hWnd, rect);
                         bool changed_width = RecoverTaskBarArea(hWnd, rect);
