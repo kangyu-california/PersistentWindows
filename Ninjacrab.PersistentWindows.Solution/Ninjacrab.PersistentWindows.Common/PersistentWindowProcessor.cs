@@ -88,9 +88,9 @@ namespace Ninjacrab.PersistentWindows.Common
         // restore control
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
-        public bool restoringFromMem = false; // automatic restore from memory in progress
-        public bool restoringFromDB = false; // manual restore from DB in progress
-        public bool restoringSnapshot = false;
+        public bool restoringFromMem = false; // automatic restore from memory or snapshot
+        public bool restoringFromDB = false; // manual restore from DB
+        public bool restoringSnapshot = false; // implies restoringFromMem
         public bool dryRun = false; // only capturre, no actual restore
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
@@ -3042,7 +3042,7 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (dryRun)
                         continue;
 
-                    if (!remoteSession || !restoringFromMem)
+                    if (!remoteSession || restoringFromDB || restoringSnapshot)
                     {
                         bool changed_edge = MoveTaskBar(hWnd, rect);
                         bool changed_width = RecoverTaskBarArea(hWnd, rect);
