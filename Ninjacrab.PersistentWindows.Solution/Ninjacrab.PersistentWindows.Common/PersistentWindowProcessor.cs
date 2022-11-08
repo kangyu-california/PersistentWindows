@@ -3043,13 +3043,13 @@ namespace Ninjacrab.PersistentWindows.Common
                     if (dryRun)
                         continue;
 
+                    bool changed_edge = MoveTaskBar(hWnd, rect);
+                    bool changed_width = false;
                     if (!remoteSession || restoringFromDB || restoringSnapshot)
-                    {
-                        bool changed_edge = MoveTaskBar(hWnd, rect);
-                        bool changed_width = RecoverTaskBarArea(hWnd, rect);
-                        if (changed_edge || changed_width)
-                            restoredWindows.Add(hWnd);
-                    }
+                        changed_width = RecoverTaskBarArea(hWnd, rect);
+                    if (changed_edge || changed_width)
+                        restoredWindows.Add(hWnd);
+
                     continue;
                 }
 
