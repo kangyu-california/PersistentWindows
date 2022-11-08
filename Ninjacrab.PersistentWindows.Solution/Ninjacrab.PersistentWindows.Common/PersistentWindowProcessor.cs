@@ -633,6 +633,7 @@ namespace Ninjacrab.PersistentWindows.Common
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
 
             initialized = true;
+            remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
 
             using (var persistDB = new LiteDatabase(persistDbName))
             {
