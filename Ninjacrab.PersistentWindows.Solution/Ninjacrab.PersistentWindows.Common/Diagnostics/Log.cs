@@ -13,15 +13,6 @@ namespace Ninjacrab.PersistentWindows.Common.Diagnostics
             eventLog = new EventLog("Application");
             //eventLog.Source = System.Windows.Forms.Application.ProductName;
             eventLog.Source = "Application";
-
-#if DEBUG
-            //string fileName = "${basedir}/PersistentWindows.Log";
-            string fileName = "PersistentWindows.Log";
-#else
-            string tempFolderPath = Path.GetTempPath();
-            string fileName = $"{tempFolderPath}/PersistentWindows.Log";
-#endif
-            File.Delete(fileName);
         }
 
         public static void Exit()
