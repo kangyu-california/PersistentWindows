@@ -62,7 +62,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             if (clickCount == 0)
             {
                 // fix context menu position
-                contextMenuStripSysTray.Show(Cursor.Position);
+                //contextMenuStripSysTray.Show(Cursor.Position);
                 return;
             }
 
@@ -398,10 +398,12 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 clickCount++;
                 StartTimer(400);
             }
+            /*
             else if (e.Button == MouseButtons.Right)
             {
                 StartTimer(5);
             }
+            */
         }
     }
 }
