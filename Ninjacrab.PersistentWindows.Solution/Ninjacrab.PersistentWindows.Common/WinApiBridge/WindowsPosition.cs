@@ -53,11 +53,9 @@ namespace Ninjacrab.PersistentWindows.Common.WinApiBridge
             }
         }
 
-        /*
         public override string ToString()
         {
             return string.Format("({0}, {1}), {2} x {3}", Left, Top, Width, Height);
         }
-        */
     }
 }

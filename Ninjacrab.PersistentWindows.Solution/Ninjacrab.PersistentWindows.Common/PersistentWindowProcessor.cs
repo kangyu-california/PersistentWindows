@@ -820,7 +820,7 @@ namespace Ninjacrab.PersistentWindows.Common
             POINT topLeft = new POINT(rect.Left + MinSize, rect.Top + MinSize);
             if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
             {
-                Log.Error("top left of Rect {0} is off-screen", rect.ToString());
+                Log.Error("top left of {0} is off-screen, Rect = {1", GetWindowTitle(hwnd), rect.ToString());
                 return true;
             }
 
@@ -893,7 +893,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 //fix issue #47, Win+Shift+S create screen fully covers desktop
                 ;
             }
-            else
+            else if (!IsCoreUiWindow(hwnd))
             {
                 User32.MoveWindow(hwnd, rectDesk.Left + 100, rectDesk.Top + 100, rect.Width, rect.Height, true);
                 Log.Error("Auto fix invisible window \"{0}\"", GetWindowTitle(hwnd));
@@ -2489,6 +2489,14 @@ namespace Ninjacrab.PersistentWindows.Common
             StringBuilder buf = new StringBuilder(nChars);
             int chars = User32.GetClassName(hwnd, buf, nChars);
             return buf.ToString();
+        }
+
+        private bool IsCoreUiWindow(IntPtr hwnd)
+        {
+            string class_name = GetWindowClassName(hwnd);
+            if (string.IsNullOrEmpty(class_name) || !class_name.Equals("Windows.UI.Core.CoreWindow"))
+                return false;
+            return true;
         }
 
         private bool IsTaskBar(IntPtr hwnd)
