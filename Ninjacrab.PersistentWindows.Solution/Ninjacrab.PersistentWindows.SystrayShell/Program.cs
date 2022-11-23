@@ -27,7 +27,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
         static SystrayForm systrayForm = null;
         static bool silent = false; //suppress all balloon tip & sound prompt
         static bool notification = false; //pop balloon when auto restore
-        static int delay_manual_capture_ms = 5000;
+        static int delay_manual_capture = 5000; //in millisecond
 
         [STAThread]
         static void Main(string[] args)
@@ -74,25 +74,25 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 else if (delay_start != 0)
                 {
                     delay_start = 0;
-                    Thread.Sleep(Int32.Parse(arg) * 1000);
+                    Thread.Sleep((Int32)(float.Parse(arg) * 1000));
                     continue;
                 }
                 else if (delay_manual_capture != 0)
                 {
                     delay_manual_capture = 0;
-                    delay_manual_capture_ms = Int32.Parse(arg) * 1000;
+                    Program.delay_manual_capture = (Int32)(float.Parse(arg) * 1000);
                     continue;
                 }
                 else if (delay_auto_capture != 0)
                 {
                     delay_auto_capture = 0;
-                    pwp.UserForcedCaptureLatency = Int32.Parse(arg) * 1000;
+                    pwp.UserForcedCaptureLatency = (Int32)(float.Parse(arg) * 1000);
                     continue;
                 }
                 else if (delay_auto_restore != 0)
                 {
                     delay_auto_restore = 0;
-                    pwp.UserForcedRestoreLatency = Int32.Parse(arg) * 1000;
+                    pwp.UserForcedRestoreLatency = (Int32)(float.Parse(arg) * 1000);
                     continue;
                 }
                 else if (debug_process != 0)
@@ -394,7 +394,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 snapshot_timer.Dispose();
             });
 
-            snapshot_timer.Change(delayCapture ? delay_manual_capture_ms : 0, Timeout.Infinite);
+            snapshot_timer.Change(delayCapture ? delay_manual_capture : 0, Timeout.Infinite);
         }
 
         static public void ChangeIconText(string text)
@@ -494,7 +494,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 pwp.dbDisplayKey += EnterDbEntryName();
             }
 
-            capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture_ms : 0, Timeout.Infinite);
+            capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture : 0, Timeout.Infinite);
         }
 
         static public void RestoreFromDisk()
