@@ -68,7 +68,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 if (halt_restore > 1)
                 {
                     halt_restore = 0;
-                    pwp.haltRestore = Int32.Parse(arg);
+                    pwp.haltRestore = (Int32)(float.Parse(arg) * 1000);
                     continue;
                 }
                 else if (delay_start != 0)

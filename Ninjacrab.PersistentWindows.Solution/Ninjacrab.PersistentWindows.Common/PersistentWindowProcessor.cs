@@ -107,7 +107,7 @@ namespace Ninjacrab.PersistentWindows.Common
         private Object dbLock = new object();
         public bool slowRestore = false;
         private bool restoreHalted = false;
-        public int haltRestore = 3; //seconds to wait to finish current halted restore and restart next one
+        public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
 
@@ -2433,7 +2433,7 @@ namespace Ninjacrab.PersistentWindows.Common
                 {
                     // display resolution changes during restore
                     restoreHalted = true;
-                    StartRestoreFinishedTimer(haltRestore * 1000);
+                    StartRestoreFinishedTimer(haltRestore);
                 }
                 else if (restoreTimes < MaxRestoreTimes)
                 {
