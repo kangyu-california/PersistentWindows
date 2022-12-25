@@ -12,12 +12,12 @@
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print window positioning event logs for the processes notepad.exe and foo in event viewer
-  | -prompt_session_restore | Upon resuming the last session, ask the user before restoring the window layout. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
-  | -delay_auto_capture 1.0 | Delay the auto-capture by 1.0 second (default latency is 3~4 seconds) to adjust the latency between window move and auto-capture
-  | -delay_auto_restore 2.5 | Delay the auto-restore by 2.5 seconds (default latency is 1 second), in case the monitor fails to go to sleep (due to auto-restore starts too early)
-  | -slow_restore | Slow down the auto-restore progress to avoid incomplete restore (due to adversarial moves by Windows OS)
+  | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help to reduce the total restore time for remote desktop sessions on slow internet connections.
+  | -delay_auto_capture 1.0 | Adjust the latency from window move event to auto-capture to 1.0 second, the default latency is 3~4 seconds.
+  | -delay_auto_restore 2.5 | Adjust the latency from monitor on/off event to auto-restore to 2.5 seconds (the default latency is 1 second), in case some monitor fails to go to sleep due to auto-restore starts too early.
+  | -slow_restore | Slow down the auto-restore progress to avoid incomplete restore due to adversarial moves by Windows OS
   | -redraw_desktop | Redraw the whole desktop after a restore in case some window workarea is not refreshed
-  | -fix_zorder=1   | Preserve window Z-order for automatic restore. The Z-order of a window indicates the window's position in a stack of overlapping windows
+  | -fix_zorder=1   | Preserve window Z-order for automatic restore. The Z-order of a window indicates the window's position in a stack of overlapping windows.
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen windows
   | -fix_unminimized_window=0 | Turn off auto restore of unminimized windows. Use this switch to avoid undesirable window shifting during window activation, which comes with Event id 9999 : "restore minimized window ...." in event viewer.
   | ‑auto_restore_missing_windows=1 | When restoring from disk, restore missing windows without prompting the user
