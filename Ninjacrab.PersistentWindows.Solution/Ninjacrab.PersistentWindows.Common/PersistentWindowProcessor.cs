@@ -134,7 +134,6 @@ namespace Ninjacrab.PersistentWindows.Common
         private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
         private Dictionary<string, DateTime> lastUserActionTimeBackup = new Dictionary<string, DateTime>();
         private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
-        private DateTime lastRestoreFinishTime = DateTime.Now;
         public int snapshotId;
 
         private bool iconBusy = false;
@@ -365,7 +364,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     iconBusy = false;
 
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
-                    lastRestoreFinishTime = DateTime.Now;
                     sessionActive = true;
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
@@ -1994,19 +1992,11 @@ namespace Ninjacrab.PersistentWindows.Common
                 var appWindows = CaptureWindowsOfInterest();
                 DateTime now = DateTime.Now;
                 int movedWindows = 0;
-                int prev_minimized_windows = 0;
 
                 foreach (var hwnd in appWindows)
                 {
                     try
                     {
-                        var dm = GetLastValidMetrics(hwnd);
-                        if (dm != null)
-                        {
-                            if (dm.IsMinimized)
-                                prev_minimized_windows++;
-                        }
-
                         if (CaptureWindow(hwnd, 0, now, displayKey))
                         {
                             movedWindows++;
@@ -2015,31 +2005,6 @@ namespace Ninjacrab.PersistentWindows.Common
                     catch (Exception ex)
                     {
                         Log.Error(ex.ToString());
-                    }
-                }
-
-                if (remoteSession && movedWindows > 0)
-                {
-                    int minimized_windows = 0;
-                    foreach (var hwnd in appWindows)
-                    {
-                        if (IsMinimized(hwnd))
-                            ++minimized_windows;
-
-                    }
-
-                    int delta_minimized_windows = minimized_windows - prev_minimized_windows;
-                    if (delta_minimized_windows >= MaxUserMoves)
-                    {
-                        var diff = DateTime.Now - lastRestoreFinishTime;
-                        Log.Error($"suspicious massive window minimization {diff.TotalSeconds} second after last restore");
-                        if (diff.TotalSeconds < 10.0)
-                        {
-                            sessionActive = false;
-                            StartRestoreTimer();
-                            Log.Error("restart restore");
-                        }
-                        return;
                     }
                 }
 
