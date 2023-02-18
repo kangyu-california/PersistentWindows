@@ -2460,7 +2460,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             try
             {
-                return GetWindowClassName(hwnd).Equals("Shell_TrayWnd");
+                string class_name = GetWindowClassName(hwnd);
+                return class_name.Equals("Shell_TrayWnd") || class_name.Equals("Shell_SecondaryTrayWnd");
             }
             catch (Exception ex)
             {
@@ -2583,11 +2584,12 @@ namespace Ninjacrab.PersistentWindows.Common
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
 
-            IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
+            //IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             //User32.GetWindowRect(hReBar, ref screenPosition);
 
-            IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
+            //IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
             //hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
+            IntPtr hTaskBar = GetRealTaskBar(hwnd);
             User32.GetWindowRect(hTaskBar, ref sourceRect);
 
             // try place cursor to head and then tail of taskbar to guarantee move success
@@ -2750,7 +2752,13 @@ namespace Ninjacrab.PersistentWindows.Common
         {
             IntPtr hTaskBar = IntPtr.Zero;
             IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
-            if (hReBar != IntPtr.Zero)
+            if (hReBar == IntPtr.Zero)
+            {
+                hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "WorkerW", null);
+                if (hReBar != IntPtr.Zero)
+                    hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskListWClass", null);
+            }
+            else
             {
                 IntPtr hTBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
                 if (hTBar != IntPtr.Zero)
