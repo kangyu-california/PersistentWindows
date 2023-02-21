@@ -45,6 +45,20 @@ this tool and not have to worry about re-arranging when all is back to normal.
    - Also, please do NOT move the mouse during recovery.
 - When software upgrades are available, a notice will show up in the menu.
 
+## Privacy Statement
+- PersistentWindows performs its duby by collecting following information,
+  * window position
+  * window size
+  * window zorder
+  * window caption text
+  * window class name
+  * process id and command line of the window
+  * key-strokes when interacting with PersistentWindows icon on taskbar
+  * CTRL ALT SHIFT key strokes when click or move a window
+- The memory of key-strokes is typically less than 2 seconds
+- Window information history is kept in memory or on hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
+- PersistentWindows periodically checks the github home page for software version upgrade, which can be disabled in menu
+  
 ## Known Issues
  - **A computer reboot triggered by Windows Update has recently caused the PersistentWindows icon to disappear. To fix it, please add the command option "-delay_start 10" in Task Scheduler and reboot**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with administrator privileges to fully recover the window layout. There is an option to "Run with highest privileges" when you add PersistentWindows in Task Scheduler.
