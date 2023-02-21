@@ -57,6 +57,8 @@
     * De-focus the rdp window first, then hold Ctrl+Win and click on the rdp window
 
 * Enable/Disable auto restore for any (child or dialog) window:
-  * To add a window for auto capture/restore, move the window using the mouse
-  * To remove a window from auto capture/restore, hold Ctrl+Shift then move the window
+  * To include a child/dialog window for auto restore, move the window using only the mouse
+  * To exclude a window from auto restore, hold Ctrl Shift keys then move the window
+  
+  
 ```
