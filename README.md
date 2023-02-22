@@ -46,7 +46,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - When software upgrades are available, a notice will show up in the menu.
 
 ## Privacy Statement
-- PersistentWindows performs its duby by collecting following information,
+- PersistentWindows performs its duty by collecting following information,
   * window position
   * window size
   * window zorder
@@ -60,7 +60,8 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - PersistentWindows periodically checks the github home page for software version upgrade, which can be disabled in menu
   
 ## Known Issues
- - **A computer reboot triggered by Windows Update has recently caused the PersistentWindows icon to disappear. To fix it, please add the command option "-delay_start 10" in Task Scheduler and reboot**
+- **Windows OS (or other apps) may revert window position that PersistentWindows has restored due to lack of coordination. The conflict can be resolved by adding delay to restore via command line argument such as "-delay_auto_restore 5" when launching PersistentWindows.exe**
+ - **A computer reboot triggered by Windows Update may cause the PersistentWindows icon to disappear. The issue can be fixed by adding delay to app startup via command line argument such as "-delay_start 10" when running PersistentWindows.exe**
 - Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with administrator privileges to fully recover the window layout. There is an option to "Run with highest privileges" when you add PersistentWindows in Task Scheduler.
 - **PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed**
 
