@@ -190,7 +190,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var cli = new WebClient();
-            string data = cli.DownloadString($"{Program.ProjectUrl}/releases/latest");
+            string data = cli.DownloadString($"{Program.ProjectUrl}/releases");
 
             string pattern = "releases/tag/";
             int index = data.IndexOf(pattern);
