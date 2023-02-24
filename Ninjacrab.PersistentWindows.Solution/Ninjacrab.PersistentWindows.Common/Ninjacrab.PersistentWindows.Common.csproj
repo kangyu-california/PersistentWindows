@@ -75,7 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LiteDB">
-      <Version>5.0.12</Version>
+      <Version>5.0.13</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
