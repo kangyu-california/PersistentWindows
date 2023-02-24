@@ -3478,8 +3478,8 @@ namespace Ninjacrab.PersistentWindows.Common
 
             if (initialized)
             {
-                SystemEvents.DisplaySettingsChanging -= this.displaySettingsChangingHandler;
-                SystemEvents.DisplaySettingsChanged -= this.displaySettingsChangedHandler;
+                SystemEvents.DisplaySettingsChanging -= displaySettingsChangingHandler;
+                SystemEvents.DisplaySettingsChanged -= displaySettingsChangedHandler;
                 SystemEvents.PowerModeChanged -= powerModeChangedHandler;
                 SystemEvents.SessionSwitch -= sessionSwitchEventHandler;
 

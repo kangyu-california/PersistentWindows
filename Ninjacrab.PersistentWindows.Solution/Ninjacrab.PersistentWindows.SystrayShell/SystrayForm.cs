@@ -160,7 +160,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                 {
                     if (skipUpgradeCounter == 0)
                     {
-                        CheckUpgrade();
+                        CheckUpgradeSafe();
                     }
 
                     skipUpgradeCounter = (skipUpgradeCounter + 1) % 31;
@@ -173,21 +173,24 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             restoreSnapshotMenuItem.Enabled = enable;
         }
 
+        private void CheckUpgradeSafe()
+        {
+            try
+            {
+                CheckUpgrade();
+            }
+            catch (Exception ex)
+            {
+                Program.LogError(ex.ToString());
+            }
+        }
+
         private void CheckUpgrade()
         {
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var cli = new WebClient();
-            string data;
-            try
-            {
-                data = cli.DownloadString($"{Program.ProjectUrl}/releases/latest");
-            }
-            catch (Exception ex)
-            {
-                Program.LogError(ex.ToString());
-                return;
-            }
+            string data = cli.DownloadString($"{Program.ProjectUrl}/releases/latest");
 
             string pattern = "releases/tag/";
             int index = data.IndexOf(pattern);
@@ -214,7 +217,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                     var dst_dir = Path.Combine($"{Program.AppdataFolder}", "upgrade");
                     var install_dir = Application.StartupPath;
 
-                    try
                     {
                         cli.DownloadFile(src_file, dst_file);
                         if (Directory.Exists(dst_dir))
@@ -232,10 +234,6 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
                             Upgrade();
                         else
                             upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
-                    }
-                    catch (Exception ex)
-                    {
-                        Program.LogError(ex.ToString());
                     }
                 }
             }
@@ -322,7 +320,7 @@ namespace Ninjacrab.PersistentWindows.SystrayShell
             {
                 enableUpgradeNotice = true;
                 upgradeNoticeMenuItem.Text = "Disable upgrade notice";
-                CheckUpgrade();
+                CheckUpgradeSafe();
             }
         }
 
