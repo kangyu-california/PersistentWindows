@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Ninjacrab.PersistentWindows.Common")]
+[assembly: AssemblyTitle("PersistentWindows.Common")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Ninjacrab.PersistentWindows.Common")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyProduct("PersistentWindows.Common")]
+[assembly: AssemblyCopyright("Copyright ©  2014-2023, PersistentWindows")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
