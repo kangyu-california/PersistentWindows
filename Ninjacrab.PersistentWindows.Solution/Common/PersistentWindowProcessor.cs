@@ -2051,6 +2051,9 @@ namespace PersistentWindows.Common
                 if (!IsTopLevelWindow(hwnd))
                     continue;
 
+                if (noRestoreWindows.Contains(hwnd))
+                    continue;
+
                 if (IsTaskBar(hwnd))
                 {
                     result.Add(hwnd);
@@ -2096,9 +2099,6 @@ namespace PersistentWindows.Common
                         continue;
                 }
                 */
-
-                if (noRestoreWindows.Contains(hwnd))
-                    continue;
 
                 result.Add(hwnd);
             }
