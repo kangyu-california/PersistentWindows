@@ -266,6 +266,7 @@ namespace PersistentWindows.Common
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
+                /*
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                 {
                     if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
@@ -287,6 +288,7 @@ namespace PersistentWindows.Common
                     else
                         ManualFixTopmostFlag(hwnd);
                 }
+                */
             });
 
             captureTimer = new Timer(state =>
@@ -1010,6 +1012,7 @@ namespace PersistentWindows.Common
                     if (noRestoreWindows.Contains(hwnd))
                         return;
 
+                    /*
                     if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                     {
                         if (!User32.SetForegroundWindow(hwnd))
@@ -1017,6 +1020,8 @@ namespace PersistentWindows.Common
                             Log.Error($"fail to bring window {GetWindowTitle(hwnd)} to foreground");
                         }
                     }
+                    */
+
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
                     RECT target_rect = prevDisplayMetrics.ScreenPosition;
