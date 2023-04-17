@@ -100,6 +100,7 @@ namespace PersistentWindows.Common
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
+        public bool accurateTaskbarMinimizedWindow = false;
         public bool autoRestoreMissingWindows = false;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
@@ -2326,7 +2327,10 @@ namespace PersistentWindows.Common
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
                     //remain minimized
-                    return false;
+                    if (!accurateTaskbarMinimizedWindow)
+                    {
+                        return false;
+                    }
                 }
 
                 if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
@@ -3034,14 +3038,21 @@ namespace PersistentWindows.Common
                 {
                     if (prevDisplayMetrics.IsMinimized)
                     {
-                        // first try to minimize
-                        User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                        if (accurateTaskbarMinimizedWindow && restoreTimes == 0)
+                        {
+                            //restore normal position first
+                        }
+                        else
+                        {
+                            // first try to minimize
+                            User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
 
-                        // second try
-                        if (!IsMinimized(hWnd))
-                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
-                        Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
-                        continue;
+                            // second try
+                            if (!IsMinimized(hWnd))
+                                User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                            Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
+                            continue;
+                        }
                     }
                 }
 

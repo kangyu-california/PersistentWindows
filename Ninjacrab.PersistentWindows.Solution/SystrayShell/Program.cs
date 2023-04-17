@@ -162,6 +162,9 @@ namespace PersistentWindows.SystrayShell
                     case "-fix_unminimized_window=0":
                         fix_unminimized_window = false;
                         break;
+                    case "-accurate_taskbar_minimized_window=1":
+                        pwp.accurateTaskbarMinimizedWindow = true;
+                        break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
