@@ -3132,12 +3132,16 @@ namespace PersistentWindows.Common
 
                     if (!dryRun && need_move_window)
                     {
+                        if (prevDisplayMetrics.IsMinimized)
+                        {
+                            windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        }
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
                 }
 
                 // recover previous screen position
-                if (!dryRun)
+                if (!dryRun && !prevDisplayMetrics.IsMinimized)
                 {
                     if (need_move_window)
                     {
