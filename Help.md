@@ -50,7 +50,7 @@
   * Save your icon file as `pwIcon.ico` and copy it to `C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the current directory if running PersistentWindows with the `-redirect_appdata` command line option.
   * Save the second icon file as `pwIconBusy.ico`. This icon is displayed when PersistentWindows is busy restoring windows.
 
-* Manipulate the window z-order:
+* Manipulate the window z-order (Obsolete since version 5.41):
   * Bring a window to the top of the z-order by clearing the topmost flag of an obstructive window:
     * Click on the other window first to de-focus, then Ctrl click the window that you want to bring to the top (or the corresponding icon on the taskbar).
   * Send a remote desktop or vncviewer window to the bottom of the z-order (because the Alt+Esc hotkey may not work for them on Windows 7 or old Windows 10 versions):
