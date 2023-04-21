@@ -3056,14 +3056,13 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (AllowRestoreZorder() && !restoringFromDB && curDisplayMetrics.NeedClearTopMost)
                 {
-                    //Log.Error("Found topmost window {0}", GetWindowTitle(hWnd));
                     FixTopMostWindow(hWnd);
                     topmostWindowsFixed.Add(hWnd);
                 }
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedRestoreZorder)
+                if (AllowRestoreZorder() && !restoringFromDB && curDisplayMetrics.NeedRestoreZorder)
                 {
                     zorderFixed = true; //force next pass for topmost flag fix and zorder check
 
@@ -3285,9 +3284,8 @@ namespace PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-                if (AllowRestoreZorder() && restoringFromMem && curDisplayMetrics.NeedClearTopMost)
+                if (AllowRestoreZorder() && !restoringFromDB && curDisplayMetrics.NeedClearTopMost)
                 {
-                    //Log.Error("Found topmost window {0}", GetWindowTitle(hWnd));
                     FixTopMostWindow(hWnd);
                     topmostWindowsFixed.Add(hWnd);
                     zorderFixed = true; //force next pass for topmost flag fix and zorder check
