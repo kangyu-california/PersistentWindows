@@ -3139,6 +3139,12 @@ namespace PersistentWindows.Common
                             windowPlacement.ShowCmd = ShowWindowCommands.Normal;
                         }
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
+
+                        if (prevDisplayMetrics.IsMinimized)
+                        {
+                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
+                            success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                        }
                     }
                 }
 
