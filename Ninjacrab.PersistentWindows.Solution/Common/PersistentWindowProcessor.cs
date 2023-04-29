@@ -90,7 +90,6 @@ namespace PersistentWindows.Common
         public bool restoringFromMem = false; // automatic restore from memory or snapshot
         public bool restoringFromDB = false; // manual restore from DB
         public bool restoringSnapshot = false; // implies restoringFromMem
-        public bool dryRun = false; // only capturre, no actual restore
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 5; // bit i represent restore method for pass i
@@ -3022,9 +3021,6 @@ namespace PersistentWindows.Common
 
                 if (IsTaskBar(hWnd))
                 {
-                    if (dryRun)
-                        continue;
-
                     bool changed_edge = MoveTaskBar(hWnd, rect);
                     bool changed_width = false;
                     if (!remoteSession || restoringFromDB || restoringSnapshot)
@@ -3037,7 +3033,6 @@ namespace PersistentWindows.Common
 
                 changeIconText($"Restore {GetWindowTitle(hWnd)}");
 
-                if (!dryRun)
                 {
                     if (prevDisplayMetrics.IsMinimized)
                     {
@@ -3079,7 +3074,7 @@ namespace PersistentWindows.Common
 
                 bool need_move_window = true;
                 bool restore_fullscreen = false;
-                if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && !dryRun)
+                if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized)
                 {
                     if (curDisplayMetrics.IsMinimized)
                     {
@@ -3096,16 +3091,21 @@ namespace PersistentWindows.Common
                 if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize && !dryRun)
+                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                     {
-                        // When restoring maximized windows, it occasionally switches res and when the maximized setting is restored
-                        // the window thinks it's maximized, but does not eat all the real estate. So we'll temporarily unmaximize then
-                        // re-apply that
+                        //restore maximized window to correct monitor
                         windowPlacement.ShowCmd = ShowWindowCommands.Normal;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
-                    else if (prevDisplayMetrics.IsFullScreen && !prevDisplayMetrics.IsMinimized && !dryRun)
+                    else if (prevDisplayMetrics.IsMinimized)
+                    {
+                        //restore minimized window button to correct taskbar
+                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                        windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
+                    }
+                    else if (prevDisplayMetrics.IsFullScreen)
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
                         long style = User32.GetWindowLong(hWnd, User32.GWL_STYLE);
@@ -3132,24 +3132,14 @@ namespace PersistentWindows.Common
                         }
                     }
 
-                    if (!dryRun && need_move_window)
+                    if (need_move_window)
                     {
-                        if (prevDisplayMetrics.IsMinimized)
-                        {
-                            windowPlacement.ShowCmd = ShowWindowCommands.Normal;
-                        }
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
-
-                        if (prevDisplayMetrics.IsMinimized)
-                        {
-                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
-                            success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                        }
                     }
                 }
 
                 // recover previous screen position
-                if (!dryRun && !prevDisplayMetrics.IsMinimized)
+                if (!prevDisplayMetrics.IsMinimized)
                 {
                     if (need_move_window)
                     {
@@ -3348,7 +3338,6 @@ namespace PersistentWindows.Common
 
                     if (!String.IsNullOrEmpty(curDisplayMetrics.ProcessExePath))
                     {
-                        if (!dryRun)
                         {
                             try
                             {

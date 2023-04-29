@@ -47,7 +47,6 @@ namespace PersistentWindows.SystrayShell
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
             int debug_process = 0;
-            bool dry_run = false; //dry run mode without real restore, for debug purpose only
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
             bool show_desktop = false; //show desktop when display changes
@@ -181,9 +180,6 @@ namespace PersistentWindows.SystrayShell
                     case "-notification=1":
                         notification = true;
                         break;
-                    case "-dry_run":
-                        dry_run = true;
-                        break;
                     case "-fix_zorder=0":
                         fix_zorder = false;
                         fix_zorder_specified = true;
@@ -262,7 +258,6 @@ namespace PersistentWindows.SystrayShell
                 systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
             pwp.icon = IdleIcon;
-            pwp.dryRun = dry_run;
             if (fix_zorder_specified)
             {
                 if (fix_zorder)
