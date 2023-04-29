@@ -99,7 +99,7 @@ namespace PersistentWindows.Common
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
-        public bool accurateTaskbarMinimizedWindow = false;
+        public bool accurateTaskbarMinimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
