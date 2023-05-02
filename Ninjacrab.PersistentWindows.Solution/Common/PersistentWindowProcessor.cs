@@ -2079,15 +2079,18 @@ namespace PersistentWindows.Common
                 if (!User32.IsWindowVisible(hwnd))
                     continue;
                 */
-                var rect = new RECT();
-                User32.GetWindowRect(hwnd, ref rect);
-                if (rect.Width <= 1 && rect.Height <= 1)
-                    continue;
-
                 if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
                     continue;
 
                 if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
+                    continue;
+
+                var rect = new RECT();
+                User32.GetWindowRect(hwnd, ref rect);
+                if (rect.Width <= 1 && rect.Height <= 1)
+                    continue;
+                User32.GetClientRect(hwnd, out rect);
+                if (rect.Width <= 0 || rect.Height <= 0)
                     continue;
 
                 // workaround runtime overflow exception in release build
