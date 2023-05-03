@@ -2079,18 +2079,15 @@ namespace PersistentWindows.Common
                 if (!User32.IsWindowVisible(hwnd))
                     continue;
                 */
-                if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
-                    continue;
-
-                if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
-                    continue;
-
                 var rect = new RECT();
                 User32.GetWindowRect(hwnd, ref rect);
                 if (rect.Width <= 1 && rect.Height <= 1)
                     continue;
-                User32.GetClientRect(hwnd, out rect);
-                if (rect.Width <= 0 || rect.Height <= 0)
+
+                if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
+                    continue;
+
+                if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
 
                 // workaround runtime overflow exception in release build
@@ -2336,6 +2333,13 @@ namespace PersistentWindows.Common
                     {
                         return false;
                     }
+
+                    /* minimized mstsc window has null client rect too
+                    var rect = new RECT();
+                    User32.GetClientRect(hwnd, out rect);
+                    if (rect.Width <= 0 || rect.Height <= 0)
+                        return false;
+                    */
                 }
 
                 if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
@@ -3036,24 +3040,19 @@ namespace PersistentWindows.Common
 
                 changeIconText($"Restore {GetWindowTitle(hWnd)}");
 
+                if (prevDisplayMetrics.IsMinimized)
                 {
-                    if (prevDisplayMetrics.IsMinimized)
+                    if (prevDisplayMetrics.IsInvisible || !accurateTaskbarMinimizedWindow || restoreTimes > 0)
                     {
-                        if (accurateTaskbarMinimizedWindow && restoreTimes == 0)
-                        {
-                            //restore normal position first
-                        }
-                        else
-                        {
-                            // first try to minimize
+                        // first try to minimize
+                        if (!IsMinimized(hWnd))
                             User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
 
-                            // second try
-                            if (!IsMinimized(hWnd))
-                                User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
-                            Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
-                            continue;
-                        }
+                        // second try
+                        if (!IsMinimized(hWnd))
+                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                        Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
+                        continue;
                     }
                 }
 
