@@ -2329,7 +2329,7 @@ namespace PersistentWindows.Common
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
                     //remain minimized
-                    if (!accurateTaskbarMinimizedWindow)
+                    if (!accurateTaskbarMinimizedWindow || prevDisplayMetrics.IsFullScreen)
                     {
                         return false;
                     }
