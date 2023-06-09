@@ -192,8 +192,12 @@ namespace PersistentWindows.SystrayShell
             var cli = new WebClient();
             string data = cli.DownloadString($"{Program.ProjectUrl}/releases");
 
+            string latest_pattern = "releases/latest";
+            int index = data.IndexOf(latest_pattern);
+            index -= 256;
+            data = data.Substring(index, 256);
             string pattern = "releases/tag/";
-            int index = data.IndexOf(pattern);
+            index = data.IndexOf(pattern);
             string latestVersion = data.Substring(index + pattern.Length, data.Substring(index + pattern.Length, 6).LastIndexOf('"'));
 
             string[] latest = latestVersion.Split('.');
