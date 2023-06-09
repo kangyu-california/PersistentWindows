@@ -3028,12 +3028,21 @@ namespace PersistentWindows.Common
 
                 if (IsTaskBar(hWnd))
                 {
+                    int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
+                    if (taskbarMovable == 0)
+                    {
+                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, IntPtr.Zero);
+                    }
                     bool changed_edge = MoveTaskBar(hWnd, rect);
                     bool changed_width = false;
                     if (!remoteSession || restoringFromDB || restoringSnapshot)
                         changed_width = RecoverTaskBarArea(hWnd, rect);
                     if (changed_edge || changed_width)
                         restoredWindows.Add(hWnd);
+                    if (taskbarMovable == 0)
+                    {
+                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, IntPtr.Zero);
+                    }
 
                     continue;
                 }

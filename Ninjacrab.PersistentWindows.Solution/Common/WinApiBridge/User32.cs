@@ -439,8 +439,10 @@ namespace PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+        public const int WM_COMMAND = 0x0111;
         public const int WM_SYSCOMMAND = 0x0112;
         public const int SC_MINIMIZE = 0xF020;
+        public const int SC_TOGGLE_TASKBAR_LOCK = 424;
 
         #region Hooks
         [DllImport("user32.dll")]
