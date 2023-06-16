@@ -121,6 +121,8 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
 
         private Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
+        private Process process;
+        private ProcessPriorityClass processPriority;
 
         private string appDataFolder;
         public bool redirectAppDataFolder = false;
@@ -172,6 +174,10 @@ namespace PersistentWindows.Common
 #endif
         public bool Start(bool auto_restore_from_db = false)
         {
+            process = Process.GetCurrentProcess();
+            processPriority = process.PriorityClass;
+            int basePriority = process.BasePriority;
+
             while (String.IsNullOrEmpty(GetDisplayKey()))
             {
                 Thread.Sleep(5000);
@@ -393,6 +399,8 @@ namespace PersistentWindows.Common
                 changeIconText(null);
 
                 noRestoreWindowsTmp.Clear();
+
+                process.PriorityClass = processPriority;
 
             });
 
@@ -2391,6 +2399,8 @@ namespace PersistentWindows.Common
                 normalSessions.Add(curDisplayKey);
 
             Log.Trace("Restore timer expired");
+
+            process.PriorityClass = ProcessPriorityClass.High;
 
             lock (restoreLock)
                 BatchRestoreApplicationsOnCurrentDisplays();
