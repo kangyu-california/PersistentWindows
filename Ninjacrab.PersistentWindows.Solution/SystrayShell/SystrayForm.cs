@@ -366,7 +366,7 @@ namespace PersistentWindows.SystrayShell
                 DateTime now = DateTime.Now;
                 var ms = now.Subtract(clickTime).TotalMilliseconds;
                 Console.WriteLine("{0}", ms);
-                if (ms < 30 || ms > 200)
+                if (ms < 30 || ms > SystemInformation.DoubleClickTime / 2)
                 {
                     Program.LogError($"ignore bogus double click {ms} ms");
                     return;
@@ -398,7 +398,7 @@ namespace PersistentWindows.SystrayShell
                 Console.WriteLine("Up");
 
                 clickCount++;
-                StartTimer(400);
+                StartTimer(SystemInformation.DoubleClickTime);
             }
             /*
             else if (e.Button == MouseButtons.Right)

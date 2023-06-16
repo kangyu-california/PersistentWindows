@@ -176,7 +176,7 @@ namespace PersistentWindows.Common
         {
             process = Process.GetCurrentProcess();
             processPriority = process.PriorityClass;
-            int basePriority = process.BasePriority;
+
 
             while (String.IsNullOrEmpty(GetDisplayKey()))
             {
@@ -2553,7 +2553,8 @@ namespace PersistentWindows.Common
             User32.SetActiveWindow(hwnd);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(150);
+            int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
+            Thread.Sleep(double_clck_interval);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
 
