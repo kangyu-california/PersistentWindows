@@ -40,15 +40,13 @@
 
 ---
 ### Other Features
-* Save a named capture to disk:
-  * Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
+* Create named capture(s) to disk
+  * To save a named capture to disk, Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
+  * To restore the named capture from disk, Ctrl click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
 
-* Restore a named capture from disk:
-  * Ctrl click the "Restore windows from disk" menu option, then enter the saved name in the dialog
-
-* Run PersistentWindows with custom icons:
-  * Save your icon file as `pwIcon.ico` and copy it to `C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the current directory if running PersistentWindows with the `-redirect_appdata` command line option.
-  * Save the second icon file as `pwIconBusy.ico`. This icon is displayed when PersistentWindows is busy restoring windows.
+* Replace the default app icon with your customized one
+  * Save your icon file as `pwIcon.ico` and copy it to `C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the directory where you are invoking PersistentWindows from using the `-redirect_appdata` command argument.
+  * Save the second icon file as `pwIconBusy.ico` in the same directory. This icon is displayed when PersistentWindows is busy restoring windows.
 
 * Manipulate the window z-order (Obsolete since version 5.41):
   * Bring a window to the top of the z-order by clearing the topmost flag of an obstructive window:
