@@ -3112,7 +3112,7 @@ namespace PersistentWindows.Common
                     if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
                     {
                         //restore maximized window to correct monitor
-                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                        windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
