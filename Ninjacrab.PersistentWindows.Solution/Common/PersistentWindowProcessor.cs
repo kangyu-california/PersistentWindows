@@ -3062,7 +3062,7 @@ namespace PersistentWindows.Common
                     {
                         // first try to minimize
                         if (!IsMinimized(hWnd))
-                            User32.ShowWindow(hWnd, User32.SW_SHOWMINNOACTIVE);
+                            User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
 
                         // second try
                         if (!IsMinimized(hWnd))
@@ -3099,7 +3099,7 @@ namespace PersistentWindows.Common
                         Log.Error("restore minimized window to full screen {0}", GetWindowTitle(hWnd));
                         need_move_window = false;
                         restore_fullscreen = true;
-                        User32.ShowWindow(hWnd, User32.SW_NORMAL);
+                        User32.ShowWindow(hWnd, (int)ShowWindowCommands.Normal);
                         IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
                         rect = prevDisplayMetrics.ScreenPosition;
                         windowPlacement = prevDisplayMetrics.WindowPlacement;
