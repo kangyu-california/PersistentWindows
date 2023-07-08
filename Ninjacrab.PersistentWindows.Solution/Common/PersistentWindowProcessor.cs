@@ -1815,13 +1815,9 @@ namespace PersistentWindows.Common
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        public void StartRestoreTimer(int milliSecond = RestoreLatency, bool wait = false)
+        public void StartRestoreTimer(int milliSecond = RestoreLatency)
         {
             restoreTimer.Change(milliSecond, Timeout.Infinite);
-            if (wait)
-            {
-                Thread.Sleep(milliSecond);
-            }
         }
 
         private void CancelRestoreTimer()

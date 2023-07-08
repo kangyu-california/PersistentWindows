@@ -19,6 +19,7 @@
   | -redraw_desktop | Redraw the whole desktop after a restore in case some window workarea is not refreshed
   | -fix_zorder=1   | Preserve window Z-order for automatic restore. The Z-order of a window indicates the window's position in a stack of overlapping windows.
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen windows
+  | -accurate_taskbar_minimized_window=0 | Turn off fix for #224 (minimized window landed on wrong taskbar), which has side-effect of switching virtual desktop upon restore
   | -fix_unminimized_window=0 | Turn off auto restore of unminimized windows. Use this switch to avoid undesirable window shifting during window activation, which comes with Event id 9999 : "restore minimized window ...." in event viewer.
   | ‑auto_restore_missing_windows=1 | When restoring from disk, restore missing windows without prompting the user
   | ‑auto_restore_missing_windows=2 | At startup, automatically restore missing windows from disk. The user will be prompted before restoring each missing window
