@@ -3118,10 +3118,10 @@ namespace PersistentWindows.Common
                     }
                     else if (prevDisplayMetrics.IsMinimized)
                     {
-                        if (User32.IsWindowOnCurrentVirtualDesktop(hWnd))
+                        //if (User32.IsWindowOnCurrentVirtualDesktop(hWnd))
                         {
                             //restore minimized window button to correct taskbar
-                            windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                            windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
                             User32.SetWindowPlacement(hWnd, ref windowPlacement);
                             windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
                         }
