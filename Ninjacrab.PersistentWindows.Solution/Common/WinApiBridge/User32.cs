@@ -444,6 +444,9 @@ namespace PersistentWindows.Common.WinApiBridge
         public const int SC_MINIMIZE = 0xF020;
         public const int SC_TOGGLE_TASKBAR_LOCK = 424;
 
+        [DllImport("user32.dll")]
+        public static extern bool IsWindowOnCurrentVirtualDesktop(IntPtr hWnd);
+
         #region Hooks
         [DllImport("user32.dll")]
         public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);

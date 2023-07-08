@@ -3118,10 +3118,13 @@ namespace PersistentWindows.Common
                     }
                     else if (prevDisplayMetrics.IsMinimized)
                     {
-                        //restore minimized window button to correct taskbar
-                        windowPlacement.ShowCmd = ShowWindowCommands.Normal;
-                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                        windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
+                        if (User32.IsWindowOnCurrentVirtualDesktop(hWnd))
+                        {
+                            //restore minimized window button to correct taskbar
+                            windowPlacement.ShowCmd = ShowWindowCommands.Normal;
+                            User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
+                        }
                     }
                     else if (prevDisplayMetrics.IsFullScreen)
                     {
