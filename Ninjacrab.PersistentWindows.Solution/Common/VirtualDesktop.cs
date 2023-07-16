@@ -25,7 +25,7 @@ namespace PersistentWindows.Common
 
     public class VirtualDesktop
     {
-        private static IVirtualDesktopManager _manager = null;
+        private IVirtualDesktopManager _manager = null;
 
         public VirtualDesktop()
         {

@@ -166,6 +166,8 @@ namespace PersistentWindows.Common
         // running thread
         private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
+        private VirtualDesktop vd = new VirtualDesktop();
+
 #if DEBUG
         private void DebugInterval()
         {
@@ -1972,6 +1974,11 @@ namespace PersistentWindows.Common
                                 {
                                     curDisplayMetrics.ProcessExePath = procPath;
                                 }
+                            }
+
+                            if (vd.Enabled())
+                            {
+                                curDisplayMetrics.Guid = vd.GetWindowDesktopId(hWnd);
                             }
 
                             if (displayKey != dbDisplayKey)

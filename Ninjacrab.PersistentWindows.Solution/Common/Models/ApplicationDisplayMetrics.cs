@@ -16,6 +16,7 @@ namespace PersistentWindows.Common.Models
     {
         // for LiteDB use only
         public int Id { get; set; }
+        public Guid Guid { get; set; }
         public uint ProcessId { get; set; }
         public string ProcessExePath { get; set; }
 
