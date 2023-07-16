@@ -542,6 +542,7 @@ namespace PersistentWindows.Common
                                 }
                                 restoringFromMem = true;
                                 StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
+                                CenterCursor();
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
@@ -1296,9 +1297,17 @@ namespace PersistentWindows.Common
                             // let it trigger next restore
                             break;
 
+                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            if (User32.GetForegroundWindow() != hwnd)
+                                //the unminimization action is not by user
+                                break;
+                            if (!IsCursorOnTaskbar())
+                                //the unminimization action might be caused by Windows OS
+                                //TODO: exclude alt-tab
+                                break;
+                            goto case User32Events.EVENT_SYSTEM_MOVESIZESTART;
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
-                        case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                             noRestoreWindowsTmp.Add(hwnd);
                             break;
 
@@ -1405,6 +1414,7 @@ namespace PersistentWindows.Common
                                 Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 userMove = true;
                             }
+
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZESTART:
@@ -2515,6 +2525,20 @@ namespace PersistentWindows.Common
             return false;
         }
 
+        private bool IsCursorOnTaskbar()
+        {
+            POINT cursorPos;
+            User32.GetCursorPos(out cursorPos);
+            IntPtr wndUnderCursor = User32.WindowFromPoint(cursorPos);
+            while (wndUnderCursor != IntPtr.Zero)
+            {
+                if (IsTaskBar(wndUnderCursor))
+                    return true;
+                wndUnderCursor = User32.GetParent(wndUnderCursor);
+            }
+            return false;
+        }
+
         private bool IsWrongMonitor(IntPtr hwnd, RECT target_rect)
         {
             RECT cur_rect = new RECT();
@@ -2599,6 +2623,15 @@ namespace PersistentWindows.Common
             }
         }
 
+        private void CenterCursor()
+        {
+            // center cursor
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT rect = new RECT();
+            User32.GetWindowRect(desktopWindow, ref rect);
+            User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+        }
+
         private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
         {
             // simulate mouse drag, assuming taskbar is unlocked
@@ -2677,11 +2710,7 @@ namespace PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(1000); // wait OS finish move
 
-            // center curser
-            IntPtr desktopWindow = User32.GetDesktopWindow();
-            RECT rect = new RECT();
-            User32.GetWindowRect(desktopWindow, ref rect);
-            User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+            CenterCursor();
 
             return true;
         }
@@ -2784,11 +2813,7 @@ namespace PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
 
             //move mouse to hide resize shape
-            // center curser
-            IntPtr desktopWindow = User32.GetDesktopWindow();
-            RECT rect = new RECT();
-            User32.GetWindowRect(desktopWindow, ref rect);
-            User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
+            CenterCursor();
 
             return true;
         }
