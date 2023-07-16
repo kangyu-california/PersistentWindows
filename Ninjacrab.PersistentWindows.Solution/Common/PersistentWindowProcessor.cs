@@ -3050,6 +3050,7 @@ namespace PersistentWindows.Common
                         continue;
                 }
 
+                /*
                 if (restoringFromDB)
                 {
                     if (vd.Enabled() && IsTopLevelWindow(hWnd))
@@ -3062,6 +3063,8 @@ namespace PersistentWindows.Common
                         }
                     }
                 }
+                */
+
                 RECT rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
@@ -3376,6 +3379,8 @@ namespace PersistentWindows.Common
                         var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName, curDisplayMetrics.Title);
                         runProcessDlg.TopMost = true;
                         runProcessDlg.Icon = icon;
+                        if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty)
+                            vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
                         runProcessDlg.ShowDialog();
 
                         bool no_to_all = runProcessDlg.buttonName.Equals("NoToAll");
