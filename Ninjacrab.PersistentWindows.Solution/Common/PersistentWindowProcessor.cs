@@ -1976,7 +1976,7 @@ namespace PersistentWindows.Common
                                 }
                             }
 
-                            if (vd.Enabled())
+                            if (vd.Enabled() && IsTopLevelWindow(hWnd))
                             {
                                 curDisplayMetrics.Guid = vd.GetWindowDesktopId(hWnd);
                             }
@@ -2366,6 +2366,19 @@ namespace PersistentWindows.Common
                 {
                     //minimize end
                     moved = true;
+                }
+
+                if (restoringFromDB)
+                {
+                    if (vd.Enabled() && IsTopLevelWindow(hwnd))
+                    {
+                        Guid curVd = vd.GetWindowDesktopId(hwnd);
+                        if (curVd != Guid.Empty && prevDisplayMetrics.Guid != Guid.Empty)
+                        {
+                            if (curVd != prevDisplayMetrics.Guid)
+                                return true;
+                        }
+                    }
                 }
 
                 if (fixZorder > 0)
@@ -3037,6 +3050,18 @@ namespace PersistentWindows.Common
                         continue;
                 }
 
+                if (restoringFromDB)
+                {
+                    if (vd.Enabled() && IsTopLevelWindow(hWnd))
+                    {
+                        Guid curVd = vd.GetWindowDesktopId(hWnd);
+                        if (curVd != Guid.Empty && prevDisplayMetrics.Guid != Guid.Empty)
+                        {
+                            if (curVd != prevDisplayMetrics.Guid)
+                                vd.MoveWindowToDesktop(hWnd, prevDisplayMetrics.Guid);
+                        }
+                    }
+                }
                 RECT rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 

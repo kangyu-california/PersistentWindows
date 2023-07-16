@@ -62,7 +62,7 @@ namespace PersistentWindows.Common
             if (hr != 0)
             {
                 //Marshal.ThrowExceptionForHR(hr);
-                Log.Error("GetWindowDesktopId() call failed");
+                //Log.Error("GetWindowDesktopId() call failed");
             }
 
             return result;
