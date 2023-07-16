@@ -110,6 +110,7 @@ namespace PersistentWindows.Common
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
+        private bool altTabPressed = false; //user switched window during auto-restore
 
         private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
             {
@@ -328,6 +329,7 @@ namespace PersistentWindows.Common
 
                 restoringFromDB = false;
                 restoringFromMem = false;
+                altTabPressed = false;
                 bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
                 ResetState();
@@ -1291,6 +1293,10 @@ namespace PersistentWindows.Common
                 {
                     switch (eventType)
                     {
+                        case User32Events.EVENT_SYSTEM_FOREGROUND:
+                            if (title.Contains("Task Switching"))
+                                altTabPressed = true;
+                            break;
                         case User32Events.EVENT_OBJECT_LOCATIONCHANGE:
                             if (restoringSnapshot)
                                 return;
@@ -1298,12 +1304,13 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
+                            /*
                             if (User32.GetForegroundWindow() != hwnd)
                                 //the unminimization action is not by user
                                 break;
-                            if (!IsCursorOnTaskbar())
+                            */
+                            if (!IsCursorOnTaskbar() && !altTabPressed)
                                 //the unminimization action might be caused by Windows OS
-                                //TODO: exclude alt-tab
                                 break;
                             goto case User32Events.EVENT_SYSTEM_MOVESIZESTART;
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
@@ -1898,7 +1905,6 @@ namespace PersistentWindows.Common
                 //CancelRestoreTimer();
                 restoreTimes = 0;
                 restoredWindows.Clear();
-
             }
         }
 
