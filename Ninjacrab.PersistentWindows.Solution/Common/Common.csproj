@@ -63,6 +63,7 @@
     </Compile>
     <Compile Include="PersistentWindowProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="VirtualDesktop.cs" />
     <Compile Include="WinApiBridge\CallWindowProcedureParam.cs" />
     <Compile Include="WinApiBridge\Display.cs" />
     <Compile Include="WinApiBridge\MonitorInfo.cs" />
