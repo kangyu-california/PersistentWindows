@@ -32,13 +32,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
   <img src="showicon.png" alt="taskbar setting" width="400" />
 
-- The icon will turn red during a restore. Avoid moving the windows until it changes back to green
-- To be able to restore the taskbar:
-  - Make sure the taskbar is unlocked (i.e. it can be dragged using  the mouse).
-
-    <img src="https://user-images.githubusercontent.com/59128756/116501499-c24e3280-a865-11eb-9bc9-78aa545a239c.png" alt="image" width="500"/>
-
-   - Also, please do NOT move the mouse during recovery.
+- To restore taskbar position, avoid moving mouse when the icon turns red.
 - When software upgrades are available, a notice will show up in the menu.
 
 ## Privacy Statement
