@@ -3126,9 +3126,9 @@ namespace PersistentWindows.Common
                 {
                     if (prevDisplayMetrics.IsInvisible || !accurateTaskbarMinimizedWindow || restoreTimes > 0)
                     {
-                        // first try to minimize
-                        if (!IsMinimized(hWnd))
-                            User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
+                        // #239 IsMinimized()/IsIconic() may remain true even if the window has become visible (by OS)
+                        // IsWindowsMoved() detected difference in screen position
+                        User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
 
                         // second try
                         if (!IsMinimized(hWnd))
