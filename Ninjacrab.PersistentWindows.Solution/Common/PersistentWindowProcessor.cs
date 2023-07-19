@@ -3411,7 +3411,10 @@ namespace PersistentWindows.Common
                         runProcessDlg.TopMost = true;
                         runProcessDlg.Icon = icon;
                         if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty)
+                        {
+                            Thread.Sleep(5000);
                             vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
+                        }
                         runProcessDlg.ShowDialog();
 
                         bool no_to_all = runProcessDlg.buttonName.Equals("NoToAll");
