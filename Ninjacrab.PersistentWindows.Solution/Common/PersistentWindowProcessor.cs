@@ -3189,7 +3189,7 @@ namespace PersistentWindows.Common
                             //restore minimized window button to correct taskbar
                             windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
                             User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinimized;
+                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinNoActive;
                         }
                     }
                     else if (prevDisplayMetrics.IsFullScreen)
