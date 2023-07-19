@@ -1096,7 +1096,7 @@ namespace PersistentWindows.Common
                             {
                                 IntPtr desktopWindow = User32.GetDesktopWindow();
                                 User32.GetWindowRect(desktopWindow, ref target_rect);
-                                User32.MoveWindow(hwnd, target_rect.Left + 200, target_rect.Top + 200, 400, 300, true);
+                                User32.MoveWindow(hwnd, target_rect.Left + 50, target_rect.Top + 50, target_rect.Width * 3 / 4, target_rect.Height * 3 / 4, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
