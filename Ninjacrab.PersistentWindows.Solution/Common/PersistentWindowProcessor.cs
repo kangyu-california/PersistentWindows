@@ -3438,7 +3438,10 @@ namespace PersistentWindows.Common
                         runProcessDlg.Icon = icon;
                         if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
-                            Thread.Sleep(5000); //wait 
+                            System.Windows.Forms.MessageBox.Show("Proceed to restore windows on another virtual desktop",
+                                System.Windows.Forms.Application.ProductName,
+                                System.Windows.Forms.MessageBoxButtons.OK,
+                                System.Windows.Forms.MessageBoxIcon.Information);
                             vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
                         }
                         runProcessDlg.ShowDialog();
