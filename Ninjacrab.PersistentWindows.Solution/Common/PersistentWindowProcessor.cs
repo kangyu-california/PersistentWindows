@@ -168,6 +168,7 @@ namespace PersistentWindows.Common
         private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
         private VirtualDesktop vd = new VirtualDesktop();
+        private Guid curVirtualDesktop;
 
 #if DEBUG
         private void DebugInterval()
@@ -1341,6 +1342,10 @@ namespace PersistentWindows.Common
                             {
                                 if (restoringFromDB)
                                 {
+                                    if (vd.Enabled())
+                                    {
+                                        curVirtualDesktop = vd.GetWindowDesktopId(hwnd); 
+                                    }
                                     // immediately capture new window
                                     //StartCaptureTimer(milliSeconds: 0);
                                     DateTime now = DateTime.Now;
@@ -2924,6 +2929,16 @@ namespace PersistentWindows.Common
             DateTime printRestoreTime = lastCaptureTime;
             if (restoringFromDB) using (var persistDB = new LiteDatabase(persistDbName))
             {
+                if (vd.Enabled() && restoreTimes == 0)
+                {
+                    foreach (var hWnd in sWindows)
+                    {
+                        curVirtualDesktop = vd.GetWindowDesktopId(hWnd);
+                        if (curVirtualDesktop != Guid.Empty)
+                            break;
+                    }
+                }
+
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                 for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel) foreach (var hWnd in sWindows)
                 {
@@ -3386,10 +3401,21 @@ namespace PersistentWindows.Common
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
 
                 // launch missing process according to db
-                var results = db.FindAll(); // find process not yet started
+                var list = new List<ApplicationDisplayMetrics>(db.FindAll());
+                if (vd.Enabled())
+                {
+                    //sort windows by virtual desktop
+                    list.Sort(delegate (ApplicationDisplayMetrics adm1, ApplicationDisplayMetrics adm2)
+                    {
+                        if (adm1.Guid != adm2.Guid)
+                            return adm1.Guid.ToString().CompareTo(adm2.Guid.ToString());
+                        return 0;
+                    });
+                }
+
                 var i = 0; //.bat file id
                 bool yes_to_all = autoRestoreMissingWindows;
-                foreach (var curDisplayMetrics in results)
+                foreach (var curDisplayMetrics in list)
                 {
                     if (curDisplayMetrics.IsInvisible)
                         continue;
@@ -3410,9 +3436,9 @@ namespace PersistentWindows.Common
                         var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName, curDisplayMetrics.Title);
                         runProcessDlg.TopMost = true;
                         runProcessDlg.Icon = icon;
-                        if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty)
+                        if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
-                            Thread.Sleep(5000);
+                            Thread.Sleep(5000); //wait 
                             vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
                         }
                         runProcessDlg.ShowDialog();
@@ -3461,6 +3487,7 @@ namespace PersistentWindows.Common
                                 //Process process = Process.Start("cmd.exe", "-c " + batFile);
                                 Process process = Process.Start("explorer.exe", batFile);
                                 Thread.Sleep(2000);
+                                //process.WaitForInputIdle();
                                 //File.Delete(batFile);
                                 if (!process.HasExited)
                                     process.Kill();
