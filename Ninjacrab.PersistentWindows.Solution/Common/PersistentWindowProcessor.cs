@@ -99,7 +99,6 @@ namespace PersistentWindows.Common
         public bool enableOffScreenFix = true;
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
-        public bool accurateTaskbarMinimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
@@ -2361,7 +2360,7 @@ namespace PersistentWindows.Common
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
                     //remain minimized
-                    if (!accurateTaskbarMinimizedWindow || prevDisplayMetrics.IsFullScreen)
+                    if (prevDisplayMetrics.IsFullScreen)
                     {
                         return false;
                     }
@@ -3149,7 +3148,7 @@ namespace PersistentWindows.Common
                         Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
-                    if (!accurateTaskbarMinimizedWindow || restoreTimes > 0)
+                    if (restoreTimes > 0)
                     {
                         if (!IsMinimized(hWnd))
                             User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
