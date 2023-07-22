@@ -821,20 +821,20 @@ namespace PersistentWindows.Common
                 return false;
 
             POINT topLeft = new POINT(rect.Left + MinSize, rect.Top + MinSize);
-            if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
+            if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
             {
-                Log.Error("top left of {0} is off-screen, Rect = {1}", GetWindowTitle(hwnd), rect.ToString());
-                return true;
+                return false;
+            }
+            Log.Error("top left of {0} is off-screen, Rect = {1}", GetWindowTitle(hwnd), rect.ToString());
+
+            POINT topRight = new POINT(rect.Left + rect.Width - MinSize, rect.Top + MinSize);
+            if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
+            {
+                return false;
             }
 
-            POINT middle = new POINT(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
-            if (User32.MonitorFromPoint(middle, User32.MONITOR_DEFAULTTONULL) == IntPtr.Zero)
-            {
-                Log.Error("middle point ({0}, {1}) is off-screen", middle.X, middle.Y);
-                return true;
-            }
-
-            return false;
+            Log.Error("top right ({0}, {1}) is off-screen", topRight.X, topRight.Y);
+            return true;
         }
 
         private void FixOffScreenWindow(IntPtr hwnd)
