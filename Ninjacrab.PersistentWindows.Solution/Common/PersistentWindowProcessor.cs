@@ -3139,7 +3139,17 @@ namespace PersistentWindows.Common
 
                 if (prevDisplayMetrics.IsMinimized)
                 {
-                    if (prevDisplayMetrics.IsInvisible || !accurateTaskbarMinimizedWindow || restoreTimes > 0)
+                    if (prevDisplayMetrics.IsInvisible && User32.IsWindowVisible(hWnd))
+                    {
+                        // #239 IsWindowsMoved() detected difference in screen position
+                        User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                        uint style = (uint)User32.GetWindowLong(hWnd, User32.GWL_STYLE);
+                        style &= ~(uint)WindowStyleFlags.VISIBLE;
+                        User32.SetWindowLong(hWnd, User32.GWL_STYLE, style);
+                        Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
+                        continue;
+                    }
+                    if (!accurateTaskbarMinimizedWindow || restoreTimes > 0)
                     {
                         if (!IsMinimized(hWnd))
                             User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
@@ -3148,7 +3158,6 @@ namespace PersistentWindows.Common
                         if (!IsMinimized(hWnd))
                             User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
 
-                        // TODO: #239 IsWindowsMoved() detected difference in screen position
                         Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
