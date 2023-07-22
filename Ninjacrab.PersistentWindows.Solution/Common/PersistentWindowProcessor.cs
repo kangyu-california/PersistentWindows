@@ -3141,13 +3141,14 @@ namespace PersistentWindows.Common
                 {
                     if (prevDisplayMetrics.IsInvisible || !accurateTaskbarMinimizedWindow || restoreTimes > 0)
                     {
-                        // #239 IsMinimized()/IsIconic() may remain true even if the window has become visible (by OS)
-                        // IsWindowsMoved() detected difference in screen position
-                        User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
+                        if (!IsMinimized(hWnd))
+                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
 
                         // second try
                         if (!IsMinimized(hWnd))
-                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                            User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
+
+                        // TODO: #239 IsWindowsMoved() detected difference in screen position
                         Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
