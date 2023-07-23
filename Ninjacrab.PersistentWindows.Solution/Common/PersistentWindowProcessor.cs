@@ -2112,24 +2112,6 @@ namespace PersistentWindows.Common
                 if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
 
-                // workaround runtime overflow exception in release build
-                //SystemWindow window = new SystemWindow(hwnd);
-                //WindowStyleFlags style = window.Style;
-
-                /*
-                long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
-                if ((style & (long)WindowStyleFlags.MINIMIZEBOX) == 0L)
-                    continue;
-                */
-
-                /* full screen app such as mstsc may not have maximize box */
-                /*
-                if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
-                {
-                        continue;
-                }
-                */
-
                 result.Add(hwnd);
             }
 
@@ -2350,6 +2332,12 @@ namespace PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
                 {
+                    if (sessionActive)
+                    {
+                        //Log.Error("reject minimized window move {0}", GetWindowTitle(hwnd));
+                        return false; //do not capture unexpected minimized window movement (by the app or OS)
+                    }
+
                     //remain minimized
                     if (prevDisplayMetrics.IsFullScreen)
                     {
