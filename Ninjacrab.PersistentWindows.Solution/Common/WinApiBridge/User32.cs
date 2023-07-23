@@ -216,7 +216,7 @@ namespace PersistentWindows.Common.WinApiBridge
         public static extern bool GetWindowRect(IntPtr hWnd, ref RECT lpRect);
 
         [DllImport("user32.dll")]
-        public static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+        public static extern bool GetClientRect(IntPtr hWnd, ref RECT lpRect);
         
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]

@@ -2106,15 +2106,6 @@ namespace PersistentWindows.Common
                     continue;
                 }
 
-                /*
-                if (!User32.IsWindowVisible(hwnd))
-                    continue;
-                */
-                var rect = new RECT();
-                User32.GetWindowRect(hwnd, ref rect);
-                if (rect.Width <= 1 && rect.Height <= 1)
-                    continue;
-
                 if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
                     continue;
 
@@ -3148,7 +3139,7 @@ namespace PersistentWindows.Common
                         Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
-                    if (restoreTimes > 0)
+                    if (prevDisplayMetrics.IsInvisible || restoreTimes > 0)
                     {
                         if (!IsMinimized(hWnd))
                             User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
