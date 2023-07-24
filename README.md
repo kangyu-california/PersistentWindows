@@ -23,7 +23,11 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory.
     * Note, the program can be run from any directory, but the program saves its data in `C:\Users\[User]\AppData\Local\PersistentWindows`
-- Run auto_start_pw.bat with admin privilege to create a task in Task Scheduler to automatically start PersistentWindows when the current user login.
+- Double click auto_start_pw.bat to create a task in Task Scheduler to automatically start PersistentWindows when the current user login.
+- It is highly recommended to run auto_start_pw.bat file as administrator to allow PW to restore windows with elevated privilege (such as Task Manager, Event Viewer etc).
+  
+   ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0)
+
 
 ## Usage Instructions
 - Run PersistentWindows.exe. A pop up will show up indicating the program started successfully. It will start minimized as an icon in the System Tray area on the taskbar.
@@ -52,7 +56,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ## Known Issues
 - **Windows OS (or other apps) may revert window position that PersistentWindows has restored due to lack of coordination. The conflict can be resolved by adding delay to restore via command line argument such as "-delay_auto_restore 5" when launching PersistentWindows.exe**
  - **A computer reboot triggered by Windows Update may cause the PersistentWindows icon to disappear. The issue can be fixed by adding delay to app startup via command line argument such as "-delay_start 10" when running PersistentWindows.exe**
-- Some applications (such as Task Manager, Event Viewer etc) require running PersistentWindows with administrator privileges to fully recover the window layout. There is an option to "Run with highest privileges" when you add PersistentWindows in Task Scheduler.
 - **PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed**
 
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="500"/>
