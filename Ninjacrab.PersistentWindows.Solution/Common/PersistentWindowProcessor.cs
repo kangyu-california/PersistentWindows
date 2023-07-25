@@ -1240,7 +1240,8 @@ namespace PersistentWindows.Common
                     catch(Exception ex)
                     {
                         Log.Error(ex.ToString());
-                        windowProcessName.Add(hwnd, "anonymous_process");
+                        //process might have been terminated
+                        //windowProcessName.Add(hwnd, "anonymous_process");
                     }
                 }
             }
