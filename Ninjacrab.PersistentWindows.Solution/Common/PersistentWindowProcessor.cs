@@ -2588,7 +2588,7 @@ namespace PersistentWindows.Common
             int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(double_clck_interval / 2);
+            Thread.Sleep(double_clck_interval);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(double_clck_interval);
