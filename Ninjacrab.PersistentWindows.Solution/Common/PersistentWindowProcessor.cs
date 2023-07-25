@@ -2583,16 +2583,26 @@ namespace PersistentWindows.Common
             int centerx = screenPosition.Left + screenPosition.Width / 8;
 
             int centery = screenPosition.Top + 15;
+            //User32.SetActiveWindow(hwnd);
             User32.SetCursorPos(centerx, centery);
-            User32.SetActiveWindow(hwnd);
-            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
-                0, 0, 0, UIntPtr.Zero);
             int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
-            Thread.Sleep(double_clck_interval);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(double_clck_interval / 2);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(double_clck_interval);
 
-            Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
+            style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
+            {
+                Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
+                return;
+            }
+
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
+            Log.Error("double restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
