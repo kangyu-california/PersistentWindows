@@ -1226,7 +1226,11 @@ namespace PersistentWindows.Common
             {
                 string processName;
                 var process = GetProcess(hwnd);
-                //if (process != null)
+                if (process == null)
+                {
+                    windowProcessName.Add(hwnd, "unrecognized_process");
+                }
+                else
                 {
                     try
                     {
@@ -1236,7 +1240,7 @@ namespace PersistentWindows.Common
                     catch(Exception ex)
                     {
                         Log.Error(ex.ToString());
-                        windowProcessName.Add(hwnd, "avoid trigger exception again");
+                        windowProcessName.Add(hwnd, "anonymous_process");
                     }
                 }
             }
@@ -3070,7 +3074,7 @@ namespace PersistentWindows.Common
                 if (debugWindows.Contains(hWnd))
                 {
                     process = GetProcess(hWnd);
-                    if (!process.Responding)
+                    if (process != null && !process.Responding)
                         continue;
                 }
 
