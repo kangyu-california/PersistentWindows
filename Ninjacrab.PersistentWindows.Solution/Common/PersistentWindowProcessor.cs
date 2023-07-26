@@ -1344,12 +1344,14 @@ namespace PersistentWindows.Common
                     {
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
                             {
+                                if (vd.Enabled())
+                                {
+                                    var cur_vdi = vd.GetWindowDesktopId(hwnd);
+                                    if (cur_vdi != Guid.Empty)
+                                        curVirtualDesktop = cur_vdi;
+                                }
                                 if (restoringFromDB)
                                 {
-                                    if (vd.Enabled())
-                                    {
-                                        curVirtualDesktop = vd.GetWindowDesktopId(hwnd); 
-                                    }
                                     // immediately capture new window
                                     //StartCaptureTimer(milliSeconds: 0);
                                     DateTime now = DateTime.Now;
@@ -2922,16 +2924,6 @@ namespace PersistentWindows.Common
             DateTime printRestoreTime = lastCaptureTime;
             if (restoringFromDB) using (var persistDB = new LiteDatabase(persistDbName))
             {
-                if (vd.Enabled() && restoreTimes == 0)
-                {
-                    foreach (var hWnd in sWindows)
-                    {
-                        curVirtualDesktop = vd.GetWindowDesktopId(hWnd);
-                        if (curVirtualDesktop != Guid.Empty)
-                            break;
-                    }
-                }
-
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
                 for (int dbMatchLevel = 0; dbMatchLevel < 4; ++dbMatchLevel) foreach (var hWnd in sWindows)
                 {
