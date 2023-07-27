@@ -24,7 +24,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Unzip the file into any directory.
     * Note, the program can be run from any directory, but the program saves its data in `C:\Users\[User]\AppData\Local\PersistentWindows`
 - Double click auto_start_pw.bat to create a task in Task Scheduler to automatically start PersistentWindows when the current user login.
-- It is highly recommended to run auto_start_pw.bat file as administrator to allow PW to restore windows with elevated privilege (such as Task Manager, Event Viewer etc).
+- It is highly recommended to run auto_start_pw.bat as administrator in order to restore windows with elevated privilege (such as Task Manager, Event Viewer etc).
   
    ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0)
 
@@ -54,14 +54,13 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - PersistentWindows periodically checks the github home page for software version upgrade, which can be disabled in menu
   
 ## Known Issues
-- **Windows OS (or other apps) may revert window position that PersistentWindows has restored due to lack of coordination. The conflict can be resolved by adding delay to restore via command line argument such as "-delay_auto_restore 5" when launching PersistentWindows.exe**
- - **A computer reboot triggered by Windows Update may cause the PersistentWindows icon to disappear. The issue can be fixed by adding delay to app startup via command line argument such as "-delay_start 10" when running PersistentWindows.exe**
-- **PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed**
+- **Multiple invocations of "Restore windows from disk" might be needed in order to recover all missing windows after system startup.**
+- PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed
 
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="500"/>
   <img src="https://user-images.githubusercontent.com/59128756/187988981-b2564618-2724-4e1e-a718-cd0786a4251e.png" alt="wait chain" width="500"/>
 
-- **Some Windows built-in apps (such as Sticky Notes) cannot be easily launched when restoring from disk. The user needs to manually launch them**
+- Some Windows built-in apps (such as Sticky Notes) cannot be easily launched when restoring from disk. The user needs to manually launch them
 
 ## Tips To Digest Before Reporting A Bug
 - The window z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
