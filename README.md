@@ -30,7 +30,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 
 ## Usage Instructions
-- Run PersistentWindows.exe. A pop up will show up indicating the program started successfully. It will start minimized as an icon in the System Tray area on the taskbar.
+- Run PersistentWindows.exe (preferably as administrator). A pop up will show up indicating the program started successfully. It will start minimized as an icon in the System Tray area on the taskbar.
 - Right click the icon to show the program menu, where the capture and restore options can be selected
 - To have the icon always appear on the taskbar, turn on PersistentWindows in the taskbar settings. 
 
