@@ -35,6 +35,10 @@ namespace PersistentWindows.SystrayShell
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Console.WriteLine(Environment.Version);
+            Console.WriteLine(Environment.OSVersion.Platform.ToString());
+            Console.WriteLine(Environment.OSVersion.VersionString);
+
             Log.Init();
 
             pwp = new PersistentWindowProcessor();
