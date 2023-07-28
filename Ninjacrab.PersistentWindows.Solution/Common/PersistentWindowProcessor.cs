@@ -1809,6 +1809,7 @@ namespace PersistentWindows.Common
 
         public string GetDisplayKey()
         {
+            int result = User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_UNAWARE);
             DesktopDisplayMetrics metrics = new DesktopDisplayMetrics();
             metrics.AcquireMetrics();
             return metrics.Key;
@@ -1956,6 +1957,8 @@ namespace PersistentWindows.Common
 
         private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false, bool immediateCapture = false)
         {
+            int result = User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_UNAWARE);
+
             Log.Trace("");
             Log.Trace("Capturing windows for display setting {0}", displayKey);
 
@@ -2854,6 +2857,8 @@ namespace PersistentWindows.Common
                 // the display setting has not been captured yet
                 return false;
             }
+
+            User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_UNAWARE);
 
             Log.Info("");
             Log.Info("Restoring windows pass {0} for {1}", restoreTimes, displayKey);

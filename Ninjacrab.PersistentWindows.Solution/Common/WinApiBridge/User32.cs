@@ -445,6 +445,16 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll")]
         public static extern bool IsWindowOnCurrentVirtualDesktop(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        public static extern bool SetProcessDpiAwarenessContext(int dpi_awareness_cxt);
+        [DllImport("user32.dll")]
+        public static extern int SetThreadDpiAwarenessContext(int dpi_awareness_cxt);
+        public const int DPI_AWARENESS_CONTEXT_UNAWARE = -1;
+        public const int DPI_AWARENESS_CONTEXT_SYSTEM_AWARE = -2;
+        public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE = -3;
+        public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4;
+        public const int DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED = -5;
+
         #region Hooks
         [DllImport("user32.dll")]
         public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);

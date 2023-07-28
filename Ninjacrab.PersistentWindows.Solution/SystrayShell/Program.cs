@@ -32,6 +32,9 @@ namespace PersistentWindows.SystrayShell
         [STAThread]
         static void Main(string[] args)
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             Log.Init();
 
             pwp = new PersistentWindowProcessor();
@@ -212,9 +215,6 @@ namespace PersistentWindows.SystrayShell
                 }
             }
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
             string productName = System.Windows.Forms.Application.ProductName;
             string appDataFolder = redirect_appdata ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -297,6 +297,7 @@ namespace PersistentWindows.SystrayShell
             }
 
             Application.Run();
+
         }
 
         static void ShowRestoreTip()

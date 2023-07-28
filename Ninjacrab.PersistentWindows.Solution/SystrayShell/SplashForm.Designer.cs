@@ -68,7 +68,7 @@ namespace PersistentWindows.SystrayShell
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Courier New", 10F, System.Drawing.FontStyle.Underline);
-            this.label2.Location = new System.Drawing.Point(192, 180);
+            this.label2.Location = new System.Drawing.Point(201, 178);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;
@@ -85,7 +85,6 @@ namespace PersistentWindows.SystrayShell
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "SplashForm";
-            this.Icon = Program.IdleIcon;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Load += new System.EventHandler(this.SplashForm_Load);
             this.ResumeLayout(false);
