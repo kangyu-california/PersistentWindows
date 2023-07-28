@@ -10,7 +10,7 @@ namespace PersistentWindows.Common
         public string db_entry_name = null;
         public NameDbEntry()
         {
-            User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
             InitializeComponent();
         }
 

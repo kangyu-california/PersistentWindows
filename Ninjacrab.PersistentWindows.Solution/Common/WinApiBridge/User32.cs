@@ -454,6 +454,15 @@ namespace PersistentWindows.Common.WinApiBridge
         public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE = -3;
         public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4;
         public const int DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED = -5;
+        public static int SetThreadDpiAwarenessContextSafe(int dpi_awareness_cxt)
+        {
+            var os_version = Environment.OSVersion;
+            if (os_version.Version.Major < 10)
+                return 0;
+
+            //valid API since win10 1607
+            return SetThreadDpiAwarenessContext(dpi_awareness_cxt);
+        }
 
         #region Hooks
         [DllImport("user32.dll")]
