@@ -38,11 +38,11 @@ namespace PersistentWindows.Common
             // 
             this.hint.AutoSize = true;
             this.hint.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hint.Location = new System.Drawing.Point(237, 98);
+            this.hint.Location = new System.Drawing.Point(186, 99);
             this.hint.Name = "hint";
-            this.hint.Size = new System.Drawing.Size(128, 25);
+            this.hint.Size = new System.Drawing.Size(235, 25);
             this.hint.TabIndex = 0;
-            this.hint.Text = "Enter a name";
+            this.hint.Text = "Enter the name of capture";
             this.hint.Click += new System.EventHandler(this.hint_Click);
             // 
             // textBox1
@@ -76,7 +76,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.hint);
             this.Name = "NameDbEntry";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Name of DB Entry";
+            this.Text = "Enter the name of capture on disk";
             this.ResumeLayout(false);
             this.PerformLayout();
 

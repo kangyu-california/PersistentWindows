@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows.Forms;
 
+using PersistentWindows.Common.WinApiBridge;
+
 namespace PersistentWindows.Common
 {
     public partial class LayoutProfile : Form
@@ -9,6 +11,7 @@ namespace PersistentWindows.Common
 
         public LayoutProfile()
         {
+            User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
             InitializeComponent();
         }
 

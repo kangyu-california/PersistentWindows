@@ -68,7 +68,7 @@ namespace PersistentWindows.SystrayShell
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Courier New", 10F, System.Drawing.FontStyle.Underline);
-            this.label2.Location = new System.Drawing.Point(201, 178);
+            this.label2.Location = new System.Drawing.Point(200, 190);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;

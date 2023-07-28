@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
+using PersistentWindows.Common.WinApiBridge;
 
 namespace PersistentWindows.Common
 {
@@ -15,6 +10,7 @@ namespace PersistentWindows.Common
         public string db_entry_name = null;
         public NameDbEntry()
         {
+            User32.SetThreadDpiAwarenessContext(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
             InitializeComponent();
         }
 

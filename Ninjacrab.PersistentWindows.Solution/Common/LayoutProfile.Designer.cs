@@ -35,7 +35,7 @@ namespace PersistentWindows.Common
             this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
-            // ProfileName
+            // SnapshotName
             // 
             this.SnapshotName.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.SnapshotName.Location = new System.Drawing.Point(230, 130);
@@ -65,10 +65,10 @@ namespace PersistentWindows.Common
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ChooseSnapshotName";
+            this.Name = "LayoutProfile";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Choose snapshot name";
+            this.Text = "Enter the name of snapshot";
             this.Load += new System.EventHandler(this.LayoutProfile_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
