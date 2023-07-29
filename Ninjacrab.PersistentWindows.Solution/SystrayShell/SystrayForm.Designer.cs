@@ -64,7 +64,6 @@ namespace PersistentWindows.SystrayShell
             {
                 this.menuSeparators[i] = new System.Windows.Forms.ToolStripSeparator();
                 this.menuSeparators[i].Name = $"toolStripMenuItem{i}";
-                this.menuSeparators[i].Size = new System.Drawing.Size(132, 6);
             }
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStripSysTray.SuspendLayout();
@@ -109,33 +108,28 @@ namespace PersistentWindows.SystrayShell
                 this.menuSeparators[3],
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
-            this.contextMenuStripSysTray.Size = new System.Drawing.Size(136, 108);
 
             // capture
             // 
             this.captureToolStripMenuItem.Name = "capture";
-            this.captureToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.captureToolStripMenuItem.Text = "&Capture windows to disk";
             this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowClickHandler);
 
             // restore
             // 
             this.restoreToolStripMenuItem.Name = "restore";
-            this.restoreToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
 
             // capture snapshot
             // 
             this.captureSnapshotMenuItem.Name = "capture snapshot";
-            this.captureSnapshotMenuItem.Size = new System.Drawing.Size(135, 22);
             this.captureSnapshotMenuItem.Text = "C&apture snapshot";
             this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshotClickHandler);
 
             // restore
             // 
             this.restoreSnapshotMenuItem.Name = "restore snapshot";
-            this.restoreSnapshotMenuItem.Size = new System.Drawing.Size(135, 22);
             this.restoreSnapshotMenuItem.Text = "R&estore snapshot";
             this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshotClickHandler);
             this.restoreSnapshotMenuItem.Enabled = false;
@@ -143,7 +137,6 @@ namespace PersistentWindows.SystrayShell
             // suspend/resume auto restore
             // 
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";
-            this.pauseResumeToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.pauseResumeToolStripMenuItem.Text = "&Pause auto restore";
             this.pauseResumeToolStripMenuItem.Click += new System.EventHandler(this.PauseResumeAutoRestore);
 
@@ -151,12 +144,10 @@ namespace PersistentWindows.SystrayShell
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.aboutToolStripMenuItem.Text = "&Help";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClickHandler);
 
             // pause/resume upgrade notice
-            this.upgradeNoticeMenuItem.Size = new System.Drawing.Size(135, 22);
             //this.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
             this.upgradeNoticeMenuItem.Click += new System.EventHandler(this.PauseResumeUpgradeNotice);
 
@@ -164,15 +155,16 @@ namespace PersistentWindows.SystrayShell
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItemClickHandler);
             // 
             // SystrayForm
             // 
+            /*
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            */
             this.Name = "SystrayForm";
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
