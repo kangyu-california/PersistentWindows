@@ -35,6 +35,8 @@ namespace PersistentWindows.Common
             this.YesToAll = new System.Windows.Forms.Button();
             this.NoToAll = new System.Windows.Forms.Button();
             this.Notice = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // Yes
@@ -70,11 +72,23 @@ namespace PersistentWindows.Common
             resources.ApplyResources(this.Notice, "Notice");
             this.Notice.Name = "Notice";
             // 
+            // label1
+            // 
+            resources.ApplyResources(this.label1, "label1");
+            this.label1.Name = "label1";
+            // 
+            // label2
+            // 
+            resources.ApplyResources(this.label2, "label2");
+            this.label2.Name = "label2";
+            // 
             // LaunchProcess
             // 
             this.AcceptButton = this.Yes;
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.Notice);
             this.Controls.Add(this.NoToAll);
             this.Controls.Add(this.YesToAll);
@@ -93,5 +107,7 @@ namespace PersistentWindows.Common
         private System.Windows.Forms.Button YesToAll;
         private System.Windows.Forms.Button NoToAll;
         private System.Windows.Forms.Label Notice;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }

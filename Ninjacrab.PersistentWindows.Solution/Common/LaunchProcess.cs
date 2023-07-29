@@ -23,7 +23,8 @@ namespace PersistentWindows.Common
             process_name.BorderStyle = BorderStyle.Fixed3D;
             process_name.Padding = new Padding(6);
             process_name.Text = process;
-            process_name.Top = 100;
+            process_name.Top = label1.Top;
+            label1.Visible = false;
             process_name.Left = this.Width / 2 - process_name.PreferredWidth / 2;
             //process_name.TextAlign = ContentAlignment.MiddleCenter;
             this.Controls.Add(process_name);
@@ -31,12 +32,26 @@ namespace PersistentWindows.Common
             Label window_title = new Label();
             window_title.Font = new Font("Calibri", 13);
             window_title.AutoSize = true;
+            window_title.TextAlign = ContentAlignment.MiddleCenter;
             window_title.BorderStyle = BorderStyle.Fixed3D;
             window_title.Padding = new Padding(6);
             window_title.Text = title;
-            window_title.Top = 150;
-            window_title.Left = this.Width / 2 - window_title.PreferredWidth / 2;
-            //window_title.TextAlign = ContentAlignment.MiddleCenter;
+            window_title.Top = label2.Top;
+            label2.Visible = false;
+            if (this.Width < window_title.PreferredWidth)
+            {
+                window_title.Top = label2.Top - 10;
+                int rows = window_title.PreferredWidth / this.Width + 1;
+                var resize = new Size(this.Width,
+                    //window_title.PreferredHeight * (window_title.PreferredWidth / this.Width));
+                    window_title.PreferredHeight * rows);
+                window_title.AutoSize = false;
+                window_title.Size = resize;
+            }
+            else
+            {
+                window_title.Left = this.Width / 2 - window_title.PreferredWidth / 2;
+            }
             this.Controls.Add(window_title);
 
         }
