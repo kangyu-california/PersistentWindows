@@ -148,7 +148,11 @@ namespace PersistentWindows.SystrayShell
         //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         public void UpdateMenuEnable(bool enableRestoreFromDB, bool checkUpgrade)
         {
-            restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+            if (!enableRestoreFromDB)
+            {
+                //restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+                restoreToolStripMenuItem.Image = Properties.Resources.question;
+            }
 
             if (checkUpgrade && enableUpgradeNotice)
             {
@@ -262,7 +266,7 @@ namespace PersistentWindows.SystrayShell
         private void CaptureWindowClickHandler(object sender, EventArgs e)
         {
             Program.CaptureToDisk();
-            restoreToolStripMenuItem.Enabled = true;
+            restoreToolStripMenuItem.Image = null;
         }
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)

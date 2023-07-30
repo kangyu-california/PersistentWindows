@@ -61,16 +61,6 @@ namespace PersistentWindows.SystrayShell.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        internal static byte[] app {
-            get {
-                object obj = ResourceManager.GetObject("app", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
         internal static System.Drawing.Icon pwIcon {
@@ -87,6 +77,16 @@ namespace PersistentWindows.SystrayShell.Properties {
             get {
                 object obj = ResourceManager.GetObject("pwIconBusy", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap question {
+            get {
+                object obj = ResourceManager.GetObject("question", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }

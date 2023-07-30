@@ -507,7 +507,6 @@ namespace PersistentWindows.SystrayShell
 
         static public void RestoreSnapshot(int id)
         {
-            pwp.dbDisplayKey = null;
             pwp.RestoreSnapshot(id);
         }
 
