@@ -271,7 +271,7 @@ namespace PersistentWindows.SystrayShell
 
         private void RestoreWindowClickHandler(object sender, EventArgs e)
         {
-            Program.RestoreFromDisk();
+            Program.RestoreFromDisk(restoreToolStripMenuItem.Image != null);
         }
 
         private void CaptureSnapshotClickHandler(object sender, EventArgs e)

@@ -663,6 +663,15 @@ namespace PersistentWindows.Common
             return true;
         }
 
+        public IEnumerable<String> GetDbCollections()
+        {
+            using (var persistDB = new LiteDatabase(persistDbName))
+            {
+                var collectionNames = persistDB.GetCollectionNames();
+                return collectionNames;
+            }
+        }
+
         public void SetIgnoreProcess(string ignore_process)
         {
             string[] ps = ignore_process.Split(';');

@@ -494,13 +494,32 @@ namespace PersistentWindows.SystrayShell
             capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture : 0, Timeout.Infinite);
         }
 
-        static public void RestoreFromDisk()
+        static public void RestoreFromDisk(bool ask_dialog)
         {
             pwp.restoringFromDB = true;
-            pwp.dbDisplayKey = pwp.GetDisplayKey();
-            if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+            if (ask_dialog || (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
             {
-                pwp.dbDisplayKey += EnterDbEntryName();
+                var listCollection = pwp.GetDbCollections();
+                var dlg = new DbKeySelect();
+                foreach (var collection in listCollection)
+                {
+                    dlg.InsertCollection(collection);
+                }
+                dlg.Icon = IdleIcon;
+                dlg.ShowDialog(systrayForm);
+                var result = dlg.result;
+                if (String.IsNullOrEmpty(result))
+                    return;
+
+                pwp.dbDisplayKey = result;
+            }
+            else
+            {
+                pwp.dbDisplayKey = pwp.GetDisplayKey();
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                {
+                    pwp.dbDisplayKey += EnterDbEntryName();
+                }
             }
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }

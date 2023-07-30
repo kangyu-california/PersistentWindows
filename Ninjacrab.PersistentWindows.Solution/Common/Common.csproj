@@ -40,6 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DbKeySelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DbKeySelect.Designer.cs">
+      <DependentUpon>DbKeySelect.cs</DependentUpon>
+    </Compile>
     <Compile Include="Diagnostics\Log.cs" />
     <Compile Include="LaunchProcess.cs">
       <SubType>Form</SubType>
@@ -80,6 +86,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DbKeySelect.resx">
+      <DependentUpon>DbKeySelect.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LayoutProfile.resx">
       <DependentUpon>LayoutProfile.cs</DependentUpon>
     </EmbeddedResource>
