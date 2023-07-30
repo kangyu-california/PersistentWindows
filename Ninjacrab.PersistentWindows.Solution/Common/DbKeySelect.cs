@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 using PersistentWindows.Common.WinApiBridge;
@@ -25,6 +26,11 @@ namespace PersistentWindows.Common
             if (ListLayout.SelectedItem != null)
                 result = ListLayout.SelectedItem.ToString();
             Close();
+        }
+
+        private void ListLayout_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selected.Text = ListLayout.SelectedItem.ToString();
         }
     }
 }

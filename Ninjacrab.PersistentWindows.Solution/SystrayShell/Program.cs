@@ -505,6 +505,7 @@ namespace PersistentWindows.SystrayShell
                 {
                     dlg.InsertCollection(collection);
                 }
+                //dlg.InsertCollection(new string('a', 256));
                 dlg.Icon = IdleIcon;
                 dlg.ShowDialog(systrayForm);
                 var result = dlg.result;
