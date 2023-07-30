@@ -32,7 +32,7 @@ namespace PersistentWindows.Common
             Label window_title = new Label();
             window_title.Font = new Font("Calibri", 13);
             window_title.AutoSize = true;
-            window_title.TextAlign = ContentAlignment.MiddleCenter;
+            window_title.TextAlign = ContentAlignment.TopCenter;
             window_title.BorderStyle = BorderStyle.Fixed3D;
             window_title.Padding = new Padding(6);
             window_title.Text = title;
@@ -40,7 +40,7 @@ namespace PersistentWindows.Common
             label2.Visible = false;
             if (this.Width < window_title.PreferredWidth)
             {
-                window_title.Top = label2.Top - 10;
+                window_title.Top = label2.Top - 5;
                 int rows = window_title.PreferredWidth / this.Width + 1;
                 var resize = new Size(this.Width,
                     //window_title.PreferredHeight * (window_title.PreferredWidth / this.Width));
