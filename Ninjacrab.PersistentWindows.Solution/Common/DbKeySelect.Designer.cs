@@ -39,7 +39,7 @@ namespace PersistentWindows.Common
             this.ListLayout.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.ListLayout.FormattingEnabled = true;
             this.ListLayout.ItemHeight = 20;
-            this.ListLayout.Location = new System.Drawing.Point(59, 40);
+            this.ListLayout.Location = new System.Drawing.Point(60, 30);
             this.ListLayout.Name = "ListLayout";
             this.ListLayout.Size = new System.Drawing.Size(685, 244);
             this.ListLayout.TabIndex = 0;
@@ -47,7 +47,7 @@ namespace PersistentWindows.Common
             // 
             // Ok
             // 
-            this.Ok.Location = new System.Drawing.Point(345, 372);
+            this.Ok.Location = new System.Drawing.Point(351, 385);
             this.Ok.Name = "Ok";
             this.Ok.Size = new System.Drawing.Size(105, 36);
             this.Ok.TabIndex = 1;
@@ -57,9 +57,9 @@ namespace PersistentWindows.Common
             // 
             // selected
             // 
-            this.selected.Location = new System.Drawing.Point(61, 298);
+            this.selected.Location = new System.Drawing.Point(60, 290);
             this.selected.Name = "selected";
-            this.selected.Size = new System.Drawing.Size(683, 59);
+            this.selected.Size = new System.Drawing.Size(683, 80);
             this.selected.TabIndex = 2;
             // 
             // DbKeySelect
