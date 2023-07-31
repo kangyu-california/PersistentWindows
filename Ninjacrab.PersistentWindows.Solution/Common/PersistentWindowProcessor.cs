@@ -3123,6 +3123,18 @@ namespace PersistentWindows.Common
                 RECT rect = prevDisplayMetrics.ScreenPosition;
                 WindowPlacement windowPlacement = prevDisplayMetrics.WindowPlacement;
 
+                if (restoringFromDB)
+                {
+                    if (curDisplayKey != dbDisplayKey)
+                    {
+                        if (IsRectOffScreen(rect))
+                        {
+                            Log.Error("skip restore {0} due to off-screen target position, Rect = {1}", GetWindowTitle(hWnd), rect.ToString());
+                            continue;
+                        }
+                    }
+                }
+
                 if (IsTaskBar(hWnd))
                 {
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
