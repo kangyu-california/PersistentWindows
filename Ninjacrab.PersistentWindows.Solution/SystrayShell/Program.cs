@@ -499,7 +499,6 @@ namespace PersistentWindows.SystrayShell
 
         static public void RestoreFromDisk(bool ask_dialog)
         {
-            pwp.restoringFromDB = true;
             if (ask_dialog || (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
             {
                 var listCollection = pwp.GetDbCollections();
@@ -525,9 +524,12 @@ namespace PersistentWindows.SystrayShell
                     var name = EnterDbEntryName();
                     if (String.IsNullOrEmpty(name))
                         return;
+
                     pwp.dbDisplayKey += name;
                 }
             }
+
+            pwp.restoringFromDB = true;
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
         }
 
