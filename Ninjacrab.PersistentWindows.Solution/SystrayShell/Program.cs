@@ -488,7 +488,10 @@ namespace PersistentWindows.SystrayShell
             pwp.dbDisplayKey = pwp.GetDisplayKey();
             if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
             {
-                pwp.dbDisplayKey += EnterDbEntryName();
+                var name = EnterDbEntryName();
+                if (String.IsNullOrEmpty(name))
+                    return;
+                pwp.dbDisplayKey += name;
             }
 
             capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture : 0, Timeout.Infinite);
@@ -519,7 +522,10 @@ namespace PersistentWindows.SystrayShell
                 pwp.dbDisplayKey = pwp.GetDisplayKey();
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
                 {
-                    pwp.dbDisplayKey += EnterDbEntryName();
+                    var name = EnterDbEntryName();
+                    if (String.IsNullOrEmpty(name))
+                        return;
+                    pwp.dbDisplayKey += name;
                 }
             }
             pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
