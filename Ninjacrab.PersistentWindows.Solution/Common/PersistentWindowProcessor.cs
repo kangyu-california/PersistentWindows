@@ -663,12 +663,21 @@ namespace PersistentWindows.Common
             return true;
         }
 
-        public IEnumerable<String> GetDbCollections()
+        public List<String> GetDbCollections()
         {
             using (var persistDB = new LiteDatabase(persistDbName))
             {
                 var collectionNames = persistDB.GetCollectionNames();
-                return collectionNames;
+                var lst = new List<String>();
+                foreach (var item in collectionNames)
+                {
+                    lst.Add(item);
+                }
+                lst.Sort(delegate (String s, String t)
+                {
+                    return s.CompareTo(t);
+                });
+                return lst;
             }
         }
 
