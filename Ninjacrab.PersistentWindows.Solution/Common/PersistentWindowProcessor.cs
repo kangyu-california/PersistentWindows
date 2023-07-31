@@ -3127,7 +3127,7 @@ namespace PersistentWindows.Common
                 {
                     if (curDisplayKey != dbDisplayKey)
                     {
-                        if (IsRectOffScreen(rect))
+                        if (IsRectOffScreen(prevDisplayMetrics.WindowPlacement.NormalPosition))
                         {
                             Log.Error("skip restore {0} due to off-screen target position, Rect = {1}", GetWindowTitle(hWnd), rect.ToString());
                             continue;
