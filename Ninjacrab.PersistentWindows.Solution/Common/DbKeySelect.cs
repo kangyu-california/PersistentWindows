@@ -23,8 +23,7 @@ namespace PersistentWindows.Common
 
         private void Ok_Click(object sender, EventArgs e)
         {
-            if (ListLayout.SelectedItem != null)
-                result = ListLayout.SelectedItem.ToString();
+            result = selected.Text;
             Close();
         }
 
