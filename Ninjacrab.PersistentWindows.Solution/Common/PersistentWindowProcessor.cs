@@ -818,6 +818,26 @@ namespace PersistentWindows.Common
             return result;
         }
 
+        private bool IsRectOffScreen(RECT rect)
+        {
+            const int MinSize = 10;
+            POINT topLeft = new POINT(rect.Left + MinSize, rect.Top + MinSize);
+            if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
+            {
+                return false;
+            }
+            Log.Error("top left {0} is off-screen", topLeft.ToString());
+
+            POINT topRight = new POINT(rect.Left + rect.Width - MinSize, rect.Top + MinSize);
+            if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
+            {
+                return false;
+            }
+
+            Log.Error("top right {0} is off-screen", topRight.ToString());
+            return true;
+        }
+
         private bool IsOffScreen(IntPtr hwnd)
         {
             if (IsMinimized(hwnd))
@@ -829,21 +849,11 @@ namespace PersistentWindows.Common
             if (rect.Width <= MinSize || rect.Height <= MinSize)
                 return false;
 
-            POINT topLeft = new POINT(rect.Left + MinSize, rect.Top + MinSize);
-            if (User32.MonitorFromPoint(topLeft, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
-            {
-                return false;
-            }
-            Log.Error("top left of {0} is off-screen, Rect = {1}", GetWindowTitle(hwnd), rect.ToString());
+            bool offscreen = IsRectOffScreen(rect);
+            if (offscreen)
+                Log.Error("{0} is off-screen, Rect = {1}", GetWindowTitle(hwnd), rect.ToString());
 
-            POINT topRight = new POINT(rect.Left + rect.Width - MinSize, rect.Top + MinSize);
-            if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
-            {
-                return false;
-            }
-
-            Log.Error("top right ({0}, {1}) is off-screen", topRight.X, topRight.Y);
-            return true;
+            return offscreen;
         }
 
         private void FixOffScreenWindow(IntPtr hwnd)
