@@ -148,11 +148,10 @@ namespace PersistentWindows.SystrayShell
         //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         public void UpdateMenuEnable(bool enableRestoreFromDB, bool checkUpgrade)
         {
-            if (!enableRestoreFromDB)
-            {
-                //restoreToolStripMenuItem.Enabled = enableRestoreFromDB;
+            if (enableRestoreFromDB)
+                restoreToolStripMenuItem.Image = null;
+            else
                 restoreToolStripMenuItem.Image = Properties.Resources.question;
-            }
 
             if (checkUpgrade && enableUpgradeNotice)
             {
