@@ -11,7 +11,7 @@ namespace PersistentWindows.Common
 
         public LayoutProfile()
         {
-            User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            User32.SetThreadDpiAwarenessContextSafe();
             InitializeComponent();
         }
 

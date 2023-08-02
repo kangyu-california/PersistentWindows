@@ -454,7 +454,7 @@ namespace PersistentWindows.Common.WinApiBridge
         public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE = -3;
         public const int DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4;
         public const int DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED = -5;
-        public static int SetThreadDpiAwarenessContextSafe(int dpi_awareness_cxt)
+        public static int SetThreadDpiAwarenessContextSafe(int dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
         {
             var os_version = Environment.OSVersion;
             if (os_version.Version.Major < 10)

@@ -204,7 +204,7 @@ namespace PersistentWindows.Common
             }
             catch (Exception)
             {
-                User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+                User32.SetThreadDpiAwarenessContextSafe();
 
                 System.Windows.Forms.MessageBox.Show("Another instance is already running.", productName,
                     System.Windows.Forms.MessageBoxButtons.OK,
@@ -719,7 +719,7 @@ namespace PersistentWindows.Common
             sessionActive = false; // no new capture
             pauseAutoRestore = true;
 
-            User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            User32.SetThreadDpiAwarenessContextSafe();
 
             System.Windows.Forms.MessageBox.Show("Proceed to restore windows",
                 System.Windows.Forms.Application.ProductName,
