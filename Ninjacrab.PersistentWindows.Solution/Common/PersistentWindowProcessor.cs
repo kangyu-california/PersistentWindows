@@ -204,9 +204,15 @@ namespace PersistentWindows.Common
             }
             catch (Exception)
             {
-                System.Windows.Forms.MessageBox.Show("Another instance is already running.", $"{productName}",
+                User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+
+                System.Windows.Forms.MessageBox.Show("Another instance is already running.", productName,
                     System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Exclamation);
+                    System.Windows.Forms.MessageBoxIcon.Exclamation,
+                    System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                    System.Windows.Forms.MessageBoxOptions.DefaultDesktopOnly
+                );
+
                 return false;
             }
 
@@ -713,48 +719,15 @@ namespace PersistentWindows.Common
             sessionActive = false; // no new capture
             pauseAutoRestore = true;
 
-            using (var dlg = new System.Windows.Forms.Form())
-            {
-                dlg.Size = new Size(300, 200);
-                dlg.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-                dlg.TopMost = true;
-                dlg.Icon = Icon.ExtractAssociatedIcon(System.Windows.Forms.Application.ExecutablePath);
-                dlg.MinimizeBox = false;
-                dlg.MaximizeBox = false;
-                dlg.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-                dlg.Text = $"{System.Windows.Forms.Application.ProductName}";
-                var button1 = new System.Windows.Forms.Button();
-                button1.Text = "OK";
-                // Set the position of the button on the form.
-                button1.Location = new Point(110, 120);
+            User32.SetThreadDpiAwarenessContextSafe(User32.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-                var label = new System.Windows.Forms.Label();
-                label.Size = new Size(250, 50);
-                label.Location = new Point(30, 50);
-                label.Text = "Press OK to restore window layout";
-                label.Font = new System.Drawing.Font(label.Font.Name, 10F);
-
-                dlg.CancelButton = button1;
-                dlg.Controls.Add(button1);
-                dlg.Controls.Add(label);
-
-                dlg.Activate();
-
-                User32.SetWindowPos(
-                    dlg.Handle,
-                    new IntPtr(-1), // set dialog to topmost
-                    0, //rect.Left,
-                    0, //rect.Top,
-                    0, //rect.Width,
-                    0, //rect.Height,
-                    0
-                    | SetWindowPosFlags.DoNotActivate
-                    | SetWindowPosFlags.IgnoreMove
-                    | SetWindowPosFlags.IgnoreResize
-                );
-
-                dlg.ShowDialog();
-            }
+            System.Windows.Forms.MessageBox.Show("Proceed to restore windows",
+                System.Windows.Forms.Application.ProductName,
+                System.Windows.Forms.MessageBoxButtons.OK,
+                System.Windows.Forms.MessageBoxIcon.Information,
+                System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                System.Windows.Forms.MessageBoxOptions.DefaultDesktopOnly
+            );
 
             pauseAutoRestore = false;
         }
@@ -3478,10 +3451,13 @@ namespace PersistentWindows.Common
                         runProcessDlg.Icon = icon;
                         if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
-                            System.Windows.Forms.MessageBox.Show("Proceed to restore windows on another virtual desktop",
+                            System.Windows.Forms.MessageBox.Show("Switch to another virtual desktop to restore windows",
                                 System.Windows.Forms.Application.ProductName,
                                 System.Windows.Forms.MessageBoxButtons.OK,
-                                System.Windows.Forms.MessageBoxIcon.Information);
+                                System.Windows.Forms.MessageBoxIcon.Information,
+                                System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                System.Windows.Forms.MessageBoxOptions.DefaultDesktopOnly
+                            );
                             vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
                         }
                         runProcessDlg.ShowDialog();
