@@ -1242,7 +1242,7 @@ namespace PersistentWindows.Common
                     {
                         Log.Error(ex.ToString());
                         //process might have been terminated
-                        //windowProcessName.Add(hwnd, "anonymous_process");
+                        return;
                     }
                 }
             }
