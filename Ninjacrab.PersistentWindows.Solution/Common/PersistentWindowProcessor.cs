@@ -1715,6 +1715,12 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd)
         {
+            if (hwnd == IntPtr.Zero)
+                return;
+
+            if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                return;
+
             int prevIndex = monitorApplications[curDisplayKey][hwnd].Count - 1;
             var cur_metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
             IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
