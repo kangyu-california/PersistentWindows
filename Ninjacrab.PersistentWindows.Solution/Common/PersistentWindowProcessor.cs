@@ -81,6 +81,7 @@ namespace PersistentWindows.Common
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
+        private IntPtr prevForegroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         public bool fullScreenGamingMode = false;
 
@@ -1360,6 +1361,8 @@ namespace PersistentWindows.Common
                                 }
                                 else
                                 {
+                                    if (foreGroundWindow.ContainsKey(curDisplayKey))
+                                        prevForegroundWindow = foreGroundWindow[curDisplayKey];
                                     foreGroundWindow[curDisplayKey] = hwnd;
                                     foregroundTimer.Change(100, Timeout.Infinite);
 
@@ -1701,6 +1704,34 @@ namespace PersistentWindows.Common
                 return false;
 
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
+        }
+
+        public void BringForegroundToBackground()
+        {
+            //IntPtr hwnd = foreGroundWindow[curDisplayKey];
+            IntPtr hwnd = prevForegroundWindow;
+            SwitchForeBackground(hwnd);
+        }
+
+        public void SwitchForeBackground(IntPtr hwnd)
+        {
+            int prevIndex = monitorApplications[curDisplayKey][hwnd].Count - 1;
+            var cur_metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
+            IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
+            for (; prevIndex >= 0; --prevIndex)
+            {
+                var metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
+                if (!metrics.IsValid)
+                {
+                    continue;
+                }
+                if (metrics.PrevZorderWindow != front_hwnd)
+                {
+                    RestoreZorder(hwnd, metrics.PrevZorderWindow);
+                    RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
+                    return;
+                }
+            }
         }
 
         private int RestoreZorder(IntPtr hWnd, IntPtr prev)
@@ -2461,7 +2492,7 @@ namespace PersistentWindows.Common
                     try
                     {
                         RemoveInvalidCapture();
-                        zorderFixed = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero);
+                        zorderFixed = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero, DateTime.Now);
                     }
                     catch (Exception ex)
                     {
@@ -2848,7 +2879,7 @@ namespace PersistentWindows.Common
             return hTaskBar;
         }
 
-        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow)
+        private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow, DateTime time)
         {
             bool zorderFixed = false;
 
@@ -2864,6 +2895,8 @@ namespace PersistentWindows.Common
             Log.Info("");
             Log.Info("Restoring windows pass {0} for {1}", restoreTimes, displayKey);
 
+            DateTime lastCaptureTime = time;
+
             IEnumerable<IntPtr> sWindows;
             var arr = new IntPtr[1];
             if (sWindow != IntPtr.Zero)
@@ -2874,25 +2907,25 @@ namespace PersistentWindows.Common
             else
             {
                 sWindows = CaptureWindowsOfInterest();
+
+                // determine the time to be restored
+                if (lastUserActionTime.ContainsKey(displayKey))
+                {
+                    if (restoringSnapshot)
+                    {
+                        if (!snapshotTakenTime.ContainsKey(curDisplayKey)
+                            || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
+                            return false;
+
+                        lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
+                    }
+                    else
+                    {
+                        lastCaptureTime = lastUserActionTime[displayKey];
+                    }
+                }
             }
 
-            // determine the time to be restored
-            DateTime lastCaptureTime = DateTime.Now;
-            if (lastUserActionTime.ContainsKey(displayKey))
-            {
-                if (restoringSnapshot)
-                {
-                    if (!snapshotTakenTime.ContainsKey(curDisplayKey)
-                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
-                        return false;
-
-                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
-                }
-                else
-                {
-                    lastCaptureTime = lastUserActionTime[displayKey];
-                }
-            }
 
             HashSet<int> dbMatchWindow = new HashSet<int>(); // db entry (id) matches existing window
             HashSet<IntPtr> windowMatchDb = new HashSet<IntPtr>(); //existing window matches db
@@ -3046,6 +3079,7 @@ namespace PersistentWindows.Common
             }
 
             Log.Trace("Restore time {0}", printRestoreTime);
+            if (sWindow == IntPtr.Zero)
             if (restoreTimes == 0)
             {
                 Log.Event("Start restoring window layout back to {0} for display setting {1}", printRestoreTime, curDisplayKey);
@@ -3172,6 +3206,7 @@ namespace PersistentWindows.Common
                     topmostWindowsFixed.Add(hWnd);
                 }
 
+                if (sWindow == IntPtr.Zero) //z-order for batch restore
                 if (AllowRestoreZorder() && curDisplayMetrics.NeedRestoreZorder)
                 {
                     zorderFixed = true; //force next pass for topmost flag fix and zorder check

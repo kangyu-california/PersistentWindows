@@ -538,6 +538,11 @@ namespace PersistentWindows.SystrayShell
             pwp.RestoreSnapshot(id);
         }
 
+        static public void BringForegroundToBackground()
+        {
+            pwp.BringForegroundToBackground();
+        }
+
         static public void PauseAutoRestore()
         {
             pwp.pauseAutoRestore = true;

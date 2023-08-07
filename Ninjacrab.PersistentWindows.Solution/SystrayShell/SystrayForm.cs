@@ -27,6 +27,7 @@ namespace PersistentWindows.SystrayShell
 
         public bool autoUpgrade = false;
 
+        private int ctrlKeyPressed = 0;
         private int shiftKeyPressed = 0;
         private int altKeyPressed = 0;
         private int clickCount = 0;
@@ -140,6 +141,7 @@ namespace PersistentWindows.SystrayShell
             clickCount = 0;
             doubleClick = false;
             firstClick = false;
+            ctrlKeyPressed = 0;
             shiftKeyPressed = 0;
             altKeyPressed = 0;
 
@@ -385,6 +387,12 @@ namespace PersistentWindows.SystrayShell
             if (e.Button == MouseButtons.Left)
             {
                 Console.WriteLine("Down");
+
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                {
+                    ctrlKeyPressed++;
+                    Program.BringForegroundToBackground();
+                }
 
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
