@@ -1688,7 +1688,7 @@ namespace PersistentWindows.Common
         public void FgWindowToBottom()
         {
             IntPtr hwnd = prevForegroundWindow;
-            if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
+            if (hwnd == IntPtr.Zero || !User32.IsWindow(hwnd) || IsTaskBar(hwnd))
                 return;
 
             User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
@@ -1710,10 +1710,7 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd)
         {
-            if (hwnd == IntPtr.Zero)
-                return;
-
-            if (IsTaskBar(hwnd))
+            if (hwnd == IntPtr.Zero || !User32.IsWindow(hwnd) || IsTaskBar(hwnd))
                 return;
 
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
