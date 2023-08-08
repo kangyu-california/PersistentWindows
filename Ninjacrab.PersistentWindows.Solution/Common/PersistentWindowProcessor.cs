@@ -1685,6 +1685,22 @@ namespace PersistentWindows.Common
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
 
+        public void FgWindowToBottom()
+        {
+            IntPtr hwnd = prevForegroundWindow;
+            if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
+                return;
+
+            User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
+                0, 0, 0, 0,
+                0
+                | SetWindowPosFlags.DoNotActivate
+                | SetWindowPosFlags.IgnoreMove
+                | SetWindowPosFlags.IgnoreResize
+            );
+            Log.Event("Bring foreground window {0} to bottom", GetWindowTitle(hwnd));
+        }
+
         public void BringForegroundToBackground()
         {
             //IntPtr hwnd = foreGroundWindow[curDisplayKey];

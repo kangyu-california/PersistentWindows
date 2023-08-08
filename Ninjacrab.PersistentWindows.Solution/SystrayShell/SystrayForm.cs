@@ -100,7 +100,7 @@ namespace PersistentWindows.SystrayShell
             {
                 //no more than one key can be pressed
             }
-            else if (altKeyPressed == clickCount && altKeyPressed != 0)
+            else if (altKeyPressed == clickCount && altKeyPressed != 0 && ctrlKeyPressed == 0)
             {
                 //restore previous workspace (not necessarily a snapshot)
                 Program.RestoreSnapshot(36); //MaxSnapShot - 1
@@ -112,7 +112,10 @@ namespace PersistentWindows.SystrayShell
                     if (clickCount == 1 && firstClick && !doubleClick)
                     {
                         if (ctrlKeyPressed > 0)
-                            Program.BringForegroundToBackground();
+                            if (altKeyPressed > 0)
+                                Program.FgWindowToBottom();
+                            else
+                                Program.BringForegroundToBackground();
                         else
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);
