@@ -282,29 +282,8 @@ namespace PersistentWindows.Common
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
-                /*
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                {
-                    if ((User32.GetKeyState(0x5b) & 0x8000) != 0) //ctrl-left_window key pressed
-                    {
-                        //put activated window in background
-                        var process = GetProcess(hwnd);
-                        var processName = process.ProcessName;
-                        if (processName.Equals("mstsc") || processName.Contains("vnc") || processName.Contains("rdp"))
-                        {
-                            User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
-                                0, 0, 0, 0,
-                                0
-                                | SetWindowPosFlags.DoNotActivate
-                                | SetWindowPosFlags.IgnoreMove
-                                | SetWindowPosFlags.IgnoreResize
-                            );
-                        }
-                    }
-                    else
-                        ManualFixTopmostFlag(hwnd);
-                }
-                */
+                    SwitchForeBackground(hwnd); //restore foreground window to its previous pos
             });
 
             captureTimer = new Timer(state =>
@@ -1718,6 +1697,9 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero)
                 return;
 
+            if (IsTaskBar(hwnd))
+                return;
+
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 return;
 
@@ -1734,7 +1716,9 @@ namespace PersistentWindows.Common
                 if (metrics.PrevZorderWindow != front_hwnd)
                 {
                     RestoreZorder(hwnd, metrics.PrevZorderWindow);
+                    restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
+                    restoringFromMem = false;
                     return;
                 }
             }

@@ -110,8 +110,13 @@ namespace PersistentWindows.SystrayShell
                 if (keyPressed < 0)
                 {
                     if (clickCount == 1 && firstClick && !doubleClick)
-                        //restore unnamed(default) snapshot
-                        Program.RestoreSnapshot(0);
+                    {
+                        if (ctrlKeyPressed > 0)
+                            Program.BringForegroundToBackground();
+                        else
+                            //restore unnamed(default) snapshot
+                            Program.RestoreSnapshot(0);
+                    }
                     else if (clickCount == 2 && firstClick && doubleClick)
                         Program.CaptureSnapshot(0, delayCapture: shiftKeyPressed > 0);
                 }
@@ -389,10 +394,7 @@ namespace PersistentWindows.SystrayShell
                 Console.WriteLine("Down");
 
                 if ((User32.GetKeyState(0x11) & 0x8000) != 0)
-                {
                     ctrlKeyPressed++;
-                    Program.BringForegroundToBackground();
-                }
 
                 if ((User32.GetKeyState(0x10) & 0x8000) != 0)
                     shiftKeyPressed++;
