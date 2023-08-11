@@ -1742,7 +1742,7 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd)
         {
-            if (hwnd == IntPtr.Zero)
+            if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
