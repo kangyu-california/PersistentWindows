@@ -1685,10 +1685,43 @@ namespace PersistentWindows.Common
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
 
-        public void FgWindowToBottom()
+        private IntPtr GetForegroundWindow()
         {
             IntPtr hwnd = prevForegroundWindow;
-            if (hwnd == IntPtr.Zero || !User32.IsWindow(hwnd) || IsTaskBar(hwnd))
+            /*
+            if (hwnd != IntPtr.Zero && User32.IsWindow(hwnd) && !IsTaskBar(hwnd))
+                return hwnd;
+            */ 
+            IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
+            for (hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
+            {
+                // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
+                if (!IsTopLevelWindow(hwnd))
+                    continue;
+
+                if (noRestoreWindows.Contains(hwnd))
+                    continue;
+
+                if (IsTaskBar(hwnd))
+                    continue;
+
+                if (string.IsNullOrEmpty(GetWindowClassName(hwnd)))
+                    continue;
+
+                if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
+                    continue;
+
+                if (User32.IsWindow(hwnd))
+                    return hwnd;
+            }
+
+            return IntPtr.Zero;
+        }
+
+        public void FgWindowToBottom()
+        {
+            IntPtr hwnd = GetForegroundWindow();
+            if (hwnd == IntPtr.Zero)
                 return;
 
             User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
@@ -1703,14 +1736,13 @@ namespace PersistentWindows.Common
 
         public void BringForegroundToBackground()
         {
-            //IntPtr hwnd = foreGroundWindow[curDisplayKey];
-            IntPtr hwnd = prevForegroundWindow;
+            IntPtr hwnd = GetForegroundWindow();
             SwitchForeBackground(hwnd);
         }
 
         public void SwitchForeBackground(IntPtr hwnd)
         {
-            if (hwnd == IntPtr.Zero || !User32.IsWindow(hwnd) || IsTaskBar(hwnd))
+            if (hwnd == IntPtr.Zero)
                 return;
 
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
