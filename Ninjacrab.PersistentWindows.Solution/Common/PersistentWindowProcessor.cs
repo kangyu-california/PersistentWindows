@@ -1733,6 +1733,8 @@ namespace PersistentWindows.Common
         {
             IntPtr hwnd = GetForegroundWindow();
             SwitchForeBackground(hwnd);
+            //MoveWindow() call does not trigger event
+            CaptureApplicationsOnCurrentDisplays(curDisplayKey);
         }
 
         public void SwitchForeBackground(IntPtr hwnd)
@@ -1753,9 +1755,10 @@ namespace PersistentWindows.Common
                 {
                     continue;
                 }
-                if (metrics.PrevZorderWindow != front_hwnd)
+                IntPtr prevZwnd = metrics.PrevZorderWindow;
+                if (prevZwnd != front_hwnd)
                 {
-                    RestoreZorder(hwnd, metrics.PrevZorderWindow);
+                    RestoreZorder(hwnd, prevZwnd);
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
