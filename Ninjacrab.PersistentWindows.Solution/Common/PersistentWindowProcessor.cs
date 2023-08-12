@@ -61,6 +61,7 @@ namespace PersistentWindows.Common
         private IntPtr curMovingWnd = IntPtr.Zero;
         private Timer moveTimer; // when user move a window
         private Timer foregroundTimer; // when user bring a window to foreground
+        private bool ignoreForegroundEvent = false;
         private DateTime lastDisplayChangeTime = DateTime.Now;
 
         // control shared by capture and restore
@@ -269,6 +270,10 @@ namespace PersistentWindows.Common
                 }
                 else
                 {
+                    if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                    {
+                        SwitchForeBackground(curMovingWnd);
+                    }
                     noRestoreWindows.Remove(curMovingWnd);
                 }
             }
@@ -278,11 +283,20 @@ namespace PersistentWindows.Common
             {
                 if (!foreGroundWindow.ContainsKey(curDisplayKey))
                     return;
-
+                if (ignoreForegroundEvent)
+                {
+                    ignoreForegroundEvent = false;
+                    return;
+                }
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                    SwitchForeBackground(hwnd); //restore foreground window to its previous pos
+                if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
+                    && (User32.GetKeyState(0x5b) & 0x8000) == 0 //lwin logo key NOT pressed
+                    && (User32.GetKeyState(0x5c) & 0x8000) == 0 //rwin logo key NOT pressed
+                    )
+                {
+                    SwitchForeBackground(hwnd, toForeground:true); //restore foreground window to its previous pos
+                }
             });
 
             captureTimer = new Timer(state =>
@@ -1397,7 +1411,6 @@ namespace PersistentWindows.Common
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
                             curMovingWnd = hwnd;
-                            moveTimer.Change(250, Timeout.Infinite);
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
@@ -1430,6 +1443,8 @@ namespace PersistentWindows.Common
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
+                            if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
+                                moveTimer.Change(100, Timeout.Infinite);
                             // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
@@ -1733,11 +1748,9 @@ namespace PersistentWindows.Common
         {
             IntPtr hwnd = GetForegroundWindow();
             SwitchForeBackground(hwnd);
-            //MoveWindow() call does not trigger event
-            CaptureApplicationsOnCurrentDisplays(curDisplayKey);
         }
 
-        public void SwitchForeBackground(IntPtr hwnd)
+        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false)
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
@@ -1758,10 +1771,24 @@ namespace PersistentWindows.Common
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
                 if (prevZwnd != front_hwnd)
                 {
-                    RestoreZorder(hwnd, prevZwnd);
+                    if (!IsTaskBar(prevZwnd))
+                    {
+                        if (toForeground)
+                            continue;
+                        RestoreZorder(hwnd, prevZwnd);
+                    }
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
+                    if (!toForeground)
+                    {
+                        IntPtr fgWnd= GetForegroundWindow();
+                        if (fgWnd != hwnd)
+                        {
+                            ignoreForegroundEvent = true;
+                            User32.SetForegroundWindow(fgWnd);
+                        }
+                    }
                     return;
                 }
             }
@@ -2135,7 +2162,7 @@ namespace PersistentWindows.Common
                     RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
                     if (movedWindows > 0)
                     {
-                        Log.Trace("{0} windows captured", movedWindows);
+                        Log.Trace("{0} windows captured\n", movedWindows);
                     }
                 }
                 else
