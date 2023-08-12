@@ -1711,6 +1711,9 @@ namespace PersistentWindows.Common
                 if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
 
+                if (IsMinimized(hwnd))
+                    continue;
+
                 if (User32.IsWindow(hwnd))
                     return hwnd;
             }
