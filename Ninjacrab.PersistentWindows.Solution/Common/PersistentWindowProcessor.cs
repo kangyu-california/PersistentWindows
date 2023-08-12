@@ -81,7 +81,6 @@ namespace PersistentWindows.Common
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
-        private IntPtr prevForegroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         public bool fullScreenGamingMode = false;
 
@@ -1340,8 +1339,6 @@ namespace PersistentWindows.Common
                                 }
                                 else
                                 {
-                                    if (foreGroundWindow.ContainsKey(curDisplayKey))
-                                        prevForegroundWindow = foreGroundWindow[curDisplayKey];
                                     foreGroundWindow[curDisplayKey] = hwnd;
                                     foregroundTimer.Change(100, Timeout.Infinite);
 
@@ -1687,13 +1684,8 @@ namespace PersistentWindows.Common
 
         private IntPtr GetForegroundWindow()
         {
-            IntPtr hwnd = prevForegroundWindow;
-            /*
-            if (hwnd != IntPtr.Zero && User32.IsWindow(hwnd) && !IsTaskBar(hwnd))
-                return hwnd;
-            */ 
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
-            for (hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
+            for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
             {
                 // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
                 if (!IsTopLevelWindow(hwnd))
