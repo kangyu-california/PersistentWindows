@@ -3366,6 +3366,7 @@ namespace PersistentWindows.Common
 
                     if (restore_fullscreen)
                     {
+                        if (restoreTimes > 0) //#246, let other windows restore first
                         RestoreFullScreenWindow(hWnd, rect);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
