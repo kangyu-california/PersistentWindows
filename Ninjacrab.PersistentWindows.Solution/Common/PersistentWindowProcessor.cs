@@ -1747,10 +1747,10 @@ namespace PersistentWindows.Common
         public void BringForegroundToBackground()
         {
             IntPtr hwnd = GetForegroundWindow();
-            SwitchForeBackground(hwnd);
+            SwitchForeBackground(hwnd, issueFromIcon:true);
         }
 
-        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false)
+        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool issueFromIcon=false)
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
@@ -1780,7 +1780,7 @@ namespace PersistentWindows.Common
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
-                    if (!toForeground)
+                    if (!toForeground && issueFromIcon)
                     {
                         IntPtr fgWnd= GetForegroundWindow();
                         if (fgWnd != hwnd)
