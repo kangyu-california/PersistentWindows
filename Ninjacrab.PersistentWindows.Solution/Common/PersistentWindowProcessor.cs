@@ -399,7 +399,7 @@ namespace PersistentWindows.Common
 
                 bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
-                changeIconText(null);
+                //changeIconText(null);
 
                 noRestoreWindowsTmp.Clear();
 
@@ -3232,7 +3232,7 @@ namespace PersistentWindows.Common
                     continue;
                 }
 
-                changeIconText($"Restore {GetWindowTitle(hWnd)}");
+                //changeIconText($"Restore {GetWindowTitle(hWnd)}");
 
                 if (prevDisplayMetrics.IsMinimized)
                 {
@@ -3395,7 +3395,7 @@ namespace PersistentWindows.Common
                 if (risky_windows.Count == 0)
                 try
                 {
-                    changeIconText($"restore zorder");
+                    //changeIconText($"restore zorder");
                     IntPtr hWinPosInfo = User32.BeginDeferWindowPos(sWindows.Count<IntPtr>());
                     foreach (var hWnd in sWindows)
                     {
