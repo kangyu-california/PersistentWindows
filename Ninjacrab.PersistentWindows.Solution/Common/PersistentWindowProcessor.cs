@@ -52,6 +52,7 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private IntPtr desktopWindow = User32.GetDesktopWindow();
+        private IntPtr vacantDeskWindow = IntPtr.Zero;
 
         // windows that are not to be restored
         private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
@@ -82,6 +83,7 @@ namespace PersistentWindows.Common
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
+        private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         public bool fullScreenGamingMode = false;
 
@@ -268,14 +270,6 @@ namespace PersistentWindows.Common
                     Log.Event("ignore window {0}", GetWindowTitle(curMovingWnd));
                     noRestoreWindows.Add(curMovingWnd);
                 }
-                else
-                {
-                    if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
-                    {
-                        SwitchForeBackground(curMovingWnd);
-                    }
-                    noRestoreWindows.Remove(curMovingWnd);
-                }
             }
             );
 
@@ -288,14 +282,20 @@ namespace PersistentWindows.Common
                     ignoreForegroundEvent = false;
                     return;
                 }
+
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
+                if (   (User32.GetKeyState(0x11) & 0x8000) == 0 //ctrl key NOT pressed
+                    && (User32.GetKeyState(0x12) & 0x8000) == 0 //alt key NOT pressed
+                    && (User32.GetKeyState(0x10) & 0x8000) == 0 //shift key NOT pressed
                     && (User32.GetKeyState(0x5b) & 0x8000) == 0 //lwin logo key NOT pressed
                     && (User32.GetKeyState(0x5c) & 0x8000) == 0 //rwin logo key NOT pressed
-                    )
+                   )
                 {
-                    SwitchForeBackground(hwnd, toForeground:true); //restore foreground window to its previous pos
+                    if (realForeGroundWindow == vacantDeskWindow)
+                        SwitchForeBackground(hwnd); //restore to background pos
+                    else
+                        SwitchForeBackground(realForeGroundWindow, toForeground:true); //restore to foreground window to its previous pos
                 }
             });
 
@@ -1353,7 +1353,11 @@ namespace PersistentWindows.Common
                                 }
                                 else
                                 {
-                                    foreGroundWindow[curDisplayKey] = hwnd;
+                                    if (IsTaskBar(hwnd))
+                                        break;
+                                    realForeGroundWindow = hwnd;
+                                    if (hwnd != vacantDeskWindow)
+                                        foreGroundWindow[curDisplayKey] = hwnd;
                                     foregroundTimer.Change(100, Timeout.Infinite);
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
@@ -2201,7 +2205,9 @@ namespace PersistentWindows.Common
                     if (!taskbarReady && GetRealTaskBar(hwnd) != IntPtr.Zero)
                     {
                         taskbarReady = true;
-
+                        vacantDeskWindow = User32.FindWindowEx(desktopWindow, IntPtr.Zero, "Progman", "Program Manager");
+                        //vacantDeskWindow = User32.FindWindowEx(vacantDeskWindow, IntPtr.Zero, "SHELLDLL_DefView", "");
+                        //vacantDeskWindow = User32.FindWindowEx(vacantDeskWindow, IntPtr.Zero, "SysListView32", "FolderView");
                         //show icon on taskbar
                         hideRestoreTip();
                     }
