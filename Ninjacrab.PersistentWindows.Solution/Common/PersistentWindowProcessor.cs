@@ -295,7 +295,7 @@ namespace PersistentWindows.Common
                     if (realForeGroundWindow == vacantDeskWindow)
                         SwitchForeBackground(hwnd); //restore to background pos
                     else
-                        SwitchForeBackground(realForeGroundWindow, toForeground:true); //restore to foreground window to its previous pos
+                        SwitchForeBackground(hwnd, toForeground:true); //restore to foreground window to its previous pos
                 }
             });
 
@@ -1765,6 +1765,7 @@ namespace PersistentWindows.Common
             int prevIndex = monitorApplications[curDisplayKey][hwnd].Count - 1;
             var cur_metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
             IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
+
             for (; prevIndex >= 0; --prevIndex)
             {
                 var metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
@@ -1793,7 +1794,8 @@ namespace PersistentWindows.Common
                             User32.SetForegroundWindow(fgWnd);
                         }
                     }
-                    return;
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                    break;
                 }
             }
         }
