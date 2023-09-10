@@ -285,18 +285,43 @@ namespace PersistentWindows.Common
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
-                if (   (User32.GetKeyState(0x11) & 0x8000) == 0 //ctrl key NOT pressed
-                    && (User32.GetKeyState(0x12) & 0x8000) == 0 //alt key NOT pressed
-                    && (User32.GetKeyState(0x10) & 0x8000) == 0 //shift key NOT pressed
-                    && (User32.GetKeyState(0x5b) & 0x8000) == 0 //lwin logo key NOT pressed
-                    && (User32.GetKeyState(0x5c) & 0x8000) == 0 //rwin logo key NOT pressed
-                   )
+                bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+                bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+                bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+                    //&& (User32.GetKeyState(0x5b) & 0x8000) == 0 //lwin logo key NOT pressed
+                    //&& (User32.GetKeyState(0x5c) & 0x8000) == 0 //rwin logo key NOT pressed
+
+                if (realForeGroundWindow == vacantDeskWindow)
                 {
-                    if (realForeGroundWindow == vacantDeskWindow)
-                        SwitchForeBackground(hwnd); //restore to background pos
-                    else
-                        SwitchForeBackground(hwnd, toForeground:true); //restore to foreground window to its previous pos
+                    if (!ctrl_key_pressed && !alt_key_pressed)
+                    {
+                        //restore window to previous background position
+                        SwitchForeBackground(hwnd);
+                        if (shift_key_pressed)
+                        {
+                            //shift focus to new foreground window
+                            IntPtr new_foregnd = GetForegroundWindow();
+                            SwitchForeBackground(new_foregnd, toForeground: true);
+                        }
+                    }
+                    else if (ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
+                    {
+                        //restore to previous background zorder with current size/pos
+                        SwitchForeBackground(hwnd, updateBackgroundPos: true);
+                    }
+                    else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
+                    {
+                        FgWindowToBottom();
+                    }
                 }
+                else
+                {
+                    if (!ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
+                        //restore window to previous foreground position
+                        SwitchForeBackground(hwnd, toForeground: true);
+                }
+
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
             });
 
             captureTimer = new Timer(state =>
@@ -1748,13 +1773,7 @@ namespace PersistentWindows.Common
             Log.Event("Bring foreground window {0} to bottom", GetWindowTitle(hwnd));
         }
 
-        public void BringForegroundToBackground()
-        {
-            IntPtr hwnd = GetForegroundWindow();
-            SwitchForeBackground(hwnd, issueFromIcon:true);
-        }
-
-        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool issueFromIcon=false)
+        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false)
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
@@ -1773,6 +1792,7 @@ namespace PersistentWindows.Common
                 {
                     continue;
                 }
+
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
                 if (prevZwnd != front_hwnd)
                 {
@@ -1781,20 +1801,18 @@ namespace PersistentWindows.Common
                         if (toForeground)
                             continue;
                         RestoreZorder(hwnd, prevZwnd);
+                        if (updateBackgroundPos)
+                        {
+                            //update with current size/pos
+                            monitorApplications[curDisplayKey][hwnd][prevIndex].ScreenPosition = cur_metrics.ScreenPosition;
+                            monitorApplications[curDisplayKey][hwnd][prevIndex].WindowPlacement = cur_metrics.WindowPlacement;
+                            break;
+                        }
                     }
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
-                    if (!toForeground && issueFromIcon)
-                    {
-                        IntPtr fgWnd= GetForegroundWindow();
-                        if (fgWnd != hwnd)
-                        {
-                            ignoreForegroundEvent = true;
-                            User32.SetForegroundWindow(fgWnd);
-                        }
-                    }
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+
                     break;
                 }
             }

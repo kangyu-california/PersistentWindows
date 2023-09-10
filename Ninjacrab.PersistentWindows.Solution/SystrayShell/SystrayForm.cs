@@ -114,8 +114,6 @@ namespace PersistentWindows.SystrayShell
                         if (ctrlKeyPressed > 0)
                             if (altKeyPressed > 0)
                                 Program.FgWindowToBottom();
-                            else
-                                Program.BringForegroundToBackground();
                         else
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);

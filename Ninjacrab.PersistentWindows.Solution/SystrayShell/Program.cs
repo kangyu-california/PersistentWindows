@@ -538,11 +538,6 @@ namespace PersistentWindows.SystrayShell
             pwp.RestoreSnapshot(id);
         }
 
-        static public void BringForegroundToBackground()
-        {
-            pwp.BringForegroundToBackground();
-        }
-
         static public void FgWindowToBottom()
         {
             pwp.FgWindowToBottom();
