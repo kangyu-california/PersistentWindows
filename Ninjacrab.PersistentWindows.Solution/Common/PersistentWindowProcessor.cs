@@ -1796,11 +1796,10 @@ namespace PersistentWindows.Common
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
                 if (prevZwnd != front_hwnd)
                 {
-                    if (!IsTaskBar(prevZwnd))
+                    if (!toForeground)
                     {
-                        if (toForeground)
-                            continue;
                         RestoreZorder(hwnd, prevZwnd);
+
                         if (updateBackgroundPos)
                         {
                             //update with current size/pos
