@@ -29,6 +29,8 @@ namespace PersistentWindows.Common
 
         private void ListLayout_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (ListLayout.SelectedItem == null)
+                return;
             selected.Text = ListLayout.SelectedItem.ToString();
         }
     }
