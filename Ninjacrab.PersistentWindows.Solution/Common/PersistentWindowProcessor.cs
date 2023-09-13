@@ -313,6 +313,7 @@ namespace PersistentWindows.Common
                     {
                         FgWindowToBottom();
                     }
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey);
                 }
                 else
                 {
@@ -320,8 +321,6 @@ namespace PersistentWindows.Common
                         //restore window to previous foreground position
                         SwitchForeBackground(hwnd, toForeground: true);
                 }
-
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
             });
 
             captureTimer = new Timer(state =>
