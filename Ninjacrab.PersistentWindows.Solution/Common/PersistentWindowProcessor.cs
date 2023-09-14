@@ -855,15 +855,8 @@ namespace PersistentWindows.Common
             return offscreen;
         }
 
-        private void FixOffScreenWindow(IntPtr hwnd)
+        private bool RecallLastKilledPosition(IntPtr hwnd)
         {
-            var displayKey = GetDisplayKey();
-            if (!normalSessions.Contains(displayKey))
-            {
-                Log.Error("Avoid recover invisible window \"{0}\"", GetWindowTitle(hwnd));
-                return;
-            }
-
             if (deadApps.ContainsKey(curDisplayKey))
             {
                 var deadAppPos = deadApps[curDisplayKey];
@@ -873,13 +866,15 @@ namespace PersistentWindows.Common
                     uint processId = 0;
                     uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
                     string procPath = GetProcExePath(processId);
+                    string title = GetWindowTitle(hwnd);
                     int idx = deadAppPos.Count;
-                    bool found = false;
                     foreach (var appPos in deadAppPos.Reverse<DeadAppPosition>())
                     {
                         --idx;
 
                         if (!className.Equals(appPos.ClassName))
+                            continue;
+                        if (!title.Equals(appPos.Title))
                             continue;
                         if (!procPath.Equals(appPos.ProcessPath))
                             continue;
@@ -887,18 +882,27 @@ namespace PersistentWindows.Common
                         // found match
                         RECT r = appPos.ScreenPosition;
                         User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
-                        Log.Error("Recover invisible window \"{0}\"", GetWindowTitle(hwnd));
-                        found = true;
-                        break;
-                    }
-
-                    if (found)
-                    {
+                        Log.Error("Recover last close location\"{0}\"", GetWindowTitle(hwnd));
                         deadApps[curDisplayKey].RemoveAt(idx);
-                        return;
+                        return true;
                     }
                 }
             }
+
+            return false;
+        }
+
+        private void FixOffScreenWindow(IntPtr hwnd)
+        {
+            var displayKey = GetDisplayKey();
+            if (!normalSessions.Contains(displayKey))
+            {
+                Log.Error("Avoid recover invisible window \"{0}\"", GetWindowTitle(hwnd));
+                return;
+            }
+
+            if (RecallLastKilledPosition(hwnd))
+                return;
 
             RECT rect = new RECT();
             User32.GetWindowRect(hwnd, ref rect);
@@ -1200,6 +1204,7 @@ namespace PersistentWindows.Common
                         var appPos = new DeadAppPosition();
                         var lastMetric = monitorApplications[key][hwnd].Last();
                         appPos.ClassName = lastMetric.ClassName;
+                        appPos.Title = lastMetric.Title;
                         appPos.ScreenPosition = lastMetric.ScreenPosition;
                         string procPath = GetProcExePath(lastMetric.ProcessId);
                         appPos.ProcessPath = procPath;
