@@ -1395,8 +1395,11 @@ namespace PersistentWindows.Common
 
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
-                                    if (hwnd != foreGroundWindow[curDisplayKey])
-                                        pendingMoveEvents.Enqueue(hwnd);
+                                    if (foreGroundWindow.ContainsKey(curDisplayKey))
+                                    {
+                                        if (hwnd != foreGroundWindow[curDisplayKey])
+                                            pendingMoveEvents.Enqueue(hwnd);
+                                    }
 
                                     if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
                                     {
