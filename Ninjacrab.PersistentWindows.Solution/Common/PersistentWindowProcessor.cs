@@ -313,7 +313,6 @@ namespace PersistentWindows.Common
                     {
                         FgWindowToBottom();
                     }
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey);
                 }
                 else
                 {
@@ -321,6 +320,8 @@ namespace PersistentWindows.Common
                         //restore window to previous foreground position
                         SwitchForeBackground(hwnd, toForeground: true);
                 }
+
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
             });
 
             captureTimer = new Timer(state =>
@@ -3395,7 +3396,7 @@ namespace PersistentWindows.Common
 
                     if (restore_fullscreen)
                     {
-                        if (restoreTimes > 0) //#246, let other windows restore first
+                        if (restoreTimes > 0 && sWindow != IntPtr.Zero) //#246, let other windows restore first
                         RestoreFullScreenWindow(hWnd, rect);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
