@@ -1787,7 +1787,8 @@ namespace PersistentWindows.Common
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
-                    ActivateWindow(hwnd);
+                    if (toForeground)
+                        ActivateWindow(hwnd);
 
                     break;
                 }
@@ -3368,7 +3369,7 @@ namespace PersistentWindows.Common
 
                     if (restore_fullscreen)
                     {
-                        if (restoreTimes > 0) //#246, let other windows restore first
+                        if (restoreTimes > 0 && sWindow == null) //#246, let other windows restore first
                         RestoreFullScreenWindow(hWnd, rect);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
