@@ -74,7 +74,6 @@ namespace PersistentWindows.Common
         public string dbDisplayKey = null;
         private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
-        private HashSet<IntPtr> pendingActivateWindows = new HashSet<IntPtr>();
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         public bool manualNormalSession = false; //user need to manually take snapshot or save/restore from db to flag normal session
         private bool userMove = false; //received window event due to user move
@@ -334,8 +333,6 @@ namespace PersistentWindows.Common
 
                 if (restoringFromMem)
                     return;
-
-                PostActivateWindows();
 
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
@@ -926,28 +923,6 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void PostActivateWindows()
-        {
-            {
-                try
-                {
-                    List<IntPtr> pendingWindows = new List<IntPtr>(pendingActivateWindows);
-                    foreach (IntPtr hwnd in pendingWindows)
-                    {
-                        if (User32.IsWindow(hwnd))
-                            ActivateWindow(hwnd);
-                    }
-
-                    pendingActivateWindows.Clear();
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
-
-            }
-        }
-
         private void ManualFixTopmostFlag(IntPtr hwnd)
         {
             try
@@ -1399,10 +1374,6 @@ namespace PersistentWindows.Common
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
 
-                                    Log.Trace("activate {0}", GetWindowTitle(hwnd));
-                                    if (!pendingActivateWindows.Contains(hwnd))
-                                        pendingActivateWindows.Add(hwnd);
-
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                                         StartCaptureTimer(UserMoveLatency / 2);
                                     else
@@ -1424,11 +1395,8 @@ namespace PersistentWindows.Common
 
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
-
-                                    if (!pendingActivateWindows.Contains(hwnd))
-                                    {
+                                    if (hwnd != foreGroundWindow[curDisplayKey])
                                         pendingMoveEvents.Enqueue(hwnd);
-                                    }
 
                                     if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
                                     {
@@ -1816,6 +1784,7 @@ namespace PersistentWindows.Common
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
+                    ActivateWindow(hwnd);
 
                     break;
                 }
@@ -3396,7 +3365,7 @@ namespace PersistentWindows.Common
 
                     if (restore_fullscreen)
                     {
-                        if (restoreTimes > 0 && sWindow != IntPtr.Zero) //#246, let other windows restore first
+                        if (restoreTimes > 0) //#246, let other windows restore first
                         RestoreFullScreenWindow(hWnd, rect);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
