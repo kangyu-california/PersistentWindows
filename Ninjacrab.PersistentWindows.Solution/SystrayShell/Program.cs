@@ -543,6 +543,11 @@ namespace PersistentWindows.SystrayShell
             pwp.FgWindowToBottom();
         }
 
+        static public void RecallLastKilledPosition()
+        {
+            pwp.RecallLastKilledPosition(pwp.GetForegroundWindow());
+        }
+
         static public void PauseAutoRestore()
         {
             pwp.pauseAutoRestore = true;

@@ -855,7 +855,7 @@ namespace PersistentWindows.Common
             return offscreen;
         }
 
-        private bool RecallLastKilledPosition(IntPtr hwnd)
+        public bool RecallLastKilledPosition(IntPtr hwnd)
         {
             if (deadApps.ContainsKey(curDisplayKey))
             {
@@ -882,8 +882,8 @@ namespace PersistentWindows.Common
                         // found match
                         RECT r = appPos.ScreenPosition;
                         User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
-                        Log.Error("Recover last close location\"{0}\"", GetWindowTitle(hwnd));
-                        deadApps[curDisplayKey].RemoveAt(idx);
+                        Log.Error("Recover last closing location\"{0}\"", GetWindowTitle(hwnd));
+                        //deadApps[curDisplayKey].RemoveAt(idx);
                         return true;
                     }
                 }
@@ -1730,7 +1730,7 @@ namespace PersistentWindows.Common
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
 
-        private IntPtr GetForegroundWindow()
+        public IntPtr GetForegroundWindow()
         {
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
             for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))

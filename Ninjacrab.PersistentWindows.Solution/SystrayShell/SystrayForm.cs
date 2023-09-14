@@ -111,9 +111,11 @@ namespace PersistentWindows.SystrayShell
                 {
                     if (clickCount == 1 && firstClick && !doubleClick)
                     {
-                        if (ctrlKeyPressed > 0 && altKeyPressed > 0)
+                        if (ctrlKeyPressed > 0 && altKeyPressed > 0 && shiftKeyPressed == 0)
                             Program.FgWindowToBottom();
-                        else
+                        else if (ctrlKeyPressed > 0 && altKeyPressed == 0 && shiftKeyPressed == 0)
+                            Program.RecallLastKilledPosition();
+                        else if (ctrlKeyPressed == 0 && altKeyPressed == 0 && shiftKeyPressed == 0)
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);
                     }
