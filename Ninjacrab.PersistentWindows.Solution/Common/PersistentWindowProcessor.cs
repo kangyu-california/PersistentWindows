@@ -109,6 +109,7 @@ namespace PersistentWindows.Common
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
+        public bool enableSmartForeBackground = true;
 
         private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
             {
@@ -1722,6 +1723,12 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
+            if (toForeground)
+                ActivateWindow(hwnd);
+
+            if (!enableSmartForeBackground)
+                return;
+
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 return;
 
@@ -1752,11 +1759,10 @@ namespace PersistentWindows.Common
                             break;
                         }
                     }
+
                     restoringFromMem = true;
                     RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, metrics.CaptureTime);
                     restoringFromMem = false;
-                    if (toForeground)
-                        ActivateWindow(hwnd);
 
                     break;
                 }
