@@ -105,7 +105,6 @@ namespace PersistentWindows.Common
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
         private Object dbLock = new object();
-        public bool slowRestore = false;
         private bool restoreHalted = false;
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
@@ -1298,7 +1297,7 @@ namespace PersistentWindows.Common
 
                     if (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
-                        if ((remoteSession || slowRestore || restoreTimes >= MinRestoreTimes) && !restoringSnapshot)
+                        if ((remoteSession || restoreTimes >= MinRestoreTimes) && !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             CancelRestoreFinishedTimer();

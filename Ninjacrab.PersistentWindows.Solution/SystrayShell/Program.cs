@@ -46,7 +46,6 @@ namespace PersistentWindows.SystrayShell
             int delay_auto_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
-            bool slow_restore = false;
             int delay_auto_restore = 0;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
@@ -168,9 +167,6 @@ namespace PersistentWindows.SystrayShell
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
-                    case "-slow_restore":
-                        slow_restore = true;
-                        break;
                     case "-halt_restore":
                         halt_restore = 1;
                         break;
@@ -282,7 +278,6 @@ namespace PersistentWindows.SystrayShell
             pwp.promptSessionRestore = prompt_session_restore;
             pwp.autoRestoreMissingWindows = auto_restore_missing_windows;
             pwp.launchOncePerProcessId = launch_once_per_process_id;
-            pwp.slowRestore = slow_restore;
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
 

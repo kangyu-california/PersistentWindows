@@ -15,7 +15,6 @@
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help to reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
   | **-delay_auto_restore 2.5** | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second), in case restore is incomplete or monitor fails to go to sleep due to restore starts too early.
-  | -slow_restore | Slow down the auto-restore progress to avoid incomplete restore due to adversarial moves by Windows OS
   | -redraw_desktop | Redraw the whole desktop after a restore in case some window workarea is not refreshed
   | -fix_zorder=1   | Preserve window Z-order for automatic restore. The Z-order of a window indicates the window's position in a stack of overlapping windows.
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen windows
