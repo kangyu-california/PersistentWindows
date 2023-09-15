@@ -62,7 +62,6 @@ namespace PersistentWindows.Common
         private IntPtr curMovingWnd = IntPtr.Zero;
         private Timer moveTimer; // when user move a window
         private Timer foregroundTimer; // when user bring a window to foreground
-        private bool ignoreForegroundEvent = false;
         private DateTime lastDisplayChangeTime = DateTime.Now;
 
         // control shared by capture and restore
@@ -276,11 +275,6 @@ namespace PersistentWindows.Common
             {
                 if (!foreGroundWindow.ContainsKey(curDisplayKey))
                     return;
-                if (ignoreForegroundEvent)
-                {
-                    ignoreForegroundEvent = false;
-                    return;
-                }
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
