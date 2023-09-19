@@ -309,8 +309,12 @@ namespace PersistentWindows.Common
                 else
                 {
                     if (!ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
+                    {
+                        ActivateWindow(hwnd);
                         //restore window to previous foreground position
-                        SwitchForeBackground(hwnd, toForeground: true);
+                        if (pendingMoveEvents.Count == 0)
+                            SwitchForeBackground(hwnd, toForeground: true);
+                    }
                 }
 
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey);
@@ -1722,9 +1726,6 @@ namespace PersistentWindows.Common
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
-
-            if (toForeground)
-                ActivateWindow(hwnd);
 
             if (!enableSmartForeBackground)
                 return;
