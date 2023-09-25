@@ -277,6 +277,13 @@ namespace PersistentWindows.Common
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
+                if (windowProcessName.ContainsKey(hwnd))
+                {
+                    string processName = windowProcessName[hwnd];
+                    if (ignoreProcess.Contains(processName))
+                        return;
+                }
+
                 bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
                 bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
                 bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
