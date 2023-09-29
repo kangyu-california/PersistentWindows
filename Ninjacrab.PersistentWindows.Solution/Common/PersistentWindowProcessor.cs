@@ -272,17 +272,16 @@ namespace PersistentWindows.Common
 
             foregroundTimer = new Timer(state =>
             {
+                if (!sessionActive) //disable foreground event handling
+                    return;
+
                 if (!foreGroundWindow.ContainsKey(curDisplayKey))
                     return;
 
                 IntPtr hwnd = foreGroundWindow[curDisplayKey];
 
-                if (windowProcessName.ContainsKey(hwnd))
-                {
-                    string processName = windowProcessName[hwnd];
-                    if (ignoreProcess.Contains(processName))
-                        return;
-                }
+                if (noRestoreWindows.Contains(hwnd))
+                    return;
 
                 bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
                 bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
