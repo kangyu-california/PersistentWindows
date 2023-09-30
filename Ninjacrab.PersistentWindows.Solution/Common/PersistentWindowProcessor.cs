@@ -312,14 +312,16 @@ namespace PersistentWindows.Common
                         FgWindowToBottom();
                     }
                 }
-                else
+                else if (!ctrl_key_pressed && !shift_key_pressed)
                 {
-                    if (!ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
+                    if (!ActivateWindow(hwnd)) //window could be active on alt-tab
+                    if (!alt_key_pressed)
                     {
-                        ActivateWindow(hwnd);
                         //restore window to previous foreground position
                         if (pendingMoveEvents.Count == 0)
                             SwitchForeBackground(hwnd, toForeground: true);
+                        else
+                            return;
                     }
                 }
 
@@ -976,7 +978,8 @@ namespace PersistentWindows.Common
 
         }
 
-        private void ActivateWindow(IntPtr hwnd)
+        //return true if action is taken
+        private bool ActivateWindow(IntPtr hwnd)
         {
             try
             {
@@ -993,14 +996,14 @@ namespace PersistentWindows.Common
 
                     if (!monitorApplications.ContainsKey(curDisplayKey))
                     {
-                        return;
+                        return false;
                     }
 
                     // fix off-screen new window
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
                         if (!enable_offscreen_fix)
-                            return;
+                            return false;
 
                         bool isNewWindow = true;
                         foreach (var key in monitorApplications.Keys)
@@ -1015,15 +1018,16 @@ namespace PersistentWindows.Common
                         if (isNewWindow && IsOffScreen(hwnd) && normalSessions.Contains(curDisplayKey))
                         {
                             FixOffScreenWindow(hwnd);
+                            return true;
                         }
-                        return;
+                        return false;
                     }
 
                     if (IsMinimized(hwnd))
-                        return; // minimize operation
+                        return false; // minimize operation
 
                     if (noRestoreWindows.Contains(hwnd))
-                        return;
+                        return false;
 
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
@@ -1033,6 +1037,7 @@ namespace PersistentWindows.Common
                         //the window was minimized from full screen status
                         //it is possible that minimize status have not been captured yet
                         RestoreFullScreenWindow(hwnd, target_rect);
+                        return true;
                     }
                     else if (prevDisplayMetrics.IsMinimized)
                     {
@@ -1046,11 +1051,11 @@ namespace PersistentWindows.Common
                                || target_rect.Left <= -25600)
                             {
                                 Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                return; // captured without previous history info, let OS handle it
+                                return false; // captured without previous history info, let OS handle it
                             }
 
                             if (screenPosition.Equals(target_rect))
-                                return;
+                                return false;
 
                             if (fixUnminimizedWindow && !tidyTabWindows.Contains(hwnd))
                             {
@@ -1060,7 +1065,7 @@ namespace PersistentWindows.Common
                                     long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
                                     if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
                                     {
-                                        return;
+                                        return false;
                                     }
 
                                     // windows ignores previous snap status when activated from minimized state
@@ -1075,12 +1080,12 @@ namespace PersistentWindows.Common
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                    return;
+                                    return true;
                                 }
                             }
 
                             if (!enable_offscreen_fix)
-                                return;
+                                return false;
 
                             if (IsOffScreen(hwnd))
                             {
@@ -1088,6 +1093,7 @@ namespace PersistentWindows.Common
                                 User32.GetWindowRect(desktopWindow, ref target_rect);
                                 User32.MoveWindow(hwnd, target_rect.Left + 50, target_rect.Top + 50, target_rect.Width * 3 / 4, target_rect.Height * 3 / 4, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
+                                return true;
                             }
                         }
                     }
@@ -1098,6 +1104,7 @@ namespace PersistentWindows.Common
                 Log.Error(ex.ToString());
             }
 
+            return false;
         }
 
 
@@ -1754,7 +1761,12 @@ namespace PersistentWindows.Common
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
                 if (prevZwnd != front_hwnd)
                 {
-                    if (!toForeground)
+                    if (toForeground)
+                    {
+                        if (metrics.IsFullScreen)
+                            return;
+                    }
+                    else
                     {
                         RestoreZorder(hwnd, prevZwnd);
 
