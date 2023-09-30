@@ -314,7 +314,8 @@ namespace PersistentWindows.Common
                 }
                 else if (!ctrl_key_pressed && !shift_key_pressed)
                 {
-                    if (!ActivateWindow(hwnd)) //window could be active on alt-tab
+                    ActivateWindow(hwnd); //window could be active on alt-tab
+
                     if (!alt_key_pressed)
                     {
                         //restore window to previous foreground position
@@ -979,7 +980,7 @@ namespace PersistentWindows.Common
         }
 
         //return true if action is taken
-        private bool ActivateWindow(IntPtr hwnd)
+        private void ActivateWindow(IntPtr hwnd)
         {
             try
             {
@@ -996,14 +997,14 @@ namespace PersistentWindows.Common
 
                     if (!monitorApplications.ContainsKey(curDisplayKey))
                     {
-                        return false;
+                        return;
                     }
 
                     // fix off-screen new window
                     if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                     {
                         if (!enable_offscreen_fix)
-                            return false;
+                            return;
 
                         bool isNewWindow = true;
                         foreach (var key in monitorApplications.Keys)
@@ -1018,16 +1019,15 @@ namespace PersistentWindows.Common
                         if (isNewWindow && IsOffScreen(hwnd) && normalSessions.Contains(curDisplayKey))
                         {
                             FixOffScreenWindow(hwnd);
-                            return true;
                         }
-                        return false;
+                        return;
                     }
 
                     if (IsMinimized(hwnd))
-                        return false; // minimize operation
+                        return; // minimize operation
 
                     if (noRestoreWindows.Contains(hwnd))
-                        return false;
+                        return;
 
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
@@ -1037,7 +1037,7 @@ namespace PersistentWindows.Common
                         //the window was minimized from full screen status
                         //it is possible that minimize status have not been captured yet
                         RestoreFullScreenWindow(hwnd, target_rect);
-                        return true;
+                        return;
                     }
                     else if (prevDisplayMetrics.IsMinimized)
                     {
@@ -1051,11 +1051,11 @@ namespace PersistentWindows.Common
                                || target_rect.Left <= -25600)
                             {
                                 Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                return false; // captured without previous history info, let OS handle it
+                                return; // captured without previous history info, let OS handle it
                             }
 
                             if (screenPosition.Equals(target_rect))
-                                return false;
+                                return;
 
                             if (fixUnminimizedWindow && !tidyTabWindows.Contains(hwnd))
                             {
@@ -1065,7 +1065,7 @@ namespace PersistentWindows.Common
                                     long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
                                     if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
                                     {
-                                        return false;
+                                        return;
                                     }
 
                                     // windows ignores previous snap status when activated from minimized state
@@ -1080,12 +1080,12 @@ namespace PersistentWindows.Common
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
-                                    return true;
+                                    return;
                                 }
                             }
 
                             if (!enable_offscreen_fix)
-                                return false;
+                                return;
 
                             if (IsOffScreen(hwnd))
                             {
@@ -1093,7 +1093,6 @@ namespace PersistentWindows.Common
                                 User32.GetWindowRect(desktopWindow, ref target_rect);
                                 User32.MoveWindow(hwnd, target_rect.Left + 50, target_rect.Top + 50, target_rect.Width * 3 / 4, target_rect.Height * 3 / 4, true);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
-                                return true;
                             }
                         }
                     }
@@ -1103,8 +1102,6 @@ namespace PersistentWindows.Common
             {
                 Log.Error(ex.ToString());
             }
-
-            return false;
         }
 
 
