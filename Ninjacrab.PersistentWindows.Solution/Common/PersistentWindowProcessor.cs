@@ -2301,6 +2301,9 @@ namespace PersistentWindows.Common
 
             if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
+                if (noRestoreWindows.Contains(hwnd))
+                    return false;
+
                 //newly created window or new display setting
                 var process = GetProcess(realHwnd);
                 if (process == null)
