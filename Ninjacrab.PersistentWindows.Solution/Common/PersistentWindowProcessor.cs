@@ -83,7 +83,6 @@ namespace PersistentWindows.Common
         private IntPtr foreGroundWindow;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
-        public bool fullScreenGamingMode = false;
         private HashSet<IntPtr> fullScreenGamingWindow = new HashSet<IntPtr>();
 
         // restore control
@@ -341,6 +340,9 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
+                if (fullScreenGamingWindow.Contains(foreGroundWindow))
+                    return;
+
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
             });
@@ -372,9 +374,8 @@ namespace PersistentWindows.Common
                     Log.Trace("Restore aborted for {0}", curDisplayKey);
 
                     curDisplayKey = displayKey;
-                    if (fullScreenGamingMode || !normalSessions.Contains(curDisplayKey))
+                    if (fullScreenGamingWindow.Contains(foreGroundWindow) || !normalSessions.Contains(curDisplayKey))
                     {
-                        fullScreenGamingMode = false;
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
                         checkUpgrade = false;
 
@@ -575,10 +576,8 @@ namespace PersistentWindows.Common
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
-                                fullScreenGamingMode = true;
-                                Log.Event($"enter full-screen gaming mode {displayKey}");
                                 fullScreenGamingWindow.Add(foreGroundWindow);
-                                Log.Event($"full-screen gaming mode {foreGroundWindow} {GetWindowTitle(foreGroundWindow)}");
+                                Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
                                 StartRestoreFinishedTimer(0);
                             }
                             else
