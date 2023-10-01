@@ -80,10 +80,11 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
-        private Dictionary<string, IntPtr> foreGroundWindow = new Dictionary<string, IntPtr>();
+        private IntPtr foreGroundWindow;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         public bool fullScreenGamingMode = false;
+        private HashSet<IntPtr> fullScreenGamingWindow = new HashSet<IntPtr>();
 
         // restore control
         private Timer restoreTimer;
@@ -275,10 +276,7 @@ namespace PersistentWindows.Common
                 if (!sessionActive) //disable foreground event handling
                     return;
 
-                if (!foreGroundWindow.ContainsKey(curDisplayKey))
-                    return;
-
-                IntPtr hwnd = foreGroundWindow[curDisplayKey];
+                IntPtr hwnd = foreGroundWindow;
 
                 if (noRestoreWindows.Contains(hwnd))
                     return;
@@ -314,6 +312,9 @@ namespace PersistentWindows.Common
                 }
                 else if (!ctrl_key_pressed && !shift_key_pressed)
                 {
+                    if (fullScreenGamingWindow.Contains(hwnd))
+                        return;
+
                     ActivateWindow(hwnd); //window could be active on alt-tab
 
                     if (!alt_key_pressed)
@@ -576,6 +577,8 @@ namespace PersistentWindows.Common
                             {
                                 fullScreenGamingMode = true;
                                 Log.Event($"enter full-screen gaming mode {displayKey}");
+                                fullScreenGamingWindow.Add(foreGroundWindow);
+                                Log.Event($"full-screen gaming mode {foreGroundWindow} {GetWindowTitle(foreGroundWindow)}");
                                 StartRestoreFinishedTimer(0);
                             }
                             else
@@ -1160,6 +1163,7 @@ namespace PersistentWindows.Common
                 noRestoreWindows.Remove(hwnd);
                 windowProcessName.Remove(hwnd);
                 debugWindows.Remove(hwnd);
+                fullScreenGamingWindow.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1345,7 +1349,7 @@ namespace PersistentWindows.Common
                                         break;
                                     realForeGroundWindow = hwnd;
                                     if (hwnd != vacantDeskWindow)
-                                        foreGroundWindow[curDisplayKey] = hwnd;
+                                        foreGroundWindow = hwnd;
                                     foregroundTimer.Change(100, Timeout.Infinite);
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
@@ -1378,13 +1382,12 @@ namespace PersistentWindows.Common
 
                                     // If the window move is caused by user snapping window to screen edge,
                                     // delay capture by a few seconds should be fine.
-                                    if (foreGroundWindow.ContainsKey(curDisplayKey))
                                     {
-                                        if (hwnd != foreGroundWindow[curDisplayKey])
+                                        if (hwnd != foreGroundWindow)
                                             pendingMoveEvents.Enqueue(hwnd);
                                     }
 
-                                    if (foreGroundWindow.ContainsKey(curDisplayKey) && foreGroundWindow[curDisplayKey] == hwnd)
+                                    if (foreGroundWindow == hwnd)
                                     {
                                         StartCaptureTimer(UserMoveLatency / 4);
                                     }
@@ -1734,6 +1737,12 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false)
         {
+            if (fullScreenGamingWindow.Count > 0)
+            {
+                //no smart foreground/background
+                return;
+            }
+
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
