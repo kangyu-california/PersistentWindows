@@ -576,8 +576,14 @@ namespace PersistentWindows.Common
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
-                                fullScreenGamingWindow.Add(foreGroundWindow);
-                                Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
+                                if (IsNewWindow(foreGroundWindow))
+                                {
+                                    fullScreenGamingWindow.Add(foreGroundWindow);
+                                    Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
+                                }
+                                else
+                                    Log.Event($"re-enter full-screen gaming mode");
+
                                 StartRestoreFinishedTimer(0);
                             }
                             else
@@ -752,6 +758,19 @@ namespace PersistentWindows.Common
             );
 
             pauseAutoRestore = false;
+        }
+
+        private bool IsNewWindow(IntPtr hwnd)
+        {
+            if (noRestoreWindows.Contains(hwnd))
+                return false;
+
+            foreach (var key in monitorApplications.Keys)
+            {
+                if (monitorApplications[key].ContainsKey(hwnd))
+                    return false;
+            }
+            return true;
         }
 
         private bool IsFullScreen(IntPtr hwnd)
