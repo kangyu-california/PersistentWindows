@@ -1,5 +1,5 @@
 ## Replace with your desired command arguments
-$arguments = "-delay_start 10"  
+$arguments = "-delay_start 10 -splash=0"
 
 ## rename the task as you like
 $taskName = "StartPersistentWindows" + $env:username
