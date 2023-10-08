@@ -906,6 +906,7 @@ namespace PersistentWindows.Common
                         // found match
                         RECT r = appPos.ScreenPosition;
                         User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
+                        User32.SetForegroundWindow(hwnd);
                         Log.Error("Recover last closing location\"{0}\"", GetWindowTitle(hwnd));
                         //deadApps[curDisplayKey].RemoveAt(idx);
                         return true;
