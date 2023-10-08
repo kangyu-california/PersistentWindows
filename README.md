@@ -1,5 +1,5 @@
 # PersistentWindows
-The code is forked from [ninjacrab.com/persistent-windows](http://www.ninjacrab.com/persistent-windows/) to fix a long-standing [issue](https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1) on Windows 7/10/11 where windows get repositioned after wake up, RDP reconnect or exit from full-screen gaming.
+The code is forked from [ninjacrab.com/persistent-windows](http://www.ninjacrab.com/persistent-windows/) to fix a long-standing [issue](https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1) on Windows 7/10/11 where windows get repositioned upon computer system waking up, laptop switching external display, monitor resolution changing (such as exit from full screen gaming) and RDP reconnecting.
 ## Original Description
 > What is PersistentWindows?
 >
