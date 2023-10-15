@@ -3306,14 +3306,22 @@ namespace PersistentWindows.Common
                     }
                     if (prevDisplayMetrics.IsInvisible || restoreTimes > 0)
                     {
+                        bool action_taken = false;
                         if (!IsMinimized(hWnd))
+                        {
                             User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                            action_taken = true;
+                        }
 
                         // second try
                         if (!IsMinimized(hWnd))
+                        {
+                            action_taken = true;
                             User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
+                        }
 
-                        Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
+                        if (action_taken)
+                            Log.Error("keep minimized window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
                 }
