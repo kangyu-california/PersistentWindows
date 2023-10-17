@@ -362,7 +362,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                StartCaptureTimer(0);
             });
 
             captureTimer = new Timer(state =>
