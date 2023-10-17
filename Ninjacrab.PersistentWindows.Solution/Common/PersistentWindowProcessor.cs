@@ -2379,7 +2379,6 @@ namespace PersistentWindows.Common
                 SnapShotFlags = 0ul,
             };
 
-            //if (!monitorApplications[displayKey].ContainsKey(hwnd))
             if (!windowTitle.ContainsKey(realHwnd))
             {
                 if (noRestoreWindows.Contains(hwnd))
@@ -2417,7 +2416,7 @@ namespace PersistentWindows.Common
 
                 moved = true;
             }
-            else
+            else if (monitorApplications[displayKey].ContainsKey(hwnd))
             {
                 // find last record that satisfies cut-off time
                 int prevIndex = monitorApplications[displayKey][hwnd].Count - 1;
@@ -2552,7 +2551,6 @@ namespace PersistentWindows.Common
                         moved = true;
                     }
                 }
-
             }
 
             return moved;
