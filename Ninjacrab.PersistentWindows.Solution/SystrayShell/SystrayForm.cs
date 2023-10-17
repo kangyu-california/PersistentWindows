@@ -7,7 +7,6 @@ using System.Timers;
 using System.IO;
 using System.IO.Compression;
 
-using PersistentWindows.Common;
 using PersistentWindows.Common.Diagnostics;
 using PersistentWindows.Common.WinApiBridge;
 

@@ -6,10 +6,8 @@ using System.Text;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Reflection;
-using System.Drawing;
 using Microsoft.Win32;
 
 using LiteDB;
@@ -82,6 +80,7 @@ namespace PersistentWindows.Common
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private IntPtr foreGroundWindow;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
+        private HashSet<IntPtr> dualPosWindows = new HashSet<IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
 
@@ -316,25 +315,26 @@ namespace PersistentWindows.Common
                 bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
                 bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
                 bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
-                    //&& (User32.GetKeyState(0x5b) & 0x8000) == 0 //lwin logo key NOT pressed
-                    //&& (User32.GetKeyState(0x5c) & 0x8000) == 0 //rwin logo key NOT pressed
 
                 if (realForeGroundWindow == vacantDeskWindow)
                 {
                     if (!ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore window to previous background position
+                        dualPosWindows.Add(hwnd);
                         SwitchForeBackground(hwnd);
                         if (shift_key_pressed)
                         {
                             //shift focus to new foreground window
                             IntPtr new_foregnd = GetForegroundWindow();
+                            dualPosWindows.Add(new_foregnd);
                             SwitchForeBackground(new_foregnd, toForeground: true);
                         }
                     }
                     else if (ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
                     {
                         //restore to previous background zorder with current size/pos
+                        dualPosWindows.Add(hwnd);
                         SwitchForeBackground(hwnd, updateBackgroundPos: true);
                     }
                     else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
@@ -353,7 +353,10 @@ namespace PersistentWindows.Common
                     {
                         //restore window to previous foreground position
                         if (pendingMoveEvents.Count == 0)
-                            SwitchForeBackground(hwnd, toForeground: true);
+                        {
+                            if (dualPosWindows.Contains(hwnd))
+                                SwitchForeBackground(hwnd, toForeground: true);
+                        }
                         else
                             return;
                     }
@@ -1224,6 +1227,7 @@ namespace PersistentWindows.Common
                 debugWindows.Remove(hwnd);
                 fullScreenGamingWindows.Remove(hwnd);
                 windowTitle.Remove(hwnd);
+                dualPosWindows.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
