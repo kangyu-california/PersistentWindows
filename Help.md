@@ -12,6 +12,7 @@
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print window positioning event logs for the processes notepad.exe and foo in event viewer
+  | -foreground_background_dual_position=0 | turn off dual position switching
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help to reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
   | **-delay_auto_restore 2.5** | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second), in case restore is incomplete or monitor fails to go to sleep due to restore starts too early.
@@ -53,12 +54,6 @@
 * Replace the default app icon with your customized one
   * Save your icon file as `pwIcon.ico` and copy it to `C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the directory where you are invoking PersistentWindows from using the `-redirect_appdata` command argument.
   * Save the second icon file as `pwIconBusy.ico` in the same directory. This icon is displayed when PersistentWindows is busy restoring windows.
-
-* Manipulate the window z-order (Obsolete since version 5.41):
-  * Bring a window to the top of the z-order by clearing the topmost flag of an obstructive window:
-    * Click on the other window first to de-focus, then Ctrl click the window that you want to bring to the top (or the corresponding icon on the taskbar).
-  * Send a remote desktop or vncviewer window to the bottom of the z-order (because the Alt+Esc hotkey may not work for them on Windows 7 or old Windows 10 versions):
-    * De-focus the rdp window first, then hold Ctrl+Win and click on the rdp window
 
 * Enable/Disable auto restore for any (child or dialog) window:
   * To include a child/dialog window for auto restore, move the window using only the mouse
