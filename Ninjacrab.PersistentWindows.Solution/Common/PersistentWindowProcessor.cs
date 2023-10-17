@@ -83,7 +83,7 @@ namespace PersistentWindows.Common
         private IntPtr foreGroundWindow;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
-        private HashSet<IntPtr> fullScreenGamingWindow = new HashSet<IntPtr>();
+        private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
 
         // restore control
         private Timer restoreTimer;
@@ -344,7 +344,7 @@ namespace PersistentWindows.Common
                 }
                 else if (!ctrl_key_pressed && !shift_key_pressed)
                 {
-                    if (fullScreenGamingWindow.Contains(hwnd))
+                    if (fullScreenGamingWindows.Contains(hwnd))
                         return;
 
                     ActivateWindow(hwnd); //window could be active on alt-tab
@@ -373,10 +373,10 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
-                if (fullScreenGamingWindow.Contains(foreGroundWindow))
+                if (fullScreenGamingWindows.Contains(foreGroundWindow))
                     return;
 
-                foreach (var hwnd in fullScreenGamingWindow)
+                foreach (var hwnd in fullScreenGamingWindows)
                 {
                     if (IsFullScreen(hwnd))
                         return;
@@ -413,7 +413,7 @@ namespace PersistentWindows.Common
                     Log.Error("Restore aborted for {0}", curDisplayKey);
 
                     curDisplayKey = displayKey;
-                    if (fullScreenGamingWindow.Contains(foreGroundWindow) || !normalSessions.Contains(curDisplayKey))
+                    if (fullScreenGamingWindows.Contains(foreGroundWindow) || !normalSessions.Contains(curDisplayKey))
                     {
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
                         checkUpgrade = false;
@@ -618,7 +618,7 @@ namespace PersistentWindows.Common
                             {
                                 if (IsNewWindow(foreGroundWindow))
                                 {
-                                    fullScreenGamingWindow.Add(foreGroundWindow);
+                                    fullScreenGamingWindows.Add(foreGroundWindow);
                                     Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
                                 }
                                 else
@@ -1222,7 +1222,7 @@ namespace PersistentWindows.Common
                 noRestoreWindows.Remove(hwnd);
                 windowProcessName.Remove(hwnd);
                 debugWindows.Remove(hwnd);
-                fullScreenGamingWindow.Remove(hwnd);
+                fullScreenGamingWindows.Remove(hwnd);
                 windowTitle.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
@@ -1799,7 +1799,7 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false)
         {
-            if (fullScreenGamingWindow.Count > 0)
+            if (fullScreenGamingWindows.Count > 0)
             {
                 //no smart foreground/background
                 return;
