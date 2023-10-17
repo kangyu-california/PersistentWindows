@@ -3650,7 +3650,21 @@ namespace PersistentWindows.Common
                                     }
                                 }
 
-                                if (processPath.Contains(" ") && !processPath.Contains("\"") && !processPath.Contains(".exe "))
+                                bool is_window_apps = false;
+                                if (processPath.Contains("Program Files\\WindowsApps"))
+                                {
+                                    is_window_apps = true;
+                                    processPath = processPath.Replace("\"C:\\Program Files\\WindowsApps\\", "");
+                                    int idx_slash = processPath.IndexOf('\\');
+                                    processPath = processPath.Remove(idx_slash);
+                                    int idx_underscore_begin = processPath.IndexOf('_');
+                                    int idx_underscore_end = processPath.IndexOf("__");
+                                    processPath = processPath.Remove(idx_underscore_begin, idx_underscore_end - idx_underscore_begin + 1);
+
+                                    processPath = "shell:AppsFolder\\" + processPath + "!App";
+                                }
+
+                                if (!is_window_apps && processPath.Contains(" ") && !processPath.Contains("\"") && !processPath.Contains(".exe "))
                                 {
                                     processPath = $"\"{processPath}\"";
                                 }
@@ -3659,6 +3673,7 @@ namespace PersistentWindows.Common
                                 {
                                     processPath = processPath.Replace("usr\\bin\\mintty.exe", "\"C:\\Program Files\\Git\\usr\\bin\\mintty.exe\"");
                                 }
+
 
                                 Log.Event("launch process {0}", processPath);
                                 string batFile = Path.Combine(appDataFolder, $"pw_exec{i}.bat");
