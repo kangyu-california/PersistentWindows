@@ -40,9 +40,13 @@
 
 ---
 ### Other Features
-* Switch window between its foreground and background dual position/size
-  * Bring a foreground window to its previous background position and z-order by click the empty desktop background area (not occupied by any window)
-  * Bring a background window to its previous foreground position by click it or alt-tab
+* The dual positioning feature allows any window to have different position/size in foreground and background mode.
+  * Bring a foreground window to its previous background position and z-order
+    * click the empty desktop background area (which is not occupied by any window)
+  * Bring a foreground window to its previous z-order (while keeping the current size)
+    * ALT click the empty desktop area
+  * Bring a background window to foreground WITHOUT restoring to previous foreground position
+    * press any of CTRL/SHIFT/ALT key when activating the window.
 * Restore a new window to its last closing position
   * Ctrl click the PW icon
 * Put the current window to background, useful if the window is maximized

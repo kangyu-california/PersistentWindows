@@ -1803,11 +1803,13 @@ namespace PersistentWindows.Common
 
         public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false)
         {
+            /*
             if (fullScreenGamingWindows.Count > 0)
             {
                 //no smart foreground/background
                 return;
             }
+            */
 
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
