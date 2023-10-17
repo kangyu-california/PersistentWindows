@@ -16,7 +16,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Capture snapshot: saves desktop layout snapshots in memory (max 36 for each display configuration). The window z-order is preserved in the snapshot. This feature can be used as an alternative to virtual desktops on Windows 10.
 - Auto Restore can be paused/resumed as desired.
 - Supports automatic upgrades.
-- For more Features and Commands, take a look at the [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md)
+- Support foreground/background dual position switching. For more Features and Commands, take a look at the [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md)
 
 ## Installation
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page

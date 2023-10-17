@@ -39,6 +39,13 @@
 
 ---
 ### Other Features
+* Switch window between its foreground and background dual position/size
+  * Bring a foreground window to its previous background position and z-order by click the empty desktop background area (not occupied by any window)
+  * Bring a background window to its previous foreground position by click it or alt-tab
+* Restore a new window to its last closing position
+  * Ctrl click the PW icon
+* Put the current window to background, useful if the window is maximized
+  * Ctrl-Alt click the PW icon
 * Create named capture(s) to disk
   * To save a named capture to disk, Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
   * To restore the named capture from disk, Ctrl click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
