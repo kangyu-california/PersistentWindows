@@ -1217,6 +1217,7 @@ namespace PersistentWindows.Common
                 windowProcessName.Remove(hwnd);
                 debugWindows.Remove(hwnd);
                 fullScreenGamingWindow.Remove(hwnd);
+                windowTitle.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1238,6 +1239,8 @@ namespace PersistentWindows.Common
                         string procPath = GetProcExePath(lastMetric.ProcessId);
                         appPos.ProcessPath = procPath;
                         deadApps[key].Add(appPos);
+
+                        windowTitle.Remove((IntPtr)lastMetric.WindowId);
 
                         //limit list size
                         while (deadApps[key].Count > 50)
@@ -2347,7 +2350,7 @@ namespace PersistentWindows.Common
                 ProcessName = "",
 
                 ClassName = className,
-                Title = isTaskBar ? "$taskbar$" : GetWindowTitle(hwnd, use_cache: false),
+                Title = isTaskBar ? "$taskbar$" : GetWindowTitle(realHwnd, use_cache: false),
 
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
@@ -2370,7 +2373,8 @@ namespace PersistentWindows.Common
                 SnapShotFlags = 0ul,
             };
 
-            if (!monitorApplications[displayKey].ContainsKey(hwnd))
+            //if (!monitorApplications[displayKey].ContainsKey(hwnd))
+            if (!windowTitle.ContainsKey(realHwnd))
             {
                 if (noRestoreWindows.Contains(hwnd))
                     return false;
@@ -2388,11 +2392,12 @@ namespace PersistentWindows.Common
                     Log.Error(ex.ToString());
                     return false;
                 }
-                curDisplayMetrics.WindowId = (uint)hwnd;
+                curDisplayMetrics.WindowId = (uint)realHwnd;
 
-                if (!windowTitle.ContainsKey(hwnd))
+                //if (!windowTitle.ContainsKey(hwnd))
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
+                    windowTitle[realHwnd] = curDisplayMetrics.Title;
                 }
 
                 if (ignoreProcess.Count > 0)
@@ -2452,24 +2457,9 @@ namespace PersistentWindows.Common
                 curDisplayMetrics.WindowId = prevDisplayMetrics.WindowId;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
-                    && prevDisplayMetrics.ClassName != curDisplayMetrics.ClassName)
-                {
-                    // TODO: GetCoreAppWindow() may fail mysteriously
-                    Log.Error("Inconsistent window entry with title={0}, process {1} vs {2}, classname {3} vs {4}",
-                        GetWindowTitle(hwnd),
-                        prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId,
-                        prevDisplayMetrics.ClassName, curDisplayMetrics.ClassName
-                        );
-                    realHwnd = GetCoreAppWindow(hwnd);
-                    return false;
-                    //EndDisplaySession();
-                    //monitorApplications[displayKey].Remove(hwnd);
-                    //moved = true;
-                }
-                else if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
                     && prevDisplayMetrics.ClassName == curDisplayMetrics.ClassName)
                 {
-                    Log.Error("Window title changed from {0} to {1}, process changed from {2} to {3}",
+                    Log.Error("Window with title {0},{1}, process changed from {2} to {3}",
                         GetWindowTitle(hwnd), curDisplayMetrics.Title,
                         prevDisplayMetrics.ProcessId, curDisplayMetrics.ProcessId
                         );
@@ -3182,7 +3172,7 @@ namespace PersistentWindows.Common
 
                     // update stale window/process id
                     curDisplayMetrics.HWnd = hWnd;
-                    curDisplayMetrics.WindowId = (uint)hWnd;
+                    curDisplayMetrics.WindowId = (uint)realHwnd;
                     curDisplayMetrics.ProcessId = processId;
                     curDisplayMetrics.ProcessName = processName;
                     curDisplayMetrics.ClassName = className;
