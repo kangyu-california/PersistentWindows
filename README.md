@@ -29,7 +29,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 
 ## Usage Instructions
-- Run PersistentWindows.exe (preferably as administrator). A popup will show up indicating the program started successfully, and the main window will be iconized and hidden in the System Tray area on the taskbar.
+- Run PersistentWindows.exe (preferably as administrator). This app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
 - To have the icon always appear on the taskbar, flip on the PersistentWindows item in the taskbar settings.
   <img src="showicon.png" alt="taskbar setting" width="400" />
 - Right click the icon to show the menu, where the capture and restore actions can be selected.
@@ -56,8 +56,6 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="500"/>
   <img src="https://user-images.githubusercontent.com/59128756/187988981-b2564618-2724-4e1e-a718-cd0786a4251e.png" alt="wait chain" width="500"/>
-
-- Some Windows built-in apps (such as Sticky Notes) cannot be easily launched when restoring from disk. The user needs to manually launch them
 
 ## Tips To Digest Before Reporting A Bug
 - The window z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
