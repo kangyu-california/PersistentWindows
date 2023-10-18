@@ -1,5 +1,5 @@
 # PersistentWindows
-The code is forked from [ninjacrab.com/persistent-windows](http://www.ninjacrab.com/persistent-windows/) to fix a long-standing [issue](https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1) on Windows 7/10/11 where windows get repositioned upon computer system waking up, laptop switching external display, monitor resolution changing (such as exit from full screen gaming) and RDP reconnecting.
+The code is forked from [ninjacrab.com/persistent-windows](http://www.ninjacrab.com/persistent-windows/) to fix a long-standing [issue](https://answers.microsoft.com/en-us/windows/forum/windows_10-hardware/windows-10-multiple-display-windows-are-moved-and/2b9d5a18-45cc-4c50-b16e-fd95dbf27ff3?page=1&auth=1) on Windows 7/10/11 where windows get repositioned upon computer system waking up, laptop switching external display, monitor resolution changing (such as exit from full screen gaming) or RDP reconnecting.
 ## Original Description
 > What is PersistentWindows?
 >
@@ -33,6 +33,8 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - To have the icon always appear on the taskbar, flip on the PersistentWindows item in the taskbar settings.
   <img src="showicon.png" alt="taskbar setting" width="400" />
 - Right click the icon to show the menu, where the capture and restore actions can be selected.
+  ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/6a196d75-7d86-4bd3-8873-4a4d65cb3c30)
+
 - To restore taskbar position, avoid moving mouse when the icon turns red.
 - When software upgrades are available, a notice will show up in the menu.
 
