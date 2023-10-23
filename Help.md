@@ -44,13 +44,13 @@
   * Bring a foreground window to its previous background position and z-order
     * click the empty desktop background area (which is not occupied by any window)
   * Bring a foreground window to its previous z-order (while keeping the current size)
-    * ALT click the empty desktop area
+    * Ctrl click the empty desktop area
   * Bring a background window to foreground WITHOUT restoring to previous foreground position
-    * press any of CTRL/SHIFT/ALT key when activating the window.
+    * press any of Ctrl/Shift/Alt key when activating the window.
 * Restore a new window to its last closing position
   * Ctrl click the PW icon
 * Put the current window to background, useful if the window is maximized
-  * Ctrl-Alt click the PW icon
+  * Ctrl Alt click the PW icon
 * Create named capture(s) to disk
   * To save a named capture to disk, Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
   * To restore the named capture from disk, Ctrl click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
