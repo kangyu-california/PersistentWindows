@@ -1650,7 +1650,6 @@ namespace PersistentWindows.Common
             RECT rect = new RECT();
             User32.GetWindowRect(hWnd, ref rect);
 
-            IntPtr fail_safe_result = IntPtr.Zero;
             IntPtr result = hWnd;
 
             do
@@ -1667,26 +1666,21 @@ namespace PersistentWindows.Common
                     if (IsMinimized(result))
                         continue;
 
-                    if (fail_safe_result == IntPtr.Zero)
-                        fail_safe_result = result;
-                }
+                    if (IsFullScreen(result))
+                        continue;
 
-                RECT prevRect = new RECT();
-                User32.GetWindowRect(result, ref prevRect);
+                    RECT prevRect = new RECT();
+                    User32.GetWindowRect(result, ref prevRect);
 
-                RECT intersection = new RECT();
-                if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
-                {
-                    if (monitorApplications[curDisplayKey].ContainsKey(result))
+                    RECT intersection = new RECT();
+                    if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                         break;
                 }
             } while (true);
 
             if (result == IntPtr.Zero)
             {
-                result = fail_safe_result;
-                if (fail_safe_result != IntPtr.Zero)
-                    Log.Trace("fail safe prev zorder of {0} is {1}", GetWindowTitle(hWnd), GetWindowTitle(fail_safe_result));
+                result = new IntPtr(-1); //topmost
             }
 
             return result;
@@ -1871,7 +1865,15 @@ namespace PersistentWindows.Common
                 return 0; // issue 21, avoiding restore to top z-order
             }
 
-            if (!User32.IsWindow(prev))
+            if (prev == new IntPtr(-1))
+            {
+            }
+            else if (IsTaskBar(prev))
+            {
+                prev = new IntPtr(-2);
+                Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
+            }
+            else if (!User32.IsWindow(prev))
             {
                 return 0;
             }
@@ -1881,16 +1883,9 @@ namespace PersistentWindows.Common
                 return 0;
             */
 
-            bool nonTopMost = false;
-            if (IsTaskBar(prev))
-            {
-                Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
-                nonTopMost = true;
-            }
-
             bool ok = User32.SetWindowPos(
                 hWnd,
-                nonTopMost ? new IntPtr(-2) : prev,
+                prev,
                 0, //rect.Left,
                 0, //rect.Top,
                 0, //rect.Width,
@@ -3493,7 +3488,6 @@ namespace PersistentWindows.Common
                         /*
                         if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
                             continue; //avoid topmost
-                        */
 
                         if (prevZwnd != IntPtr.Zero) try
                         {
@@ -3504,6 +3498,7 @@ namespace PersistentWindows.Common
                         {
                             continue;
                         }
+                        */
 
                         if (hWnd == prevZwnd)
                             prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
