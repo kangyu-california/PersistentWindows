@@ -3358,13 +3358,10 @@ namespace PersistentWindows.Common
                     }
                     else if (prevDisplayMetrics.IsMinimized)
                     {
-                        //if (User32.IsWindowOnCurrentVirtualDesktop(hWnd))
-                        {
-                            //restore minimized window button to correct taskbar
-                            windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
-                            User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                            windowPlacement.ShowCmd = ShowWindowCommands.ShowMinNoActive;
-                        }
+                        //restore minimized window button to correct taskbar
+                        windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
+                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                        windowPlacement.ShowCmd = ShowWindowCommands.ShowMinNoActive;
                     }
                     else if (prevDisplayMetrics.IsFullScreen)
                     {
@@ -3474,28 +3471,8 @@ namespace PersistentWindows.Common
                             continue;
 
                         IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
-                        /*
-                        if (prevDisplayMetrics.PrevZorderWindow == IntPtr.Zero)
-                            continue; //avoid topmost
-
-                        if (prevZwnd != IntPtr.Zero) try
-                        {
-                            if (!User32.IsWindow(prevZwnd))
-                                continue;
-                        }
-                        catch (Exception)
-                        {
-                            continue;
-                        }
-                        */
-
                         if (hWnd == prevZwnd)
                             prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
-
-                        /*
-                        if (restoreTimes > 0 && !curDisplayMetrics.NeedRestoreZorder)
-                            continue;
-                        */
 
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevZwnd,
                             0, 0, 0, 0,
@@ -3645,7 +3622,6 @@ namespace PersistentWindows.Common
                                     int idx_underscore_begin = processPath.IndexOf('_');
                                     int idx_underscore_end = processPath.IndexOf("__");
                                     processPath = processPath.Remove(idx_underscore_begin, idx_underscore_end - idx_underscore_begin + 1);
-
                                     processPath = "shell:AppsFolder\\" + processPath + "!App";
                                 }
 
