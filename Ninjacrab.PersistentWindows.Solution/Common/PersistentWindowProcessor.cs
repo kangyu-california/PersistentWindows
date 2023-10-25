@@ -1651,6 +1651,7 @@ namespace PersistentWindows.Common
             User32.GetWindowRect(hWnd, ref rect);
 
             IntPtr result = hWnd;
+            IntPtr fail_safe_result = IntPtr.Zero;
 
             do
             {
@@ -1675,12 +1676,13 @@ namespace PersistentWindows.Common
                     RECT intersection = new RECT();
                     if (User32.IntersectRect(out intersection, ref rect, ref prevRect))
                         break;
+                    fail_safe_result = result;
                 }
             } while (true);
 
             if (result == IntPtr.Zero)
             {
-                result = new IntPtr(-1); //topmost
+                result = fail_safe_result;
             }
 
             return result;
@@ -1865,23 +1867,10 @@ namespace PersistentWindows.Common
                 return 0; // issue 21, avoiding restore to top z-order
             }
 
-            if (prev == new IntPtr(-1))
-            {
-            }
-            else if (IsTaskBar(prev))
-            {
-                prev = new IntPtr(-2);
-                Log.Error("restore under taskbar for window {0}", GetWindowTitle(hWnd));
-            }
-            else if (!User32.IsWindow(prev))
+            if (!User32.IsWindow(prev))
             {
                 return 0;
             }
-
-            /*
-            if (IsMinimized(prev))
-                return 0;
-            */
 
             bool ok = User32.SetWindowPos(
                 hWnd,
