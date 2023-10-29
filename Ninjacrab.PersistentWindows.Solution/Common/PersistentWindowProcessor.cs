@@ -162,6 +162,10 @@ namespace PersistentWindows.Common
 
         public System.Drawing.Icon icon = null;
 
+        private int mouseEvent = -1;
+        private IntPtr mouseHook = IntPtr.Zero;
+        private User32.MouseHookHandler winHookHandler;
+
         // running thread
         private HashSet<Thread> runningThreads = new HashSet<Thread>();
 
@@ -318,6 +322,11 @@ namespace PersistentWindows.Common
 
                 if (realForeGroundWindow == vacantDeskWindow)
                 {
+                    if (mouseEvent != 2)
+                        return;
+                    mouseEvent = 0; //triger only once
+                    //only left mouse button click goes through
+
                     if (!ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore window to previous background position
@@ -478,6 +487,13 @@ namespace PersistentWindows.Common
 
             });
 
+            ProcessModule module = Process.GetCurrentProcess().MainModule;
+            IntPtr moduleHandle = Kernel32.GetModuleHandle(module.ModuleName);
+            //IntPtr moduleHandle = Kernel32.GetModuleHandle(null);
+            winHookHandler = MouseHookFunc;
+            mouseHook = User32.SetWindowsHookEx(User32.WH_MOUSE_LL, winHookHandler, moduleHandle, 0);
+            int err = Marshal.GetLastWin32Error();
+            Log.Error($"setwindowhook {err}");
 
             winEventsCaptureDelegate = WinEventProc;
 
@@ -1184,6 +1200,18 @@ namespace PersistentWindows.Common
                 || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
+        private IntPtr MouseHookFunc(int nCode, uint wParam, IntPtr lParam)
+        {
+            // parse system messages
+            if (nCode >= 0)
+            {
+                int action = (int)wParam - 0x0200;
+                if (action > 0) //not a mouse move event
+                    mouseEvent = action;
+            }
+            return User32.CallNextHookEx(mouseHook, nCode, wParam, lParam);
+        }
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             {
@@ -1417,7 +1445,8 @@ namespace PersistentWindows.Common
                                     realForeGroundWindow = hwnd;
                                     if (hwnd != vacantDeskWindow)
                                         foreGroundWindow = hwnd;
-                                    foregroundTimer.Change(100, Timeout.Infinite);
+
+                                    foregroundTimer.Change(200, Timeout.Infinite);
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
@@ -3779,6 +3808,8 @@ namespace PersistentWindows.Common
                 {
                     User32.UnhookWinEvent(handle);
                 }
+
+                User32.UnhookWindowsHookEx(mouseHook);
             }
         }
 

@@ -179,11 +179,33 @@ namespace PersistentWindows.Common.WinApiBridge
 
     public class User32
     {
-        #region EnumDisplayMonitors
+        #region delegates
+        public delegate IntPtr MouseHookHandler(int nCode, uint wParam, IntPtr lParam);
         public delegate bool MonitorEnumDelegate(IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData);
+        public delegate void WinEventDelegate(IntPtr hWinEventHook,
+            User32Events eventType,
+            IntPtr hwnd,
+            int idObject,
+            int idChild,
+            uint dwEventThread,
+            uint dwmsEventTime);
+        #endregion
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetWinEventHook(
+            User32Events eventMin,
+            User32Events eventMax,
+            IntPtr hmodWinEventProc,
+            WinEventDelegate lpfnWinEventProc,
+            uint idProcess,
+            uint idThread,
+            uint dwFlags);
+
+        [DllImport("user32.dll")]
+        public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
         [DllImport("user32.dll")]
         public static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumDelegate lpfnEnum, IntPtr dwData);
-        #endregion
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern bool GetMonitorInfo(IntPtr hMonitor, ref MonitorInfo lpmi);
@@ -464,39 +486,59 @@ namespace PersistentWindows.Common.WinApiBridge
             return SetThreadDpiAwarenessContext(dpi_awareness_cxt);
         }
 
-        #region Hooks
-        [DllImport("user32.dll")]
-        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-        #endregion
+        public const int WH_MOUSE = 7;
+        public const int WH_MOUSE_LL = 14;
 
-        #region WinEvent Hooks
+        public enum MouseMessages
+        {
+            WM_LBUTTONDOWN = 0x0201,
+            WM_LBUTTONUP = 0x0202,
+            WM_MOUSEMOVE = 0x0200,
+            WM_MOUSEWHEEL = 0x020A,
+            WM_RBUTTONDOWN = 0x0204,
+            WM_RBUTTONUP = 0x0205,
+            WM_LBUTTONDBLCLK = 0x0203,
+            WM_MBUTTONDOWN = 0x0207,
+            WM_MBUTTONUP = 0x0208
+        }
 
-        public delegate void WinEventDelegate(IntPtr hWinEventHook,
-            User32Events eventType,
-            IntPtr hwnd,
-            int idObject,
-            int idChild,
-            uint dwEventThread,
-            uint dwmsEventTime);
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MOUSEHOOKSTRUCT
+        {
+            public POINT pt;
+            public IntPtr hwnd;
+            public uint wHitTestCode;
+            public IntPtr dwExtraInfo;
+        }
 
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetWinEventHook(
-            User32Events eventMin,
-            User32Events eventMax,
-            IntPtr hmodWinEventProc,
-            WinEventDelegate lpfnWinEventProc,
-            uint idProcess,
-            uint idThread,
-            uint dwFlags);
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MSLLHOOKSTRUCT
+        {
+            public POINT pt;
+            public uint mouseData;
+            public uint flags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
 
-        [DllImport("user32.dll")]
-        public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr SetWindowsHookEx(int idHook,
+            MouseHookHandler lpfn, IntPtr hMod, uint dwThreadId);
 
-        #endregion
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, uint wParam, IntPtr lParam);
+
     }
 
     public class Kernel32
     {
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        public static extern IntPtr GetModuleHandle(string lpModuleName);
+
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool QueryFullProcessImageName([In]IntPtr hProcess, [In]int dwFlags, [Out]StringBuilder lpExeName, ref int lpdwSize);
 
