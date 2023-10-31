@@ -331,11 +331,11 @@ namespace PersistentWindows.Common
                         dualPosWindows.Add(hwnd);
                         SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
                     }
-                    else if (ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
+                    else if (ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore to previous background zorder with current size/pos
                         dualPosWindows.Add(hwnd);
-                        SwitchForeBackground(hwnd, updateBackgroundPos: true);
+                        SwitchForeBackground(hwnd, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
                     }
                     else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
                     {
