@@ -329,14 +329,7 @@ namespace PersistentWindows.Common
                     {
                         //restore window to previous background position
                         dualPosWindows.Add(hwnd);
-                        SwitchForeBackground(hwnd);
-                        if (shift_key_pressed)
-                        {
-                            //shift focus to new foreground window
-                            IntPtr new_foregnd = GetForegroundWindow();
-                            dualPosWindows.Add(new_foregnd);
-                            SwitchForeBackground(new_foregnd, toForeground: true);
-                        }
+                        SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
                     }
                     else if (ctrl_key_pressed && !alt_key_pressed && !shift_key_pressed)
                     {
@@ -1799,16 +1792,8 @@ namespace PersistentWindows.Common
             Log.Event("Bring foreground window {0} to bottom", GetWindowTitle(hwnd));
         }
 
-        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false)
+        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false, bool secondBackGround = false)
         {
-            /*
-            if (fullScreenGamingWindows.Count > 0)
-            {
-                //no smart foreground/background
-                return;
-            }
-            */
-
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
@@ -1821,6 +1806,7 @@ namespace PersistentWindows.Common
             int prevIndex = monitorApplications[curDisplayKey][hwnd].Count - 1;
             var cur_metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
             IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
+            IntPtr firstBackgroundWindow = IntPtr.Zero;
 
             for (; prevIndex >= 0; --prevIndex)
             {
@@ -1831,7 +1817,7 @@ namespace PersistentWindows.Common
                 }
 
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
-                if (prevZwnd != front_hwnd)
+                if (prevZwnd != front_hwnd && (prevZwnd == IntPtr.Zero || prevZwnd != firstBackgroundWindow))
                 {
                     if (toForeground)
                     {
@@ -1840,6 +1826,12 @@ namespace PersistentWindows.Common
                     }
                     else
                     {
+                        if (secondBackGround)
+                        {
+                            firstBackgroundWindow = prevZwnd;
+                            secondBackGround = false;
+                            continue;
+                        }
                         RestoreZorder(hwnd, prevZwnd);
                         if (IsWindowTopMost(hwnd) && !metrics.IsTopMost)
                             FixTopMostWindow(hwnd);
