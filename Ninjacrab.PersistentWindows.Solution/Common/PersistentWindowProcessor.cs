@@ -716,8 +716,12 @@ namespace PersistentWindows.Common
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
                 enableRestoreMenu(db_exist, true);
-                if (db_exist)
-                    normalSessions.Add(curDisplayKey);
+                normalSessions.Add(curDisplayKey);
+                var collectionNames = persistDB.GetCollectionNames();
+                foreach (var item in collectionNames)
+                {
+                    normalSessions.Add(item);
+                }
                 if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
