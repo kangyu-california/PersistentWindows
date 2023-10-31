@@ -1414,8 +1414,6 @@ namespace PersistentWindows.Common
                                     {
                                         if ((User32.GetKeyState(1) & 0x8000) != 0)
                                             ++leftButtonClicks;
-                                        if ((User32.GetKeyState(2) & 0x8000) != 0)
-                                            leftButtonClicks = 0;
                                     }
                                     else
                                         foreGroundWindow = hwnd;
@@ -1843,6 +1841,8 @@ namespace PersistentWindows.Common
                     else
                     {
                         RestoreZorder(hwnd, prevZwnd);
+                        if (IsWindowTopMost(hwnd) && !metrics.IsTopMost)
+                            FixTopMostWindow(hwnd);
 
                         if (updateBackgroundPos)
                         {
