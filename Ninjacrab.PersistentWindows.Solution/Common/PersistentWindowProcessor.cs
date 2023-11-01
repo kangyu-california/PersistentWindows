@@ -80,7 +80,6 @@ namespace PersistentWindows.Common
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private IntPtr foreGroundWindow;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
-        private HashSet<IntPtr> dualPosWindows = new HashSet<IntPtr>();
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
 
@@ -328,13 +327,11 @@ namespace PersistentWindows.Common
                     if (!ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore window to previous background position
-                        dualPosWindows.Add(hwnd);
                         SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
                     }
                     else if (ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore to previous background zorder with current size/pos
-                        dualPosWindows.Add(hwnd);
                         SwitchForeBackground(hwnd, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
                     }
                     else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
@@ -351,14 +348,11 @@ namespace PersistentWindows.Common
 
                     if (!alt_key_pressed)
                     {
-                        //restore window to previous foreground position
-                        if (pendingMoveEvents.Count == 0)
-                        {
-                            if (dualPosWindows.Contains(hwnd))
-                                SwitchForeBackground(hwnd, toForeground: true);
-                        }
-                        else
+                        if (pendingMoveEvents.Count > 1)
                             return;
+
+                        //restore window to previous foreground position
+                        SwitchForeBackground(hwnd, toForeground: true);
                     }
                 }
 
@@ -1220,7 +1214,6 @@ namespace PersistentWindows.Common
                 debugWindows.Remove(hwnd);
                 fullScreenGamingWindows.Remove(hwnd);
                 windowTitle.Remove(hwnd);
-                dualPosWindows.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
