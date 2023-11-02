@@ -1093,7 +1093,8 @@ namespace PersistentWindows.Common
                         RestoreFullScreenWindow(hwnd, target_rect);
                         return;
                     }
-                    else if (prevDisplayMetrics.IsMinimized)
+
+                    if (prevDisplayMetrics.IsMinimized)
                     {
                         if (!IsFullScreen(hwnd) || IsWrongMonitor(hwnd, target_rect))
                         {
@@ -1127,9 +1128,10 @@ namespace PersistentWindows.Common
                                     if (placement.ShowCmd == ShowWindowCommands.Maximize)
                                     {
                                         //restore normal first
-                                        placement.ShowCmd = ShowWindowCommands.Normal;
+                                        placement.ShowCmd = ShowWindowCommands.ShowNoActivate;
                                         User32.SetWindowPlacement(hwnd, ref placement);
                                         placement.ShowCmd = ShowWindowCommands.Maximize;
+                                        Log.Error("pre-restore minimized max window \"{0}\"", GetWindowTitle(hwnd));
                                     }
                                     User32.SetWindowPlacement(hwnd, ref placement);
                                     User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
