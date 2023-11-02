@@ -309,6 +309,8 @@ namespace PersistentWindows.Common
                     return;
 
                 IntPtr hwnd = foreGroundWindow;
+                if (!User32.IsWindow(hwnd))
+                    return;
 
                 if (noRestoreWindows.Contains(hwnd))
                     return;
@@ -1488,6 +1490,7 @@ namespace PersistentWindows.Common
                                     if (lastUnminimizeWindow != IntPtr.Zero)
                                         tidyTabWindows.Add(lastUnminimizeWindow);
                                 }
+                                foreGroundWindow = IntPtr.Zero;
                             }
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
@@ -3341,19 +3344,19 @@ namespace PersistentWindows.Common
                 if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
-                    if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
-                    {
-                        //restore maximized window to correct monitor
-                        windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
-                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
-                        windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
-                    }
-                    else if (prevDisplayMetrics.IsMinimized)
+                    if (prevDisplayMetrics.IsMinimized)
                     {
                         //restore minimized window button to correct taskbar
                         windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
                         User32.SetWindowPlacement(hWnd, ref windowPlacement);
                         windowPlacement.ShowCmd = ShowWindowCommands.ShowMinNoActive;
+                    }
+                    else if (windowPlacement.ShowCmd == ShowWindowCommands.Maximize)
+                    {
+                        //restore maximized window to correct monitor
+                        windowPlacement.ShowCmd = ShowWindowCommands.ShowNoActivate;
+                        User32.SetWindowPlacement(hWnd, ref windowPlacement);
+                        windowPlacement.ShowCmd = ShowWindowCommands.Maximize;
                     }
                     else if (prevDisplayMetrics.IsFullScreen)
                     {
