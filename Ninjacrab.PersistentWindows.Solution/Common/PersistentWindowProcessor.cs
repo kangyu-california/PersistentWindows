@@ -2418,7 +2418,11 @@ namespace PersistentWindows.Common
 
                 moved = true;
             }
-            else if (monitorApplications[displayKey].ContainsKey(hwnd))
+            else if (!monitorApplications[displayKey].ContainsKey(hwnd))
+            {
+                moved = true;
+            }
+            else
             {
                 // find last record that satisfies cut-off time
                 int prevIndex = monitorApplications[displayKey][hwnd].Count - 1;
