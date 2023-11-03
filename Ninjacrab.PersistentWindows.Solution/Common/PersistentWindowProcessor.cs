@@ -359,7 +359,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                StartCaptureTimer(0);
+                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
             });
 
             captureTimer = new Timer(state =>
@@ -1435,12 +1435,16 @@ namespace PersistentWindows.Common
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                                         StartCaptureTimer(UserMoveLatency / 2);
                                     else
+                                    {
                                         StartCaptureTimer();
 
-                                    POINT cursorPos;
-                                    User32.GetCursorPos(out cursorPos);
-                                    if (!cursorPos.Equals(initCursorPos))
-                                        userMove = true;
+                                        //speed up initial capture
+                                        POINT cursorPos;
+                                        User32.GetCursorPos(out cursorPos);
+                                        if (!cursorPos.Equals(initCursorPos))
+                                            userMove = true;
+                                    }
+
                                 }
                             }
 
