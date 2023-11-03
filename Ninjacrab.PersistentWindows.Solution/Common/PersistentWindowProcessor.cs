@@ -82,6 +82,7 @@ namespace PersistentWindows.Common
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
+        POINT initCursorPos;
 
         // restore control
         private Timer restoreTimer;
@@ -415,6 +416,8 @@ namespace PersistentWindows.Common
                     if (fullScreenGamingWindows.Contains(foreGroundWindow) || !normalSessions.Contains(curDisplayKey))
                     {
                         Log.Event("no need to restore fresh session {0}", curDisplayKey);
+                        User32.GetCursorPos(out initCursorPos);
+
                         checkUpgrade = false;
 
                         //restore icon to idle
@@ -1329,6 +1332,12 @@ namespace PersistentWindows.Common
             */
 #endif
 
+            // suppress capture for taskbar operation
+            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+            if (ctrl_key_pressed && alt_key_pressed)
+                return;
+
             try
             {
                 if (debugWindows.Contains(hwnd))
@@ -1428,7 +1437,10 @@ namespace PersistentWindows.Common
                                     else
                                         StartCaptureTimer();
 
-                                    //userMove = true;
+                                    POINT cursorPos;
+                                    User32.GetCursorPos(out cursorPos);
+                                    if (!cursorPos.Equals(initCursorPos))
+                                        userMove = true;
                                 }
                             }
 
