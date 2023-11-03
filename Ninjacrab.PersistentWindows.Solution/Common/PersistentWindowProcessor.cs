@@ -1505,8 +1505,7 @@ namespace PersistentWindows.Common
                             {
                                 StartCaptureTimer(UserMoveLatency / 4);
                                 Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
-                                if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
-                                    userMove = true;
+                                userMove = true;
                             }
                             break;
                     }
@@ -1807,6 +1806,9 @@ namespace PersistentWindows.Common
 
             int prevIndex = monitorApplications[curDisplayKey][hwnd].Count - 1;
             var cur_metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
+            if (cur_metrics.IsMinimized)
+                return;
+
             IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
             IntPtr firstBackgroundWindow = IntPtr.Zero;
 
