@@ -2665,6 +2665,9 @@ namespace PersistentWindows.Common
 
         private bool IsTaskBar(IntPtr hwnd)
         {
+            if (!User32.IsWindow(hwnd))
+                return false;
+
             if (!User32.IsWindowVisible(hwnd))
                 return false;
 
