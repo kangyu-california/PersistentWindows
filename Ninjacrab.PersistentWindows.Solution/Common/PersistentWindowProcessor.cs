@@ -1826,6 +1826,9 @@ namespace PersistentWindows.Common
                 return;
 
             IntPtr front_hwnd = cur_metrics.PrevZorderWindow;
+            if (toForeground && IsTaskBar(front_hwnd))
+                return; //already foreground
+
             IntPtr firstBackgroundWindow = IntPtr.Zero;
 
             for (; prevIndex >= 0; --prevIndex)
