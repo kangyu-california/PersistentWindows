@@ -29,7 +29,7 @@
 
 ---
 
-### Shortcuts To Capture/Restore Snapshots
+### Shortcuts to capture/restore snapshots
   | Snapshot command | Shortcut|
   | --- | --- |
   | Capture snapshot 0 | Double click the PersistentWindows icon
@@ -37,6 +37,11 @@
   | Capture snapshot X | Double click the PersistentWindows icon,  then immediately press key X (X represents a digit [0-9] or a letter [a-z])
   | Restore snapshot X | Click the PersistentWindows icon, then immediately press key X
   | Undo the last snapshot restore | Alt + click the PersistentWindows icon
+
+### Shortcuts for capture/restore windows on disk
+  * To save a named capture to disk, Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
+  * To restore the named capture from disk, Ctrl click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
+  * To restore capture from a different display config, Shift click "Restore windows from disk" menu.
 
 ---
 ### Shortcuts to manipulate positions of one window
@@ -56,12 +61,6 @@
 * To enable/disable auto restore for non-toplevel window (such as a child or dialog window)
   * To include a child/dialog window for auto capture/restore, move the window once using mouse
   * To exclude a window from auto capture/restore, press Ctrl Shift keys when moving the window
-
-
-### Shortcuts for captures on disk
-  * To save a named capture to disk, Ctrl click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
-  * To restore the named capture from disk, Ctrl click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
-  * To restore captures belonging to a different display config, Shift click "Restore windows from disk" menu.
 
 ### Other features
 * Replace the default app icon with your customized one
