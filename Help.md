@@ -45,7 +45,7 @@
 
 ---
 ### Shortcuts to manipulate positions of one window
-* Switching a window between foreground and background mode with potentially different positions and sizes.
+* Switching a window between foreground and background mode with potentially different positions and sizes, aka Dual Position Switching.
     * Click the desktop window to bring the foreground window to its previous background position and z-order.
     * Shift click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups. 
     * Ctrl click the desktop window to bring the foreground window to its previous z-order while keeping the current location and size.
@@ -53,9 +53,9 @@
     * press any of Ctrl/Shift/Alt key when activating the window.
 * To restore a new window to its last closing position
   * Ctrl click the PW icon
-* To put the foreground window behind all other windows.
-  * Alt click the desktop window. This is similar to Alt Esc Windows keyboard shortcut, which however does not work for foreground window inside remote desktop.
-  * Ctrl Alt click the PW icon if the foreground window is maximized
+* To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by Windows OS, which however does not work for windows inside a remote desktop window)
+  * Alt click the desktop window.
+  * Ctrl Alt click the PW icon if the foreground window is maximized.
 * To momentarily suppress window capture, for example during start menu invocation
   * press Ctrl Alt keys
 * To enable/disable auto restore for non-toplevel window (such as a child or dialog window)

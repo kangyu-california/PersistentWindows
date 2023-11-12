@@ -47,7 +47,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
   * window class name
   * process id and command line of the window
   * key-strokes when interacting with PersistentWindows icon on taskbar
-  * CTRL ALT SHIFT key strokes when click or move a window
+  * Ctrl Alt Shift key strokes when click or move a window
 - The memory of key-strokes is typically less than 2 seconds
 - Window information history is kept in memory or on hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
 - PersistentWindows periodically checks the github home page for software version upgrade, which can be disabled in menu
