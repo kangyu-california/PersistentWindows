@@ -1855,6 +1855,9 @@ namespace PersistentWindows.Common
                             secondBackGround = false;
                             continue;
                         }
+                        if (IsTaskBar(front_hwnd) && IsTaskBar(prevZwnd))
+                            return; //#266, ignore taskbar (as prev-zwindow) change due to window maximize
+
                         RestoreZorder(hwnd, prevZwnd);
                         if (IsWindowTopMost(hwnd) && !metrics.IsTopMost)
                             FixTopMostWindow(hwnd);
