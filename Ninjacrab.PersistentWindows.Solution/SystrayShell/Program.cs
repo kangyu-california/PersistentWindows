@@ -167,6 +167,9 @@ namespace PersistentWindows.SystrayShell
                     case "-foreground_background_dual_position=0":
                         pwp.enableSmartForeBackground = false;
                         break;
+                    case "-foreground_background_dual_position=1":
+                        pwp.enableSmartForeBackground = true;
+                        break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
