@@ -165,10 +165,7 @@ namespace PersistentWindows.SystrayShell
                         fix_unminimized_window = false;
                         break;
                     case "-foreground_background_dual_position=0":
-                        pwp.enableSmartForeBackground = false;
-                        break;
-                    case "-foreground_background_dual_position=1":
-                        pwp.enableSmartForeBackground = true;
+                        pwp.enableDualPosSwitch = false;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;

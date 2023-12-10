@@ -108,7 +108,9 @@ namespace PersistentWindows.Common
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
-        public bool enableSmartForeBackground = false;
+
+        public bool enableDualPosSwitch = true;
+        private HashSet<IntPtr> dualPosSwitchWindows = new HashSet<IntPtr>();
 
         private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
             {
@@ -1221,6 +1223,7 @@ namespace PersistentWindows.Common
                 debugWindows.Remove(hwnd);
                 fullScreenGamingWindows.Remove(hwnd);
                 windowTitle.Remove(hwnd);
+                dualPosSwitchWindows.Remove(hwnd);
 
                 foreach (var key in monitorApplications.Keys)
                 {
@@ -1479,6 +1482,11 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                            if (ctrl_key_pressed)
+                                dualPosSwitchWindows.Add(hwnd);
+                            else
+                                dualPosSwitchWindows.Remove(hwnd);
+
                             curMovingWnd = hwnd;
                             break;
 
@@ -1814,7 +1822,9 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
-            if (!enableSmartForeBackground)
+            if (!enableDualPosSwitch)
+                return;
+            if (!dualPosSwitchWindows.Contains(hwnd))
                 return;
 
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
