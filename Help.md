@@ -45,7 +45,7 @@
 
 ---
 ### Shortcuts to manipulate positions of one window
-* Switching a window between foreground and background mode with potentially different positions and sizes, aka Dual Position Switching.
+* To activate Dual Position Switching which allows a window to switch between foreground and background mode of different positions and sizes, move or resize the window while pressing Ctrl key. To cancel Dual Position Switching, move or resize the window without pressing Ctrl key. Once DPS is activated,
     * Click the desktop window to bring the foreground window to its previous background position and z-order.
     * Shift click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups. 
     * Ctrl click the desktop window to bring the foreground window to its previous z-order while keeping the current location and size.
