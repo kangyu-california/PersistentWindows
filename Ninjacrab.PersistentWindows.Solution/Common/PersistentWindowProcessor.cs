@@ -100,6 +100,7 @@ namespace PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
+        public bool autoRestoreLiveWindows = false; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
@@ -602,9 +603,19 @@ namespace PersistentWindows.Common
                                 {
                                     PromptSessionRestore();
                                 }
-                                restoringFromMem = true;
-                                StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
-                                CenterCursor();
+                                if (autoRestoreLiveWindows && !monitorApplications.ContainsKey(displayKey))
+                                {
+                                    Log.Event("auto restore from db");
+                                    restoringFromDB = true;
+                                    dbDisplayKey = curDisplayKey;
+                                    StartRestoreTimer();
+                                }
+                                else
+                                {
+                                    restoringFromMem = true;
+                                    StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
+                                    CenterCursor();
+                                }
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
@@ -620,7 +631,6 @@ namespace PersistentWindows.Common
                             }
                             else
                             {
-                                //Log.Error($"No need to restore {curDisplayKey} display session");
                                 StartRestoreFinishedTimer(0);
                             }
                         }
@@ -3570,7 +3580,7 @@ namespace PersistentWindows.Common
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
-            if (restoringFromDB && restoreTimes == 0) using (var persistDB = new LiteDatabase(persistDbName))
+            if (restoringFromDB && restoreTimes == 0 && !autoRestoreLiveWindows) using (var persistDB = new LiteDatabase(persistDbName))
             {
                 HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);

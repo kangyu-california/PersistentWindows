@@ -203,6 +203,10 @@ namespace PersistentWindows.SystrayShell
                         auto_restore_from_db_at_startup = true;
                         auto_restore_missing_windows = true;
                         break;
+                    case "-auto_restore_new_display_session_from_db=1":
+                        pwp.autoRestoreLiveWindows = true;
+                        Log.Error("turn on auto restore db for new session");
+                        break;
                     case "-invoke_multi_window_process_only_once=0":
                         launch_once_per_process_id = false;
                         break;
