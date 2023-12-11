@@ -1338,6 +1338,7 @@ namespace PersistentWindows.Common
             // suppress capture for taskbar operation
             bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
             bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
             if (ctrl_key_pressed && alt_key_pressed)
                 return;
 
@@ -1482,10 +1483,13 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
-                            if (ctrl_key_pressed)
-                                dualPosSwitchWindows.Add(hwnd);
-                            else
-                                dualPosSwitchWindows.Remove(hwnd);
+                            if (!shift_key_pressed && !alt_key_pressed)
+                            {
+                                if (ctrl_key_pressed)
+                                    dualPosSwitchWindows.Add(hwnd);
+                                else
+                                    dualPosSwitchWindows.Remove(hwnd);
+                            }
 
                             curMovingWnd = hwnd;
                             break;
