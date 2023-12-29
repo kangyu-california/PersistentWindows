@@ -3246,24 +3246,20 @@ namespace PersistentWindows.Common
                 if (noRestoreWindowsTmp.Contains(hWnd))
                     continue;
 
-                if (User32.IsHungAppWindow(hWnd))
-                {
-                    Log.Error("avoid restore unresponsive window {0}", GetWindowTitle(hWnd));
-                    unResponsiveWindows.Add(hWnd);
-                    continue;
-                }
-
                 ApplicationDisplayMetrics curDisplayMetrics;
                 ApplicationDisplayMetrics prevDisplayMetrics;
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-                Process process = null;
-                if (debugWindows.Contains(hWnd))
+                if (User32.IsHungAppWindow(hWnd))
                 {
-                    process = GetProcess(hWnd);
+                    Process process = GetProcess(hWnd);
                     if (process != null && !process.Responding)
+                    {
+                        Log.Error("avoid restore unresponsive window {0}", GetWindowTitle(hWnd));
+                        unResponsiveWindows.Add(hWnd);
                         continue;
+                    }
                 }
 
                 /*
