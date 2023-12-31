@@ -1193,6 +1193,36 @@ namespace PersistentWindows.Common
                 || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
+        private bool CaptureProcessName(IntPtr hwnd)
+        {
+            if (!windowProcessName.ContainsKey(hwnd))
+            {
+                string processName;
+                var process = GetProcess(hwnd);
+                if (process == null)
+                {
+                    windowProcessName.Add(hwnd, "unrecognized_process");
+                }
+                else
+                {
+                    try
+                    {
+                        processName = process.ProcessName;
+                        windowProcessName.Add(hwnd, processName);
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.Error(ex.ToString());
+                        //process might have been terminated
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+
+        }
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             {
@@ -1297,29 +1327,8 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (!windowProcessName.ContainsKey(hwnd))
-            {
-                string processName;
-                var process = GetProcess(hwnd);
-                if (process == null)
-                {
-                    windowProcessName.Add(hwnd, "unrecognized_process");
-                }
-                else
-                {
-                    try
-                    {
-                        processName = process.ProcessName;
-                        windowProcessName.Add(hwnd, processName);
-                    }
-                    catch(Exception ex)
-                    {
-                        Log.Error(ex.ToString());
-                        //process might have been terminated
-                        return;
-                    }
-                }
-            }
+            if (!CaptureProcessName(hwnd))
+                return;
 
             if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
             {
@@ -2383,6 +2392,8 @@ namespace PersistentWindows.Common
             }
             uint processId = 0;
             uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
+            if (!CaptureProcessName(realHwnd))
+                return false;
 
             bool isFullScreen = IsFullScreen(hwnd);
 
@@ -2393,8 +2404,7 @@ namespace PersistentWindows.Common
 
                 // this function call is very CPU-intensive
                 //ProcessName = window.Process.ProcessName,
-                ProcessName = "",
-
+                ProcessName = windowProcessName[realHwnd],
                 ClassName = className,
                 Title = isTaskBar ? "$taskbar$" : GetWindowTitle(realHwnd, use_cache: false),
 
@@ -2425,18 +2435,6 @@ namespace PersistentWindows.Common
                     return false;
 
                 //newly created window or new display setting
-                var process = GetProcess(realHwnd);
-                if (process == null)
-                    return false;
-                try
-                {
-                    curDisplayMetrics.ProcessName = process.ProcessName;
-                }
-                catch(Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                    return false;
-                }
                 curDisplayMetrics.WindowId = (uint)realHwnd;
 
                 //if (!windowTitle.ContainsKey(hwnd))
@@ -2502,7 +2500,7 @@ namespace PersistentWindows.Common
 
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
-                curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
+                //curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
                 curDisplayMetrics.WindowId = prevDisplayMetrics.WindowId;
 
                 if (prevDisplayMetrics.ProcessId != curDisplayMetrics.ProcessId
