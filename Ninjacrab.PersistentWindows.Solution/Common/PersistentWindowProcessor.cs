@@ -89,6 +89,7 @@ namespace PersistentWindows.Common
         private Timer restoreFinishedTimer;
         public bool restoringFromMem = false; // automatic restore from memory or snapshot
         public bool restoringFromDB = false; // manual restore from DB
+        private bool autoInitialRestoreFromDB = false;
         public bool restoringSnapshot = false; // implies restoringFromMem
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
@@ -400,6 +401,7 @@ namespace PersistentWindows.Common
                 noRecordWindows.Clear();
 
                 restoringFromDB = false;
+                autoInitialRestoreFromDB = false;
                 restoringFromMem = false;
                 bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
@@ -605,8 +607,10 @@ namespace PersistentWindows.Common
                                 }
                                 if (autoRestoreLiveWindows && !monitorApplications.ContainsKey(displayKey))
                                 {
+                                    CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
                                     Log.Event("auto restore from db");
                                     restoringFromDB = true;
+                                    autoInitialRestoreFromDB = true;
                                     dbDisplayKey = curDisplayKey;
                                     StartRestoreTimer();
                                 }
@@ -3580,7 +3584,7 @@ namespace PersistentWindows.Common
 
             Log.Trace("Restored windows position for display setting {0}", displayKey);
 
-            if (restoringFromDB && restoreTimes == 0 && !autoRestoreLiveWindows) using (var persistDB = new LiteDatabase(persistDbName))
+            if (restoringFromDB && restoreTimes == 0 && !autoInitialRestoreFromDB) using (var persistDB = new LiteDatabase(persistDbName))
             {
                 HashSet<uint> dbMatchProcess = new HashSet<uint>(); // db entry (process id) matches existing window
                 var db = persistDB.GetCollection<ApplicationDisplayMetrics>(dbDisplayKey);
