@@ -101,7 +101,7 @@ namespace PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
-        public bool autoRestoreLiveWindows = false; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
+        public bool autoRestoreLiveWindows = true; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
