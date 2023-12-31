@@ -3419,7 +3419,7 @@ namespace PersistentWindows.Common
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
                         long style = User32.GetWindowLong(hWnd, User32.GWL_STYLE);
-                        if (windowProcessName[hWnd].Equals("mstsc") && (style & (long)WindowStyleFlags.CAPTION) != 0L)
+                        if (windowProcessName[hWnd].Equals("mstsc") && ((style & (long)WindowStyleFlags.CAPTION)) != 0L)
                         {
                             //already has caption bar, bypass normal window move and go directly to mouse double click simulation
                             need_move_window = false;
