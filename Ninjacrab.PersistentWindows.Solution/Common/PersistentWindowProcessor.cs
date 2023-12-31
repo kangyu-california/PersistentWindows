@@ -3268,9 +3268,9 @@ namespace PersistentWindows.Common
                     Process process = GetProcess(hWnd);
                     if (process != null && !process.Responding)
                     {
-                        Log.Error("avoid restore unresponsive window {0}", GetWindowTitle(hWnd));
+                        Log.Error("restore unresponsive window {0}", GetWindowTitle(hWnd));
                         unResponsiveWindows.Add(hWnd);
-                        continue;
+                        //continue;
                     }
                 }
 
