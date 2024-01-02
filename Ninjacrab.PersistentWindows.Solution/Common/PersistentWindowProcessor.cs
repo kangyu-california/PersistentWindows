@@ -1109,7 +1109,10 @@ namespace PersistentWindows.Common
                     {
                         //the window was minimized from full screen status
                         //it is possible that minimize status have not been captured yet
-                        RestoreFullScreenWindow(hwnd, target_rect);
+
+                        //restore fullscreen window only applies if screen resolution has changed since minimize/normalize
+                        if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)
+                            RestoreFullScreenWindow(hwnd, target_rect);
                         return;
                     }
 
