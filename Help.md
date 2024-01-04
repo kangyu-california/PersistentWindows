@@ -64,6 +64,6 @@
 
 ### Other features
 * Replace the default app icon with your customized one
-  * Save your icon file as `pwIcon.ico` and copy it to `C:/Users/\<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the directory where you are invoking PersistentWindows from using the `-redirect_appdata` command argument.
-  * Save the second icon file as `pwIconBusy.ico` in the same directory. This icon is displayed when PersistentWindows is busy restoring windows.
+  * Rename your .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the directory where you are invoking PersistentWindows from using the `-redirect_appdata` command argument.
+  * Copy another icon file to `pwIconBusy.ico` in the same directory. This icon is displayed when PersistentWindows is busy restoring windows.
 
