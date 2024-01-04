@@ -3434,7 +3434,7 @@ namespace PersistentWindows.Common
                             windowPlacement.ShowCmd = ShowWindowCommands.Normal;
                             if (debugWindows.Contains(hWnd))
                             Log.Event("SetWindowPlacement({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                                process.ProcessName,
+                                prevDisplayMetrics.ProcessName,
                                 windowPlacement.NormalPosition.Left,
                                 windowPlacement.NormalPosition.Top,
                                 windowPlacement.NormalPosition.Width,
@@ -3457,7 +3457,7 @@ namespace PersistentWindows.Common
                         success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
                         if (debugWindows.Contains(hWnd))
                         Log.Event("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
-                            process.ProcessName,
+                            prevDisplayMetrics.ProcessName,
                             rect.Left,
                             rect.Top,
                             rect.Width,
