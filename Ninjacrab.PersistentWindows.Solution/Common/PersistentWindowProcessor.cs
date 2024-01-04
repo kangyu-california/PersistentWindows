@@ -3266,7 +3266,7 @@ namespace PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
 
-                if (User32.IsHungAppWindow(hWnd))
+                if (User32.IsHungAppWindow(hWnd) && !IsTaskBar(hWnd))
                 {
                     Process process = GetProcess(hWnd);
                     if (process != null && !process.Responding)
