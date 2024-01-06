@@ -1104,6 +1104,21 @@ namespace PersistentWindows.Common
 
                     // unminimize to previous location
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
+                    var diff = prevDisplayMetrics.CaptureTime.Subtract(lastUnminimizeTime);
+                    if (diff.TotalMilliseconds > 0 && diff.TotalMilliseconds < 400)
+                    {
+                        //discard fast capture of unminimize action
+                        monitorApplications[curDisplayKey][hwnd].RemoveAt(monitorApplications[curDisplayKey][hwnd].Count - 1);
+                        var lastMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
+                        if (lastMetrics == null || !lastMetrics.IsFullScreen)
+                        {
+                            monitorApplications[curDisplayKey][hwnd].Add(prevDisplayMetrics);
+                            return;
+                        }
+
+                        prevDisplayMetrics = lastMetrics;
+                    }
+
                     RECT target_rect = prevDisplayMetrics.ScreenPosition;
                     if (prevDisplayMetrics.IsFullScreen)
                     {
