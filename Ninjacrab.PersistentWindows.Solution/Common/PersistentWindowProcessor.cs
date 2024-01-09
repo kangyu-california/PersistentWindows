@@ -363,7 +363,8 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                if (normalSessions.Contains(curDisplayKey))
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
             });
 
             captureTimer = new Timer(state =>
