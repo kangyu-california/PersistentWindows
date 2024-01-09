@@ -1985,7 +1985,7 @@ namespace PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-                if (debugWindows.Contains(hWnd))
+                if (debugWindows.Contains(hWnd) || IsTaskBar(hWnd))
                 {
                     string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
                         curDisplayMetrics,
@@ -2877,6 +2877,8 @@ namespace PersistentWindows.Common
             User32.IntersectRect(out intersect, ref sourceRect, ref targetRect);
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
+
+            Log.Event($"move taskbar to {targetRect}");
 
             //IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
             //User32.GetWindowRect(hReBar, ref screenPosition);
