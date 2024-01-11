@@ -364,7 +364,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (!freezeCapture && normalSessions.Contains(curDisplayKey))
+                if (!freezeCapture && dualPosSwitchWindows.Contains(hwnd) && normalSessions.Contains(curDisplayKey))
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
             });
 
