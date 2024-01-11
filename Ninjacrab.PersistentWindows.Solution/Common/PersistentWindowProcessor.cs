@@ -553,7 +553,7 @@ namespace PersistentWindows.Common
                         {
                             var lastCaptureTime = lastUserActionTime[curDisplayKey];
                             var diff = lastDisplayChangeTime - lastCaptureTime;
-                            if (diff.TotalMilliseconds < 1000)
+                            if (diff.TotalMilliseconds < CaptureLatency)
                             {
                                 if (lastUserActionTimeBackup.ContainsKey(curDisplayKey))
                                 {
