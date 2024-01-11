@@ -325,10 +325,11 @@ namespace PersistentWindows.Common
                 bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
                 bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
 
+                int leftClicks = leftButtonClicks;
+                leftButtonClicks = 0;
+
                 if (realForeGroundWindow == vacantDeskWindow)
                 {
-                    int leftClicks = leftButtonClicks;
-                    leftButtonClicks = 0;
                     if (leftClicks != 1)
                         return;
 
@@ -356,15 +357,20 @@ namespace PersistentWindows.Common
 
                     if (!alt_key_pressed)
                     {
+                        /*
                         if (pendingMoveEvents.Count > 1)
                             return;
+                        */
 
                         //restore window to previous foreground position
                         SwitchForeBackground(hwnd, toForeground: true);
                     }
                 }
 
-                if (!freezeCapture && dualPosSwitchWindows.Contains(hwnd) && normalSessions.Contains(curDisplayKey))
+                if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                    return;
+
+                if (normalSessions.Contains(curDisplayKey))
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
             });
 
@@ -1462,13 +1468,12 @@ namespace PersistentWindows.Common
                                 {
                                     if (IsTaskBar(hwnd))
                                         break;
+
+                                    if ((User32.GetKeyState(1) & 0x8000) != 0)
+                                        ++leftButtonClicks;
+
                                     realForeGroundWindow = hwnd;
-                                    if (hwnd == vacantDeskWindow)
-                                    {
-                                        if ((User32.GetKeyState(1) & 0x8000) != 0)
-                                            ++leftButtonClicks;
-                                    }
-                                    else
+                                    if (hwnd != vacantDeskWindow)
                                         foreGroundWindow = hwnd;
 
                                     foregroundTimer.Change(100, Timeout.Infinite);
