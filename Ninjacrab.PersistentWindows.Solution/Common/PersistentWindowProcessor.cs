@@ -1529,14 +1529,6 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
-                            if (!shift_key_pressed && !alt_key_pressed)
-                            {
-                                if (ctrl_key_pressed)
-                                    dualPosSwitchWindows.Add(hwnd);
-                                else
-                                    dualPosSwitchWindows.Remove(hwnd);
-                            }
-
                             curMovingWnd = hwnd;
                             break;
 
@@ -1572,7 +1564,17 @@ namespace PersistentWindows.Common
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
+                            {
                                 moveTimer.Change(100, Timeout.Infinite);
+                                if (!shift_key_pressed && !alt_key_pressed)
+                                {
+                                    if (ctrl_key_pressed)
+                                        dualPosSwitchWindows.Add(hwnd);
+                                    else
+                                        dualPosSwitchWindows.Remove(hwnd);
+                                }
+                            }
+
                             // immediately capture user moves
                             // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
