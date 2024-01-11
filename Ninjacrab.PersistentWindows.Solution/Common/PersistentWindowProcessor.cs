@@ -82,7 +82,8 @@ namespace PersistentWindows.Common
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
-        POINT initCursorPos;
+        private POINT initCursorPos;
+        private bool freezeCapture = false;
 
         // restore control
         private Timer restoreTimer;
@@ -363,7 +364,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (normalSessions.Contains(curDisplayKey))
+                if (!freezeCapture && normalSessions.Contains(curDisplayKey))
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
             });
 
@@ -407,6 +408,7 @@ namespace PersistentWindows.Common
                 bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
                 ResetState();
+
                 Log.Trace("");
                 Log.Trace("");
                 bool checkUpgrade = true;
@@ -472,6 +474,7 @@ namespace PersistentWindows.Common
                 }
 
                 enableRestoreMenu(db_exist, checkUpgrade);
+                freezeCapture = false;
 
                 bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
@@ -543,6 +546,7 @@ namespace PersistentWindows.Common
                     Log.Info("Display settings changing {0}", displayKey);
                     {
                         lastDisplayChangeTime = DateTime.Now;
+                        freezeCapture = true;
 
                         // undo disqualified capture time
                         if (lastUserActionTime.ContainsKey(curDisplayKey))
