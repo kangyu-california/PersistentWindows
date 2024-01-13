@@ -1566,6 +1566,17 @@ namespace PersistentWindows.Common
                                 foreGroundWindow = IntPtr.Zero;
                             }
 
+                            /*
+                            if (!ctrl_key_pressed && !shift_key_pressed && alt_key_pressed)
+                            {
+                                if (!IsCursorOnTaskbar())
+                                {
+                                    HideWindow(hwnd);
+                                    Log.Error($"Hide window {GetWindowTitle(hwnd)}");
+                                }
+                            }
+                            */
+
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
@@ -2851,6 +2862,14 @@ namespace PersistentWindows.Common
             }
         }
 
+        private void HideWindow(IntPtr hWnd)
+        {
+            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+            uint style = (uint)User32.GetWindowLong(hWnd, User32.GWL_STYLE);
+            style &= ~(uint)WindowStyleFlags.VISIBLE;
+            User32.SetWindowLong(hWnd, User32.GWL_STYLE, style);
+        }
+
         private void CenterCursor()
         {
             // center cursor
@@ -3364,10 +3383,7 @@ namespace PersistentWindows.Common
                     if (prevDisplayMetrics.IsInvisible && User32.IsWindowVisible(hWnd))
                     {
                         // #239 IsWindowsMoved() detected difference in screen position
-                        User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
-                        uint style = (uint)User32.GetWindowLong(hWnd, User32.GWL_STYLE);
-                        style &= ~(uint)WindowStyleFlags.VISIBLE;
-                        User32.SetWindowLong(hWnd, User32.GWL_STYLE, style);
+                        HideWindow(hWnd);
                         Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
                         continue;
                     }
