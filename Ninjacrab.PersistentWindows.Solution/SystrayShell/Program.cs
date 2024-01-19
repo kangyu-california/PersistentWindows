@@ -19,6 +19,7 @@ namespace PersistentWindows.SystrayShell
         public static readonly string Contributors = $@"{ProjectUrl}/graphs/contributors";
         public static System.Drawing.Icon IdleIcon = null;
         public static System.Drawing.Icon BusyIcon = null;
+        public static System.Drawing.Icon UpdateIcon = null;
         public static string AppdataFolder = null;
         public static string CmdArgs;
         public static bool Gui = true;
@@ -263,6 +264,11 @@ namespace PersistentWindows.SystrayShell
             {   
                 var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
                 BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
+            }
+
+            {
+                var iconHandle = Properties.Resources.pwIconUpdate.GetHicon();
+                UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
             }
 
             systrayForm = new SystrayForm();

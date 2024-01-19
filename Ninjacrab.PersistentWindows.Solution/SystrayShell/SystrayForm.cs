@@ -248,7 +248,10 @@ namespace PersistentWindows.SystrayShell
                         if (autoUpgrade)
                             Upgrade();
                         else
+                        {
                             upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
+                            notifyIconMain.Icon = Program.UpdateIcon;
+                        }
                     }
                 }
             }
