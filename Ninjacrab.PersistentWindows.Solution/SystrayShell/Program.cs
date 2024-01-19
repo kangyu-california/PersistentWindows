@@ -251,7 +251,7 @@ namespace PersistentWindows.SystrayShell
             icon_path2 = Path.Combine(appDataFolder, "pwIconBusy.png");
             if (File.Exists(icon_path2))
             {
-                var bitmap = new System.Drawing.Bitmap(icon_path2); // or get it from resource
+                var bitmap = new System.Drawing.Bitmap(icon_path2);
                 var iconHandle = bitmap.GetHicon();
                 BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
             }
@@ -260,8 +260,9 @@ namespace PersistentWindows.SystrayShell
                 BusyIcon = new System.Drawing.Icon(icon_path);
             }
             else
-            {
-                BusyIcon = Properties.Resources.pwIconBusy;
+            {   
+                var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
+                BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
             }
 
             systrayForm = new SystrayForm();

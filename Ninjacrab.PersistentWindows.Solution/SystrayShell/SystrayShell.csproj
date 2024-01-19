@@ -123,6 +123,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pwIconBusy.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pwIconUpdate.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(SolutionDir)*.bat $(TargetDir)
