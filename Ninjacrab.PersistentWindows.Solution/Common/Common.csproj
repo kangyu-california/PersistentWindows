@@ -59,6 +59,7 @@
     <Compile Include="LayoutProfile.Designer.cs">
       <DependentUpon>LayoutProfile.cs</DependentUpon>
     </Compile>
+    <Compile Include="MinimizeToNotify.cs" />
     <Compile Include="Models\ApplicationDisplayMetrics.cs" />
     <Compile Include="Models\DesktopDisplayMetrics.cs" />
     <Compile Include="NameDbKey.cs">

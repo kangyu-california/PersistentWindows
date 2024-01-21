@@ -454,15 +454,41 @@ namespace PersistentWindows.Common.WinApiBridge
         public const int GWL_STYLE = -16;
         public const long WS_CAPTION = 0x00C00000L;
 
+        [DllImport("user32.dll", EntryPoint = "GetClassLongPtr")]
+        public static extern IntPtr GetClassLongPtr64(IntPtr hWnd, int nIndex);
+        [DllImport("user32.dll", EntryPoint = "GetClassLong")]
+        public static extern uint GetClassLongPtr32(IntPtr hWnd, int nIndex);
+        public static IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex) => IntPtr.Size > 4 ? GetClassLongPtr64(hWnd, nIndex) : new IntPtr(GetClassLongPtr32(hWnd, nIndex));
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr LoadIcon(IntPtr hInstance, string lpIconName);
+
         [DllImport("user32.dll")]
         public static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags); // I'm too lazy to write an enum for them
+        public const int GetRoot = 2;
+        public const int GetRootOwner = 3;
+
+        public const int ICON_SMALL = 0;
+        public const int ICON_BIG = 1;
+        public const int ICON_SMALL2 = 2;
+        public const int GCLP_HICON = -14;
+        public const int GCLP_HICONSM = -34;
+        public const string IDI_APPLICATION = "#32512";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
         public const int WM_COMMAND = 0x0111;
         public const int WM_SYSCOMMAND = 0x0112;
+        public const int WM_GETICON = 0x7F;
         public const int SC_MINIMIZE = 0xF020;
         public const int SC_TOGGLE_TASKBAR_LOCK = 424;
+        [DllImport("user32.dll")]
+        public static extern int SendMessageTimeout(IntPtr handle, int uMsg, uint wParam, uint lParam, uint fuFlags, int uTimeout, out uint lpdwResult);
+        // SendMessageTimeoutFlags
+        public const uint SMTO_NORMAL = 0x0000;
+        public const uint SMTO_BLOCK = 0x0001;
+        public const uint SMTO_ABORTIFHUNG = 0x0002;
+        public const uint SMTO_NOTIMEOUTIFNOTHUNG = 0x0008;
 
         [DllImport("user32.dll")]
         public static extern bool IsWindowOnCurrentVirtualDesktop(IntPtr hWnd);

@@ -15,6 +15,7 @@ using LiteDB;
 using PersistentWindows.Common.Diagnostics;
 using PersistentWindows.Common.Models;
 using PersistentWindows.Common.WinApiBridge;
+using PersistentWindows.Common.Minimize2Tray;
 
 namespace PersistentWindows.Common
 {
@@ -1576,6 +1577,10 @@ namespace PersistentWindows.Common
                                 }
                             }
                             */
+                            if (ctrl_key_pressed && !shift_key_pressed && !alt_key_pressed)
+                            {
+                                new MinimizeToTray(hwnd);
+                            }
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
