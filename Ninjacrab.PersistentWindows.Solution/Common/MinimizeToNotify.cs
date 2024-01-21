@@ -28,9 +28,10 @@ namespace PersistentWindows.Common.Minimize2Tray
 
         public MinimizeToTray(IntPtr hwnd)
         {
+            User32.ShowWindow(hwnd, (int)ShowWindowCommands.Hide);
+            Thread.Sleep(500);
             CreateIconInSystemTray(hwnd);
             //User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Minimize);
-            User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Hide);
         }
 
         public static string GetWindowText(IntPtr hWnd)
