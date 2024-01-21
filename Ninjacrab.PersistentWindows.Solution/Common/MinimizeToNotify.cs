@@ -21,7 +21,7 @@ using PersistentWindows.Common.WinApiBridge;
 
 namespace PersistentWindows.Common.Minimize2Tray
 {
-    public class MinimizeToTray
+    public class MinimizeToTray : IDisposable
     {
         private NotifyIcon _systemTrayIcon = null;
         private IntPtr _hwnd;
@@ -106,10 +106,11 @@ namespace PersistentWindows.Common.Minimize2Tray
         {
             if (e.Button == MouseButtons.Left)
             {
-                RestoreFromSystemTray();
+                Dispose();
             }
         }
-        private void RestoreFromSystemTray()
+
+        public void Dispose()
         {
             _systemTrayIcon.Visible = false;
             User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
@@ -118,11 +119,12 @@ namespace PersistentWindows.Common.Minimize2Tray
 
             _systemTrayIcon.MouseClick -= SystemTrayIconClick;
             _systemTrayIcon.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         ~MinimizeToTray()
         {
-            RestoreFromSystemTray();
+            Dispose();
         }
     }
 }
