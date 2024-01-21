@@ -29,7 +29,7 @@ namespace PersistentWindows.Common.Minimize2Tray
         public MinimizeToTray(IntPtr hwnd)
         {
             CreateIconInSystemTray(hwnd);
-            User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Minimize);
+            //User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Minimize);
             User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Hide);
         }
 
@@ -44,11 +44,8 @@ namespace PersistentWindows.Common.Minimize2Tray
         private void CreateIconInSystemTray(IntPtr hwnd)
         {
             //_systemTrayMenu = CreateSystemTrayMenu(hwnd);
-            if (_systemTrayIcon == null)
-            {
-                _hwnd = hwnd;
-                _systemTrayIcon = CreateNotifyIcon();
-            }
+            _hwnd = hwnd;
+            _systemTrayIcon = CreateNotifyIcon();
             _systemTrayIcon.Icon = GetIcon(hwnd);
             var windowText = GetWindowText(hwnd);
             _systemTrayIcon.Text = windowText.Length > 63 ? windowText.Substring(0, 60).PadRight(63, '.') : windowText;
@@ -113,13 +110,10 @@ namespace PersistentWindows.Common.Minimize2Tray
         }
         private void RestoreFromSystemTray()
         {
-            if (_systemTrayIcon != null && _systemTrayIcon.Visible)
-            {
-                _systemTrayIcon.Visible = false;
-                User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
-                User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Restore);
-                User32.SetForegroundWindow(_hwnd);
-            }
+            _systemTrayIcon.Visible = false;
+            User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
+            User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Restore);
+            User32.SetForegroundWindow(_hwnd);
 
             _systemTrayIcon.MouseClick -= SystemTrayIconClick;
             _systemTrayIcon.Dispose();
