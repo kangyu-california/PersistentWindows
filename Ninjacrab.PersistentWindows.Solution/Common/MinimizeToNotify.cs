@@ -2,21 +2,10 @@
 using System;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Text;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Diagnostics;
-using System.Reflection;
-using Microsoft.Win32;
+using System.Timers;
 
-using LiteDB;
 
-using PersistentWindows.Common.Diagnostics;
-using PersistentWindows.Common.Models;
 using PersistentWindows.Common.WinApiBridge;
 
 namespace PersistentWindows.Common.Minimize2Tray
@@ -25,21 +14,32 @@ namespace PersistentWindows.Common.Minimize2Tray
     {
         private NotifyIcon _systemTrayIcon = null;
         private IntPtr _hwnd;
+        private string _window_txt;
+        private System.Timers.Timer _timer;
 
         public MinimizeToTray(IntPtr hwnd)
         {
             User32.ShowWindow(hwnd, (int)ShowWindowCommands.Hide);
-            Thread.Sleep(500);
             CreateIconInSystemTray(hwnd);
             //User32.ShowWindowAsync(hwnd, (int)ShowWindowCommands.Minimize);
         }
 
-        public static string GetWindowText(IntPtr hWnd)
+        private static string GetWindowText(IntPtr hWnd)
         {
             var builder = new StringBuilder(1024);
             User32.GetWindowText(hWnd, builder, builder.Capacity);
             var windowText = builder.ToString();
             return windowText;
+        }
+
+        private static string TruncateString(string str, int max_length)
+        {
+            return str.Substring(0, Math.Min(max_length, str.Length));
+        }
+
+        private void TimerCallBack(Object source, ElapsedEventArgs e)
+        {
+            _systemTrayIcon.Text = TruncateString(_window_txt, 63);
         }
 
         private void CreateIconInSystemTray(IntPtr hwnd)
@@ -48,9 +48,19 @@ namespace PersistentWindows.Common.Minimize2Tray
             _hwnd = hwnd;
             _systemTrayIcon = CreateNotifyIcon();
             _systemTrayIcon.Icon = GetIcon(hwnd);
-            var windowText = GetWindowText(hwnd);
-            _systemTrayIcon.Text = windowText.Length > 63 ? windowText.Substring(0, 60).PadRight(63, '.') : windowText;
             _systemTrayIcon.Visible = true;
+            _window_txt = GetWindowText(hwnd);
+            int dash_idx = _window_txt.IndexOf('-');
+            if (dash_idx > 0)
+            {
+                //rest of window txt is the real application name
+                _systemTrayIcon.Text = TruncateString(_window_txt.Substring(dash_idx + 1), 63);
+            }
+
+            _timer = new System.Timers.Timer(500);
+            _timer .Elapsed += TimerCallBack;
+            _timer.AutoReset = false;
+            _timer.Enabled = true;
         }
         private NotifyIcon CreateNotifyIcon()
         {
