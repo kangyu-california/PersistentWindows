@@ -110,15 +110,23 @@ namespace PersistentWindows.Common.Minimize2Tray
             }
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _systemTrayIcon.Visible = false;
+                //User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
+                User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Restore);
+                User32.SetForegroundWindow(_hwnd);
+
+                _systemTrayIcon.MouseClick -= SystemTrayIconClick;
+                //_systemTrayIcon.Dispose();
+            }
+        }
+
         public void Dispose()
         {
-            _systemTrayIcon.Visible = false;
-            User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
-            User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Restore);
-            User32.SetForegroundWindow(_hwnd);
-
-            _systemTrayIcon.MouseClick -= SystemTrayIconClick;
-            _systemTrayIcon.Dispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
