@@ -26,7 +26,7 @@ namespace PersistentWindows.Common.Minimize2Tray
 
         private static string GetWindowText(IntPtr hWnd)
         {
-            var builder = new StringBuilder(1024);
+            var builder = new StringBuilder(User32.GetWindowTextLength(hWnd) + 1);
             User32.GetWindowText(hWnd, builder, builder.Capacity);
             var windowText = builder.ToString();
             return windowText;
@@ -58,7 +58,7 @@ namespace PersistentWindows.Common.Minimize2Tray
             }
 
             _timer = new System.Timers.Timer(500);
-            _timer .Elapsed += TimerCallBack;
+            _timer.Elapsed += TimerCallBack;
             _timer.AutoReset = false;
             _timer.Enabled = true;
         }
