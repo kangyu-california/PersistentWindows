@@ -630,7 +630,6 @@ namespace PersistentWindows.Common
                                 {
                                     restoringFromMem = true;
                                     StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
-                                    CenterCursor();
                                 }
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
