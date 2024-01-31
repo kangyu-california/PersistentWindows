@@ -592,19 +592,26 @@ namespace PersistentWindows.SystrayShell
         static void GetProcessInfo()
         {
             Process process = new Process();
-            /*
-            process.StartInfo.FileName = "wmic.exe";
-            //process.StartInfo.Arguments = "process get caption,commandline,processid /format:csv";
-            process.StartInfo.Arguments = "process get commandline,processid /format:csv";
-            */
-            process.StartInfo.FileName = "powershell.exe";
-            process.StartInfo.Arguments = "get-ciminstance win32_process | select processid,commandline | format-list";
+
+            var os_version = Environment.OSVersion;
+            if (os_version.Version.Major < 10)
+            {
+                process.StartInfo.FileName = "wmic.exe";
+                //process.StartInfo.Arguments = "process get caption,commandline,processid /format:csv";
+                process.StartInfo.Arguments = "process get commandline,processid /format:csv";
+                process.OutputDataReceived += new DataReceivedEventHandler(OutputHandlerWmic);
+            }
+            else
+            {
+                process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.Arguments = "get-ciminstance win32_process | select processid,commandline | format-list";
+                process.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
+            }
+
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = false;
 
-            process.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
-            process.ErrorDataReceived += new DataReceivedEventHandler(OutputHandler);
 
             // Start process and handlers
             process.Start();
@@ -640,6 +647,25 @@ namespace PersistentWindows.SystrayShell
             else
             {
                 commandline += line.Substring(14);
+            }
+        }
+
+        static void OutputHandlerWmic(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            //* Do your stuff with the output (write to console/log/StringBuilder)
+            string line = outLine.Data;
+            if (string.IsNullOrEmpty(line))
+                return;
+            string[] fields = line.Split(',');
+            if (fields.Length < 3)
+                return;
+            uint processId;
+            if (uint.TryParse(fields[2], out processId))
+            {
+                if (!string.IsNullOrEmpty(fields[1]))
+                {
+                    pwp.processCmd[processId] = fields[1];
+                }
             }
         }
 
