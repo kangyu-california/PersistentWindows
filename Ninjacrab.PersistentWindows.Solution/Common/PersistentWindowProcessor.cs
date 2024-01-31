@@ -1237,7 +1237,8 @@ namespace PersistentWindows.Common
                     try
                     {
                         processName = process.ProcessName;
-                        windowProcessName.Add(hwnd, processName);
+                        if (!windowProcessName.ContainsKey(hwnd))
+                            windowProcessName.Add(hwnd, processName);
                     }
                     catch(Exception ex)
                     {
@@ -2275,6 +2276,8 @@ namespace PersistentWindows.Common
                             Log.Error(ex.ToString());
                         }
                     }
+
+                    processCmd.Clear();
                 }
             }
             else if (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)

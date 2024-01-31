@@ -30,6 +30,11 @@ namespace PersistentWindows.SystrayShell
         static bool notification = false; //pop balloon when auto restore
         static int delay_manual_capture = 5000; //in millisecond
 
+        // capture to db
+        static uint pid = 0;
+        static string commandline;
+        static int lineno = 0;
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -587,9 +592,13 @@ namespace PersistentWindows.SystrayShell
         static void GetProcessInfo()
         {
             Process process = new Process();
+            /*
             process.StartInfo.FileName = "wmic.exe";
             //process.StartInfo.Arguments = "process get caption,commandline,processid /format:csv";
             process.StartInfo.Arguments = "process get commandline,processid /format:csv";
+            */
+            process.StartInfo.FileName = "powershell.exe";
+            process.StartInfo.Arguments = "get-ciminstance win32_process | select processid,commandline | format-list";
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = true;
             process.StartInfo.RedirectStandardError = false;
@@ -602,24 +611,35 @@ namespace PersistentWindows.SystrayShell
             process.BeginOutputReadLine();
             //process.BeginErrorReadLine();
             process.WaitForExit();
+
+            pid = 0;
+            lineno = 0;
         }
 
         static void OutputHandler(object sendingProcess, DataReceivedEventArgs outLine)
         {
             //* Do your stuff with the output (write to console/log/StringBuilder)
             string line = outLine.Data;
+            lineno++;
+
             if (string.IsNullOrEmpty(line))
-                return;
-            string[] fields = line.Split(',');
-            if (fields.Length < 3)
-                return;
-            uint processId;
-            if (uint.TryParse(fields[2], out processId))
             {
-                if (!string.IsNullOrEmpty(fields[1]))
+                if (pid != 0)
                 {
-                    pwp.processCmd[processId] = fields[1];
+                    pwp.processCmd[pid] = commandline;
                 }
+            }
+            else if (line.StartsWith("processid"))
+            {
+                uint.TryParse(line.Split(':')[1], out pid);
+            }
+            else if (line.StartsWith("commandline"))
+            {
+                commandline = line.Substring(14);
+            }
+            else
+            {
+                commandline += line.Substring(14);
             }
         }
 
