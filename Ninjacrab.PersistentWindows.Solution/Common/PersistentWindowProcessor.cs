@@ -3748,17 +3748,26 @@ namespace PersistentWindows.Common
                                 string dir = curDisplayMetrics.Dir;
                                 if (!String.IsNullOrEmpty(dir) && dir != "Quick access")
                                 {
-                                    if (!is_window_apps && dir.Contains(" ") && !dir.Contains("\"") && !dir.Contains(".exe "))
+                                    if (dir.Contains(" ") && !dir.Contains("\""))
                                     {
                                         dir = $"\"{dir}\"";
                                     }
-                                    File.WriteAllText(batFile, "start \"\" /B " + dir);
+
+                                    if (dir.Contains(":") || dir.Contains("\\"))
+                                        File.WriteAllText(batFile, "start \"\" /B " + dir);
+                                    else
+                                    {
+                                        //special folders
+                                        File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start " + dir);
+                                    }
                                 }
                                 else
                                 {
                                     File.WriteAllText(batFile, "start \"\" /B " + processPath);
                                 }
+
                                 Process process = Process.Start("explorer.exe", batFile);
+
                                 Thread.Sleep(2000);
                                 //process.WaitForInputIdle();
                                 //File.Delete(batFile);
