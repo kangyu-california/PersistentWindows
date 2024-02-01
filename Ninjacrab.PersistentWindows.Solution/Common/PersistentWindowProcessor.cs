@@ -3746,8 +3746,11 @@ namespace PersistentWindows.Common
                                 ++i;
                                 //Process.Start(batFile);
                                 string dir = curDisplayMetrics.Dir;
-                                if (!String.IsNullOrEmpty(dir) && dir != "Quick access")
+                                if (!String.IsNullOrEmpty(dir))
                                 {
+                                    if (dir == "Quick access")
+                                        dir = ".";
+
                                     if (dir.Contains(" ") && !dir.Contains("\""))
                                     {
                                         dir = $"\"{dir}\"";
