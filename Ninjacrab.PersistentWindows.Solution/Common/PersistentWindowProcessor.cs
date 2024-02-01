@@ -3705,7 +3705,6 @@ namespace PersistentWindows.Common
 
                     if (!String.IsNullOrEmpty(curDisplayMetrics.ProcessExePath))
                     {
-                        {
                             try
                             {
                                 string processPath = curDisplayMetrics.ProcessExePath;
@@ -3745,9 +3744,16 @@ namespace PersistentWindows.Common
                                 Log.Event("launch process {0}", processPath);
                                 string batFile = Path.Combine(appDataFolder, $"pw_exec{i}.bat");
                                 ++i;
-                                File.WriteAllText(batFile, "start \"\" /B " + processPath);
                                 //Process.Start(batFile);
-                                //Process process = Process.Start("cmd.exe", "-c " + batFile);
+                                string dir = curDisplayMetrics.Dir;
+                                if (!String.IsNullOrEmpty(dir) && dir != "Quick access")
+                                {
+                                    File.WriteAllText(batFile, "start \"\" /B " + dir);
+                                }
+                                else
+                                {
+                                    File.WriteAllText(batFile, "start \"\" /B " + processPath);
+                                }
                                 Process process = Process.Start("explorer.exe", batFile);
                                 Thread.Sleep(2000);
                                 //process.WaitForInputIdle();
@@ -3759,7 +3765,6 @@ namespace PersistentWindows.Common
                             {
                                 Log.Error(ex.ToString());
                             }
-                        }
                     }
                 }
             }
