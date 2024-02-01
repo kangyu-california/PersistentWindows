@@ -3757,7 +3757,10 @@ namespace PersistentWindows.Common
                                         File.WriteAllText(batFile, "start \"\" /B " + dir);
                                     else
                                     {
-                                        //special folders
+                                        //special folders under user home
+                                        string username = Environment.UserName;
+                                        if (dir == username)
+                                            dir = ".";
                                         File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start " + dir);
                                     }
                                 }
