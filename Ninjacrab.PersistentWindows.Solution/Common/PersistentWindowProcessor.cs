@@ -2391,12 +2391,11 @@ namespace PersistentWindows.Common
 
         private IntPtr GetCoreAppWindow(IntPtr hwnd)
         {
-            uint processId = 0;
-            User32.GetWindowThreadProcessId(hwnd, out processId);
-
             IntPtr coreHwnd;
-            //currChild = User32.FindWindowEx(hwnd, prevChild, null, null);
             coreHwnd = User32.FindWindowEx(hwnd, IntPtr.Zero, "Windows.UI.Core.AppWindow", null);
+            if (coreHwnd != IntPtr.Zero)
+                return coreHwnd;
+            coreHwnd = User32.FindWindowEx(hwnd, IntPtr.Zero, "Windows.UI.Core.CoreWindow", null);
             if (coreHwnd != IntPtr.Zero)
                 return coreHwnd;
             return hwnd;
