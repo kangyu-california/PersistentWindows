@@ -3748,6 +3748,10 @@ namespace PersistentWindows.Common
                                 string dir = curDisplayMetrics.Dir;
                                 if (!String.IsNullOrEmpty(dir) && dir != "Quick access")
                                 {
+                                    if (!is_window_apps && dir.Contains(" ") && !dir.Contains("\"") && !dir.Contains(".exe "))
+                                    {
+                                        dir = $"\"{dir}\"";
+                                    }
                                     File.WriteAllText(batFile, "start \"\" /B " + dir);
                                 }
                                 else
