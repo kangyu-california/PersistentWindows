@@ -476,7 +476,7 @@ namespace PersistentWindows.Common.WinApiBridge
         public const string IDI_APPLICATION = "#32512";
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, StringBuilder lParam);
         public const int WM_COMMAND = 0x0111;
         public const int WM_SYSCOMMAND = 0x0112;
         public const int WM_GETICON = 0x7F;

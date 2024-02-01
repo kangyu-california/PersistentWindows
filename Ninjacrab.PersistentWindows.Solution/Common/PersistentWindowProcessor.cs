@@ -220,7 +220,6 @@ namespace PersistentWindows.Common
             process = Process.GetCurrentProcess();
             processPriority = process.PriorityClass;
 
-
             while (String.IsNullOrEmpty(GetDisplayKey()))
             {
                 Thread.Sleep(5000);
@@ -2260,6 +2259,9 @@ namespace PersistentWindows.Common
                                 curDisplayMetrics.Guid = vd.GetWindowDesktopId(hWnd);
                             }
 
+                            if (curDisplayMetrics.ClassName.Equals("CabinetWClass"))
+                                curDisplayMetrics.Dir = GetExplorerFolderPath(hWnd);
+
                             if (displayKey != dbDisplayKey)
                                 curDisplayMetrics.Id = 0; //reset db id
 
@@ -2870,7 +2872,7 @@ namespace PersistentWindows.Common
 
         private void HideWindow(IntPtr hWnd)
         {
-            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, null);
             uint style = (uint)User32.GetWindowLong(hWnd, User32.GWL_STYLE);
             style &= ~(uint)WindowStyleFlags.VISIBLE;
             User32.SetWindowLong(hWnd, User32.GWL_STYLE, style);
@@ -3366,7 +3368,7 @@ namespace PersistentWindows.Common
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
                     if (taskbarMovable == 0)
                     {
-                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, IntPtr.Zero);
+                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
                     bool changed_edge = MoveTaskBar(hWnd, rect);
                     bool changed_width = false;
@@ -3376,7 +3378,7 @@ namespace PersistentWindows.Common
                         restoredWindows.Add(hWnd);
                     if (taskbarMovable == 0)
                     {
-                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, IntPtr.Zero);
+                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
 
                     continue;
@@ -3398,7 +3400,7 @@ namespace PersistentWindows.Common
                         bool action_taken = false;
                         if (!IsMinimized(hWnd))
                         {
-                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, IntPtr.Zero);
+                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, null);
                             action_taken = true;
                         }
 
@@ -3833,6 +3835,34 @@ namespace PersistentWindows.Common
             }
 
             return result;
+        }
+
+        private string GetExplorerFolderPath(IntPtr hwnd)
+        {
+            string path = "";
+
+            try
+            {
+                IntPtr toolbar;
+                toolbar = User32.FindWindowEx(hwnd, IntPtr.Zero, "WorkerW", null);
+                toolbar = User32.FindWindowEx(toolbar, IntPtr.Zero, "ReBarWindow32", null);
+                toolbar = User32.FindWindowEx(toolbar, IntPtr.Zero, "Address Band Root", null);
+                toolbar = User32.FindWindowEx(toolbar, IntPtr.Zero, "msctls_progress32", null);
+                toolbar = User32.FindWindowEx(toolbar, IntPtr.Zero, "Breadcrumb Parent", null);
+                toolbar = User32.FindWindowEx(toolbar, IntPtr.Zero, "ToolbarWindow32", null);
+                if (toolbar != IntPtr.Zero)
+                {
+                    path = GetWindowTitle(toolbar, use_cache: false);
+                    if (path.StartsWith("Address: "))
+                        path = path.Substring(9);
+                }
+            }
+            catch(Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
+            return path;
         }
 
         private void TestSetWindowPos()

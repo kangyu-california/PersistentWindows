@@ -27,6 +27,7 @@ namespace PersistentWindows.Common.Models
         public string ClassName { get; set; }
         public string ProcessName { get; set; }
         public string Title { get; set; }
+        public string Dir { get; set; }
         public bool IsFullScreen { get; set; }
         public bool IsMinimized { get; set; }
         public bool IsInvisible { get; set; }
