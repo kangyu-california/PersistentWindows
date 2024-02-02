@@ -1566,20 +1566,8 @@ namespace PersistentWindows.Common
                                 foreGroundWindow = IntPtr.Zero;
                             }
 
-                            /*
-                            if (!ctrl_key_pressed && !shift_key_pressed && alt_key_pressed)
-                            {
-                                if (!IsCursorOnTaskbar())
-                                {
-                                    HideWindow(hwnd);
-                                    Log.Error($"Hide window {GetWindowTitle(hwnd)}");
-                                }
-                            }
-                            */
-                            if (ctrl_key_pressed && !shift_key_pressed && !alt_key_pressed)
-                            {
-                                new MinimizeToTray(hwnd);
-                            }
+                            if (!shift_key_pressed && !alt_key_pressed)
+                                MinimizeToTray.Create(hwnd);
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:

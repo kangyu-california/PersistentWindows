@@ -17,6 +17,17 @@ namespace PersistentWindows.Common.Minimize2Tray
         private string _window_txt;
         private System.Timers.Timer _timer;
 
+        static public void Create(IntPtr hwnd)
+        {
+            // clear ctrl state
+            User32.GetAsyncKeyState(0x11);
+            bool ctrl_key_pressed = (User32.GetAsyncKeyState(0x11) & 0x8000) != 0;
+            if (!ctrl_key_pressed)
+                return;
+
+            new MinimizeToTray(hwnd);
+        }
+
         public MinimizeToTray(IntPtr hwnd)
         {
             User32.ShowWindow(hwnd, (int)ShowWindowCommands.Hide);
