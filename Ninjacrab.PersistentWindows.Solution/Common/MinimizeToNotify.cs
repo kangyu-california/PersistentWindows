@@ -65,7 +65,7 @@ namespace PersistentWindows.Common.Minimize2Tray
             if (dash_idx > 0)
             {
                 //rest of window txt is the real application name
-                _systemTrayIcon.Text = TruncateString(_window_txt.Substring(dash_idx + 1), 63);
+                _systemTrayIcon.Text = TruncateString(_window_txt.Substring(dash_idx + 2), 63);
             }
 
             _timer = new System.Timers.Timer(500);
