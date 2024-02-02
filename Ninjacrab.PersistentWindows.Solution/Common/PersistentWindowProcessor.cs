@@ -3783,7 +3783,7 @@ namespace PersistentWindows.Common
                                             dir = $"\"{dir}\"";
                                         }
 
-                                        File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start " + dir);
+                                        File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start \"\" " + dir);
                                     }
                                 }
                                 else
