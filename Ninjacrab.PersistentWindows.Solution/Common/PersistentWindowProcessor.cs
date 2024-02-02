@@ -3748,34 +3748,41 @@ namespace PersistentWindows.Common
                                 string dir = curDisplayMetrics.Dir;
                                 if (!String.IsNullOrEmpty(dir))
                                 {
-                                    string home = System.Environment.GetEnvironmentVariable("USERPROFILE");
-                                    string[] dirs = Directory.GetDirectories(home);
-
-                                    bool found_in_home = false;
-                                    foreach (string path in dirs)
-                                    {
-                                        string file = Path.GetFileName(path);
-                                        if (dir == file)
-                                        {
-                                            found_in_home = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found_in_home)
-                                    {
-                                        Log.Error($"Could not locate folder {dir}, open home instead");
-                                        dir = ".";
-                                    }
-
-                                    if (dir.Contains(" ") && !dir.Contains("\""))
-                                    {
-                                        dir = $"\"{dir}\"";
-                                    }
-
                                     if (dir.Contains(":") || dir.Contains("\\"))
+                                    {
+                                        if (dir.Contains(" ") && !dir.Contains("\""))
+                                        {
+                                            dir = $"\"{dir}\"";
+                                        }
+
                                         File.WriteAllText(batFile, "start \"\" /B " + dir);
+                                    }
                                     else
                                     {
+                                        string home = System.Environment.GetEnvironmentVariable("USERPROFILE");
+                                        string[] dirs = Directory.GetDirectories(home);
+
+                                        bool found_in_home = false;
+                                        foreach (string path in dirs)
+                                        {
+                                            string file = Path.GetFileName(path);
+                                            if (dir == file)
+                                            {
+                                                found_in_home = true;
+                                                break;
+                                            }
+                                        }
+                                        if (!found_in_home)
+                                        {
+                                            Log.Error($"Could not locate folder {dir}, open home instead");
+                                            dir = ".";
+                                        }
+
+                                        if (dir.Contains(" ") && !dir.Contains("\""))
+                                        {
+                                            dir = $"\"{dir}\"";
+                                        }
+
                                         File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start " + dir);
                                     }
                                 }
