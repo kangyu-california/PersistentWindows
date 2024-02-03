@@ -6,6 +6,7 @@ using System.Net;
 using System.Timers;
 using System.IO;
 using System.IO.Compression;
+using System.Drawing;
 
 using PersistentWindows.Common.Diagnostics;
 using PersistentWindows.Common.WinApiBridge;
@@ -18,6 +19,7 @@ namespace PersistentWindows.SystrayShell
         public bool restoreSnapshotMenuItemEnabled;
 
         private bool pauseAutoRestore = false;
+        private bool toggleIcon = false;
 
         public bool enableUpgradeNotice = true;
         private int skipUpgradeCounter = 0;
@@ -320,6 +322,41 @@ namespace PersistentWindows.SystrayShell
                 pauseAutoRestore = true;
                 Program.PauseAutoRestore();
                 pauseResumeToolStripMenuItem.Text = "Resume auto restore";
+            }
+        }
+
+        private void ToggleIcon(object sender, EventArgs e)
+        {
+            if (toggleIcon)
+            {
+                notifyIconMain.Icon = Program.IdleIcon;
+                toggleIcon = !toggleIcon;
+            }
+            else
+            {
+                using (OpenFileDialog openFileDialog = new OpenFileDialog())
+                {
+                    //openFileDialog.InitialDirectory = "c:\\";
+                    openFileDialog.Filter = "ico files (*.ico)|*.ico|png files (*.png)|*.png";
+                    openFileDialog.FilterIndex = 1;
+                    openFileDialog.RestoreDirectory = true;
+
+                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        //Get the path of specified file
+                        string filePath = openFileDialog.FileName;
+                        if (String.IsNullOrEmpty(filePath))
+                            return;
+                        if (filePath.EndsWith(".png"))
+                        {
+                            var bitmap = new Bitmap(filePath); // or get it from resource
+                            notifyIconMain.Icon = Icon.FromHandle(bitmap.GetHicon());
+                        }
+                        else
+                            notifyIconMain.Icon = new Icon(filePath);
+                        toggleIcon = !toggleIcon;
+                    }
+                }
             }
         }
 

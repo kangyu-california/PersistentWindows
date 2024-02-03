@@ -22,6 +22,7 @@ namespace PersistentWindows.SystrayShell
         private ToolStripMenuItem captureSnapshotMenuItem;
         private ToolStripMenuItem restoreSnapshotMenuItem;
         private ToolStripMenuItem pauseResumeToolStripMenuItem;
+        public  ToolStripMenuItem toggleIconMenuItem;
         public  ToolStripMenuItem upgradeNoticeMenuItem;
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
@@ -58,6 +59,7 @@ namespace PersistentWindows.SystrayShell
             this.captureSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleIconMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.upgradeNoticeMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 
             for (int i = 0; i < menuSeparators.Length; ++i)
@@ -102,6 +104,7 @@ namespace PersistentWindows.SystrayShell
                 this.restoreSnapshotMenuItem,
                 this.menuSeparators[1],
                 this.pauseResumeToolStripMenuItem,
+                this.toggleIconMenuItem,
                 this.menuSeparators[2],
                 this.upgradeNoticeMenuItem,
                 this.aboutToolStripMenuItem,
@@ -139,6 +142,12 @@ namespace PersistentWindows.SystrayShell
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";
             this.pauseResumeToolStripMenuItem.Text = "&Pause auto restore";
             this.pauseResumeToolStripMenuItem.Click += new System.EventHandler(this.PauseResumeAutoRestore);
+
+            // toggle icon 
+            // 
+            this.toggleIconMenuItem.Name = "toggle icon";
+            this.toggleIconMenuItem.Text = "Toggle icon";
+            this.toggleIconMenuItem.Click += new System.EventHandler(this.ToggleIcon);
 
             // 
             // aboutToolStripMenuItem
