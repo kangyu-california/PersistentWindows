@@ -68,6 +68,7 @@ namespace PersistentWindows.SystrayShell
             bool launch_once_per_process_id = true;
             bool check_upgrade = true;
             bool auto_upgrade = false;
+            bool legacy_icon = false;
 
             foreach (var arg in args)
             {
@@ -118,6 +119,9 @@ namespace PersistentWindows.SystrayShell
 
                 switch(arg)
                 {
+                    case "-legacy_icon":
+                        legacy_icon = true;
+                        break;
                     case "-nogui":
                     case "-gui=0":
                         Gui = false;
@@ -238,9 +242,9 @@ namespace PersistentWindows.SystrayShell
             AppdataFolder = appDataFolder;
 
             // default icons
-            IdleIcon = Properties.Resources.pwIcon;
+            IdleIcon = legacy_icon ? Properties.Resources.pwIconLegacy : Properties.Resources.pwIcon;
             var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
-            BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
+            BusyIcon = legacy_icon ? Properties.Resources.pwIconBusyLegacy : System.Drawing.Icon.FromHandle(iconHandle);
             iconHandle = Properties.Resources.pwIconUpdate.GetHicon();
             UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
 
