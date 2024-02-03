@@ -242,9 +242,9 @@ namespace PersistentWindows.SystrayShell
             AppdataFolder = appDataFolder;
 
             // default icons
-            IdleIcon = legacy_icon ? Properties.Resources.pwIconLegacy : Properties.Resources.pwIcon;
+            IdleIcon = legacy_icon ? Properties.Resources.pwIcon2 : Properties.Resources.pwIcon;
             var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
-            BusyIcon = legacy_icon ? Properties.Resources.pwIconBusyLegacy : System.Drawing.Icon.FromHandle(iconHandle);
+            BusyIcon = legacy_icon ? Properties.Resources.pwIconBusy2 : System.Drawing.Icon.FromHandle(iconHandle);
             iconHandle = Properties.Resources.pwIconUpdate.GetHicon();
             UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
 

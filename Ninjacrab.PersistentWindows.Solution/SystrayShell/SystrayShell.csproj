@@ -129,6 +129,12 @@
   <ItemGroup>
     <None Include="Resources\pwIconUpdate.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pwIcon2.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pwIconBusy2.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy $(SolutionDir)*.bat $(TargetDir)

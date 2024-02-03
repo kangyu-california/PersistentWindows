@@ -70,13 +70,16 @@ namespace PersistentWindows.SystrayShell.Properties {
             }
         }
         
-        internal static System.Drawing.Icon pwIconLegacy {
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon pwIcon2 {
             get {
                 object obj = ResourceManager.GetObject("pwIcon2", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
@@ -86,7 +89,11 @@ namespace PersistentWindows.SystrayShell.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
-        internal static System.Drawing.Icon pwIconBusyLegacy {
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon pwIconBusy2 {
             get {
                 object obj = ResourceManager.GetObject("pwIconBusy2", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
