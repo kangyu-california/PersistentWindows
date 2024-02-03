@@ -229,6 +229,7 @@ namespace PersistentWindows.SystrayShell
             string appDataFolder = redirect_appdata ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     productName);
+            string iconFolder = appDataFolder;
 #if DEBUG
             //avoid db path conflict with release version
             //appDataFolder = ".";
@@ -236,44 +237,42 @@ namespace PersistentWindows.SystrayShell
 #endif
             AppdataFolder = appDataFolder;
 
-            string icon_path = Path.Combine(appDataFolder, "pwIcon.ico");
-            string icon_path2 = Path.Combine(appDataFolder, "pwIcon.png");
-            if (File.Exists(icon_path2))
-            {
-                var bitmap = new System.Drawing.Bitmap(icon_path2); // or get it from resource
-                var iconHandle = bitmap.GetHicon();
-                IdleIcon = System.Drawing.Icon.FromHandle(iconHandle);
-            }
-            else if (File.Exists(icon_path))
-            {
-                IdleIcon = new System.Drawing.Icon(icon_path);
-            }
-            else
-            {
-                IdleIcon = Properties.Resources.pwIcon;
-            }
+            // default icons
+            IdleIcon = Properties.Resources.pwIcon;
+            var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
+            BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
+            iconHandle = Properties.Resources.pwIconUpdate.GetHicon();
+            UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
 
-            icon_path = Path.Combine(appDataFolder, "pwIconBusy.ico");
-            icon_path2 = Path.Combine(appDataFolder, "pwIconBusy.png");
-            if (File.Exists(icon_path2))
+            // customized icon/png
+            for (int i = 0; i < 2; i++)
             {
-                var bitmap = new System.Drawing.Bitmap(icon_path2);
-                var iconHandle = bitmap.GetHicon();
-                BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
-            }
-            else if (File.Exists(icon_path))
-            {
-                BusyIcon = new System.Drawing.Icon(icon_path);
-            }
-            else
-            {   
-                var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
-                BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
-            }
+                if (i == 1)
+                    iconFolder = AppDomain.CurrentDomain.BaseDirectory;
 
-            {
-                var iconHandle = Properties.Resources.pwIconUpdate.GetHicon();
-                UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
+                string icon_path = Path.Combine(iconFolder, "pwIcon.ico");
+                string icon_png_path = Path.Combine(iconFolder, "pwIcon.png");
+                if (File.Exists(icon_png_path))
+                {
+                    var bitmap = new System.Drawing.Bitmap(icon_png_path); // or get it from resource
+                    IdleIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                }
+                else if (File.Exists(icon_path))
+                {
+                    IdleIcon = new System.Drawing.Icon(icon_path);
+                }
+
+                icon_path = Path.Combine(iconFolder, "pwIconBusy.ico");
+                icon_png_path = Path.Combine(iconFolder, "pwIconBusy.png");
+                if (File.Exists(icon_png_path))
+                {
+                    var bitmap = new System.Drawing.Bitmap(icon_png_path);
+                    BusyIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                }
+                else if (File.Exists(icon_path))
+                {
+                    BusyIcon = new System.Drawing.Icon(icon_path);
+                }
             }
 
             systrayForm = new SystrayForm();
