@@ -2724,7 +2724,7 @@ namespace PersistentWindows.Common
         private bool IsCoreUiWindow(IntPtr hwnd)
         {
             string class_name = GetWindowClassName(hwnd);
-            if (string.IsNullOrEmpty(class_name) || !class_name.Equals("Windows.UI.Core.CoreWindow"))
+            if (string.IsNullOrEmpty(class_name) || hwnd == GetCoreAppWindow(hwnd))
                 return false;
             return true;
         }
