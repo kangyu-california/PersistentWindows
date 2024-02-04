@@ -331,6 +331,7 @@ namespace PersistentWindows.SystrayShell
             {
                 notifyIconMain.Icon = Program.IdleIcon;
                 toggleIcon = !toggleIcon;
+                toggleIconMenuItem.Text = "Try customized icon";
             }
             else
             {
@@ -355,6 +356,7 @@ namespace PersistentWindows.SystrayShell
                         else
                             notifyIconMain.Icon = new Icon(filePath);
                         toggleIcon = !toggleIcon;
+                        toggleIconMenuItem.Text = "Disable customized icon";
                     }
                 }
             }

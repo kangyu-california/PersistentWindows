@@ -115,38 +115,38 @@ namespace PersistentWindows.SystrayShell
             // capture
             // 
             this.captureToolStripMenuItem.Name = "capture";
-            this.captureToolStripMenuItem.Text = "&Capture windows to disk";
+            this.captureToolStripMenuItem.Text = "Capture windows to disk";
             this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowClickHandler);
 
             // restore
             // 
             this.restoreToolStripMenuItem.Name = "restore";
-            this.restoreToolStripMenuItem.Text = "&Restore windows from disk";
+            this.restoreToolStripMenuItem.Text = "Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
 
             // capture snapshot
             // 
             this.captureSnapshotMenuItem.Name = "capture snapshot";
-            this.captureSnapshotMenuItem.Text = "C&apture snapshot";
+            this.captureSnapshotMenuItem.Text = "Capture snapshot";
             this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshotClickHandler);
 
             // restore
             // 
             this.restoreSnapshotMenuItem.Name = "restore snapshot";
-            this.restoreSnapshotMenuItem.Text = "R&estore snapshot";
+            this.restoreSnapshotMenuItem.Text = "Restore snapshot";
             this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshotClickHandler);
             this.restoreSnapshotMenuItem.Enabled = false;
 
             // suspend/resume auto restore
             // 
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";
-            this.pauseResumeToolStripMenuItem.Text = "&Pause auto restore";
+            this.pauseResumeToolStripMenuItem.Text = "Pause auto restore";
             this.pauseResumeToolStripMenuItem.Click += new System.EventHandler(this.PauseResumeAutoRestore);
 
             // toggle icon 
             // 
             this.toggleIconMenuItem.Name = "toggle icon";
-            this.toggleIconMenuItem.Text = "Toggle icon";
+            this.toggleIconMenuItem.Text = "Try customized icon";
             this.toggleIconMenuItem.Click += new System.EventHandler(this.ToggleIcon);
 
             // 
