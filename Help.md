@@ -8,6 +8,7 @@
   | -redirect_appdata | Use the current directory instead of the User AppData directory to store the database file. This option is also useful for launching multiple PersistentWindows instances.
   | -gui=0 | Do not display the PersistentWindows icon on the System Tray. Effectively runs PersistentWindows as a service
   | -splash=0       | No splash window at PersistentWindows startup
+  | -legacy_icon    | Switch to original icon (as in 5.49 release)
   | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
@@ -64,6 +65,6 @@
 
 ### Other features
 * Replace the default app icon with your customized one
-  * Rename your .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`, or copy it to the directory where you are invoking PersistentWindows from using the `-redirect_appdata` command argument.
-  * Copy another icon file to `pwIconBusy.ico` in the same directory. This icon is displayed when PersistentWindows is busy restoring windows.
+  * Rename your .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to PW program folder or alternatively to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`.
+  * Copy another icon file to the same directory and rename it to `pwIconBusy.*`. This icon is displayed when PersistentWindows is busy restoring windows.
 
