@@ -241,6 +241,10 @@ namespace PersistentWindows.SystrayShell
 #endif
             AppdataFolder = appDataFolder;
 
+            bool ready = WaitTaskbarReady();
+            if (!ready)
+                return;
+
             // default icons
             IdleIcon = legacy_icon ? Properties.Resources.pwIcon2 : Properties.Resources.pwIcon;
             var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
@@ -329,7 +333,33 @@ namespace PersistentWindows.SystrayShell
             }
 
             Application.Run();
+        }
 
+        static bool WaitTaskbarReady()
+        {
+            if (Gui == false)
+                return true;
+
+            try
+            {
+                IntPtr taskbar = User32.FindWindowA("Shell_TrayWnd", null);
+                IntPtr hWndTrayNotify = User32.FindWindowEx(taskbar, IntPtr.Zero, "TrayNotifyWnd", null);
+                IntPtr hWndSysPager = User32.FindWindowEx(hWndTrayNotify, IntPtr.Zero, "SysPager", null);
+                IntPtr hWndToolbar = User32.FindWindowEx(hWndSysPager, IntPtr.Zero, "ToolbarWindow32", null);
+                if (hWndToolbar != IntPtr.Zero)
+                    return true;
+            }
+            catch (Exception )
+            {
+                Log.Error("taskbar not ready, restart PersistentWindows");
+            }
+
+            string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
+            string content = "timeout /t 10 /nobreak > NUL";
+            content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + Program.CmdArgs;
+            File.WriteAllText(batFile, content);
+            Process.Start(batFile);
+            return false;
         }
 
         static void ShowRestoreTip()

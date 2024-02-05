@@ -220,11 +220,6 @@ namespace PersistentWindows.Common
             process = Process.GetCurrentProcess();
             processPriority = process.PriorityClass;
 
-            while (String.IsNullOrEmpty(GetDisplayKey()))
-            {
-                Thread.Sleep(5000);
-            }
-
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
