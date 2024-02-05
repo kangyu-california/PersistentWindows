@@ -1113,9 +1113,12 @@ namespace PersistentWindows.Common
                     if (diff.TotalMilliseconds > 0 && diff.TotalMilliseconds < 400)
                     {
                         //discard fast capture of unminimize action
-                        monitorApplications[curDisplayKey][hwnd].RemoveAt(monitorApplications[curDisplayKey][hwnd].Count - 1);
+                        int last_elem_idx = monitorApplications[curDisplayKey][hwnd].Count - 1;
+                        if (last_elem_idx == 0)
+                            return;
+                        monitorApplications[curDisplayKey][hwnd].RemoveAt(last_elem_idx);
                         var lastMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
-                        if (lastMetrics == null || !lastMetrics.IsFullScreen)
+                        if (!lastMetrics.IsFullScreen)
                         {
                             monitorApplications[curDisplayKey][hwnd].Add(prevDisplayMetrics);
                             return;
