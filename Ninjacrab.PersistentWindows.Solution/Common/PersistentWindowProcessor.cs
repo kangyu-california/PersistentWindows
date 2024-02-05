@@ -748,6 +748,14 @@ namespace PersistentWindows.Common
                     dbDisplayKey = curDisplayKey;
                     StartRestoreTimer();
                 }
+                else if (db_exist && autoRestoreLiveWindows)
+                {
+                    Log.Event("auto restore from db");
+                    restoringFromDB = true;
+                    autoInitialRestoreFromDB = true;
+                    dbDisplayKey = curDisplayKey;
+                    StartRestoreTimer();
+                }
             }
 
             return true;
