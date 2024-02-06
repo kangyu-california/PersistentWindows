@@ -46,19 +46,21 @@
 
 ---
 ### Shortcuts to manipulate positions of one window
-* To activate Dual Position Switching which allows a window to switch between foreground and background mode of different positions and sizes, move or resize the window while pressing Ctrl key. To cancel Dual Position Switching, move or resize the window without pressing Ctrl key. Once DPS is activated,
+* To activate Dual Position Switching which allows a window to switch between foreground and background mode of different positions and sizes, move or resize the window while pressing Ctrl key.
+  Once DPS is activated,
     * Click the desktop window to bring the foreground window to its previous background position and z-order.
     * Shift click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups. 
     * Ctrl click the desktop window to bring the foreground window to its previous z-order while keeping the current location and size.
-  * To bring a background window to foreground *without* restoring to previous foreground position.
+* To cancel Dual Position Switching, move or resize the window without pressing Ctrl key.
+  * To bring a background DPS window to foreground *without* restoring to previous foreground position.
     * press any of Ctrl/Shift/Alt key when activating the window.
 * To restore a new window to its last closing position
   * Ctrl click the PW icon
 * To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by Windows OS, which however does not work for windows inside a remote desktop window)
   * Alt click the desktop window.
   * Ctrl Alt click the PW icon if the foreground window is maximized.
-* To momentarily suppress window capture, for example during start menu invocation
-  * press Ctrl Alt keys
+* To hide a window to notification area in taskbar
+  * press Ctrl key when click the minimize button
 * To enable/disable auto restore for non-toplevel window (such as a child or dialog window)
   * To include a child/dialog window for auto capture/restore, move the window once using mouse
   * To exclude a window from auto capture/restore, press Ctrl Shift keys when moving the window
