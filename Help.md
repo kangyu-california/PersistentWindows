@@ -4,12 +4,9 @@
 ### Command Line Options
   | Command line option | Meaning |
   | --- | --- |
-  | -delay_start 10 | Delay the application startup by 10 seconds. Useful if PersistentWindows autostart fails to show the icon because of Windows Update.
-  | -redirect_appdata | Use the current directory instead of the User AppData directory to store the database file. This option is also useful for launching multiple PersistentWindows instances.
   | -gui=0 | Do not display the PersistentWindows icon on the System Tray. Effectively runs PersistentWindows as a service
   | -splash=0       | No splash window at PersistentWindows startup
   | -legacy_icon    | Switch to original icon (as in 5.49 release)
-  | -notification=1 | Turn on balloon tip and sound notification when restoring windows
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print window positioning event logs for the processes notepad.exe and foo in event viewer
