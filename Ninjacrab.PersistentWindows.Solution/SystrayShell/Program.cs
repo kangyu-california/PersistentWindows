@@ -42,7 +42,7 @@ namespace PersistentWindows.SystrayShell
             Application.SetCompatibleTextRenderingDefault(false);
 
             Log.Init();
-            Log.Event($"OS version {Environment.OSVersion.VersionString}; .NET version {Environment.Version}");
+            Log.Event($" {Application.ProductVersion}; OS version: {Environment.OSVersion.VersionString}; .NET version: {Environment.Version}");
 
             pwp = new PersistentWindowProcessor();
 
