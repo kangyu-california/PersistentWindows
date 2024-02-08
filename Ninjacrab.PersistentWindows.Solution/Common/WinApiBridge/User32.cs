@@ -508,6 +508,11 @@ namespace PersistentWindows.Common.WinApiBridge
             if (os_version.Version.Major < 10)
                 return 0;
 
+            // windows 11 workaround for #289
+            if (os_version.Version.Build > 22000)
+                if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_UNAWARE)
+                    return 0;
+
             //valid API since win10 1607
             return SetThreadDpiAwarenessContext(dpi_awareness_cxt);
         }
