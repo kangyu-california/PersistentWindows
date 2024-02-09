@@ -2598,13 +2598,12 @@ namespace PersistentWindows.Common
                     */
                 }
 
-                /*
                 if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
                     moved = true;
                 }
-                else*/ if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
+                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
                     if (prevDisplayMetrics.Dpi > 0 && curDisplayMetrics.Dpi != prevDisplayMetrics.Dpi)
                     {
