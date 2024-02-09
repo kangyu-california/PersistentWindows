@@ -458,6 +458,8 @@ namespace PersistentWindows.Common
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                    else
+                        StartCaptureTimer();
                 }
 
                 bool db_exist = false;
