@@ -147,6 +147,9 @@ namespace PersistentWindows.SystrayShell
                     case "-delay_auto_capture":
                         delay_auto_capture = 1;
                         break;
+                    case "-dpi_sensitive_call=0":
+                        User32.DpiSenstiveCall = false;
+                        break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
                         break;

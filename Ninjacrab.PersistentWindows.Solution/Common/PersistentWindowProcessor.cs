@@ -2008,7 +2008,7 @@ namespace PersistentWindows.Common
             {
                 if (debugWindows.Contains(hWnd))
                 {
-                    string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
+                    string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}, dpi:{8}",
                         curDisplayMetrics,
                         curDisplayMetrics.ScreenPosition.Left,
                         curDisplayMetrics.ScreenPosition.Top,
@@ -2016,7 +2016,8 @@ namespace PersistentWindows.Common
                         curDisplayMetrics.ScreenPosition.Height,
                         curDisplayMetrics.Title,
                         curDisplayMetrics.IsFullScreen,
-                        curDisplayMetrics.IsMinimized
+                        curDisplayMetrics.IsMinimized,
+                        curDisplayMetrics.Dpi
                         );
                     Log.Event(log);
 
@@ -2423,6 +2424,8 @@ namespace PersistentWindows.Common
             RECT screenPosition = new RECT();
             User32.GetWindowRect(hwnd, ref screenPosition);
 
+            uint dpi = User32.GetDpiForWindow(hwnd);
+
             bool isMinimized = IsMinimized(hwnd);
 
             IntPtr realHwnd = hwnd;
@@ -2460,6 +2463,7 @@ namespace PersistentWindows.Common
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
+                Dpi = dpi,
 
                 IsTopMost = IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
@@ -2592,13 +2596,24 @@ namespace PersistentWindows.Common
                     */
                 }
 
+                /*
                 if (!prevDisplayMetrics.EqualPlacement(curDisplayMetrics))
                 {
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
                     moved = true;
                 }
-                else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
+                else*/ if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
+                    if (prevDisplayMetrics.Dpi > 0 && curDisplayMetrics.Dpi != prevDisplayMetrics.Dpi)
+                    {
+                        if (curDisplayMetrics.ScreenPosition.Width * curDisplayMetrics.Dpi == prevDisplayMetrics.ScreenPosition.Width * prevDisplayMetrics.Dpi)
+                            if (curDisplayMetrics.ScreenPosition.Height * curDisplayMetrics.Dpi == prevDisplayMetrics.ScreenPosition.Height * prevDisplayMetrics.Dpi)
+                            {
+                                // workaround #289
+                                Log.Error($"ignore sudden scale ratio change for {GetWindowTitle(hwnd)}, prev DPI {prevDisplayMetrics.Dpi}, prev location {prevDisplayMetrics.ScreenPosition}, cur DPI {curDisplayMetrics.Dpi}, cur location {curDisplayMetrics.ScreenPosition}");
+                                return false;
+                            }
+                    }
                     moved = true;
                 }
                 else if (!curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)

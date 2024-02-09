@@ -493,6 +493,10 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll")]
         public static extern bool IsWindowOnCurrentVirtualDesktop(IntPtr hWnd);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint GetDpiForWindow(IntPtr hWnd);
+
+        public static bool DpiSenstiveCall = true;
         [DllImport("user32.dll")]
         public static extern bool SetProcessDpiAwarenessContext(int dpi_awareness_cxt);
         [DllImport("user32.dll")]
@@ -508,10 +512,21 @@ namespace PersistentWindows.Common.WinApiBridge
             if (os_version.Version.Major < 10)
                 return 0;
 
+            /*
             // windows 11 workaround for #289
             if (os_version.Version.Build > 22000)
                 if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_UNAWARE)
                     return 0;
+
+            if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+                return 0;
+            if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_UNAWARE)
+                //dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
+                //dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED;
+                dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE;
+            */
+            if (!DpiSenstiveCall)
+                return 0;
 
             //valid API since win10 1607
             return SetThreadDpiAwarenessContext(dpi_awareness_cxt);
