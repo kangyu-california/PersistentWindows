@@ -90,7 +90,7 @@ if not errorlevel 1 goto wait_to_finish";
             bool auto_restore_from_db_at_startup = false;
             bool auto_restore_last_capture_at_startup = false;
             bool launch_once_per_process_id = true;
-            bool check_upgrade = true;
+            bool check_upgrade = false;
             bool auto_upgrade = false;
             bool legacy_icon = false;
             bool waiting_taskbar = false;
