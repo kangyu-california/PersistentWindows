@@ -66,7 +66,7 @@ namespace PersistentWindows.SystrayShell
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
             bool launch_once_per_process_id = true;
-            bool check_upgrade = true;
+            bool check_upgrade = false;
             bool auto_upgrade = false;
             bool legacy_icon = false;
 
