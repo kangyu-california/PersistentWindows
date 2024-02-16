@@ -680,7 +680,7 @@ namespace PersistentWindows.SystrayShell
             {
                 commandline = line.Substring(14);
             }
-            else
+            else if (line.Length > 14)
             {
                 commandline += line.Substring(14);
             }
