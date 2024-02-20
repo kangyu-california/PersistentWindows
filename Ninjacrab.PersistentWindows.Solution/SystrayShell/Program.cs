@@ -69,6 +69,7 @@ namespace PersistentWindows.SystrayShell
             bool check_upgrade = true;
             bool auto_upgrade = false;
             bool legacy_icon = false;
+            bool waiting_taskbar = false;
 
             foreach (var arg in args)
             {
@@ -140,6 +141,9 @@ namespace PersistentWindows.SystrayShell
                         break;
                     case "-delay_start":
                         delay_start = 1;
+                        break;
+                    case "-wait_taskbar":
+                        waiting_taskbar = true;
                         break;
                     case "-delay_manual_capture":
                         delay_manual_capture = 1;
@@ -244,9 +248,12 @@ namespace PersistentWindows.SystrayShell
 #endif
             AppdataFolder = appDataFolder;
 
-            bool ready = WaitTaskbarReady();
-            if (!ready)
-                return;
+            if (!waiting_taskbar)
+            {
+                bool ready = WaitTaskbarReady();
+                if (!ready)
+                    return;
+            }
 
             // default icons
             IdleIcon = legacy_icon ? Properties.Resources.pwIcon2 : Properties.Resources.pwIcon;
@@ -359,7 +366,7 @@ namespace PersistentWindows.SystrayShell
 
             string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
             string content = "timeout /t 10 /nobreak > NUL";
-            content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + Program.CmdArgs;
+            content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             Process.Start(batFile);
             return false;
