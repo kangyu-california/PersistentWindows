@@ -39,7 +39,6 @@ namespace PersistentWindows.Common.Models
         public RECT ScreenPosition { get; set; }
         public WindowPlacement WindowPlacement { get; set; }
         public bool NeedUpdateWindowPlacement { get; set; } //non-persistent data used for tmp argument passing only
-        public uint Dpi { get; set; }
 
         // window z-order
         public bool IsTopMost { get; set; }
