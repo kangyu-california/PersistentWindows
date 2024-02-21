@@ -3760,7 +3760,7 @@ namespace PersistentWindows.Common
                                 {
                                     if (dir.Contains(":") || dir.Contains("\\"))
                                     {
-                                        if (dir.Contains(" ") && !dir.Contains("\""))
+                                        //if (dir.Contains(" ") && !dir.Contains("\""))
                                         {
                                             dir = $"\"{dir}\"";
                                         }
@@ -3788,7 +3788,7 @@ namespace PersistentWindows.Common
                                             dir = ".";
                                         }
 
-                                        if (dir.Contains(" ") && !dir.Contains("\""))
+                                        //if (dir.Contains(" ") && !dir.Contains("\""))
                                         {
                                             dir = $"\"{dir}\"";
                                         }
