@@ -23,11 +23,14 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ## Installation
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory.
-    * Note, the program can be run from any directory, but the program saves its data in `C:\Users\[User]\AppData\Local\PersistentWindows`
-- To automatically start PersistentWindows at user login, double-click `auto_start_pw.bat`. This will create a task in the Task Scheduler.
-    * For PersistentWindows to be able to restore windows with elevated privileges for tools like Task Manager and Event Viewer, `auto_start_pw.bat` should be run as administrator. 
-    <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
+> Note: the program can be run from any directory, but the program saves its data in 
+> *C:\Users\\[User]\AppData\Local\PersistentWindows*
 
+#### To set up PersistentWindows to automatically start at user login:
+- Double-click the *auto_start_pw.bat* file to run it. This will create a task in the Task Scheduler.
+    * For PersistentWindows to be able to restore windows with elevated privileges for tools like Task Manager and Event Viewer, *auto_start_pw.bat* should be run as administrator. 
+        <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
+  
 ## Usage Instructions
 - Run `PersistentWindows.exe` (preferably as administrator). Note that this app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
 - To have the icon always appear on the taskbar, flip on the PersistentWindows item in the taskbar settings.
@@ -61,9 +64,9 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Tips To Digest Before Reporting A Bug
 - The window Z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
-- To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report, as shown in following example
+- To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report, as shown in the following example
   <img src="https://user-images.githubusercontent.com/59128756/190280503-a96ce57f-a6f0-4aad-9748-221bbb4f9207.png" alt="image" width="800"/>
-- If there are too many events to report, click "Filter current log" from the Action panel in event viewer, choose all 9990 and 9999 events in last hour, then click "Save Filtered Log File As", and attach the saved events file in the bug report
+- If there are too many events to report, click "Filter current log" from the Action panel in Event Viewer, choose all 9990 and 9999 events in last hour, then click "Save Filtered Log File As", and attach the saved events file in the bug report
   
   <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/ce4ee2e7-8662-4eb5-9a49-cbe53d30f911.png" alt="image" width="500"/>
   
