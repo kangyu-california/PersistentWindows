@@ -23,17 +23,45 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ## Installation
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory.
+- You can remove the version number from the folder name, because when the program is updated to newer versions, the folder remains the same 
 > Note: the program can be run from any directory, but the program saves its data in 
 > *C:\Users\\[User]\AppData\Local\PersistentWindows*
 
-#### To set up PersistentWindows to automatically start at user login:
-- Double-click the *auto_start_pw.bat* file to run it. This will create a task in the Task Scheduler.
-    * For PersistentWindows to be able to restore windows with elevated privileges for tools like Task Manager and Event Viewer, *auto_start_pw.bat* should be run as administrator. 
+### To set up PersistentWindows to automatically start at user login:
+This can be done by creating a task in **Task Scheduler**, or by adding a shortcut to the **Startup Folder** (shell:startup).
+
+For PersistentWindows to be able to restore windows with elevated privileges (for tools like Task Manager or Event Viewer), it needs to be run with Administrator privileges.
+
+Choose one of the two options:
+
+**Task Scheduler**
+*  Double-click the *auto_start_pw.bat* file to run it. This will create a task in the Task Scheduler.
+* For Administrator Privileges: 
+    * *auto_start_pw.bat* should be run as administrator. 
+
         <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
-  
+
+**Startup Folder**
+* Create a shortcut in the startup folder:
+  * `Win + R`, type `shell:startup`
+  * Create a shortcut to *PersistentWindows.exe* and place it in the Startup folder
+* For Administrator Privileges:
+  * instead of a shortcut, create a .vb file (you can call it *PersistentWindows as Administrator.vb*) and add this to it:
+    ```
+    Set objShell = CreateObject("Shell.Application")
+    objShell.ShellExecute "C:\path\to\PersistentWindows.exe", "", "", "runas", 1
+    ```
+  * replace in the script the path to the *PersistentWindows.exe* file (the location where the PersistentWindows folder was saved)
+
+  <br>
+
+  >  Note: It is possible for set shortcuts to be run as administrator, through the shortcut properties menu. However, this doesn’t work when opening the shortcut through the Startup folder, which is why we use this workaround with the .vb script
+
+
 ## Usage Instructions
 - Run `PersistentWindows.exe` (preferably as administrator). Note that this app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
 - To have the icon always appear on the taskbar, flip on the PersistentWindows item in the taskbar settings.
+
   <img src="showicon.png" alt="taskbar setting" width="400" />
 - Right click the PersistentWindows icon to show the menu, where the capture and restore actions can be selected.
   ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/6a196d75-7d86-4bd3-8873-4a4d65cb3c30)
