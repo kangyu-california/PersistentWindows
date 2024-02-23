@@ -11,32 +11,31 @@ and restores back to its previous settings.
 this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Key Features
-- Keeps track of window position change, and automatically restores the desktop layout, including the taskbar position, to the last matching monitor setup.
+- Keeps track of window position changes, and automatically restores the desktop layout, including the taskbar position, to the last matching monitor setup.
 - Supports remote desktop sessions with multiple display configurations.
 - Capture windows to disk: saves desktop layout captures to the hard drive in liteDB format, so that closed windows can be restored after a reboot.
 - Capture snapshot: saves desktop layout snapshots in memory (max 36 for each display configuration). The window z-order is preserved in the snapshot. This feature can be used as an alternative to virtual desktops on Windows 10.
 - Auto Restore can be paused/resumed as desired.
 - Supports automatic upgrades.
-- Support foreground/background dual position switching. For more Features and Commands, take a look at the [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md)
+- Supports foreground and background dual position switching. 
+- For more Features and Commands, take a look at the [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md)
 
 ## Installation
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory.
     * Note, the program can be run from any directory, but the program saves its data in `C:\Users\[User]\AppData\Local\PersistentWindows`
-- Double click auto_start_pw.bat to create a task in Task Scheduler to automatically start PersistentWindows when the current user login.
-- It is highly recommended to run auto_start_pw.bat as administrator in order to restore windows with elevated privilege (such as Task Manager, Event Viewer etc).
-  
-   ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0)
-
+- To automatically start PersistentWindows at user login, double-click `auto_start_pw.bat`. This will create a task in the Task Scheduler.
+    * For PersistentWindows to be able to restore windows with elevated privileges for tools like Task Manager and Event Viewer, `auto_start_pw.bat` should be run as administrator. 
+    <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
 
 ## Usage Instructions
-- Run PersistentWindows.exe (preferably as administrator). This app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
+- Run `PersistentWindows.exe` (preferably as administrator). Note that this app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
 - To have the icon always appear on the taskbar, flip on the PersistentWindows item in the taskbar settings.
   <img src="showicon.png" alt="taskbar setting" width="400" />
-- Right click the icon to show the menu, where the capture and restore actions can be selected.
+- Right click the PersistentWindows icon to show the menu, where the capture and restore actions can be selected.
   ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/6a196d75-7d86-4bd3-8873-4a4d65cb3c30)
 
-- To restore taskbar position, avoid moving mouse when the icon turns red.
+- To restore the taskbar position, avoid moving mouse when the icon turns red.
 - When software upgrades are available, a notice will show up in the menu.
 
 ## Privacy Statement
