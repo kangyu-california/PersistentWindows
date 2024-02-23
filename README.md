@@ -39,18 +39,18 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - When software upgrades are available, a notice will show up in the menu.
 
 ## Privacy Statement
-- PersistentWindows performs its duty by collecting following information,
+- PersistentWindows performs its duty by collecting following information:
   * window position
   * window size
-  * window zorder
+  * window z-order
   * window caption text
   * window class name
   * process id and command line of the window
-  * key-strokes when interacting with PersistentWindows icon on taskbar
-  * Ctrl Alt Shift key strokes when click or move a window
-- The memory of key-strokes is typically less than 2 seconds
-- Window information history is kept in memory or on hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
-- PersistentWindows periodically checks the github home page for software version upgrade, which can be disabled in menu
+  * key-strokes when interacting with the PersistentWindows icon on taskbar
+  * Ctrl, Alt, Shift key strokes when clicking or moving a window
+- The information of the key-strokes is typically stored for less than 2 seconds
+- Window information history is kept in memory or in the hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
+- PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
   
 ## Known Issues
 - **Multiple invocations of "Restore windows from disk" might be needed in order to recover all missing windows after system startup.**
@@ -63,8 +63,8 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - The window z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
 - To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report, as shown in following example
   <img src="https://user-images.githubusercontent.com/59128756/190280503-a96ce57f-a6f0-4aad-9748-221bbb4f9207.png" alt="image" width="800"/>
-- If there are too many events to report, click "Filter current log" from the Action panel in event viewer, choose all 9990,9999 events in last hour, then click "Save Filtered Log File As", and attach the saved events file in bug report
-  <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/ce4ee2e7-8662-4eb5-9a49-cbe53d30f911.png" alt="image" width="600"/> 
+- If there are too many events to report, click "Filter current log" from the Action panel in event viewer, choose all 9990 and 9999 events in last hour, then click "Save Filtered Log File As", and attach the saved events file in the bug report
+  <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/ce4ee2e7-8662-4eb5-9a49-cbe53d30f911.png" alt="image" width="500"/>
   
 
 
