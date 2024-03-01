@@ -1,10 +1,10 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing;
 using System.Text;
 using System.Timers;
-
 
 using PersistentWindows.Common.WinApiBridge;
 
@@ -12,6 +12,7 @@ namespace PersistentWindows.Common.Minimize2Tray
 {
     public class MinimizeToTray : IDisposable
     {
+        private static HashSet<IntPtr> _trayWindows = new HashSet<IntPtr>();
         private NotifyIcon _systemTrayIcon = null;
         private IntPtr _hwnd;
         private string _window_txt;
@@ -19,12 +20,16 @@ namespace PersistentWindows.Common.Minimize2Tray
 
         static public void Create(IntPtr hwnd)
         {
+            if (_trayWindows.Contains(hwnd))
+                return;
+
             // clear ctrl state
             User32.GetAsyncKeyState(0x11);
             bool ctrl_key_pressed = (User32.GetAsyncKeyState(0x11) & 0x8000) != 0;
             if (!ctrl_key_pressed)
                 return;
 
+            _trayWindows.Add(hwnd);
             new MinimizeToTray(hwnd);
         }
 
@@ -135,6 +140,8 @@ namespace PersistentWindows.Common.Minimize2Tray
         {
             if (disposing)
             {
+                _trayWindows.Remove(_hwnd);
+
                 _systemTrayIcon.Visible = false;
                 //User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Show);
                 User32.ShowWindowAsync(_hwnd, (int)ShowWindowCommands.Restore);
