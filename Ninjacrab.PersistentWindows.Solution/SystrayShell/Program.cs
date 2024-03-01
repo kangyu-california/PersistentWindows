@@ -184,6 +184,9 @@ namespace PersistentWindows.SystrayShell
                     case "-foreground_background_dual_position=0":
                         pwp.enableDualPosSwitch = false;
                         break;
+                    case "-ctrl_minimize_to_tray=0":
+                        pwp.enableMinimizeToTray = false;
+                        break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;

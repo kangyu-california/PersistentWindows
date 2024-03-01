@@ -116,6 +116,8 @@ namespace PersistentWindows.Common
         public bool enableDualPosSwitch = true;
         private HashSet<IntPtr> dualPosSwitchWindows = new HashSet<IntPtr>();
 
+        public bool enableMinimizeToTray = true;
+
         private Dictionary<string, string> realProcessFileName = new Dictionary<string, string>()
             {
                 { "WindowsTerminal.exe", "wt.exe"},
@@ -1574,7 +1576,7 @@ namespace PersistentWindows.Common
                                 foreGroundWindow = IntPtr.Zero;
                             }
 
-                            if (!shift_key_pressed && !alt_key_pressed)
+                            if (enableMinimizeToTray)
                                 MinimizeToTray.Create(hwnd);
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
