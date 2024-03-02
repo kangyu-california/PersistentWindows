@@ -10,7 +10,8 @@
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for the processes *notepad.exe* and *foo*
-  | -foreground_background_dual_position=0 | turn off dual position switching
+  | -foreground_background_dual_position=0 | Turn off dual position switching
+  | -ctrl_minimize_to_tray=0 | Turn off ctrl minimize window to notification tray
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
   | *-delay_auto_restore 2.5* | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second). This is in case the restore is incomplete or the monitor fails to go to sleep due to the restore starting too early.
