@@ -2012,24 +2012,17 @@ namespace PersistentWindows.Common
             {
                 if (debugWindows.Contains(hWnd))
                 {
-                    string log = string.Format("Captured {0,-8} at ({1}, {2}) of size {3} x {4} {5} fullscreen:{6} minimized:{7}",
+                    string log = string.Format("Captured {0,-8} at {1} '{2}' fullscreen:{3} minimized:{4}",
                         curDisplayMetrics,
-                        curDisplayMetrics.ScreenPosition.Left,
-                        curDisplayMetrics.ScreenPosition.Top,
-                        curDisplayMetrics.ScreenPosition.Width,
-                        curDisplayMetrics.ScreenPosition.Height,
+                        curDisplayMetrics.ScreenPosition.ToString(),
                         curDisplayMetrics.Title,
                         curDisplayMetrics.IsFullScreen,
                         curDisplayMetrics.IsMinimized
                         );
                     Log.Event(log);
 
-                    string log2 = string.Format("    WindowPlacement.NormalPosition at ({0}, {1}) of size {2} x {3}",
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Left,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Top,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Width,
-                        curDisplayMetrics.WindowPlacement.NormalPosition.Height
-                        );
+                    string log2 = string.Format("    WindowPlacement.NormalPosition at {0}",
+                        curDisplayMetrics.WindowPlacement.NormalPosition.ToString());
                     Log.Event(log2);
                 }
 
@@ -2401,6 +2394,24 @@ namespace PersistentWindows.Common
             return hwnd;
         }
 
+        // detect scale factor change of 125%, 150%, 175%, 200%, 225%, 250% etc
+        private bool IsScaleFactorChanged(int x, int y, int nx, int ny)
+        {
+            if (nx <= x || ny <= y)
+                return false;
+
+            float r = nx * 4 / (float)x;
+            float rem = r - (int)r;
+            if (rem > 0.005)
+                return false; //not multiples of 25%
+
+            float ry = ny * 4 / (float)y;
+            if (Math.Abs(ry - r) > 0.005)
+                return false; //different aspect ratio
+
+            return true;
+        }
+
         private bool IsWindowMoved(string displayKey, IntPtr hwnd, User32Events eventType, DateTime time,
             out ApplicationDisplayMetrics curDisplayMetrics, out ApplicationDisplayMetrics prevDisplayMetrics)
         {
@@ -2603,6 +2614,12 @@ namespace PersistentWindows.Common
                 }
                 else if (!prevDisplayMetrics.ScreenPosition.Equals(curDisplayMetrics.ScreenPosition))
                 {
+                    if (IsScaleFactorChanged(prevDisplayMetrics.ScreenPosition.Width, prevDisplayMetrics.ScreenPosition.Height,
+                            curDisplayMetrics.ScreenPosition.Width, curDisplayMetrics.ScreenPosition.Height))
+                    {
+                        Log.Error($"Reject unexpected scale factor change for {GetWindowTitle(hwnd)}");
+                        return false;
+                    }
                     moved = true;
                 }
                 else if (!curDisplayMetrics.IsMinimized && prevDisplayMetrics.IsMinimized)
