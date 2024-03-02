@@ -37,6 +37,7 @@ namespace PersistentWindows.Common.WinApiBridge
         /// The window's coordinates when the window is in the restored position.
         /// </summary>
         public RECT NormalPosition { get; set; }
+        public RECT RectDevice { get; set; }
 
         /// <summary>
         /// Gets the default (empty) value.

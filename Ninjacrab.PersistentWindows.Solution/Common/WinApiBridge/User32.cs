@@ -498,6 +498,8 @@ namespace PersistentWindows.Common.WinApiBridge
 
         public static bool DpiSenstiveCall = true;
         [DllImport("user32.dll")]
+        public static extern bool IsValidDpiAwarenessContext(int dpi_awareness_cxt);
+        [DllImport("user32.dll")]
         public static extern bool SetProcessDpiAwarenessContext(int dpi_awareness_cxt);
         [DllImport("user32.dll")]
         public static extern int SetThreadDpiAwarenessContext(int dpi_awareness_cxt);
@@ -508,27 +510,19 @@ namespace PersistentWindows.Common.WinApiBridge
         public const int DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED = -5;
         public static int SetThreadDpiAwarenessContextSafe(int dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
         {
+            //valid API since win10 1607
             var os_version = Environment.OSVersion;
             if (os_version.Version.Major < 10)
                 return 0;
 
             /*
-            // windows 11 workaround for #289
-            if (os_version.Version.Build > 22000)
-                if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_UNAWARE)
-                    return 0;
-
-            if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)
+            if (!IsValidDpiAwarenessContext(dpi_awareness_cxt))
                 return 0;
-            if (dpi_awareness_cxt == DPI_AWARENESS_CONTEXT_UNAWARE)
-                //dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_SYSTEM_AWARE;
-                //dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED;
-                dpi_awareness_cxt = DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE;
             */
+
             if (!DpiSenstiveCall)
                 return 0;
 
-            //valid API since win10 1607
             return SetThreadDpiAwarenessContext(dpi_awareness_cxt);
         }
 
