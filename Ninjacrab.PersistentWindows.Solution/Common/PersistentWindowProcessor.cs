@@ -2394,19 +2394,19 @@ namespace PersistentWindows.Common
             return hwnd;
         }
 
-        // detect scale factor change of 125%, 150%, 175%, 200%, 225%, 250% etc
+        // detect scale factor change back to 100% from 125%, 150%, 175%, 200%, 225%, 250% etc in User32.GetWindowRect()
         private bool IsScaleFactorChanged(int x, int y, int nx, int ny)
         {
             if (nx <= x || ny <= y)
                 return false;
 
-            double r = nx * 4 / (double)x;
-            double rem = r - Math.Round(r);
+            double rx = nx * 4 / (double)x;
+            double rem = rx - Math.Round(rx);
             if (Math.Abs(rem) > 0.005)
                 return false; //not multiples of 25%
 
             double ry = ny * 4 / (double)y;
-            if (Math.Abs(ry - r) > 0.005)
+            if (Math.Abs(ry - rx) > 0.005)
                 return false; //different aspect ratio
 
             return true;
