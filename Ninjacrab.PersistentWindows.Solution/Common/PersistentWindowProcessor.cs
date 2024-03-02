@@ -2400,12 +2400,12 @@ namespace PersistentWindows.Common
             if (nx <= x || ny <= y)
                 return false;
 
-            float r = nx * 4 / (float)x;
-            float rem = r - (int)r;
-            if (rem > 0.005)
+            double r = nx * 4 / (double)x;
+            double rem = r - Math.Round(r);
+            if (Math.Abs(rem) > 0.005)
                 return false; //not multiples of 25%
 
-            float ry = ny * 4 / (float)y;
+            double ry = ny * 4 / (double)y;
             if (Math.Abs(ry - r) > 0.005)
                 return false; //different aspect ratio
 
