@@ -116,6 +116,8 @@ namespace PersistentWindows.SystrayShell
                             Program.FgWindowToBottom();
                         else if (ctrlKeyPressed > 0 && altKeyPressed == 0 && shiftKeyPressed == 0)
                             Program.RecallLastKilledPosition();
+                        else if (ctrlKeyPressed == 0 && altKeyPressed == 0 && shiftKeyPressed > 0)
+                            Program.CenterWindow();
                         else if (ctrlKeyPressed == 0 && altKeyPressed == 0 && shiftKeyPressed == 0)
                             //restore unnamed(default) snapshot
                             Program.RestoreSnapshot(0);

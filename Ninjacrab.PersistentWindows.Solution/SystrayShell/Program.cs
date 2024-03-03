@@ -622,6 +622,11 @@ namespace PersistentWindows.SystrayShell
             pwp.RecallLastKilledPosition(pwp.GetForegroundWindow());
         }
 
+        static public void CenterWindow()
+        {
+            pwp.CenterWindow(pwp.GetForegroundWindow());
+        }
+
         static public void PauseAutoRestore()
         {
             pwp.pauseAutoRestore = true;

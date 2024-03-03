@@ -947,6 +947,14 @@ namespace PersistentWindows.Common
             return offscreen;
         }
 
+        public void CenterWindow(IntPtr hwnd)
+        {
+            IntPtr desktopWindow = User32.GetDesktopWindow();
+            RECT target_rect = new RECT();
+            User32.GetWindowRect(desktopWindow, ref target_rect);
+            User32.MoveWindow(hwnd, target_rect.Left + target_rect.Width / 4, target_rect.Top + target_rect.Height / 4, target_rect.Width / 2, target_rect.Height / 2, true);
+        }
+
         public bool RecallLastKilledPosition(IntPtr hwnd)
         {
             if (deadApps.ContainsKey(curDisplayKey))
@@ -1202,9 +1210,7 @@ namespace PersistentWindows.Common
 
                             if (IsOffScreen(hwnd))
                             {
-                                IntPtr desktopWindow = User32.GetDesktopWindow();
-                                User32.GetWindowRect(desktopWindow, ref target_rect);
-                                User32.MoveWindow(hwnd, target_rect.Left + 50, target_rect.Top + 50, target_rect.Width * 3 / 4, target_rect.Height * 3 / 4, true);
+                                CenterWindow(hwnd);
                                 Log.Error("fix invisible window \"{0}\"", GetWindowTitle(hwnd));
                             }
                         }
