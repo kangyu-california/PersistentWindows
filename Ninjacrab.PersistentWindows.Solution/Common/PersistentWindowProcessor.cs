@@ -735,7 +735,7 @@ namespace PersistentWindows.Common
 
             initialized = true;
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
-
+            Log.Event($"Display config is {curDisplayKey}");
             using (var persistDB = new LiteDatabase(persistDbName))
             {
                 bool db_exist = persistDB.CollectionExists(curDisplayKey);
