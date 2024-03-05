@@ -85,6 +85,7 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
         private POINT initCursorPos;
         private bool freezeCapture = false;
+        public bool rejectScaleFactorChange = true;
 
         // restore control
         private Timer restoreTimer;
@@ -2403,6 +2404,9 @@ namespace PersistentWindows.Common
         // detect scale factor change back to 100% from 125%, 150%, 175%, 200%, 225%, 250% etc in User32.GetWindowRect()
         private bool IsScaleFactorChanged(int x, int y, int nx, int ny)
         {
+            if (!rejectScaleFactorChange)
+                return false;
+
             if (nx <= x || ny <= y)
                 return false;
 

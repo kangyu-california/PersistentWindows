@@ -154,6 +154,9 @@ namespace PersistentWindows.SystrayShell
                     case "-dpi_sensitive_call=0":
                         User32.DpiSenstiveCall = false;
                         break;
+                    case "-reject_scale_factor_change=0":
+                        pwp.rejectScaleFactorChange = false;
+                        break;
                     case "-redirect_appdata":
                         redirect_appdata = true;
                         break;
