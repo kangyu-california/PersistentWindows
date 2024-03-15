@@ -85,8 +85,8 @@ namespace PersistentWindows.Common
             // LaunchProcess
             // 
             this.AcceptButton = this.Yes;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             resources.ApplyResources(this, "$this");
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.Notice);
