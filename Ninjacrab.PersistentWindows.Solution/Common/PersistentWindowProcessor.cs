@@ -2937,7 +2937,15 @@ namespace PersistentWindows.Common
             }
 
             RECT intersect = new RECT();
-            User32.IntersectRect(out intersect, ref sourceRect, ref targetRect);
+            if (!User32.IntersectRect(out intersect, ref sourceRect, ref targetRect))
+            {
+                if (restoreTimes < 2)
+                {
+                    extra_restore = true;
+                    return false;
+                }
+            }
+
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
 
@@ -3007,7 +3015,7 @@ namespace PersistentWindows.Common
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
             int deltaHeight = sourceRect.Height - targetRect.Height;
-            if (Math.Abs(deltaWidth) < 10 && Math.Abs(deltaHeight) < 10)
+            if (Math.Abs(deltaWidth) < 15 && Math.Abs(deltaHeight) < 15)
                 return false;
 
             RECT intersect = new RECT();
@@ -3032,7 +3040,7 @@ namespace PersistentWindows.Common
                 }
             }
 
-            if (!top_edge && !left_edge && restoreTimes < 2)
+            if (!top_edge && !left_edge && restoreTimes < 3)
             {
                 extra_restore = true;
                 return false;
