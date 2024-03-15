@@ -151,8 +151,8 @@ namespace PersistentWindows.SystrayShell
                     case "-delay_auto_capture":
                         delay_auto_capture = 1;
                         break;
-                    case "-dpi_sensitive_call=0":
-                        User32.DpiSenstiveCall = false;
+                    case "-dpi_sensitive_call=1":
+                        User32.DpiSenstiveCall = true;
                         break;
                     case "-reject_scale_factor_change=0":
                         pwp.rejectScaleFactorChange = false;

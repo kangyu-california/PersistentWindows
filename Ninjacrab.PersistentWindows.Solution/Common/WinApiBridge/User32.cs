@@ -496,7 +496,7 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", SetLastError = true)]
         public static extern uint GetDpiForWindow(IntPtr hWnd);
 
-        public static bool DpiSenstiveCall = true;
+        public static bool DpiSenstiveCall = false;
         [DllImport("user32.dll")]
         public static extern bool IsValidDpiAwarenessContext(int dpi_awareness_cxt);
         [DllImport("user32.dll")]
