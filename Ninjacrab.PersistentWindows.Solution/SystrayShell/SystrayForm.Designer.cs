@@ -116,25 +116,25 @@ namespace PersistentWindows.SystrayShell
             // 
             this.captureToolStripMenuItem.Name = "capture";
             this.captureToolStripMenuItem.Text = "Capture windows to disk";
-            this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowClickHandler);
+            this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowToDisk);
 
             // restore
             // 
             this.restoreToolStripMenuItem.Name = "restore";
             this.restoreToolStripMenuItem.Text = "Restore windows from disk";
-            this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowClickHandler);
+            this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowFromDisk);
 
             // capture snapshot
             // 
             this.captureSnapshotMenuItem.Name = "capture snapshot";
             this.captureSnapshotMenuItem.Text = "Capture snapshot";
-            this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshotClickHandler);
+            this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshot);
 
             // restore
             // 
             this.restoreSnapshotMenuItem.Name = "restore snapshot";
             this.restoreSnapshotMenuItem.Text = "Restore snapshot";
-            this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshotClickHandler);
+            this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshot);
             this.restoreSnapshotMenuItem.Enabled = false;
 
             // suspend/resume auto restore

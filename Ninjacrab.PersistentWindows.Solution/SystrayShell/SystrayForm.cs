@@ -277,18 +277,18 @@ namespace PersistentWindows.SystrayShell
             Exit();
         }
 
-        private void CaptureWindowClickHandler(object sender, EventArgs e)
+        private void CaptureWindowToDisk(object sender, EventArgs e)
         {
             Program.CaptureToDisk();
             restoreToolStripMenuItem.Image = null;
         }
 
-        private void RestoreWindowClickHandler(object sender, EventArgs e)
+        private void RestoreWindowFromDisk(object sender, EventArgs e)
         {
             Program.RestoreFromDisk(restoreToolStripMenuItem.Image != null);
         }
 
-        private void CaptureSnapshotClickHandler(object sender, EventArgs e)
+        private void CaptureSnapshot(object sender, EventArgs e)
         {
             bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
             char snapshot_char = Program.EnterSnapshotName();
@@ -297,7 +297,7 @@ namespace PersistentWindows.SystrayShell
                 Program.CaptureSnapshot(id, prompt : false, delayCapture: shift_key_pressed);
         }
 
-        private void RestoreSnapshotClickHandler(object sender, EventArgs e)
+        private void RestoreSnapshot(object sender, EventArgs e)
         {
             char snapshot_char = Program.EnterSnapshotName();
             int id = Program.SnapshotCharToId(snapshot_char);
