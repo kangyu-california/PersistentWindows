@@ -348,6 +348,7 @@ namespace PersistentWindows.SystrayShell
                 StartSplashForm();
             }
 
+            //HotKeyForm.Start();
             Application.Run();
         }
 
