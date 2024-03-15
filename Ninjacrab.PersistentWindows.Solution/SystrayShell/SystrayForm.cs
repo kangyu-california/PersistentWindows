@@ -458,12 +458,10 @@ namespace PersistentWindows.SystrayShell
                 clickCount++;
                 StartTimer(SystemInformation.DoubleClickTime);
             }
-            /*
-            else if (e.Button == MouseButtons.Right)
+            else if (e.Button == MouseButtons.Middle)
             {
-                StartTimer(5);
+                notifyIconMain.Icon = Program.IdleIcon;
             }
-            */
         }
     }
 }
