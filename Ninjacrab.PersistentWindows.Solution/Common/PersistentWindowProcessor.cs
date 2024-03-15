@@ -2715,12 +2715,12 @@ namespace PersistentWindows.Common
                 }
                 else if (restoreTimes < MaxRestoreTimes)
                 {
-                    bool zorderFixed = false;
+                    bool extra_restore = false;
 
                     try
                     {
                         RemoveInvalidCapture();
-                        zorderFixed = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero, DateTime.Now);
+                        extra_restore = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero, DateTime.Now);
                     }
                     catch (Exception ex)
                     {
@@ -2730,7 +2730,6 @@ namespace PersistentWindows.Common
                     restoreTimes++;
 
                     bool slow_restore = remoteSession && !restoringSnapshot;
-                    bool extra_restore = zorderFixed;
                     // force next restore, as Windows OS might not send expected message during restore
                     if (restoreTimes < (extra_restore ? MaxRestoreTimes : restoringSnapshot ? 1 : MinRestoreTimes))
                         StartRestoreTimer();
@@ -2912,7 +2911,7 @@ namespace PersistentWindows.Common
             User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
         }
 
-        private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
+        private bool MoveTaskBar(IntPtr hwnd, RECT targetRect, ref bool extra_restore)
         {
             // simulate mouse drag, assuming taskbar is unlocked
             /*
@@ -2941,6 +2940,9 @@ namespace PersistentWindows.Common
             User32.IntersectRect(out intersect, ref sourceRect, ref targetRect);
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
+
+            if (extra_restore)
+                return false;
 
             Log.Event($"move taskbar to {targetRect}");
 
@@ -2998,7 +3000,7 @@ namespace PersistentWindows.Common
         }
 
         // recover height of horizontal taskbar or width of vertical taskbar
-        private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
+        private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect, ref bool extra_restore)
         {
             RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
@@ -3028,6 +3030,12 @@ namespace PersistentWindows.Common
                         top_edge = true;
                     break;
                 }
+            }
+
+            if (!top_edge && !left_edge && restoreTimes < 2)
+            {
+                extra_restore = true;
+                return false;
             }
 
             Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
@@ -3122,7 +3130,7 @@ namespace PersistentWindows.Common
 
         private bool RestoreApplicationsOnCurrentDisplays(string displayKey, IntPtr sWindow, DateTime time)
         {
-            bool zorderFixed = false;
+            bool extra_restore = false;
 
             if (!monitorApplications.ContainsKey(displayKey)
                 || monitorApplications[displayKey].Count == 0)
@@ -3395,10 +3403,8 @@ namespace PersistentWindows.Common
                     {
                         User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
-                    bool changed_edge = MoveTaskBar(hWnd, rect);
-                    bool changed_width = false;
-                    if (!remoteSession || restoringFromDB || restoringSnapshot)
-                        changed_width = RecoverTaskBarArea(hWnd, rect);
+                    bool changed_edge = MoveTaskBar(hWnd, rect, ref extra_restore);
+                    bool changed_width = RecoverTaskBarArea(hWnd, rect, ref extra_restore);
                     if (changed_edge || changed_width)
                         restoredWindows.Add(hWnd);
                     if (taskbarMovable == 0)
@@ -3451,7 +3457,7 @@ namespace PersistentWindows.Common
                 if (sWindow == IntPtr.Zero) //z-order for batch restore
                 if (AllowRestoreZorder() && curDisplayMetrics.NeedRestoreZorder)
                 {
-                    zorderFixed = true; //force next pass for topmost flag fix and zorder check
+                    extra_restore = true; //force next pass for topmost flag fix and zorder check
 
                     if (((fixZorderMethod >> restoreTimes) & 1) == 1)
                         batchZorderFix = true;
@@ -3657,7 +3663,7 @@ namespace PersistentWindows.Common
                 {
                     FixTopMostWindow(hWnd);
                     topmostWindowsFixed.Add(hWnd);
-                    zorderFixed = true; //force next pass for topmost flag fix and zorder check
+                    extra_restore = true; //force next pass for topmost flag fix and zorder check
                 }
             }
 
@@ -3832,7 +3838,7 @@ namespace PersistentWindows.Common
                 }
             }
 
-            return zorderFixed;
+            return extra_restore;
         }
 
 
