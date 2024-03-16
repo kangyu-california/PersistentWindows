@@ -8,7 +8,9 @@ namespace PersistentWindows.SystrayShell
 {
     public class HotKeyForm : Form
     {
-		public static void Start()
+        static HotKeyWindow hkwin = new HotKeyWindow();
+
+        public static void Start()
         {
             Thread messageLoop = new Thread(() =>
             {
@@ -25,7 +27,7 @@ namespace PersistentWindows.SystrayShell
         {
             //InitializeComponent();
 
-            var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, 0x57);       // Register Alt + W 
+            var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, 0x51);       // Register Alt + Q 
         }
 
         protected override void WndProc(ref Message m)
@@ -39,8 +41,12 @@ namespace PersistentWindows.SystrayShell
                 User32.KeyModifier modifier = (User32.KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
                 int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
 
-                // do something
-                //MessageBox.Show("Hotkey has been pressed!");
+                if (!User32.IsWindowVisible(hkwin.Handle))
+                    hkwin.Show();
+                else
+                    User32.ShowWindow(hkwin.Handle, (int)ShowWindowCommands.Hide);
+
+                return;
             }
 
             base.WndProc(ref m);
