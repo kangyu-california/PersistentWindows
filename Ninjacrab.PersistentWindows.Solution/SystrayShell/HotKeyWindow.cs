@@ -28,7 +28,6 @@ namespace PersistentWindows.SystrayShell
             Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
 
-
             aliveTimer = new System.Timers.Timer(2000);
             aliveTimer.Elapsed += AliveTimerCallBack;
             aliveTimer.SynchronizingObject = this;
@@ -60,11 +59,15 @@ namespace PersistentWindows.SystrayShell
         {
             if (e.Button == MouseButtons.Left)
             {
-                //prev link, alt + left
+                //page down
             }
             else if (e.Button == MouseButtons.Right)
             {
-                //next link, alt + right
+                //page up
+            }
+            else if (e.Button == MouseButtons.Middle)
+            {
+
             }
         }
 
@@ -167,6 +170,11 @@ namespace PersistentWindows.SystrayShell
         }
 
         private void buttonEnd_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void HotKeyWindow_Load(object sender, EventArgs e)
         {
 
         }

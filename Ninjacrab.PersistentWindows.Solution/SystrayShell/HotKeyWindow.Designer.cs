@@ -29,6 +29,7 @@ namespace PersistentWindows.SystrayShell
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HotKeyWindow));
             this.buttonPrevTab = new System.Windows.Forms.Button();
             this.buttonNextTab = new System.Windows.Forms.Button();
             this.buttonCloseTab = new System.Windows.Forms.Button();
@@ -140,14 +141,16 @@ namespace PersistentWindows.SystrayShell
             this.Controls.Add(this.buttonCloseTab);
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = Program.IdleIcon; //(System.Drawing.Icon)(resources.GetObject("$this.Icon"));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "HotKeyWindow";
             this.Opacity = 0.5D;
-            this.ShowIcon = false;
             this.ShowInTaskbar = false;
+            this.TopMost = true;
+            this.Load += new System.EventHandler(this.HotKeyWindow_Load);
             this.ResumeLayout(false);
 
         }
