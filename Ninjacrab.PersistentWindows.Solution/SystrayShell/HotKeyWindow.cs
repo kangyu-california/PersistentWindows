@@ -17,12 +17,17 @@ namespace PersistentWindows.SystrayShell
     {
         private System.Timers.Timer aliveTimer;
         private System.Timers.Timer clickDelayTimer;
+        private bool stay = false;
+
         public HotKeyWindow()
         {
             InitializeComponent();
 
             KeyDown += new KeyEventHandler(FormKeyDown);
             MouseDown += new MouseEventHandler(FormMouseDown);
+            Move += new EventHandler(FormMove);
+            FormClosing += new FormClosingEventHandler(FormClose);
+
 
             aliveTimer = new System.Timers.Timer(2000);
             aliveTimer.Elapsed += AliveTimerCallBack;
@@ -37,17 +42,29 @@ namespace PersistentWindows.SystrayShell
             clickDelayTimer.Enabled = false;
         }
 
+        private void FormMove(object sender, EventArgs e)
+        {
+            if (!Visible)
+                return;
+
+            stay = true;
+        }
+
+        private void FormClose(object sender, FormClosingEventArgs e)
+        {
+            e.Cancel = true;
+            User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+        }
+
         private void FormMouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
             {
-                int i = 0;
-                i++;
+                //prev link, alt + left
             }
             else if (e.Button == MouseButtons.Right)
             {
-                int i = 0;
-                i++;
+                //next link, alt + right
             }
         }
 
@@ -55,8 +72,7 @@ namespace PersistentWindows.SystrayShell
         {
             if (e.KeyCode == Keys.Q)
             {
-                int i = 0;
-                i++;
+                //kill tab, ctrl + w
             }
         }
 
@@ -104,20 +120,20 @@ namespace PersistentWindows.SystrayShell
         }
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
+            if (stay)
+                return;
+
             // TODO: restart timer if alt key pressed
 
-            /*
-            if (this.InvokeRequired)
-                BeginInvoke((Action) delegate ()
-                {
-                    AliveTimerCallBack(source, e);
-                });
-            else
-            */
             {
                 if (User32.IsWindowVisible(Handle))
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
+        }
+
+        private void buttonPageDown_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

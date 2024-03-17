@@ -35,8 +35,8 @@ namespace PersistentWindows.SystrayShell
             this.buttonNewTab = new System.Windows.Forms.Button();
             this.buttonHome = new System.Windows.Forms.Button();
             this.buttonEnd = new System.Windows.Forms.Button();
-            this.buttonPageUp = new System.Windows.Forms.Button();
-            this.buttonPageDown = new System.Windows.Forms.Button();
+            this.buttonPrevUrl = new System.Windows.Forms.Button();
+            this.buttonNextUrl = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonPrevTab
@@ -52,7 +52,7 @@ namespace PersistentWindows.SystrayShell
             // buttonNextTab
             // 
             this.buttonNextTab.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonNextTab.Location = new System.Drawing.Point(225, 12);
+            this.buttonNextTab.Location = new System.Drawing.Point(236, 12);
             this.buttonNextTab.Name = "buttonNextTab";
             this.buttonNextTab.Size = new System.Drawing.Size(72, 47);
             this.buttonNextTab.TabIndex = 1;
@@ -72,7 +72,7 @@ namespace PersistentWindows.SystrayShell
             // buttonNewTab
             // 
             this.buttonNewTab.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonNewTab.Location = new System.Drawing.Point(225, 116);
+            this.buttonNewTab.Location = new System.Drawing.Point(236, 116);
             this.buttonNewTab.Name = "buttonNewTab";
             this.buttonNewTab.Size = new System.Drawing.Size(72, 52);
             this.buttonNewTab.TabIndex = 3;
@@ -82,9 +82,9 @@ namespace PersistentWindows.SystrayShell
             // buttonHome
             // 
             this.buttonHome.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonHome.Location = new System.Drawing.Point(123, 12);
+            this.buttonHome.Location = new System.Drawing.Point(133, 12);
             this.buttonHome.Name = "buttonHome";
-            this.buttonHome.Size = new System.Drawing.Size(73, 47);
+            this.buttonHome.Size = new System.Drawing.Size(73, 36);
             this.buttonHome.TabIndex = 4;
             this.buttonHome.Text = "Home";
             this.buttonHome.UseVisualStyleBackColor = false;
@@ -92,47 +92,48 @@ namespace PersistentWindows.SystrayShell
             // buttonEnd
             // 
             this.buttonEnd.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonEnd.Location = new System.Drawing.Point(123, 116);
+            this.buttonEnd.Location = new System.Drawing.Point(133, 133);
             this.buttonEnd.Name = "buttonEnd";
-            this.buttonEnd.Size = new System.Drawing.Size(73, 52);
+            this.buttonEnd.Size = new System.Drawing.Size(73, 35);
             this.buttonEnd.TabIndex = 5;
             this.buttonEnd.Text = "End";
             this.buttonEnd.UseVisualStyleBackColor = false;
             // 
-            // buttonPageUp
+            // buttonPrevUrl
             // 
-            this.buttonPageUp.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonPageUp.Location = new System.Drawing.Point(23, 65);
-            this.buttonPageUp.Name = "buttonPageUp";
-            this.buttonPageUp.Size = new System.Drawing.Size(73, 45);
-            this.buttonPageUp.TabIndex = 6;
-            this.buttonPageUp.Text = "Page  Up";
-            this.buttonPageUp.UseVisualStyleBackColor = false;
+            this.buttonPrevUrl.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonPrevUrl.Location = new System.Drawing.Point(23, 65);
+            this.buttonPrevUrl.Name = "buttonPrevUrl";
+            this.buttonPrevUrl.Size = new System.Drawing.Size(73, 45);
+            this.buttonPrevUrl.TabIndex = 6;
+            this.buttonPrevUrl.Text = "Prev   Url";
+            this.buttonPrevUrl.UseVisualStyleBackColor = false;
             // 
-            // buttonPageDown
+            // buttonNextUrl
             // 
-            this.buttonPageDown.BackColor = System.Drawing.SystemColors.Info;
-            this.buttonPageDown.Location = new System.Drawing.Point(224, 65);
-            this.buttonPageDown.Name = "buttonPageDown";
-            this.buttonPageDown.Size = new System.Drawing.Size(73, 45);
-            this.buttonPageDown.TabIndex = 7;
-            this.buttonPageDown.Text = "Page Down";
-            this.buttonPageDown.UseVisualStyleBackColor = false;
+            this.buttonNextUrl.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonNextUrl.Location = new System.Drawing.Point(236, 65);
+            this.buttonNextUrl.Name = "buttonNextUrl";
+            this.buttonNextUrl.Size = new System.Drawing.Size(72, 45);
+            this.buttonNextUrl.TabIndex = 7;
+            this.buttonNextUrl.Text = "Next   Url";
+            this.buttonNextUrl.UseVisualStyleBackColor = false;
+            this.buttonNextUrl.Click += new System.EventHandler(this.buttonPageDown_Click);
             // 
             // HotKeyWindow
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.ClientSize = new System.Drawing.Size(320, 180);
-            this.Controls.Add(this.buttonPageDown);
-            this.Controls.Add(this.buttonPageUp);
+            this.ClientSize = new System.Drawing.Size(328, 183);
+            this.Controls.Add(this.buttonNextUrl);
+            this.Controls.Add(this.buttonPrevUrl);
             this.Controls.Add(this.buttonEnd);
             this.Controls.Add(this.buttonHome);
             this.Controls.Add(this.buttonNewTab);
             this.Controls.Add(this.buttonCloseTab);
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -152,7 +153,7 @@ namespace PersistentWindows.SystrayShell
         private System.Windows.Forms.Button buttonNewTab;
         private System.Windows.Forms.Button buttonHome;
         private System.Windows.Forms.Button buttonEnd;
-        private System.Windows.Forms.Button buttonPageUp;
-        private System.Windows.Forms.Button buttonPageDown;
+        private System.Windows.Forms.Button buttonPrevUrl;
+        private System.Windows.Forms.Button buttonNextUrl;
     }
 }
