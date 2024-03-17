@@ -131,7 +131,42 @@ namespace PersistentWindows.SystrayShell
             }
         }
 
-        private void buttonPageDown_Click(object sender, EventArgs e)
+        private void buttonPrevTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonNextTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonPrevUrl_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonNextUrl_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonCloseTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonNewTab_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonHome_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonEnd_Click(object sender, EventArgs e)
         {
 
         }

@@ -48,6 +48,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonPrevTab.TabIndex = 0;
             this.buttonPrevTab.Text = "Prev Tab";
             this.buttonPrevTab.UseVisualStyleBackColor = false;
+            this.buttonPrevTab.Click += new System.EventHandler(this.buttonPrevTab_Click);
             // 
             // buttonNextTab
             // 
@@ -58,6 +59,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNextTab.TabIndex = 1;
             this.buttonNextTab.Text = "Next Tab";
             this.buttonNextTab.UseVisualStyleBackColor = false;
+            this.buttonNextTab.Click += new System.EventHandler(this.buttonNextTab_Click);
             // 
             // buttonCloseTab
             // 
@@ -68,6 +70,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonCloseTab.TabIndex = 2;
             this.buttonCloseTab.Text = "Close Tab";
             this.buttonCloseTab.UseVisualStyleBackColor = false;
+            this.buttonCloseTab.Click += new System.EventHandler(this.buttonCloseTab_Click);
             // 
             // buttonNewTab
             // 
@@ -78,6 +81,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNewTab.TabIndex = 3;
             this.buttonNewTab.Text = "New  Tab";
             this.buttonNewTab.UseVisualStyleBackColor = false;
+            this.buttonNewTab.Click += new System.EventHandler(this.buttonNewTab_Click);
             // 
             // buttonHome
             // 
@@ -88,6 +92,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonHome.TabIndex = 4;
             this.buttonHome.Text = "Home";
             this.buttonHome.UseVisualStyleBackColor = false;
+            this.buttonHome.Click += new System.EventHandler(this.buttonHome_Click);
             // 
             // buttonEnd
             // 
@@ -98,6 +103,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonEnd.TabIndex = 5;
             this.buttonEnd.Text = "End";
             this.buttonEnd.UseVisualStyleBackColor = false;
+            this.buttonEnd.Click += new System.EventHandler(this.buttonEnd_Click);
             // 
             // buttonPrevUrl
             // 
@@ -108,6 +114,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonPrevUrl.TabIndex = 6;
             this.buttonPrevUrl.Text = "Prev   Url";
             this.buttonPrevUrl.UseVisualStyleBackColor = false;
+            this.buttonPrevUrl.Click += new System.EventHandler(this.buttonPrevUrl_Click);
             // 
             // buttonNextUrl
             // 
@@ -118,7 +125,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNextUrl.TabIndex = 7;
             this.buttonNextUrl.Text = "Next   Url";
             this.buttonNextUrl.UseVisualStyleBackColor = false;
-            this.buttonNextUrl.Click += new System.EventHandler(this.buttonPageDown_Click);
+            this.buttonNextUrl.Click += new System.EventHandler(this.buttonNextUrl_Click);
             // 
             // HotKeyWindow
             // 
