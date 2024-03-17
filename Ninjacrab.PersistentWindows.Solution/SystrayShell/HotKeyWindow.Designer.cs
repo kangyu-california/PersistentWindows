@@ -34,16 +34,16 @@ namespace PersistentWindows.SystrayShell
             // HotKeyWindow
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
-            this.ClientSize = new System.Drawing.Size(537, 353);
+            this.BackColor = System.Drawing.SystemColors.MenuHighlight;
+            this.ClientSize = new System.Drawing.Size(400, 300);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "HotKeyWindow";
             this.Opacity = 0.2D;
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
-            this.Text = "HotKeyWindow";
-            //this.TopMost = true;
             this.ResumeLayout(false);
 
         }

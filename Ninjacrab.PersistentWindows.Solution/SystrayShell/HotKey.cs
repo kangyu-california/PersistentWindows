@@ -8,12 +8,13 @@ namespace PersistentWindows.SystrayShell
 {
     public class HotKeyForm : Form
     {
-        static HotKeyWindow hkwin = new HotKeyWindow();
+        static HotKeyWindow hkwin = null;
 
         public static void Start()
         {
             Thread messageLoop = new Thread(() =>
             {
+                hkwin = new HotKeyWindow();
                 Application.Run(new HotKeyForm());
             })
             {
@@ -34,6 +35,7 @@ namespace PersistentWindows.SystrayShell
         {
             if (m.Msg == 0x0312)
             {
+
                 /* Note that the three lines below are not needed if you only want to register one hotkey.
                  * The below lines are useful in case you want to register multiple keys, which you can use a switch with the id as argument, or if you want to know which key/modifier was pressed for some particular reason. */
 
@@ -41,11 +43,7 @@ namespace PersistentWindows.SystrayShell
                 User32.KeyModifier modifier = (User32.KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
                 int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
 
-                if (!User32.IsWindowVisible(hkwin.Handle))
-                    hkwin.Show();
-                else
-                    User32.ShowWindow(hkwin.Handle, (int)ShowWindowCommands.Hide);
-
+                hkwin.HotKeyPressed();
                 return;
             }
 
