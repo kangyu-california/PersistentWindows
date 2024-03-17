@@ -77,6 +77,25 @@ namespace PersistentWindows.SystrayShell
             {
                 //kill tab, ctrl + w
             }
+            else if (e.KeyCode == Keys.W)
+            {
+                //new tab, ctrl + t
+            }
+            else if (e.KeyCode == Keys.A)
+            {
+                //prev url
+            }
+            else if (e.KeyCode == Keys.S)
+            {
+                //next url
+            }
+            else if (e.KeyCode == Keys.Tab)
+            {
+                //toggle stay
+                stay = !stay;
+                if (!stay)
+                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            }
         }
 
         public void HotKeyPressed()
@@ -176,7 +195,7 @@ namespace PersistentWindows.SystrayShell
 
         private void HotKeyWindow_Load(object sender, EventArgs e)
         {
-
+            Icon = Program.IdleIcon;
         }
     }
 }

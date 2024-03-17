@@ -29,7 +29,6 @@ namespace PersistentWindows.SystrayShell
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HotKeyWindow));
             this.buttonPrevTab = new System.Windows.Forms.Button();
             this.buttonNextTab = new System.Windows.Forms.Button();
             this.buttonCloseTab = new System.Windows.Forms.Button();
@@ -47,6 +46,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonPrevTab.Name = "buttonPrevTab";
             this.buttonPrevTab.Size = new System.Drawing.Size(73, 47);
             this.buttonPrevTab.TabIndex = 0;
+            this.buttonPrevTab.TabStop = false;
             this.buttonPrevTab.Text = "Prev Tab";
             this.buttonPrevTab.UseVisualStyleBackColor = false;
             this.buttonPrevTab.Click += new System.EventHandler(this.buttonPrevTab_Click);
@@ -58,6 +58,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNextTab.Name = "buttonNextTab";
             this.buttonNextTab.Size = new System.Drawing.Size(72, 47);
             this.buttonNextTab.TabIndex = 1;
+            this.buttonNextTab.TabStop = false;
             this.buttonNextTab.Text = "Next Tab";
             this.buttonNextTab.UseVisualStyleBackColor = false;
             this.buttonNextTab.Click += new System.EventHandler(this.buttonNextTab_Click);
@@ -69,6 +70,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonCloseTab.Name = "buttonCloseTab";
             this.buttonCloseTab.Size = new System.Drawing.Size(73, 52);
             this.buttonCloseTab.TabIndex = 2;
+            this.buttonCloseTab.TabStop = false;
             this.buttonCloseTab.Text = "Close Tab";
             this.buttonCloseTab.UseVisualStyleBackColor = false;
             this.buttonCloseTab.Click += new System.EventHandler(this.buttonCloseTab_Click);
@@ -80,6 +82,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNewTab.Name = "buttonNewTab";
             this.buttonNewTab.Size = new System.Drawing.Size(72, 52);
             this.buttonNewTab.TabIndex = 3;
+            this.buttonNewTab.TabStop = false;
             this.buttonNewTab.Text = "New  Tab";
             this.buttonNewTab.UseVisualStyleBackColor = false;
             this.buttonNewTab.Click += new System.EventHandler(this.buttonNewTab_Click);
@@ -91,6 +94,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonHome.Name = "buttonHome";
             this.buttonHome.Size = new System.Drawing.Size(73, 36);
             this.buttonHome.TabIndex = 4;
+            this.buttonHome.TabStop = false;
             this.buttonHome.Text = "Home";
             this.buttonHome.UseVisualStyleBackColor = false;
             this.buttonHome.Click += new System.EventHandler(this.buttonHome_Click);
@@ -102,6 +106,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonEnd.Name = "buttonEnd";
             this.buttonEnd.Size = new System.Drawing.Size(73, 35);
             this.buttonEnd.TabIndex = 5;
+            this.buttonEnd.TabStop = false;
             this.buttonEnd.Text = "End";
             this.buttonEnd.UseVisualStyleBackColor = false;
             this.buttonEnd.Click += new System.EventHandler(this.buttonEnd_Click);
@@ -113,6 +118,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonPrevUrl.Name = "buttonPrevUrl";
             this.buttonPrevUrl.Size = new System.Drawing.Size(73, 45);
             this.buttonPrevUrl.TabIndex = 6;
+            this.buttonPrevUrl.TabStop = false;
             this.buttonPrevUrl.Text = "Prev   Url";
             this.buttonPrevUrl.UseVisualStyleBackColor = false;
             this.buttonPrevUrl.Click += new System.EventHandler(this.buttonPrevUrl_Click);
@@ -124,6 +130,7 @@ namespace PersistentWindows.SystrayShell
             this.buttonNextUrl.Name = "buttonNextUrl";
             this.buttonNextUrl.Size = new System.Drawing.Size(72, 45);
             this.buttonNextUrl.TabIndex = 7;
+            this.buttonNextUrl.TabStop = false;
             this.buttonNextUrl.Text = "Next   Url";
             this.buttonNextUrl.UseVisualStyleBackColor = false;
             this.buttonNextUrl.Click += new System.EventHandler(this.buttonNextUrl_Click);
@@ -142,7 +149,6 @@ namespace PersistentWindows.SystrayShell
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.Icon = Program.IdleIcon; //(System.Drawing.Icon)(resources.GetObject("$this.Icon"));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
