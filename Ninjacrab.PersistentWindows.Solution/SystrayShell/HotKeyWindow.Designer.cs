@@ -29,109 +29,109 @@ namespace PersistentWindows.SystrayShell
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
+            this.buttonPrevTab = new System.Windows.Forms.Button();
+            this.buttonNextTab = new System.Windows.Forms.Button();
+            this.buttonCloseTab = new System.Windows.Forms.Button();
+            this.buttonNewTab = new System.Windows.Forms.Button();
+            this.buttonHome = new System.Windows.Forms.Button();
+            this.buttonEnd = new System.Windows.Forms.Button();
+            this.buttonPageUp = new System.Windows.Forms.Button();
+            this.buttonPageDown = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // buttonPrevTab
             // 
-            this.button1.BackColor = System.Drawing.SystemColors.Info;
-            this.button1.Location = new System.Drawing.Point(23, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(73, 47);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Prev Tab";
-            this.button1.UseVisualStyleBackColor = false;
+            this.buttonPrevTab.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonPrevTab.Location = new System.Drawing.Point(23, 12);
+            this.buttonPrevTab.Name = "buttonPrevTab";
+            this.buttonPrevTab.Size = new System.Drawing.Size(73, 47);
+            this.buttonPrevTab.TabIndex = 0;
+            this.buttonPrevTab.Text = "Prev Tab";
+            this.buttonPrevTab.UseVisualStyleBackColor = false;
             // 
-            // button2
+            // buttonNextTab
             // 
-            this.button2.BackColor = System.Drawing.SystemColors.Info;
-            this.button2.Location = new System.Drawing.Point(225, 12);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(72, 47);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Next Tab";
-            this.button2.UseVisualStyleBackColor = false;
+            this.buttonNextTab.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonNextTab.Location = new System.Drawing.Point(225, 12);
+            this.buttonNextTab.Name = "buttonNextTab";
+            this.buttonNextTab.Size = new System.Drawing.Size(72, 47);
+            this.buttonNextTab.TabIndex = 1;
+            this.buttonNextTab.Text = "Next Tab";
+            this.buttonNextTab.UseVisualStyleBackColor = false;
             // 
-            // button3
+            // buttonCloseTab
             // 
-            this.button3.BackColor = System.Drawing.SystemColors.Info;
-            this.button3.Location = new System.Drawing.Point(23, 116);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(73, 52);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Close Tab";
-            this.button3.UseVisualStyleBackColor = false;
+            this.buttonCloseTab.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonCloseTab.Location = new System.Drawing.Point(23, 116);
+            this.buttonCloseTab.Name = "buttonCloseTab";
+            this.buttonCloseTab.Size = new System.Drawing.Size(73, 52);
+            this.buttonCloseTab.TabIndex = 2;
+            this.buttonCloseTab.Text = "Close Tab";
+            this.buttonCloseTab.UseVisualStyleBackColor = false;
             // 
-            // button4
+            // buttonNewTab
             // 
-            this.button4.BackColor = System.Drawing.SystemColors.Info;
-            this.button4.Location = new System.Drawing.Point(225, 116);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(72, 52);
-            this.button4.TabIndex = 3;
-            this.button4.Text = "New  Tab";
-            this.button4.UseVisualStyleBackColor = false;
+            this.buttonNewTab.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonNewTab.Location = new System.Drawing.Point(225, 116);
+            this.buttonNewTab.Name = "buttonNewTab";
+            this.buttonNewTab.Size = new System.Drawing.Size(72, 52);
+            this.buttonNewTab.TabIndex = 3;
+            this.buttonNewTab.Text = "New  Tab";
+            this.buttonNewTab.UseVisualStyleBackColor = false;
             // 
-            // button5
+            // buttonHome
             // 
-            this.button5.BackColor = System.Drawing.SystemColors.Info;
-            this.button5.Location = new System.Drawing.Point(123, 12);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(73, 47);
-            this.button5.TabIndex = 4;
-            this.button5.Text = "Home";
-            this.button5.UseVisualStyleBackColor = false;
+            this.buttonHome.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonHome.Location = new System.Drawing.Point(123, 12);
+            this.buttonHome.Name = "buttonHome";
+            this.buttonHome.Size = new System.Drawing.Size(73, 47);
+            this.buttonHome.TabIndex = 4;
+            this.buttonHome.Text = "Home";
+            this.buttonHome.UseVisualStyleBackColor = false;
             // 
-            // button6
+            // buttonEnd
             // 
-            this.button6.BackColor = System.Drawing.SystemColors.Info;
-            this.button6.Location = new System.Drawing.Point(123, 116);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(73, 52);
-            this.button6.TabIndex = 5;
-            this.button6.Text = "End";
-            this.button6.UseVisualStyleBackColor = false;
+            this.buttonEnd.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonEnd.Location = new System.Drawing.Point(123, 116);
+            this.buttonEnd.Name = "buttonEnd";
+            this.buttonEnd.Size = new System.Drawing.Size(73, 52);
+            this.buttonEnd.TabIndex = 5;
+            this.buttonEnd.Text = "End";
+            this.buttonEnd.UseVisualStyleBackColor = false;
             // 
-            // button7
+            // buttonPageUp
             // 
-            this.button7.BackColor = System.Drawing.SystemColors.Info;
-            this.button7.Location = new System.Drawing.Point(23, 65);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(73, 45);
-            this.button7.TabIndex = 6;
-            this.button7.Text = "Page  Up";
-            this.button7.UseVisualStyleBackColor = false;
+            this.buttonPageUp.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonPageUp.Location = new System.Drawing.Point(23, 65);
+            this.buttonPageUp.Name = "buttonPageUp";
+            this.buttonPageUp.Size = new System.Drawing.Size(73, 45);
+            this.buttonPageUp.TabIndex = 6;
+            this.buttonPageUp.Text = "Page  Up";
+            this.buttonPageUp.UseVisualStyleBackColor = false;
             // 
-            // button8
+            // buttonPageDown
             // 
-            this.button8.BackColor = System.Drawing.SystemColors.Info;
-            this.button8.Location = new System.Drawing.Point(224, 65);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(73, 45);
-            this.button8.TabIndex = 7;
-            this.button8.Text = "Page Down";
-            this.button8.UseVisualStyleBackColor = false;
+            this.buttonPageDown.BackColor = System.Drawing.SystemColors.Info;
+            this.buttonPageDown.Location = new System.Drawing.Point(224, 65);
+            this.buttonPageDown.Name = "buttonPageDown";
+            this.buttonPageDown.Size = new System.Drawing.Size(73, 45);
+            this.buttonPageDown.TabIndex = 7;
+            this.buttonPageDown.Text = "Page Down";
+            this.buttonPageDown.UseVisualStyleBackColor = false;
             // 
             // HotKeyWindow
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.ClientSize = new System.Drawing.Size(320, 180);
-            this.Controls.Add(this.button8);
-            this.Controls.Add(this.button7);
-            this.Controls.Add(this.button6);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.buttonPageDown);
+            this.Controls.Add(this.buttonPageUp);
+            this.Controls.Add(this.buttonEnd);
+            this.Controls.Add(this.buttonHome);
+            this.Controls.Add(this.buttonNewTab);
+            this.Controls.Add(this.buttonCloseTab);
+            this.Controls.Add(this.buttonNextTab);
+            this.Controls.Add(this.buttonPrevTab);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -146,13 +146,13 @@ namespace PersistentWindows.SystrayShell
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.Button buttonPrevTab;
+        private System.Windows.Forms.Button buttonNextTab;
+        private System.Windows.Forms.Button buttonCloseTab;
+        private System.Windows.Forms.Button buttonNewTab;
+        private System.Windows.Forms.Button buttonHome;
+        private System.Windows.Forms.Button buttonEnd;
+        private System.Windows.Forms.Button buttonPageUp;
+        private System.Windows.Forms.Button buttonPageDown;
     }
 }
