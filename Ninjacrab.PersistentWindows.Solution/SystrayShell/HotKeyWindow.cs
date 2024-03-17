@@ -73,8 +73,8 @@ namespace PersistentWindows.SystrayShell
                 {
                     POINT cursor;
                     User32.GetCursorPos(out cursor);
-                    Left = cursor.X - 200;
-                    Top = cursor.Y - 150;
+                    Left = cursor.X - Size.Width / 2;
+                    Top = cursor.Y - Size.Height / 2;
                     Show();
                     User32.SetForegroundWindow(Handle);
                     StartAliveTimer();
