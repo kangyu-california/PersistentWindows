@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Windows.Forms;
 
+using PersistentWindows.Common;
 using PersistentWindows.Common.WinApiBridge;
 
 namespace PersistentWindows.SystrayShell

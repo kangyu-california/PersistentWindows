@@ -50,12 +50,12 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
-        private IntPtr desktopWindow = User32.GetDesktopWindow();
+        private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private IntPtr vacantDeskWindow = IntPtr.Zero;
 
         // windows that are not to be restored
-        private HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
-        private HashSet<IntPtr> noRestoreWindowsTmp = new HashSet<IntPtr>(); //user moved windows during restore
+        private static HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
+        private static HashSet<IntPtr> noRestoreWindowsTmp = new HashSet<IntPtr>(); //user moved windows during restore
 
         // realtime fixing window location
         private IntPtr curMovingWnd = IntPtr.Zero;
@@ -70,7 +70,7 @@ namespace PersistentWindows.Common
         private Timer captureTimer;
         private string curDisplayKey; // current display config name
         public string dbDisplayKey = null;
-        private Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
+        private static Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         public bool manualNormalSession = false; //user need to manually take snapshot or save/restore from db to flag normal session
@@ -878,7 +878,7 @@ namespace PersistentWindows.Common
             return isFullScreen;
         }
 
-        private string GetWindowTitle(IntPtr hwnd, bool use_cache = true)
+        private static string GetWindowTitle(IntPtr hwnd, bool use_cache = true)
         {
             if (use_cache && windowTitle.ContainsKey(hwnd))
                 return windowTitle[hwnd];
@@ -898,7 +898,7 @@ namespace PersistentWindows.Common
             return "";
         }
 
-        private bool IsMinimized(IntPtr hwnd)
+        private static bool IsMinimized(IntPtr hwnd)
         {
             bool result = User32.IsIconic(hwnd) || !User32.IsWindowVisible(hwnd);
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
@@ -1225,7 +1225,7 @@ namespace PersistentWindows.Common
         }
 
 
-        private bool IsTopLevelWindow(IntPtr hwnd)
+        private static bool IsTopLevelWindow(IntPtr hwnd)
         {
             if (IsTaskBar(hwnd))
                 return true;
@@ -1847,7 +1847,7 @@ namespace PersistentWindows.Common
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
 
-        public IntPtr GetForegroundWindow()
+        public static IntPtr GetForegroundWindow()
         {
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
             for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
@@ -2749,7 +2749,7 @@ namespace PersistentWindows.Common
 
         }
 
-        private string GetWindowClassName(IntPtr hwnd)
+        private static string GetWindowClassName(IntPtr hwnd)
         {
             int nChars = 4096;
             StringBuilder buf = new StringBuilder(nChars);
@@ -2765,7 +2765,7 @@ namespace PersistentWindows.Common
             return true;
         }
 
-        private bool IsTaskBar(IntPtr hwnd)
+        private static bool IsTaskBar(IntPtr hwnd)
         {
             if (!User32.IsWindow(hwnd))
                 return false;

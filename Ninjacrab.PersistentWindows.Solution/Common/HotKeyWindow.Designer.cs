@@ -1,5 +1,5 @@
 ﻿
-namespace PersistentWindows.SystrayShell
+namespace PersistentWindows.Common
 {
     partial class HotKeyWindow
     {
@@ -148,7 +148,7 @@ namespace PersistentWindows.SystrayShell
             this.Controls.Add(this.buttonCloseTab);
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
@@ -156,7 +156,6 @@ namespace PersistentWindows.SystrayShell
             this.Opacity = 0.5D;
             this.ShowInTaskbar = false;
             this.TopMost = true;
-            this.Load += new System.EventHandler(this.HotKeyWindow_Load);
             this.ResumeLayout(false);
 
         }

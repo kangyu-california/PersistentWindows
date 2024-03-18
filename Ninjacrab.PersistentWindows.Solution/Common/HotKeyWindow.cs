@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 using PersistentWindows.Common.WinApiBridge;
 
-namespace PersistentWindows.SystrayShell
+namespace PersistentWindows.Common
 {
     public partial class HotKeyWindow : Form
     {
@@ -291,14 +291,10 @@ namespace PersistentWindows.SystrayShell
             User32.SetForegroundWindow(Handle);
         }
 
-        private void HotKeyWindow_Load(object sender, EventArgs e)
+        private static IntPtr GetForegroundWindow()
         {
-            Icon = Program.IdleIcon;
+            return PersistentWindowProcessor.GetForegroundWindow();
         }
 
-        static IntPtr GetForegroundWindow()
-        {
-            return Program.GetForegroundWindow();
-        }
     }
 }

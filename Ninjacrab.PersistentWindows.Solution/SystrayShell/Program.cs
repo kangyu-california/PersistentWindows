@@ -623,12 +623,12 @@ namespace PersistentWindows.SystrayShell
 
         static public void RecallLastKilledPosition()
         {
-            pwp.RecallLastKilledPosition(pwp.GetForegroundWindow());
+            pwp.RecallLastKilledPosition(PersistentWindowProcessor.GetForegroundWindow());
         }
 
         static public void CenterWindow()
         {
-            pwp.CenterWindow(pwp.GetForegroundWindow());
+            pwp.CenterWindow(PersistentWindowProcessor.GetForegroundWindow());
         }
 
         static public void PauseAutoRestore()
@@ -731,7 +731,7 @@ namespace PersistentWindows.SystrayShell
 
         public static IntPtr GetForegroundWindow()
         {
-            return pwp.GetForegroundWindow();
+            return PersistentWindowProcessor.GetForegroundWindow();
         }
     }
 }
