@@ -57,37 +57,54 @@ namespace PersistentWindows.SystrayShell
 
         private void FormMouseDown(object sender, MouseEventArgs e)
         {
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+
             if (e.Button == MouseButtons.Left)
             {
                 //page down
+                SendKeys.Send("{PGDN}");
             }
             else if (e.Button == MouseButtons.Right)
             {
                 //page up
+                SendKeys.Send("{PGUP}");
             }
             else if (e.Button == MouseButtons.Middle)
             {
 
             }
+
+            User32.SetForegroundWindow(Handle);
         }
 
         void FormKeyDown(object sender, KeyEventArgs e)
         {
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+
             if (e.KeyCode == Keys.Q)
             {
                 //kill tab, ctrl + w
+                SendKeys.Send("^w");
             }
             else if (e.KeyCode == Keys.W)
             {
                 //new tab, ctrl + t
+                if (e.Shift)
+                    SendKeys.Send("^T"); //open last closed tab
+                else
+                    SendKeys.Send("^t"); //new tab
             }
             else if (e.KeyCode == Keys.A)
             {
                 //prev url
+                SendKeys.Send("%{LEFT}");
             }
             else if (e.KeyCode == Keys.S)
             {
                 //next url
+                SendKeys.Send("%{RIGHT}");
             }
             else if (e.KeyCode == Keys.Tab)
             {
@@ -96,6 +113,8 @@ namespace PersistentWindows.SystrayShell
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
+
+            User32.SetForegroundWindow(Handle);
         }
 
         public void HotKeyPressed()
@@ -155,47 +174,80 @@ namespace PersistentWindows.SystrayShell
 
         private void buttonPrevTab_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("^+{TAB}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonNextTab_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("^{TAB}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonPrevUrl_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("%{LEFT}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonNextUrl_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("%{RIGHT}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonCloseTab_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("^w");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonNewTab_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+            if (shift_key_pressed)
+                SendKeys.Send("^T");
+            else
+                SendKeys.Send("^t");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonHome_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("{HOME}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void buttonEnd_Click(object sender, EventArgs e)
         {
-
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+            SendKeys.Send("{END}");
+            User32.SetForegroundWindow(Handle);
         }
 
         private void HotKeyWindow_Load(object sender, EventArgs e)
         {
             Icon = Program.IdleIcon;
+        }
+
+        static IntPtr GetForegroundWindow()
+        {
+            return Program.GetForegroundWindow();
         }
     }
 }

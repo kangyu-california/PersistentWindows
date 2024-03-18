@@ -728,5 +728,10 @@ namespace PersistentWindows.SystrayShell
         {
             Log.Error(format, args);
         }
+
+        public static IntPtr GetForegroundWindow()
+        {
+            return pwp.GetForegroundWindow();
+        }
     }
 }
