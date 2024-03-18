@@ -91,7 +91,6 @@ namespace PersistentWindows.Common
             }
             else if (e.Button == MouseButtons.Middle)
             {
-                int i = 0;
             }
 
             User32.SetForegroundWindow(Handle);

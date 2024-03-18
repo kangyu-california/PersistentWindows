@@ -184,6 +184,9 @@ namespace PersistentWindows.SystrayShell
                     case "-fix_unminimized_window=0":
                         fix_unminimized_window = false;
                         break;
+                    case "-fix_taskbar=0":
+                        pwp.fixTaskBar = false;
+                        break;
                     case "-foreground_background_dual_position=0":
                         pwp.enableDualPosSwitch = false;
                         break;
@@ -729,9 +732,5 @@ namespace PersistentWindows.SystrayShell
             Log.Error(format, args);
         }
 
-        public static IntPtr GetForegroundWindow()
-        {
-            return PersistentWindowProcessor.GetForegroundWindow();
-        }
     }
 }
