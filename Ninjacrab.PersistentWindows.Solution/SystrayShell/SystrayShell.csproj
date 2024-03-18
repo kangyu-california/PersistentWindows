@@ -67,12 +67,6 @@
     <Compile Include="HotKey.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="HotKeyWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="HotKeyWindow.Designer.cs">
-      <DependentUpon>HotKeyWindow.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -92,9 +86,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="HotKeyWindow.resx">
-      <DependentUpon>HotKeyWindow.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="SplashForm.resx">
       <DependentUpon>SplashForm.cs</DependentUpon>
       <SubType>Designer</SubType>

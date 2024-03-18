@@ -47,6 +47,12 @@
       <DependentUpon>DbKeySelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Diagnostics\Log.cs" />
+    <Compile Include="HotKeyWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HotKeyWindow.Designer.cs">
+      <DependentUpon>HotKeyWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="LaunchProcess.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -89,6 +95,9 @@
   <ItemGroup>
     <EmbeddedResource Include="DbKeySelect.resx">
       <DependentUpon>DbKeySelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HotKeyWindow.resx">
+      <DependentUpon>HotKeyWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LayoutProfile.resx">
       <DependentUpon>LayoutProfile.cs</DependentUpon>
