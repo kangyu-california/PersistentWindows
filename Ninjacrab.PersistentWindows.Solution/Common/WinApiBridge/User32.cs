@@ -54,14 +54,13 @@ namespace PersistentWindows.Common.WinApiBridge
 
     public enum MouseAction : uint
     {
-        MOUSEEVENTF_ABSOLUTE = 0x8000,
-
+        MOUSEEVENTF_MOVE = 0x0001,
         MOUSEEVENTF_LEFTDOWN = 0x0002,
         MOUSEEVENTF_LEFTUP = 0x0004,
         MOUSEEVENTF_RIGHTDOWN = 0x0008,
         MOUSEEVENTF_RIGHTUP = 0x0010,
-
-        MOUSEEVENTF_MOVE = 0x0001,
+        MOUSEEVENTF_WHEEL = 0x0800,
+        MOUSEEVENTF_ABSOLUTE = 0x8000,
     }
 
     //copied from ManagedWinapi
@@ -421,7 +420,7 @@ namespace PersistentWindows.Common.WinApiBridge
         public static extern IntPtr FindWindowEx(IntPtr parentHandle, IntPtr childAfter, string className, string windowTitle);
 
         [DllImport("user32.dll")]
-        public static extern void mouse_event(MouseAction dwFlags, int dx, int dy, uint dwData, UIntPtr dwExtraInfo);
+        public static extern void mouse_event(MouseAction dwFlags, int dx, int dy, int dwData, UIntPtr dwExtraInfo);
 
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]

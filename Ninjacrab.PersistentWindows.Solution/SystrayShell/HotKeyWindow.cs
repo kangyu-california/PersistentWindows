@@ -17,6 +17,7 @@ namespace PersistentWindows.SystrayShell
     {
         private System.Timers.Timer aliveTimer;
         private System.Timers.Timer clickDelayTimer;
+        private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = false;
 
         public HotKeyWindow()
@@ -25,6 +26,7 @@ namespace PersistentWindows.SystrayShell
 
             KeyDown += new KeyEventHandler(FormKeyDown);
             MouseDown += new MouseEventHandler(FormMouseDown);
+            MouseWheel += new MouseEventHandler(FormMouseWheel);
             Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
 
@@ -39,6 +41,12 @@ namespace PersistentWindows.SystrayShell
             clickDelayTimer.SynchronizingObject = this;
             clickDelayTimer.AutoReset = false;
             clickDelayTimer.Enabled = false;
+
+            mouseScrollDelayTimer = new System.Timers.Timer(250);
+            mouseScrollDelayTimer.Elapsed += MouseScrollCallBack;
+            mouseScrollDelayTimer.AutoReset = false;
+            mouseScrollDelayTimer.Enabled = false;
+
         }
 
         private void FormMove(object sender, EventArgs e)
@@ -66,6 +74,8 @@ namespace PersistentWindows.SystrayShell
 
         private void FormMouseDown(object sender, MouseEventArgs e)
         {
+            StartAliveTimer();
+
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
@@ -81,14 +91,28 @@ namespace PersistentWindows.SystrayShell
             }
             else if (e.Button == MouseButtons.Middle)
             {
-
+                int i = 0;
             }
 
             User32.SetForegroundWindow(Handle);
         }
 
+        private void FormMouseWheel(object sender, MouseEventArgs e)
+        {
+            StartAliveTimer();
+
+            User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            int delta = e.Delta;
+            User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
+            //Show();
+
+            StartMouseScrollTimer();
+        }
+
         void FormKeyDown(object sender, KeyEventArgs e)
         {
+            StartAliveTimer();
+
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
@@ -165,6 +189,26 @@ namespace PersistentWindows.SystrayShell
             clickDelayTimer.Enabled = true;
         }
 
+        public void StartMouseScrollTimer(int milliseconds = 250)
+        {
+            mouseScrollDelayTimer.Interval = milliseconds;
+            mouseScrollDelayTimer.AutoReset = false;
+            mouseScrollDelayTimer.Enabled = true;
+        }
+
+        private void MouseScrollCallBack(Object source, ElapsedEventArgs e)
+        {
+            if (InvokeRequired)
+                BeginInvoke((Action)delegate ()
+                {
+                    MouseScrollCallBack(source, e);
+                });
+            else
+            {
+                Show();
+            }    
+        }
+
         private void ClickTimerCallBack(Object source, ElapsedEventArgs e)
         {
         }
@@ -172,8 +216,6 @@ namespace PersistentWindows.SystrayShell
         {
             if (stay)
                 return;
-
-            // TODO: restart timer if alt key pressed
 
             {
                 if (User32.IsWindowVisible(Handle))
