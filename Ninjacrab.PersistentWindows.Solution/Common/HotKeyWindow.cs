@@ -30,6 +30,8 @@ namespace PersistentWindows.Common
             Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
 
+            Icon = PersistentWindowProcessor.icon;
+
             aliveTimer = new System.Timers.Timer(2000);
             aliveTimer.Elapsed += AliveTimerCallBack;
             aliveTimer.SynchronizingObject = this;

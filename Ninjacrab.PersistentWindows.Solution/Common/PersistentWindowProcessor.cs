@@ -170,7 +170,7 @@ namespace PersistentWindows.Common
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
 
-        public System.Drawing.Icon icon = null;
+        public static System.Drawing.Icon icon = null;
 
         private int leftButtonClicks = 0;
 

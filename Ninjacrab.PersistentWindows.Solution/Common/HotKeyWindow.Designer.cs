@@ -119,7 +119,7 @@ namespace PersistentWindows.Common
             this.buttonPrevUrl.Size = new System.Drawing.Size(72, 45);
             this.buttonPrevUrl.TabIndex = 6;
             this.buttonPrevUrl.TabStop = false;
-            this.buttonPrevUrl.Text = "Prev   Url";
+            this.buttonPrevUrl.Text = "Prev Url";
             this.buttonPrevUrl.UseVisualStyleBackColor = false;
             this.buttonPrevUrl.Click += new System.EventHandler(this.buttonPrevUrl_Click);
             // 
@@ -131,7 +131,7 @@ namespace PersistentWindows.Common
             this.buttonNextUrl.Size = new System.Drawing.Size(72, 45);
             this.buttonNextUrl.TabIndex = 7;
             this.buttonNextUrl.TabStop = false;
-            this.buttonNextUrl.Text = "Next   Url";
+            this.buttonNextUrl.Text = "Next Url";
             this.buttonNextUrl.UseVisualStyleBackColor = false;
             this.buttonNextUrl.Click += new System.EventHandler(this.buttonNextUrl_Click);
             // 
@@ -148,7 +148,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.buttonCloseTab);
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MinimizeBox = false;

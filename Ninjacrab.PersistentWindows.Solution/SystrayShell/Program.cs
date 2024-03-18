@@ -310,7 +310,7 @@ namespace PersistentWindows.SystrayShell
             else
                 systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
-            pwp.icon = IdleIcon;
+            PersistentWindowProcessor.icon = IdleIcon;
             if (fix_zorder_specified)
             {
                 if (fix_zorder)
