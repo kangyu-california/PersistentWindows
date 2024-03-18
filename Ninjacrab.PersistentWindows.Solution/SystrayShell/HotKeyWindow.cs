@@ -51,8 +51,17 @@ namespace PersistentWindows.SystrayShell
 
         private void FormClose(object sender, FormClosingEventArgs e)
         {
-            e.Cancel = true;
-            User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            if (InvokeRequired)
+                BeginInvoke((Action) delegate ()
+                {
+                    FormClose(sender, e);
+                });
+            else
+            {
+                e.Cancel = true;
+                if (User32.IsWindow(Handle))
+                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            }
         }
 
         private void FormMouseDown(object sender, MouseEventArgs e)
