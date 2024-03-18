@@ -2939,7 +2939,7 @@ namespace PersistentWindows.Common
             RECT intersect = new RECT();
             if (!User32.IntersectRect(out intersect, ref sourceRect, ref targetRect))
             {
-                if (restoreTimes < 2)
+                if (!restoringSnapshot && !restoringFromDB)
                 {
                     extra_restore = true;
                     return false;
