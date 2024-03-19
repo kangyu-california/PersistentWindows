@@ -3462,6 +3462,11 @@ namespace PersistentWindows.Common
                     if (prevDisplayMetrics.IsInvisible && User32.IsWindowVisible(hWnd))
                     {
                         // #239 IsWindowsMoved() detected difference in screen position
+                        if (hWnd == HotKeyWindow.handle)
+                        {
+                            User32.ShowWindow(hWnd, (int)ShowWindowCommands.Hide);
+                            continue;
+                        }
                         HideWindow(hWnd);
                         Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
                         continue;
