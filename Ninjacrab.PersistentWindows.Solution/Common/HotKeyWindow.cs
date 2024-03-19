@@ -153,7 +153,7 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.KeyCode == Keys.Space)
+            else if (e.Control)
             {
                 POINT cursor;
                 User32.GetCursorPos(out cursor);
