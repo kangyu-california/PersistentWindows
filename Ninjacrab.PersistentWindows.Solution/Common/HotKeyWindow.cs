@@ -153,6 +153,20 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
+            else if (e.KeyCode == Keys.Space)
+            {
+                POINT cursor;
+                User32.GetCursorPos(out cursor);
+
+                //activate window under cursor
+                IntPtr hwnd = User32.WindowFromPoint(cursor);
+                User32.SetForegroundWindow(hwnd);
+
+                //relocate hotkey window
+                Left = cursor.X - Size.Width / 2;
+                Top = cursor.Y - Size.Height / 2;
+                TopMost = true;
+            }
 
             User32.SetForegroundWindow(Handle);
         }
