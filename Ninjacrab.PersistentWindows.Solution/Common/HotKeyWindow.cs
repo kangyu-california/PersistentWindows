@@ -106,6 +106,9 @@ namespace PersistentWindows.Common
             StartAliveTimer();
 
             User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+
             int delta = e.Delta;
             User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
             //Show();
@@ -210,6 +213,7 @@ namespace PersistentWindows.Common
             else
             {
                 Show();
+                User32.SetForegroundWindow(Handle);
             }    
         }
 
