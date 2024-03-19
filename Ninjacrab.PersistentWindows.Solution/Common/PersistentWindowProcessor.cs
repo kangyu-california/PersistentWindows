@@ -52,6 +52,7 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private IntPtr vacantDeskWindow = IntPtr.Zero;
+        private bool restoreHotkeyWindow = false;
 
         // windows that are not to be restored
         private static HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
@@ -353,6 +354,30 @@ namespace PersistentWindows.Common
                         return;
 
                     ActivateWindow(hwnd); //window could be active on alt-tab
+                    if (IsFullScreen(hwnd) || windowProcessName[hwnd].Equals("mstsc"))
+                    {
+                        if (User32.IsWindowVisible(HotKeyWindow.handle))
+                        {
+                            RECT hkwinPos = new RECT();
+                            User32.GetWindowRect(HotKeyWindow.handle, ref hkwinPos);
+
+                            RECT fgwinPos = new RECT();
+                            User32.GetWindowRect(hwnd, ref fgwinPos);
+
+                            RECT intersect = new RECT();
+                            bool overlap = User32.IntersectRect(out intersect, ref hkwinPos, ref fgwinPos);
+                            if (overlap)
+                            {
+                                restoreHotkeyWindow = true;
+                                User32.ShowWindow(HotKeyWindow.handle, (int)ShowWindowCommands.Hide);
+                            }
+                        }
+                    }
+                    else if (restoreHotkeyWindow)
+                    {
+                        restoreHotkeyWindow = false;
+                        User32.ShowWindow(HotKeyWindow.handle, (int)ShowWindowCommands.Show);
+                    }
 
                     if (!alt_key_pressed)
                     {
