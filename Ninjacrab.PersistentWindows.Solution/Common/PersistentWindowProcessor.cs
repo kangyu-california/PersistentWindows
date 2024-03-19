@@ -1795,6 +1795,9 @@ namespace PersistentWindows.Common
         // workaround by put these windows behind HWND_NOTOPMOST
         private bool FixTopMostWindow(IntPtr hWnd)
         {
+            if (hWnd == HotKeyWindow.handle)
+                return false;
+
             if (!IsWindowTopMost(hWnd))
                 return false;
 

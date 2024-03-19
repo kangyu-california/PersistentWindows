@@ -15,6 +15,8 @@ namespace PersistentWindows.Common
 {
     public partial class HotKeyWindow : Form
     {
+        public static IntPtr handle = IntPtr.Zero;
+
         private System.Timers.Timer aliveTimer;
         private System.Timers.Timer clickDelayTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
@@ -49,6 +51,7 @@ namespace PersistentWindows.Common
             mouseScrollDelayTimer.AutoReset = false;
             mouseScrollDelayTimer.Enabled = false;
 
+            handle = Handle;
         }
 
         private void FormMove(object sender, EventArgs e)
