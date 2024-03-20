@@ -18,7 +18,6 @@ namespace PersistentWindows.Common
         public static IntPtr handle = IntPtr.Zero;
 
         private System.Timers.Timer aliveTimer;
-        private System.Timers.Timer clickDelayTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = false;
         private bool init = true;
@@ -40,12 +39,6 @@ namespace PersistentWindows.Common
             aliveTimer.SynchronizingObject = this;
             aliveTimer.AutoReset = false;
             aliveTimer.Enabled = false;
-
-            clickDelayTimer = new System.Timers.Timer(1000);
-            clickDelayTimer.Elapsed += ClickTimerCallBack;
-            clickDelayTimer.SynchronizingObject = this;
-            clickDelayTimer.AutoReset = false;
-            clickDelayTimer.Enabled = false;
 
             mouseScrollDelayTimer = new System.Timers.Timer(250);
             mouseScrollDelayTimer.Elapsed += MouseScrollCallBack;
@@ -225,13 +218,6 @@ namespace PersistentWindows.Common
             aliveTimer.Enabled = true;
         }
 
-        public void StartClickDelayTimer(int milliseconds)
-        {
-            clickDelayTimer.Interval = milliseconds;
-            clickDelayTimer.AutoReset = false;
-            clickDelayTimer.Enabled = true;
-        }
-
         public void StartMouseScrollTimer(int milliseconds = 250)
         {
             mouseScrollDelayTimer.Interval = milliseconds;
@@ -253,9 +239,6 @@ namespace PersistentWindows.Common
             }    
         }
 
-        private void ClickTimerCallBack(Object source, ElapsedEventArgs e)
-        {
-        }
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
             if (stay)
