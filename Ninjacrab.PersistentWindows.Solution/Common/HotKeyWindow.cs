@@ -125,6 +125,7 @@ namespace PersistentWindows.Common
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
+            bool return_focus_to_hotkey_window = true;
             if (e.KeyCode == Keys.Q)
             {
                 //kill tab, ctrl + w
@@ -155,7 +156,7 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.Control)
+            else if (e.KeyCode == Keys.R)
             {
                 POINT cursor;
                 User32.GetCursorPos(out cursor);
@@ -169,8 +170,15 @@ namespace PersistentWindows.Common
                 Top = cursor.Y - Size.Height / 2;
                 TopMost = true;
             }
+            else if (e.Control && e.KeyCode == Keys.L)
+            {
+                //forward ctrl-l to fg window
+                SendKeys.Send("^l");
+                return_focus_to_hotkey_window = false;
+            }
 
-            User32.SetForegroundWindow(Handle);
+            if (return_focus_to_hotkey_window)
+                User32.SetForegroundWindow(Handle);
         }
 
         public void HotKeyPressed()
