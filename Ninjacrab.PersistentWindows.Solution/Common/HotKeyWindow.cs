@@ -105,6 +105,9 @@ namespace PersistentWindows.Common
             User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
+            RECT fgwinPos = new RECT();
+            User32.GetWindowRect(fgwnd, ref fgwinPos);
+            User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
 
             int delta = e.Delta;
             User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
@@ -171,12 +174,14 @@ namespace PersistentWindows.Common
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
             }
-
-            if (return_focus_to_hotkey_window)
+            else
             {
-                User32.SetForegroundWindow(Handle);
-                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+                return_focus_to_hotkey_window = false;
             }
+
+            User32.SetForegroundWindow(Handle);
+            if (return_focus_to_hotkey_window)
+                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
         }
 
         public void HotKeyPressed()
