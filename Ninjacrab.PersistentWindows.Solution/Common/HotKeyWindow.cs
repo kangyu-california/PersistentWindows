@@ -204,7 +204,13 @@ namespace PersistentWindows.Common
                     }
                     Show();
                     User32.SetForegroundWindow(Handle);
+                    User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
                     StartAliveTimer();
+                }
+                else if (stay)
+                {
+                    User32.SetForegroundWindow(Handle);
+                    User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
                 }
                 else
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
