@@ -21,6 +21,7 @@ namespace PersistentWindows.Common
         private System.Timers.Timer clickDelayTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = false;
+        private bool init = true;
 
         public HotKeyWindow()
         {
@@ -192,10 +193,15 @@ namespace PersistentWindows.Common
             {
                 if (!User32.IsWindowVisible(Handle))
                 {
-                    POINT cursor;
-                    User32.GetCursorPos(out cursor);
-                    Left = cursor.X - Size.Width / 2;
-                    Top = cursor.Y - Size.Height / 2;
+                    if (init)
+                    {
+                        init = false;
+
+                        POINT cursor;
+                        User32.GetCursorPos(out cursor);
+                        Left = cursor.X - Size.Width / 2;
+                        Top = cursor.Y - Size.Height / 2;
+                    }
                     Show();
                     User32.SetForegroundWindow(Handle);
                     StartAliveTimer();
