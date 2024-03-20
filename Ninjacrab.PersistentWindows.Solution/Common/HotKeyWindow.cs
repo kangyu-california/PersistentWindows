@@ -95,6 +95,7 @@ namespace PersistentWindows.Common
             }
 
             User32.SetForegroundWindow(Handle);
+            User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
         }
 
         private void FormMouseWheel(object sender, MouseEventArgs e)
@@ -115,6 +116,7 @@ namespace PersistentWindows.Common
         void FormKeyDown(object sender, KeyEventArgs e)
         {
             StartAliveTimer();
+            TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
@@ -162,7 +164,6 @@ namespace PersistentWindows.Common
                 //relocate hotkey window
                 Left = cursor.X - Size.Width / 2;
                 Top = cursor.Y - Size.Height / 2;
-                TopMost = true;
             }
             else if (e.Control && e.KeyCode == Keys.L)
             {
@@ -172,7 +173,10 @@ namespace PersistentWindows.Common
             }
 
             if (return_focus_to_hotkey_window)
+            {
                 User32.SetForegroundWindow(Handle);
+                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+            }
         }
 
         public void HotKeyPressed()
@@ -236,6 +240,7 @@ namespace PersistentWindows.Common
             {
                 Show();
                 User32.SetForegroundWindow(Handle);
+                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
             }    
         }
 
