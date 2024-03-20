@@ -96,6 +96,8 @@ namespace PersistentWindows.Common
             }
             else if (e.Button == MouseButtons.Middle)
             {
+                //refresh current webpage
+                SendKeys.Send("{F5}");
             }
 
             User32.SetForegroundWindow(Handle);
