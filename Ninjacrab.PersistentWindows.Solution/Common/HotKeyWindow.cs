@@ -102,7 +102,7 @@ namespace PersistentWindows.Common
         {
             StartAliveTimer();
 
-            User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+            //User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
             RECT fgwinPos = new RECT();
@@ -148,6 +148,10 @@ namespace PersistentWindows.Common
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
+            else if (e.KeyCode == Keys.F5)
+            {
+                SendKeys.Send("{F5}");
+            }
             else if (e.KeyCode == Keys.Tab)
             {
                 //toggle stay
@@ -179,9 +183,11 @@ namespace PersistentWindows.Common
                 return_focus_to_hotkey_window = false;
             }
 
-            User32.SetForegroundWindow(Handle);
             if (return_focus_to_hotkey_window)
+            {
+                User32.SetForegroundWindow(Handle);
                 User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+            }
         }
 
         public void HotKeyPressed()
@@ -243,7 +249,7 @@ namespace PersistentWindows.Common
                 });
             else
             {
-                Show();
+                //Show();
                 User32.SetForegroundWindow(Handle);
                 User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
             }    
