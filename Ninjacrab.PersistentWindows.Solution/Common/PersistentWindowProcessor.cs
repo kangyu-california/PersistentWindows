@@ -51,7 +51,7 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
-        private IntPtr vacantDeskWindow = IntPtr.Zero;
+        private static IntPtr vacantDeskWindow = IntPtr.Zero;
         private bool restoreHotkeyWindow = false;
 
         // windows that are not to be restored
@@ -3956,6 +3956,12 @@ namespace PersistentWindows.Common
             }
 
             return false;
+        }
+
+        public static bool IsDesktopWindow(IntPtr hwnd)
+        {
+            IntPtr root = User32.GetAncestor(hwnd, 2);
+            return root == vacantDeskWindow;
         }
 
         void ShowDesktop()

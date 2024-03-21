@@ -157,7 +157,8 @@ namespace PersistentWindows.Common
 
                 //activate window under cursor
                 IntPtr hwnd = User32.WindowFromPoint(cursor);
-                User32.SetForegroundWindow(hwnd);
+                if (!PersistentWindowProcessor.IsDesktopWindow(hwnd))
+                    User32.SetForegroundWindow(hwnd);
     
                 //relocate hotkey window
                 Left = cursor.X - Size.Width / 2;
