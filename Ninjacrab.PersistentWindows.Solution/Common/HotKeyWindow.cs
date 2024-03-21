@@ -19,7 +19,7 @@ namespace PersistentWindows.Common
 
         private System.Timers.Timer aliveTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
-        private bool stay = false;
+        private bool stay = true;
         private bool init = true;
         private int mouseOffset = 0;
 
