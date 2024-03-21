@@ -126,11 +126,16 @@ namespace PersistentWindows.Common
                 { "WindowsTerminal.exe", "wt.exe"},
             };
 
+        private static HashSet<string> browserProcessNames = new HashSet<string>()
+        {
+            "chrome", "firefox", "msedge", "vivaldi", "opera"
+        };
+
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
         private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
 
-        private Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
+        private static Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
         private Process process;
         private ProcessPriorityClass processPriority;
 
@@ -3914,7 +3919,7 @@ namespace PersistentWindows.Common
             return pathToExe;
         }
 
-        private Process GetProcess(IntPtr hwnd)
+        private static Process GetProcess(IntPtr hwnd)
         {
             Process r = null;
             try
@@ -3928,6 +3933,29 @@ namespace PersistentWindows.Common
                 Log.Trace(ex.ToString());
             }
             return r;
+        }
+
+        public static bool IsBrowserWindow(IntPtr hwnd)
+        {
+            string processName;
+            var process = GetProcess(hwnd);
+            if (process != null)
+            {
+                try
+                {
+                    processName = process.ProcessName;
+                }
+                catch(Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                    //process might have been terminated
+                    return false;
+                }
+
+                return browserProcessNames.Contains(processName);
+            }
+
+            return false;
         }
 
         void ShowDesktop()

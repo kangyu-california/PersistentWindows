@@ -126,21 +126,26 @@ namespace PersistentWindows.Common
             StartMouseScrollTimer();
         }
 
+        bool IsBrowserWindow(IntPtr hwnd)
+        {
+            return PersistentWindowProcessor.IsBrowserWindow(hwnd);
+        }
+
         void FormKeyDown(object sender, KeyEventArgs e)
         {
             StartAliveTimer();
             TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
 
             bool return_focus_to_hotkey_window = true;
             if (e.KeyCode == Keys.Q)
             {
-                //TODO
+                User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.KeyCode == Keys.W)
+            else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
+                User32.SetForegroundWindow(fgwnd);
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
@@ -162,22 +167,27 @@ namespace PersistentWindows.Common
             {
                 //TODO
             }
-            else if (e.KeyCode == Keys.T)
+            else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
             {
+                User32.SetForegroundWindow(fgwnd);
                 //new tab, ctrl + t
                 if (e.Shift)
                     SendKeys.Send("^T"); //open last closed tab
                 else
                     SendKeys.Send("^t"); //new tab
             }
-            else if (e.KeyCode == Keys.A)
+            else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
+                User32.SetForegroundWindow(fgwnd);
                 //prev url
                 SendKeys.Send("%{LEFT}");
             }
-            else if (e.KeyCode == Keys.S)
+            else if (e.KeyCode == Keys.S && IsBrowserWindow(fgwnd))
             {
-                //TODO
+                // search
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("^k");
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.D)
             {
@@ -190,8 +200,9 @@ namespace PersistentWindows.Common
                 Top = cursor.Y - Size.Height / 2;
 
             }
-            else if (e.KeyCode == Keys.F)
+            else if (e.KeyCode == Keys.F && IsBrowserWindow(fgwnd))
             {
+                User32.SetForegroundWindow(fgwnd);
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
@@ -208,6 +219,7 @@ namespace PersistentWindows.Common
             }
             else if (e.Control && e.KeyCode == Keys.L)
             {
+                User32.SetForegroundWindow(fgwnd);
                 //forward ctrl-l to fg window
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
@@ -227,6 +239,13 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.V)
             {
                 //TODO
+            }
+            else if (e.KeyCode == Keys.B && IsBrowserWindow(fgwnd))
+            {
+                User32.SetForegroundWindow(fgwnd);
+                //browse ctrl L
+                SendKeys.Send("^l");
+                return_focus_to_hotkey_window = false;
             }
             else
             {
