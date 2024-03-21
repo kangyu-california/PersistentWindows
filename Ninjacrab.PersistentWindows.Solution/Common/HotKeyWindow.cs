@@ -21,6 +21,7 @@ namespace PersistentWindows.Common
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = false;
         private bool init = true;
+        private int mouseOffset = 0;
 
         public HotKeyWindow()
         {
@@ -46,6 +47,15 @@ namespace PersistentWindows.Common
             mouseScrollDelayTimer.Enabled = false;
 
             handle = Handle;
+        }
+
+        //hack to resolve failure to repeatively set cursor pos to same value in rdp session
+        private void ResetCursorPos()
+        {
+            User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset, Top + Size.Height / 2);
+            mouseOffset++;
+            if (mouseOffset == 4)
+                mouseOffset = 0;
         }
 
         private void FormMove(object sender, EventArgs e)
@@ -95,7 +105,7 @@ namespace PersistentWindows.Common
             }
 
             User32.SetForegroundWindow(Handle);
-            User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+            ResetCursorPos();
         }
 
         private void FormMouseWheel(object sender, MouseEventArgs e)
@@ -186,7 +196,7 @@ namespace PersistentWindows.Common
             if (return_focus_to_hotkey_window)
             {
                 User32.SetForegroundWindow(Handle);
-                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+                ResetCursorPos();
             }
         }
 
@@ -212,13 +222,13 @@ namespace PersistentWindows.Common
                     }
                     Show();
                     User32.SetForegroundWindow(Handle);
-                    User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+                    ResetCursorPos();
                     StartAliveTimer();
                 }
                 else if (stay)
                 {
                     User32.SetForegroundWindow(Handle);
-                    User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+                    ResetCursorPos();
                 }
                 else
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
@@ -251,7 +261,7 @@ namespace PersistentWindows.Common
             {
                 //Show();
                 User32.SetForegroundWindow(Handle);
-                User32.SetCursorPos(Left + Size.Width / 2, Top + Size.Height / 2);
+                ResetCursorPos();
             }    
         }
 
