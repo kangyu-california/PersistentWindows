@@ -54,8 +54,8 @@ namespace PersistentWindows.Common
         {
             User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset, Top + Size.Height / 2);
             mouseOffset++;
-            if (mouseOffset == 4)
-                mouseOffset = 0;
+            if (mouseOffset == 3)
+                mouseOffset = -2;
         }
 
         private void FormMove(object sender, EventArgs e)
