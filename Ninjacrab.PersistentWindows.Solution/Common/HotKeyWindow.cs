@@ -330,10 +330,8 @@ namespace PersistentWindows.Common
             if (stay)
                 return;
 
-            {
-                if (User32.IsWindowVisible(Handle))
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
-            }
+            if (User32.IsWindowVisible(Handle))
+                User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
         }
 
         private void buttonPrevTab_Click(object sender, EventArgs e)
