@@ -180,8 +180,9 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
-                //prev url
-                SendKeys.Send("%{LEFT}");
+                //address, ctrl L
+                SendKeys.Send("^l");
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.S && IsBrowserWindow(fgwnd))
             {
@@ -244,9 +245,8 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.B && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
-                //browse ctrl L
-                SendKeys.Send("^l");
-                return_focus_to_hotkey_window = false;
+                //backward, prev url
+                SendKeys.Send("%{LEFT}");
             }
             else
             {
