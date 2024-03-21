@@ -137,10 +137,32 @@ namespace PersistentWindows.Common
             bool return_focus_to_hotkey_window = true;
             if (e.KeyCode == Keys.Q)
             {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.W)
+            {
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
-            else if (e.KeyCode == Keys.W)
+            else if (e.KeyCode == Keys.E)
+            {
+                //follow cursor
+                POINT cursor;
+                User32.GetCursorPos(out cursor);
+
+                //activate window under cursor
+                IntPtr hwnd = User32.WindowFromPoint(cursor);
+                User32.SetForegroundWindow(hwnd);
+    
+                //relocate hotkey window
+                Left = cursor.X - Size.Width / 2;
+                Top = cursor.Y - Size.Height / 2;
+            }
+            else if (e.KeyCode == Keys.R)
+            {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.T)
             {
                 //new tab, ctrl + t
                 if (e.Shift)
@@ -154,6 +176,21 @@ namespace PersistentWindows.Common
                 SendKeys.Send("%{LEFT}");
             }
             else if (e.KeyCode == Keys.S)
+            {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.D)
+            {
+                //follow cursor
+                POINT cursor;
+                User32.GetCursorPos(out cursor);
+
+                //relocate hotkey window
+                Left = cursor.X - Size.Width / 2;
+                Top = cursor.Y - Size.Height / 2;
+
+            }
+            else if (e.KeyCode == Keys.F)
             {
                 //next url
                 SendKeys.Send("%{RIGHT}");
@@ -169,24 +206,27 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.KeyCode == Keys.R)
-            {
-                POINT cursor;
-                User32.GetCursorPos(out cursor);
-
-                //activate window under cursor
-                IntPtr hwnd = User32.WindowFromPoint(cursor);
-                User32.SetForegroundWindow(hwnd);
-
-                //relocate hotkey window
-                Left = cursor.X - Size.Width / 2;
-                Top = cursor.Y - Size.Height / 2;
-            }
             else if (e.Control && e.KeyCode == Keys.L)
             {
                 //forward ctrl-l to fg window
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
+            }
+            else if (e.KeyCode == Keys.Z)
+            {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.X)
+            {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.C)
+            {
+                //TODO
+            }
+            else if (e.KeyCode == Keys.V)
+            {
+                //TODO
             }
             else
             {
