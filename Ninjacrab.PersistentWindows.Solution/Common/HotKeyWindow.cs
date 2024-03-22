@@ -317,7 +317,7 @@ namespace PersistentWindows.Common
                 {
                     MouseScrollCallBack(source, e);
                 });
-            else
+            else if (User32.IsWindowVisible(Handle))
             {
                 //Show();
                 User32.SetForegroundWindow(Handle);
