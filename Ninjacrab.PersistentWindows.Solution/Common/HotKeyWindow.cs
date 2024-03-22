@@ -27,7 +27,7 @@ namespace PersistentWindows.Common
         {
             InitializeComponent();
 
-            KeyDown += new KeyEventHandler(FormKeyDown);
+            KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             Move += new EventHandler(FormMove);
@@ -56,6 +56,14 @@ namespace PersistentWindows.Common
             mouseOffset++;
             if (mouseOffset == 3)
                 mouseOffset = -2;
+        }
+
+        private void SetCursorPos()
+        {
+            IntPtr fgwnd = GetForegroundWindow();
+            RECT fgwinPos = new RECT();
+            User32.GetWindowRect(fgwnd, ref fgwinPos);
+            User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
         }
 
         private void FormMove(object sender, EventArgs e)
@@ -115,9 +123,7 @@ namespace PersistentWindows.Common
             //User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
-            RECT fgwinPos = new RECT();
-            User32.GetWindowRect(fgwnd, ref fgwinPos);
-            User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
+            SetCursorPos();
 
             int delta = e.Delta;
             User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
@@ -131,7 +137,7 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
 
-        void FormKeyDown(object sender, KeyEventArgs e)
+        void FormKeyUp(object sender, KeyEventArgs e)
         {
             StartAliveTimer();
             TopMost = true;
@@ -139,13 +145,14 @@ namespace PersistentWindows.Common
             IntPtr fgwnd = GetForegroundWindow();
 
             bool return_focus_to_hotkey_window = true;
-            if (e.KeyCode == Keys.Q)
+            if (e.KeyCode == Keys.Q && !e.Alt)
             {
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
             else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
@@ -171,6 +178,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 //new tab, ctrl + t
                 if (e.Shift)
                     SendKeys.Send("^T"); //open last closed tab
@@ -180,6 +188,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 //address, ctrl L
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
@@ -188,6 +197,7 @@ namespace PersistentWindows.Common
             {
                 // search
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 SendKeys.Send("^k");
                 return_focus_to_hotkey_window = false;
             }
@@ -205,11 +215,15 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.F && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
             else if (e.KeyCode == Keys.F5)
             {
+                User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
+                //refresh
                 SendKeys.Send("{F5}");
             }
             else if (e.KeyCode == Keys.Tab)
@@ -245,6 +259,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.B && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
