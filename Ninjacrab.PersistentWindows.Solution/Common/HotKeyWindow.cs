@@ -288,6 +288,30 @@ namespace PersistentWindows.Common
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
+            else if (e.KeyCode == Keys.J)
+            {
+                //down one line
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{DOWN}");
+            }
+            else if (e.KeyCode == Keys.K)
+            {
+                //up one line
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{UP}");
+            }
+            else if (e.KeyCode == Keys.P)
+            {
+                //up one page
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{PGUP}");
+            }
+            else if (e.KeyCode == Keys.N || e.KeyCode == Keys.Space)
+            {
+                //down one page
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{PGDN}");
+            }
             else
             {
                 return_focus_to_hotkey_window = false;
