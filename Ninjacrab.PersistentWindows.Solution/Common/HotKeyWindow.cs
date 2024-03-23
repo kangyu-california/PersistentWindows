@@ -175,6 +175,10 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.E)
             {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{HOME}");
+
+                /*
                 //follow cursor
                 POINT cursor;
                 User32.GetCursorPos(out cursor);
@@ -187,6 +191,7 @@ namespace PersistentWindows.Common
                 //relocate hotkey window
                 Left = cursor.X - Size.Width / 2;
                 Top = cursor.Y - Size.Height / 2;
+                */
             }
             else if (e.KeyCode == Keys.R)
             {
@@ -226,6 +231,10 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.D)
             {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{END}");
+
+                /*
                 //follow cursor
                 POINT cursor;
                 User32.GetCursorPos(out cursor);
@@ -233,6 +242,7 @@ namespace PersistentWindows.Common
                 //relocate hotkey window
                 Left = cursor.X - Size.Width / 2;
                 Top = cursor.Y - Size.Height / 2;
+                */
 
             }
             else if (e.KeyCode == Keys.F && IsBrowserWindow(fgwnd))
