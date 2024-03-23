@@ -154,6 +154,11 @@ namespace PersistentWindows.Common
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{ESC}");
             }
+            else if (e.KeyCode == Keys.Tab)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{TAB}");
+            }
             else if (e.KeyCode == Keys.Q)
             {
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
@@ -248,16 +253,12 @@ namespace PersistentWindows.Common
                 //refresh
                 SendKeys.Send("{F5}");
             }
-            else if (e.KeyCode == Keys.Tab)
+            else if (e.KeyCode == Keys.Z)
             {
                 //toggle stay
                 stay = !stay;
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
-            }
-            else if (e.KeyCode == Keys.Z)
-            {
-                //TODO
             }
             else if (e.KeyCode == Keys.X)
             {
