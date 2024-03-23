@@ -1112,6 +1112,9 @@ namespace PersistentWindows.Common
         //return true if action is taken
         private void ActivateWindow(IntPtr hwnd)
         {
+            if (IsBrowserWindow(hwnd))
+                HotKeyWindow.BrowserActivate();
+
             try
             {
                 bool enable_offscreen_fix = enableOffScreenFix;

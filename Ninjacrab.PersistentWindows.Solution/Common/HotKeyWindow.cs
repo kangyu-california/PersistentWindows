@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 
 using PersistentWindows.Common.WinApiBridge;
 
@@ -17,11 +18,11 @@ namespace PersistentWindows.Common
     {
         public static IntPtr handle = IntPtr.Zero;
 
-        private System.Timers.Timer aliveTimer;
+        private static System.Timers.Timer aliveTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = true;
         private bool init = true;
-        private bool tiny = false;
+        private static bool tiny = false;
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0;
@@ -38,6 +39,7 @@ namespace PersistentWindows.Common
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
+            Deactivate += new EventHandler(FormDeactivate);
 
             Icon = PersistentWindowProcessor.icon;
 
@@ -77,13 +79,21 @@ namespace PersistentWindows.Common
             }
         }
 
+        private void ResetHotkeyWindowPos()
+        {
+            POINT cursor;
+            User32.GetCursorPos(out cursor);
+            Left = cursor.X - Size.Width / 2;
+            Top = cursor.Y - Size.Height / 2;
+        }
+
         //hack to resolve failure to repeatively set cursor pos to same value in rdp session
         private void ResetCursorPos()
         {
             User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset, Top + Size.Height / 2);
             mouseOffset++;
-            if (mouseOffset == 3)
-                mouseOffset = -2;
+            if (mouseOffset == 2)
+                mouseOffset = -1;
         }
 
         private void SetCursorPos()
@@ -100,6 +110,12 @@ namespace PersistentWindows.Common
                 return;
 
             stay = true;
+        }
+
+        private void FormDeactivate(object sender, EventArgs e)
+        {
+            if (tiny)
+                StartAliveTimer();
         }
 
         private void FormClose(object sender, FormClosingEventArgs e)
@@ -390,11 +406,7 @@ namespace PersistentWindows.Common
                     if (init)
                     {
                         init = false;
-
-                        POINT cursor;
-                        User32.GetCursorPos(out cursor);
-                        Left = cursor.X - Size.Width / 2;
-                        Top = cursor.Y - Size.Height / 2;
+                        ResetHotkeyWindowPos();
                     }
                     Show();
                     User32.SetForegroundWindow(Handle);
@@ -412,14 +424,21 @@ namespace PersistentWindows.Common
 
         }
 
-        public void StartAliveTimer(int milliseconds = 2000)
+
+        public static void BrowserActivate()
+        {
+            if (tiny)
+                StartAliveTimer();
+        }
+
+        private static void StartAliveTimer(int milliseconds = 2000)
         {
             aliveTimer.Interval = milliseconds;
             aliveTimer.AutoReset = false;
             aliveTimer.Enabled = true;
         }
 
-        public void StartMouseScrollTimer(int milliseconds = 250)
+        private void StartMouseScrollTimer(int milliseconds = 250)
         {
             mouseScrollDelayTimer.Interval = milliseconds;
             mouseScrollDelayTimer.AutoReset = false;
@@ -441,10 +460,35 @@ namespace PersistentWindows.Common
             }    
         }
 
+        private static IntPtr GetCursor()
+        {
+            User32.CURSORINFO cursor_info;
+            cursor_info.cbSize = Marshal.SizeOf(typeof(User32.CURSORINFO));
+            User32.GetCursorInfo(out cursor_info);
+            return cursor_info.hCursor;
+        }
+
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
             if (stay)
+            {
+                if (tiny)
+                {
+                    IntPtr fgwnd = GetForegroundWindow();
+                    if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                    {
+                        IntPtr hCursor = GetCursor();
+                        if (hCursor == Cursors.Arrow.Handle)
+                        {
+                            User32.SetForegroundWindow(Handle);
+                            ResetHotkeyWindowPos();
+                            ResetCursorPos();
+                        }
+                        StartAliveTimer();
+                    }
+                }
                 return;
+            }
 
             if (User32.IsWindowVisible(Handle))
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
