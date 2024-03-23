@@ -139,13 +139,22 @@ namespace PersistentWindows.Common
 
         void FormKeyUp(object sender, KeyEventArgs e)
         {
+            //allow shift
+            if (e.Control || e.Alt)
+                return;
+
             StartAliveTimer();
             TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
 
             bool return_focus_to_hotkey_window = true;
-            if (e.KeyCode == Keys.Q && !e.Alt)
+            if (e.KeyCode == Keys.Escape)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{ESC}");
+            }
+            else if (e.KeyCode == Keys.Q)
             {
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
@@ -166,14 +175,16 @@ namespace PersistentWindows.Common
                 IntPtr hwnd = User32.WindowFromPoint(cursor);
                 if (!PersistentWindowProcessor.IsDesktopWindow(hwnd))
                     User32.SetForegroundWindow(hwnd);
-    
+
                 //relocate hotkey window
                 Left = cursor.X - Size.Width / 2;
                 Top = cursor.Y - Size.Height / 2;
             }
             else if (e.KeyCode == Keys.R)
             {
-                //TODO
+                //reload
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("^r");
             }
             else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
             {
@@ -183,7 +194,11 @@ namespace PersistentWindows.Common
                 if (e.Shift)
                     SendKeys.Send("^T"); //open last closed tab
                 else
+                {
                     SendKeys.Send("^t"); //new tab
+                    SendKeys.Send("^l");
+                    return_focus_to_hotkey_window = false;
+                }
             }
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
@@ -219,6 +234,13 @@ namespace PersistentWindows.Common
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
+            else if (e.KeyCode == Keys.G && IsBrowserWindow(fgwnd))
+            {
+                //goto tab
+                //ctrl shift A (only for chrome)
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("^+a");
+            }
             else if (e.KeyCode == Keys.F5)
             {
                 User32.SetForegroundWindow(fgwnd);
@@ -233,10 +255,10 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.Control && e.KeyCode == Keys.L)
+            else if (e.KeyCode == Keys.L)
             {
+                //link
                 User32.SetForegroundWindow(fgwnd);
-                //forward ctrl-l to fg window
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
             }
@@ -250,7 +272,10 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.C)
             {
-                //TODO
+                //copy (duplicate) tab
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("^l");
+                SendKeys.Send("%{ENTER}");
             }
             else if (e.KeyCode == Keys.V)
             {
