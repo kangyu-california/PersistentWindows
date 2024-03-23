@@ -101,6 +101,16 @@ namespace PersistentWindows.Common
             IntPtr fgwnd = GetForegroundWindow();
             RECT fgwinPos = new RECT();
             User32.GetWindowRect(fgwnd, ref fgwinPos);
+
+            POINT cursor;
+            User32.GetCursorPos(out cursor);
+            if (User32.PtInRect(ref fgwinPos, cursor))
+            {
+                if (tiny)
+                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                return; //not need to reposition cursor
+            }
+
             User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
         }
 
@@ -164,7 +174,6 @@ namespace PersistentWindows.Common
         {
             StartAliveTimer();
 
-            //User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
             SetCursorPos();
@@ -454,10 +463,15 @@ namespace PersistentWindows.Common
                 });
             else if (User32.IsWindowVisible(Handle))
             {
-                //Show();
                 User32.SetForegroundWindow(Handle);
                 ResetCursorPos();
             }    
+            else if (tiny)
+            {
+                Show();
+                User32.SetForegroundWindow(Handle);
+                ResetCursorPos();
+            }
         }
 
         private static IntPtr GetCursor()
@@ -480,9 +494,10 @@ namespace PersistentWindows.Common
                         IntPtr hCursor = GetCursor();
                         if (hCursor == Cursors.Arrow.Handle)
                         {
+                            // let tiny hotkey window follow cursor position
                             User32.SetForegroundWindow(Handle);
                             ResetHotkeyWindowPos();
-                            ResetCursorPos();
+                            //ResetCursorPos();
                         }
                         StartAliveTimer();
                     }
