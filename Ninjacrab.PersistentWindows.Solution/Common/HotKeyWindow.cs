@@ -164,6 +164,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Q)
             {
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                User32.SetForegroundWindow(fgwnd);
             }
             else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
@@ -452,10 +453,15 @@ namespace PersistentWindows.Common
             User32.SetForegroundWindow(fgwnd);
             bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
             if (shift_key_pressed)
+            {
                 SendKeys.Send("^T");
+                User32.SetForegroundWindow(Handle);
+            }
             else
+            {
                 SendKeys.Send("^t");
-            User32.SetForegroundWindow(Handle);
+                SendKeys.Send("^l");
+            }
         }
 
         private void buttonHome_Click(object sender, EventArgs e)
