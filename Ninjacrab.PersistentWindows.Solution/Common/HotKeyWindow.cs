@@ -255,13 +255,6 @@ namespace PersistentWindows.Common
                 if (!stay)
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
             }
-            else if (e.KeyCode == Keys.L)
-            {
-                //link
-                User32.SetForegroundWindow(fgwnd);
-                SendKeys.Send("^l");
-                return_focus_to_hotkey_window = false;
-            }
             else if (e.KeyCode == Keys.Z)
             {
                 //TODO
@@ -311,6 +304,18 @@ namespace PersistentWindows.Common
                 //down one page
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{PGDN}");
+            }
+            else if (e.KeyCode == Keys.H)
+            {
+                //left
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{LEFT}");
+            }
+            else if (e.KeyCode == Keys.L)
+            {
+                //right
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{RIGHT}");
             }
             else
             {
