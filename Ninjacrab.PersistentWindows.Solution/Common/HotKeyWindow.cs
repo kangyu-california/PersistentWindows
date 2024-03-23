@@ -21,11 +21,17 @@ namespace PersistentWindows.Common
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool stay = true;
         private bool init = true;
+        private bool tiny = false;
+        private int origWidth;
+        private int origHeight;
         private int mouseOffset = 0;
 
         public HotKeyWindow()
         {
             InitializeComponent();
+
+            origWidth = Width;
+            origHeight = Height;
 
             KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
@@ -47,6 +53,28 @@ namespace PersistentWindows.Common
             mouseScrollDelayTimer.Enabled = false;
 
             handle = Handle;
+        }
+
+        private void ToggleWindowSize()
+        {
+            tiny = !tiny;
+
+            if (tiny)
+            {
+                FormBorderStyle = FormBorderStyle.None;
+                ControlBox = false;
+                Width = 8;
+                Height = 8;
+                Location = new Point(Location.X + origWidth / 2, Location.Y + origHeight / 2);
+            }
+            else
+            {
+                FormBorderStyle = FormBorderStyle.Fixed3D;
+                ControlBox = true;
+                Width = origWidth;
+                Height = origHeight;
+                Location = new Point(Location.X - origWidth / 2, Location.Y - origHeight / 2);
+            }
         }
 
         //hack to resolve failure to repeatively set cursor pos to same value in rdp session
@@ -163,8 +191,13 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Q)
             {
+                ToggleWindowSize();
+
+                //toggle quiet mode
+                /*
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
                 User32.SetForegroundWindow(fgwnd);
+                */
             }
             else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
