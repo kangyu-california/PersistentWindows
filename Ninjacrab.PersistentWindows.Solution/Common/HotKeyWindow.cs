@@ -153,11 +153,13 @@ namespace PersistentWindows.Common
             {
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{ESC}");
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.Tab)
             {
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{TAB}");
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.Q)
             {
