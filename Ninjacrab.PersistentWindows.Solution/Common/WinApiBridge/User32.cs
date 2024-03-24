@@ -483,8 +483,9 @@ namespace PersistentWindows.Common.WinApiBridge
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetAncestor(IntPtr hWnd, uint gaFlags); // I'm too lazy to write an enum for them
-        public const int GetRoot = 2;
-        public const int GetRootOwner = 3;
+        public const int GetAncestorParent = 1;
+        public const int GetAncestorRoot = 2;
+        public const int GetAncestorRootOwner = 3;
 
         public const int ICON_SMALL = 0;
         public const int ICON_BIG = 1;

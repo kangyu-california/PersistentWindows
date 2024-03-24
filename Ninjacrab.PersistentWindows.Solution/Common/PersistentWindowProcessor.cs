@@ -1264,7 +1264,7 @@ namespace PersistentWindows.Common
             if (IsTaskBar(hwnd))
                 return true;
 
-            if (User32.GetAncestor(hwnd, 1) != desktopWindow)
+            if (User32.GetAncestor(hwnd, User32.GetAncestorParent) != desktopWindow)
                 return false;
 
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
@@ -3963,7 +3963,7 @@ namespace PersistentWindows.Common
 
         public static bool IsDesktopWindow(IntPtr hwnd)
         {
-            IntPtr root = User32.GetAncestor(hwnd, 2);
+            IntPtr root = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
             return root == vacantDeskWindow;
         }
 
