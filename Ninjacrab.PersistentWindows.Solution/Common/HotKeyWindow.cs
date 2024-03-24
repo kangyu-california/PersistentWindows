@@ -435,10 +435,13 @@ namespace PersistentWindows.Common
         }
 
 
-        public static void BrowserActivate()
+        public static void BrowserActivate(IntPtr hwnd)
         {
             if (tiny)
+            {
+                User32.SetForegroundWindow(hwnd);
                 StartAliveTimer();
+            }
         }
 
         private static void StartAliveTimer(int milliseconds = 1000)
@@ -494,6 +497,8 @@ namespace PersistentWindows.Common
                     POINT cursorPos;
                     User32.GetCursorPos(out cursorPos);
                     IntPtr fgwnd = GetForegroundWindow();
+                    if (!VirtualDesktop.IsWindowOnCurrentVirtualDesktop(Handle))
+                        fgwnd = IntPtr.Zero;
                     IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
                     if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                     {

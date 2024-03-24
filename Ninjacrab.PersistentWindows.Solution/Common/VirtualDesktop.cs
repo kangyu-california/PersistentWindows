@@ -26,12 +26,14 @@ namespace PersistentWindows.Common
     public class VirtualDesktop
     {
         private IVirtualDesktopManager _manager = null;
+        private static IVirtualDesktopManager _static_manager = null;
 
         public VirtualDesktop()
         {
             try
             {
                 _manager = (IVirtualDesktopManager)new CVirtualDesktopManager();
+                _static_manager = _manager;
             }
             catch
             {
@@ -44,9 +46,13 @@ namespace PersistentWindows.Common
             return _manager != null;
         }
 
-        public bool IsWindowOnCurrentVirtualDesktop(IntPtr TopLevelWindow)
+        public static bool IsWindowOnCurrentVirtualDesktop(IntPtr TopLevelWindow)
         {
-            int hr = _manager.IsWindowOnCurrentVirtualDesktop(TopLevelWindow, out int result);
+            if (_static_manager == null)
+                return true;
+
+            int result = 1;
+            int hr = _static_manager.IsWindowOnCurrentVirtualDesktop(TopLevelWindow, out result);
             if (hr != 0)
             {
                 //Marshal.ThrowExceptionForHR(hr);
@@ -70,6 +76,9 @@ namespace PersistentWindows.Common
 
         public void MoveWindowToDesktop(IntPtr TopLevelWindow, Guid CurrentDesktop)
         {
+            if (!Enabled())
+                return;
+
             int hr = _manager.MoveWindowToDesktop(TopLevelWindow, CurrentDesktop);
             if (hr != 0)
             {

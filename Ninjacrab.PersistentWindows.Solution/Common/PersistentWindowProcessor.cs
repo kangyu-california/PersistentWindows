@@ -1113,7 +1113,10 @@ namespace PersistentWindows.Common
         private void ActivateWindow(IntPtr hwnd)
         {
             if (IsBrowserWindow(hwnd))
-                HotKeyWindow.BrowserActivate();
+            {
+                IntPtr topHwnd = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
+                HotKeyWindow.BrowserActivate(topHwnd);
+            }
 
             try
             {
