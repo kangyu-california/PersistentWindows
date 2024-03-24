@@ -70,6 +70,7 @@ namespace PersistentWindows.SystrayShell
             bool auto_upgrade = false;
             bool legacy_icon = false;
             bool waiting_taskbar = false;
+            bool hotkey_window = true;
 
             foreach (var arg in args)
             {
@@ -192,6 +193,9 @@ namespace PersistentWindows.SystrayShell
                         break;
                     case "-ctrl_minimize_to_tray=0":
                         pwp.enableMinimizeToTray = false;
+                        break;
+                    case "-hotkey_window=0":
+                        hotkey_window = false;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
@@ -351,7 +355,8 @@ namespace PersistentWindows.SystrayShell
                 StartSplashForm();
             }
 
-            HotKeyForm.Start();
+            if (hotkey_window)
+                HotKeyForm.Start();
             Application.Run();
         }
 
