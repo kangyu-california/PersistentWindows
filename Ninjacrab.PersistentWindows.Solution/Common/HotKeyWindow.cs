@@ -489,22 +489,23 @@ namespace PersistentWindows.Common
         {
             if (stay)
             {
-                if (tiny && Visible)
+                if (tiny)
                 {
                     POINT cursorPos;
                     User32.GetCursorPos(out cursorPos);
-                    if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
+                    IntPtr fgwnd = GetForegroundWindow();
+                    IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+                    if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                     {
+                        //yield focus
+                        //User32.SetForegroundWindow(fgwnd);
+                        User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
                         StartAliveTimer();
                         return;
                     }
 
-                    IntPtr fgwnd = GetForegroundWindow();
-                    IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
-                    if (cursorWnd != Handle && cursorWnd != fgwnd && User32.GetAncestor(cursorWnd, User32.GetAncestorRoot) != fgwnd)
+                    if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
                     {
-                        //yield focus
-                        User32.SetForegroundWindow(fgwnd);
                         StartAliveTimer();
                         return;
                     }
@@ -515,9 +516,12 @@ namespace PersistentWindows.Common
                         if (hCursor == Cursors.Arrow.Handle)
                         {
                             // let tiny hotkey window follow cursor position
-                            User32.SetForegroundWindow(Handle);
                             ResetHotkeyWindowPos();
-                            //ResetCursorPos();
+
+                            if (!Visible)
+                                Show();
+                            else
+                                User32.SetForegroundWindow(Handle);
                         }
                         StartAliveTimer();
                     }
