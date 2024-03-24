@@ -410,7 +410,7 @@ namespace PersistentWindows.Common
                 });
             else
             {
-                if (!User32.IsWindowVisible(Handle))
+                if (!Visible)
                 {
                     if (init)
                     {
@@ -461,7 +461,7 @@ namespace PersistentWindows.Common
                 {
                     MouseScrollCallBack(source, e);
                 });
-            else if (User32.IsWindowVisible(Handle))
+            else if (Visible)
             {
                 User32.SetForegroundWindow(Handle);
                 ResetCursorPos();
@@ -505,7 +505,7 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (User32.IsWindowVisible(Handle))
+            if (Visible)
                 User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
         }
 
