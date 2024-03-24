@@ -26,6 +26,7 @@ namespace PersistentWindows.Common
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0;
+        private static POINT lastCursorPos;
 
         public HotKeyWindow()
         {
@@ -39,17 +40,17 @@ namespace PersistentWindows.Common
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
-            Deactivate += new EventHandler(FormDeactivate);
+            //MouseMove += new MouseEventHandler(FormMouseMove);
 
             Icon = PersistentWindowProcessor.icon;
 
-            aliveTimer = new System.Timers.Timer(2000);
+            aliveTimer = new System.Timers.Timer();
             aliveTimer.Elapsed += AliveTimerCallBack;
             aliveTimer.SynchronizingObject = this;
             aliveTimer.AutoReset = false;
             aliveTimer.Enabled = false;
 
-            mouseScrollDelayTimer = new System.Timers.Timer(250);
+            mouseScrollDelayTimer = new System.Timers.Timer();
             mouseScrollDelayTimer.Elapsed += MouseScrollCallBack;
             mouseScrollDelayTimer.AutoReset = false;
             mouseScrollDelayTimer.Enabled = false;
@@ -122,7 +123,7 @@ namespace PersistentWindows.Common
             stay = true;
         }
 
-        private void FormDeactivate(object sender, EventArgs e)
+        private void FormMouseMove(object sender, EventArgs e)
         {
             if (tiny)
                 StartAliveTimer();
@@ -440,8 +441,10 @@ namespace PersistentWindows.Common
                 StartAliveTimer();
         }
 
-        private static void StartAliveTimer(int milliseconds = 2000)
+        private static void StartAliveTimer(int milliseconds = 1000)
         {
+            User32.GetCursorPos(out lastCursorPos);
+
             aliveTimer.Interval = milliseconds;
             aliveTimer.AutoReset = false;
             aliveTimer.Enabled = true;
@@ -488,6 +491,13 @@ namespace PersistentWindows.Common
             {
                 if (tiny)
                 {
+                    POINT cursorPos;
+                    User32.GetCursorPos(out cursorPos);
+                    if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
+                    {
+                        StartAliveTimer();
+                        return;
+                    }
                     IntPtr fgwnd = GetForegroundWindow();
                     if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                     {
