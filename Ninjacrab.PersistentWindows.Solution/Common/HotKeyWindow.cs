@@ -384,11 +384,15 @@ namespace PersistentWindows.Common
                 {
                     if (init)
                     {
-                        init = false;
                         ResetHotkeyWindowPos();
+                        init = false;
                     }
                     else
                         ResetHotKeyVirtualDesktop();
+
+                    if (tiny)
+                        ResetHotkeyWindowPos();
+
                     User32.SetForegroundWindow(Handle);
                     ResetCursorPos();
                     Visible = true;
