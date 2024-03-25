@@ -252,6 +252,8 @@ namespace PersistentWindows.Common
                     SendKeys.Send("^t"); //new tab
                     SendKeys.Send("^l");
                     return_focus_to_hotkey_window = false;
+                    if (tiny)
+                        Visible = false;
                 }
             }
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
@@ -261,6 +263,8 @@ namespace PersistentWindows.Common
                 //address, ctrl L
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
+                if (tiny)
+                    Visible = false;
             }
             else if (e.KeyCode == Keys.S && IsBrowserWindow(fgwnd))
             {
@@ -269,6 +273,8 @@ namespace PersistentWindows.Common
                 //SetCursorPos();
                 SendKeys.Send("^k");
                 return_focus_to_hotkey_window = false;
+                if (tiny)
+                    Visible = false;
             }
             else if (e.KeyCode == Keys.D)
             {
@@ -288,6 +294,8 @@ namespace PersistentWindows.Common
                 //ctrl shift A (only for chrome)
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("^+a");
+                if (tiny)
+                    Visible = false;
             }
             else if (e.KeyCode == Keys.F5)
             {
@@ -422,6 +430,11 @@ namespace PersistentWindows.Common
             aliveTimer.Enabled = true;
         }
 
+        private static void StopAliveTimer()
+        {
+            aliveTimer.Enabled = false;
+        }
+
         private void StartMouseScrollTimer(int milliseconds = 250)
         {
             mouseScrollDelayTimer.Interval = milliseconds;
@@ -497,8 +510,8 @@ namespace PersistentWindows.Common
                             Show();
                         else
                             User32.SetForegroundWindow(Handle);
-                        return;
                     }
+                    return;
                 }
 
                 StartAliveTimer();
