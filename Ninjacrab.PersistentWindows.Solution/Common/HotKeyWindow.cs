@@ -215,12 +215,6 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Q)
             {
                 ToggleWindowSize();
-
-                //toggle quiet mode
-                /*
-                User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
-                User32.SetForegroundWindow(fgwnd);
-                */
             }
             else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
@@ -233,21 +227,6 @@ namespace PersistentWindows.Common
             {
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{HOME}");
-
-                /*
-                //follow cursor
-                POINT cursor;
-                User32.GetCursorPos(out cursor);
-
-                //activate window under cursor
-                IntPtr hwnd = User32.WindowFromPoint(cursor);
-                if (!PersistentWindowProcessor.IsDesktopWindow(hwnd))
-                    User32.SetForegroundWindow(hwnd);
-
-                //relocate hotkey window
-                Left = cursor.X - Size.Width / 2;
-                Top = cursor.Y - Size.Height / 2;
-                */
             }
             else if (e.KeyCode == Keys.R)
             {
@@ -289,17 +268,6 @@ namespace PersistentWindows.Common
             {
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{END}");
-
-                /*
-                //follow cursor
-                POINT cursor;
-                User32.GetCursorPos(out cursor);
-
-                //relocate hotkey window
-                Left = cursor.X - Size.Width / 2;
-                Top = cursor.Y - Size.Height / 2;
-                */
-
             }
             else if (e.KeyCode == Keys.F && IsBrowserWindow(fgwnd))
             {
@@ -491,17 +459,11 @@ namespace PersistentWindows.Common
                     //yield focus
                     //User32.SetForegroundWindow(fgwnd);
                     User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
-                    StartAliveTimer();
-                    return;
-                }
-
-                if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
+                } 
+                else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
                 {
-                    StartAliveTimer();
-                    return;
                 }
-
-                //if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                else
                 {
                     IntPtr hCursor = GetCursor();
                     if (hCursor == Cursors.Arrow.Handle)
@@ -515,8 +477,9 @@ namespace PersistentWindows.Common
                         else
                             User32.SetForegroundWindow(Handle);
                     }
-                    StartAliveTimer();
                 }
+
+                StartAliveTimer();
             }
             else
                 ResetHotKeyVirtualDesktop();
