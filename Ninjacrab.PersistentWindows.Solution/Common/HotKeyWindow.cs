@@ -37,7 +37,6 @@ namespace PersistentWindows.Common
             KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
-            Move += new EventHandler(FormMove);
             FormClosing += new FormClosingEventHandler(FormClose);
             //MouseMove += new MouseEventHandler(FormMouseMove);
 
@@ -123,12 +122,6 @@ namespace PersistentWindows.Common
             }
 
             User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
-        }
-
-        private void FormMove(object sender, EventArgs e)
-        {
-            if (!Visible)
-                return;
         }
 
         private void FormClose(object sender, FormClosingEventArgs e)
