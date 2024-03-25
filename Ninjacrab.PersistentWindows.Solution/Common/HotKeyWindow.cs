@@ -131,12 +131,6 @@ namespace PersistentWindows.Common
                 return;
         }
 
-        private void FormMouseMove(object sender, EventArgs e)
-        {
-            if (tiny)
-                StartAliveTimer();
-        }
-
         private void FormClose(object sender, FormClosingEventArgs e)
         {
             if (InvokeRequired)
@@ -154,8 +148,6 @@ namespace PersistentWindows.Common
 
         private void FormMouseDown(object sender, MouseEventArgs e)
         {
-            StartAliveTimer();
-
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
@@ -181,8 +173,6 @@ namespace PersistentWindows.Common
 
         private void FormMouseWheel(object sender, MouseEventArgs e)
         {
-            StartAliveTimer();
-
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
             SetCursorPos();
@@ -205,7 +195,6 @@ namespace PersistentWindows.Common
             if (e.Control || e.Alt)
                 return;
 
-            StartAliveTimer();
             TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
@@ -429,7 +418,6 @@ namespace PersistentWindows.Common
                     User32.SetForegroundWindow(Handle);
                     ResetCursorPos();
                     Visible = true;
-                    StartAliveTimer();
                 }
                 else
                     Visible = false;
@@ -492,10 +480,13 @@ namespace PersistentWindows.Common
         {
             if (tiny)
             {
+                IntPtr fgwnd = GetForegroundWindow();
+                if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                    return;
+
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
-                IntPtr fgwnd = GetForegroundWindow();
                 if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
                     //yield focus
@@ -511,7 +502,7 @@ namespace PersistentWindows.Common
                     return;
                 }
 
-                if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                //if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                 {
                     IntPtr hCursor = GetCursor();
                     if (hCursor == Cursors.Arrow.Handle)
