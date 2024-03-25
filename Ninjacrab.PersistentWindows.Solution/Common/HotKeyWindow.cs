@@ -20,7 +20,6 @@ namespace PersistentWindows.Common
 
         private static System.Timers.Timer aliveTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
-        private bool stay = true;
         private bool init = true;
         private static bool tiny = false;
         private int origWidth;
@@ -130,8 +129,6 @@ namespace PersistentWindows.Common
         {
             if (!Visible)
                 return;
-
-            stay = true;
         }
 
         private void FormMouseMove(object sender, EventArgs e)
@@ -338,10 +335,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Z)
             {
-                //toggle stay
-                stay = !stay;
-                if (!stay)
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                //toggle zoom (tiny) mode
+                ToggleWindowSize();
             }
             else if (e.KeyCode == Keys.X)
             {
@@ -429,19 +424,15 @@ namespace PersistentWindows.Common
                         init = false;
                         ResetHotkeyWindowPos();
                     }
-                    Show();
+                    else
+                        ResetHotKeyVirtualDesktop();
                     User32.SetForegroundWindow(Handle);
                     ResetCursorPos();
+                    Visible = true;
                     StartAliveTimer();
                 }
-                else if (stay)
-                {
-                    ResetHotKeyVirtualDesktop();
-                    User32.SetForegroundWindow(Handle);
-                    ResetCursorPos();
-                }
                 else
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                    Visible = false;
             }
 
         }
@@ -499,51 +490,44 @@ namespace PersistentWindows.Common
 
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
-            if (stay)
+            if (tiny)
             {
-                if (tiny)
+                POINT cursorPos;
+                User32.GetCursorPos(out cursorPos);
+                IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+                IntPtr fgwnd = GetForegroundWindow();
+                if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
-                    POINT cursorPos;
-                    User32.GetCursorPos(out cursorPos);
-                    IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
-                    IntPtr fgwnd = GetForegroundWindow();
-                    if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
-                    {
-                        //yield focus
-                        //User32.SetForegroundWindow(fgwnd);
-                        User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
-                        StartAliveTimer();
-                        return;
-                    }
-
-                    if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
-                    {
-                        StartAliveTimer();
-                        return;
-                    }
-
-                    if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
-                    {
-                        IntPtr hCursor = GetCursor();
-                        if (hCursor == Cursors.Arrow.Handle)
-                        {
-                            // let tiny hotkey window follow cursor position
-                            ResetHotKeyVirtualDesktop();
-                            ResetHotkeyWindowPos();
-
-                            if (!Visible)
-                                Show();
-                            else
-                                User32.SetForegroundWindow(Handle);
-                        }
-                        StartAliveTimer();
-                    }
+                    //yield focus
+                    //User32.SetForegroundWindow(fgwnd);
+                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                    StartAliveTimer();
+                    return;
                 }
-                return;
-            }
 
-            if (Visible)
-                User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
+                {
+                    StartAliveTimer();
+                    return;
+                }
+
+                if (PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                {
+                    IntPtr hCursor = GetCursor();
+                    if (hCursor == Cursors.Arrow.Handle)
+                    {
+                        // let tiny hotkey window follow cursor position
+                        ResetHotKeyVirtualDesktop();
+                        ResetHotkeyWindowPos();
+
+                        if (!Visible)
+                            Show();
+                        else
+                            User32.SetForegroundWindow(Handle);
+                    }
+                    StartAliveTimer();
+                }
+            }
         }
 
         private void buttonPrevTab_Click(object sender, EventArgs e)
