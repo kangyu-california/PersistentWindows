@@ -118,7 +118,7 @@ namespace PersistentWindows.Common
             if (User32.PtInRect(ref fgwinPos, cursor))
             {
                 if (tiny)
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                    Visible = false;
                 return; //not need to reposition cursor
             }
 
@@ -136,7 +136,7 @@ namespace PersistentWindows.Common
             {
                 e.Cancel = true;
                 if (User32.IsWindow(Handle))
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                    Visible = false;
             }
         }
 
@@ -492,10 +492,11 @@ namespace PersistentWindows.Common
                 {
                     //yield focus
                     //User32.SetForegroundWindow(fgwnd);
-                    User32.ShowWindow(Handle, (int)ShowWindowCommands.Hide);
+                    Visible = false;
                 } 
                 else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
                 {
+                    //mouse moving, continue monitor
                 }
                 else
                 {
