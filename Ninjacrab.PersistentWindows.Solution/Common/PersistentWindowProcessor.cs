@@ -1505,12 +1505,10 @@ namespace PersistentWindows.Common
                     {
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
                             {
-                                if (vd.Enabled())
-                                {
-                                    var cur_vdi = vd.GetWindowDesktopId(hwnd);
-                                    if (cur_vdi != Guid.Empty)
-                                        curVirtualDesktop = cur_vdi;
-                                }
+                                var cur_vdi = VirtualDesktop.GetWindowDesktopId(hwnd);
+                                if (cur_vdi != Guid.Empty)
+                                    curVirtualDesktop = cur_vdi;
+
                                 if (restoringFromDB)
                                 {
                                     // immediately capture new window
@@ -2292,9 +2290,9 @@ namespace PersistentWindows.Common
                                 }
                             }
 
-                            if (vd.Enabled() && IsTopLevelWindow(hWnd))
+                            if (IsTopLevelWindow(hWnd))
                             {
-                                curDisplayMetrics.Guid = vd.GetWindowDesktopId(hWnd);
+                                curDisplayMetrics.Guid = VirtualDesktop.GetWindowDesktopId(hWnd);
                             }
 
                             if (curDisplayMetrics.ClassName.Equals("CabinetWClass"))
@@ -2680,9 +2678,9 @@ namespace PersistentWindows.Common
 
                 if (restoringFromDB)
                 {
-                    if (vd.Enabled() && IsTopLevelWindow(hwnd))
+                    if (IsTopLevelWindow(hwnd))
                     {
-                        Guid curVd = vd.GetWindowDesktopId(hwnd);
+                        Guid curVd = VirtualDesktop.GetWindowDesktopId(hwnd);
                         if (curVd != Guid.Empty && prevDisplayMetrics.Guid != Guid.Empty)
                         {
                             if (curVd != prevDisplayMetrics.Guid)
@@ -3732,7 +3730,7 @@ namespace PersistentWindows.Common
 
                 // launch missing process according to db
                 var list = new List<ApplicationDisplayMetrics>(db.FindAll());
-                if (vd.Enabled())
+                if (VirtualDesktop.Enabled())
                 {
                     //sort windows by virtual desktop
                     list.Sort(delegate (ApplicationDisplayMetrics adm1, ApplicationDisplayMetrics adm2)
@@ -3766,7 +3764,7 @@ namespace PersistentWindows.Common
                         var runProcessDlg = new LaunchProcess(curDisplayMetrics.ProcessName, curDisplayMetrics.Title);
                         runProcessDlg.TopMost = true;
                         runProcessDlg.Icon = icon;
-                        if (vd.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
+                        if (VirtualDesktop.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
                             System.Windows.Forms.MessageBox.Show("Switch to another virtual desktop to restore windows",
                                 System.Windows.Forms.Application.ProductName,
@@ -3775,7 +3773,7 @@ namespace PersistentWindows.Common
                                 System.Windows.Forms.MessageBoxDefaultButton.Button1,
                                 System.Windows.Forms.MessageBoxOptions.DefaultDesktopOnly
                             );
-                            vd.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
+                            VirtualDesktop.MoveWindowToDesktop(runProcessDlg.Handle, curDisplayMetrics.Guid);
                         }
                         runProcessDlg.ShowDialog();
 

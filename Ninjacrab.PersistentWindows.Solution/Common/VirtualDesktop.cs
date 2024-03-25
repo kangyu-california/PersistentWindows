@@ -25,15 +25,13 @@ namespace PersistentWindows.Common
 
     public class VirtualDesktop
     {
-        private IVirtualDesktopManager _manager = null;
         private static IVirtualDesktopManager _static_manager = null;
 
         public VirtualDesktop()
         {
             try
             {
-                _manager = (IVirtualDesktopManager)new CVirtualDesktopManager();
-                _static_manager = _manager;
+                _static_manager = (IVirtualDesktopManager)new CVirtualDesktopManager();
             }
             catch
             {
@@ -41,14 +39,14 @@ namespace PersistentWindows.Common
             }
         }
 
-        public bool Enabled()
+        public static bool Enabled()
         {
-            return _manager != null;
+            return _static_manager != null;
         }
 
         public static bool IsWindowOnCurrentVirtualDesktop(IntPtr TopLevelWindow)
         {
-            if (_static_manager == null)
+            if (!Enabled())
                 return true;
 
             int result = 1;
@@ -62,9 +60,12 @@ namespace PersistentWindows.Common
             return result != 0;
         }
 
-        public Guid GetWindowDesktopId(IntPtr TopLevelWindow)
+        public static Guid GetWindowDesktopId(IntPtr TopLevelWindow)
         {
-            int hr = _manager.GetWindowDesktopId(TopLevelWindow, out Guid result);
+            if (!Enabled())
+                return Guid.Empty;
+
+            int hr = _static_manager.GetWindowDesktopId(TopLevelWindow, out Guid result);
             if (hr != 0)
             {
                 //Marshal.ThrowExceptionForHR(hr);
@@ -74,12 +75,12 @@ namespace PersistentWindows.Common
             return result;
         }
 
-        public void MoveWindowToDesktop(IntPtr TopLevelWindow, Guid CurrentDesktop)
+        public static void MoveWindowToDesktop(IntPtr TopLevelWindow, Guid CurrentDesktop)
         {
-            if (!Enabled())
+            if (_static_manager == null)
                 return;
 
-            int hr = _manager.MoveWindowToDesktop(TopLevelWindow, CurrentDesktop);
+            int hr = _static_manager.MoveWindowToDesktop(TopLevelWindow, CurrentDesktop);
             if (hr != 0)
             {
                 //Marshal.ThrowExceptionForHR(hr);
