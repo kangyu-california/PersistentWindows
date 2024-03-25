@@ -498,7 +498,10 @@ namespace PersistentWindows.Common
                     User32.GetCursorPos(out cursorPos);
                     IntPtr fgwnd = GetForegroundWindow();
                     if (!VirtualDesktop.IsWindowOnCurrentVirtualDesktop(Handle))
-                        fgwnd = IntPtr.Zero;
+                    {
+                        Guid vd = VirtualDesktop.GetWindowDesktopId(fgwnd);
+                        VirtualDesktop.MoveWindowToDesktop(Handle, vd);
+                    }
                     IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
                     if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                     {
