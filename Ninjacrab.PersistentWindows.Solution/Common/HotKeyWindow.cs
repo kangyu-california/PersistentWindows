@@ -21,6 +21,7 @@ namespace PersistentWindows.Common
         private static System.Timers.Timer aliveTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool init = true;
+        private bool active = false;
         private static bool tiny = false;
         private int origWidth;
         private int origHeight;
@@ -374,7 +375,7 @@ namespace PersistentWindows.Common
                 });
             else
             {
-                if (!Visible)
+                if (!active)
                 {
                     if (init)
                     {
@@ -386,9 +387,13 @@ namespace PersistentWindows.Common
                     User32.SetForegroundWindow(Handle);
                     ResetCursorPos();
                     Visible = true;
+                    active = true;
                 }
                 else
+                {
                     Visible = false;
+                    active = false;
+                }
             }
 
         }
@@ -422,6 +427,10 @@ namespace PersistentWindows.Common
                 {
                     MouseScrollCallBack(source, e);
                 });
+            else if (!active)
+            {
+                ;
+            }
             else if (Visible)
             {
                 User32.SetForegroundWindow(Handle);
@@ -445,6 +454,9 @@ namespace PersistentWindows.Common
 
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
+            if (!active)
+                return;
+
             if (tiny)
             {
                 IntPtr fgwnd = GetForegroundWindow();
