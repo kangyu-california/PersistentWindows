@@ -39,7 +39,7 @@ namespace PersistentWindows.Common
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
-            //MouseMove += new MouseEventHandler(FormMouseMove);
+            MouseLeave += new EventHandler(FormMouseLeave);
 
             Icon = PersistentWindowProcessor.icon;
 
@@ -176,6 +176,11 @@ namespace PersistentWindows.Common
             //Show();
 
             StartMouseScrollTimer();
+        }
+
+        private void FormMouseLeave(object sender, EventArgs e)
+        {
+            StartAliveTimer();
         }
 
         bool IsBrowserWindow(IntPtr hwnd)
@@ -488,6 +493,7 @@ namespace PersistentWindows.Common
                             Show();
                         else
                             User32.SetForegroundWindow(Handle);
+                        return;
                     }
                 }
 
