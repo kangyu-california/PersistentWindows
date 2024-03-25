@@ -80,6 +80,17 @@ namespace PersistentWindows.Common
             }
         }
 
+        private void ResetHotKeyVirtualDesktop()
+        {
+            //relocate HotKey window to current virtual desktop
+            if (!VirtualDesktop.IsWindowOnCurrentVirtualDesktop(Handle))
+            {
+                IntPtr fgwnd = GetForegroundWindow();
+                Guid vd = VirtualDesktop.GetWindowDesktopId(fgwnd);
+                VirtualDesktop.MoveWindowToDesktop(Handle, vd);
+            }
+        }
+
         private void ResetHotkeyWindowPos()
         {
             POINT cursor;
@@ -425,6 +436,7 @@ namespace PersistentWindows.Common
                 }
                 else if (stay)
                 {
+                    ResetHotKeyVirtualDesktop();
                     User32.SetForegroundWindow(Handle);
                     ResetCursorPos();
                 }
@@ -493,16 +505,8 @@ namespace PersistentWindows.Common
                 {
                     POINT cursorPos;
                     User32.GetCursorPos(out cursorPos);
-                    IntPtr fgwnd = GetForegroundWindow();
-
-                    //relocate HotKey window to different virtual desktop
-                    if (!VirtualDesktop.IsWindowOnCurrentVirtualDesktop(Handle))
-                    {
-                        Guid vd = VirtualDesktop.GetWindowDesktopId(fgwnd);
-                        VirtualDesktop.MoveWindowToDesktop(Handle, vd);
-                    }
-
                     IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+                    IntPtr fgwnd = GetForegroundWindow();
                     if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                     {
                         //yield focus
@@ -524,6 +528,7 @@ namespace PersistentWindows.Common
                         if (hCursor == Cursors.Arrow.Handle)
                         {
                             // let tiny hotkey window follow cursor position
+                            ResetHotKeyVirtualDesktop();
                             ResetHotkeyWindowPos();
 
                             if (!Visible)
