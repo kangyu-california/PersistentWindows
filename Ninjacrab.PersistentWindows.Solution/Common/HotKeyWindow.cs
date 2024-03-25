@@ -428,8 +428,7 @@ namespace PersistentWindows.Common
 
         public static void BrowserActivate(IntPtr hwnd)
         {
-            if (tiny)
-                StartAliveTimer();
+            StartAliveTimer();
         }
 
         private static void StartAliveTimer(int milliseconds = 1000)
@@ -519,6 +518,8 @@ namespace PersistentWindows.Common
                     StartAliveTimer();
                 }
             }
+            else
+                ResetHotKeyVirtualDesktop();
         }
 
         private void buttonPrevTab_Click(object sender, EventArgs e)
