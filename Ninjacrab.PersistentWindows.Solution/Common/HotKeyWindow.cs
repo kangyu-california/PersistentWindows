@@ -209,12 +209,19 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Tab)
             {
                 User32.SetForegroundWindow(fgwnd);
-                SendKeys.Send("{TAB}");
-                return_focus_to_hotkey_window = false;
+                bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+                if (shift_key_pressed)
+                {
+                    SendKeys.Send("^+{TAB}");
+                }
+                else
+                {
+                    SendKeys.Send("^{TAB}");
+                }
             }
             else if (e.KeyCode == Keys.Q)
             {
-                ToggleWindowSize();
+                //TODO
             }
             else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
             {
