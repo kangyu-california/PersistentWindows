@@ -27,6 +27,7 @@ namespace PersistentWindows.Common
         private int origHeight;
         private int mouseOffset = 0;
         private static POINT lastCursorPos;
+        private Color dfltBackColor;
 
         public HotKeyWindow()
         {
@@ -34,6 +35,7 @@ namespace PersistentWindows.Common
 
             origWidth = Width;
             origHeight = Height;
+            dfltBackColor = BackColor;
 
             KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
@@ -148,12 +150,27 @@ namespace PersistentWindows.Common
             if (e.Button == MouseButtons.Left)
             {
                 //page down
-                SendKeys.Send("{PGDN}");
+                if (BackColor == dfltBackColor)
+                    SendKeys.Send("{PGDN}");
+                else
+                {
+                    Visible = false;
+                    //forward click
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
+                    Visible = true;
+                }
             }
             else if (e.Button == MouseButtons.Right)
             {
                 //page up
-                SendKeys.Send("{PGUP}");
+                if (BackColor == dfltBackColor)
+                    SendKeys.Send("{PGUP}");
+                else
+                {
+                    Visible = false;
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_RIGHTDOWN | MouseAction.MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
+                    Visible = true;
+                }
             }
             else if (e.Button == MouseButtons.Middle)
             {
@@ -176,6 +193,12 @@ namespace PersistentWindows.Common
             //Show();
 
             StartMouseScrollTimer();
+            if (BackColor != dfltBackColor)
+            {
+                Cursor = Cursors.Default;
+                BackColor = dfltBackColor;
+                StartAliveTimer();
+            }
         }
 
         private void FormMouseLeave(object sender, EventArgs e)
@@ -494,18 +517,33 @@ namespace PersistentWindows.Common
                 else
                 {
                     IntPtr hCursor = GetCursor();
-                    if (hCursor == Cursors.Arrow.Handle)
+                    if (hCursor == Cursors.IBeam.Handle)
                     {
-                        // let tiny hotkey window follow cursor position
-                        ResetHotKeyVirtualDesktop();
-                        ResetHotkeyWindowPos();
-
-                        if (!Visible)
-                            Show();
-                        else
-                            User32.SetForegroundWindow(Handle);
-
+                        StartAliveTimer();
                         return;
+                    }
+
+                    // let tiny hotkey window follow cursor position
+                    ResetHotKeyVirtualDesktop();
+                    ResetHotkeyWindowPos();
+
+                    if (!Visible)
+                        Show();
+                    else
+                        User32.SetForegroundWindow(Handle);
+
+                    Cursor = new Cursor(hCursor);
+
+                    if (hCursor == Cursors.Default.Handle)
+                    {
+                        //arrow cursor
+                        BackColor = dfltBackColor;
+                        return;
+                    }
+                    else
+                    {
+                        BackColor = Color.Red;
+                        //User32.SetForegroundWindow(Handle);
                     }
                 }
 

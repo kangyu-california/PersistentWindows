@@ -422,6 +422,10 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll")]
         public static extern void mouse_event(MouseAction dwFlags, int dx, int dy, int dwData, UIntPtr dwExtraInfo);
 
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern IntPtr SetCursor(IntPtr hCursor);
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetCursorPos(out POINT lpPoint);
