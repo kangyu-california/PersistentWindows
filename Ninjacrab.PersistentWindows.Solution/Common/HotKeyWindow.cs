@@ -536,13 +536,14 @@ namespace PersistentWindows.Common
                     {
                         //arrow cursor
                         BackColor = dfltBackColor;
-                        return;
+                        Cursor = Cursors.Default;
                     }
                     else
                     {
                         BackColor = Color.Red;
-                        //User32.SetForegroundWindow(Handle);
+                        Cursor = new Cursor(hCursor);
                     }
+                    return;
                 }
 
                 StartAliveTimer();
