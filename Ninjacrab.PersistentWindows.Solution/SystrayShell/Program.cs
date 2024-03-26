@@ -344,6 +344,9 @@ namespace PersistentWindows.SystrayShell
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
 
+            if (hotkey_window)
+                HotKeyForm.Start();
+
             if (!pwp.Start(auto_restore_from_db_at_startup))
             {
                 systrayForm.notifyIconMain.Visible = false;
@@ -355,8 +358,6 @@ namespace PersistentWindows.SystrayShell
                 StartSplashForm();
             }
 
-            if (hotkey_window)
-                HotKeyForm.Start();
             Application.Run();
         }
 
