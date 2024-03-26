@@ -208,8 +208,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Tab)
             {
                 User32.SetForegroundWindow(fgwnd);
-                bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
-                if (shift_key_pressed)
+                if (e.Shift)
                 {
                     SendKeys.Send("^+{TAB}");
                 }
@@ -511,8 +510,9 @@ namespace PersistentWindows.Common
                             Show();
                         else
                             User32.SetForegroundWindow(Handle);
+
+                        return;
                     }
-                    return;
                 }
 
                 StartAliveTimer();
