@@ -532,8 +532,6 @@ namespace PersistentWindows.Common
                     else
                         User32.SetForegroundWindow(Handle);
 
-                    Cursor = new Cursor(hCursor);
-
                     if (hCursor == Cursors.Default.Handle)
                     {
                         //arrow cursor
