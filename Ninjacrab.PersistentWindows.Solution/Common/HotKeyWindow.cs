@@ -199,13 +199,7 @@ namespace PersistentWindows.Common
             IntPtr fgwnd = GetForegroundWindow();
 
             bool return_focus_to_hotkey_window = true;
-            if (e.KeyCode == Keys.Escape)
-            {
-                User32.SetForegroundWindow(fgwnd);
-                SendKeys.Send("{ESC}");
-                return_focus_to_hotkey_window = false;
-            }
-            else if (e.KeyCode == Keys.Tab)
+            if (e.KeyCode == Keys.Tab)
             {
                 User32.SetForegroundWindow(fgwnd);
                 if (e.Shift)
