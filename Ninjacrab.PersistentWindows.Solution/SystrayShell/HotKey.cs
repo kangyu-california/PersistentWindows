@@ -36,7 +36,6 @@ namespace PersistentWindows.SystrayShell
         {
             if (m.Msg == 0x0312)
             {
-
                 /* Note that the three lines below are not needed if you only want to register one hotkey.
                  * The below lines are useful in case you want to register multiple keys, which you can use a switch with the id as argument, or if you want to know which key/modifier was pressed for some particular reason. */
 

@@ -28,6 +28,7 @@ namespace PersistentWindows.Common
         private int mouseOffset = 0;
         private static POINT lastCursorPos;
         private Color dfltBackColor;
+        private bool handCursor = false;
 
         public HotKeyWindow()
         {
@@ -150,27 +151,12 @@ namespace PersistentWindows.Common
             if (e.Button == MouseButtons.Left)
             {
                 //page down
-                if (BackColor == dfltBackColor)
-                    SendKeys.Send("{PGDN}");
-                else
-                {
-                    Visible = false;
-                    //forward click
-                    User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP, 0, 0, 0, UIntPtr.Zero);
-                    Visible = true;
-                }
+                SendKeys.Send("{PGDN}");
             }
             else if (e.Button == MouseButtons.Right)
             {
                 //page up
-                if (BackColor == dfltBackColor)
-                    SendKeys.Send("{PGUP}");
-                else
-                {
-                    Visible = false;
-                    User32.mouse_event(MouseAction.MOUSEEVENTF_RIGHTDOWN | MouseAction.MOUSEEVENTF_RIGHTUP, 0, 0, 0, UIntPtr.Zero);
-                    Visible = true;
-                }
+                SendKeys.Send("{PGUP}");
             }
             else if (e.Button == MouseButtons.Middle)
             {
@@ -193,12 +179,7 @@ namespace PersistentWindows.Common
             //Show();
 
             StartMouseScrollTimer();
-            if (BackColor != dfltBackColor)
-            {
-                Cursor = Cursors.Default;
-                BackColor = dfltBackColor;
-                StartAliveTimer();
-            }
+            StartAliveTimer();
         }
 
         private void FormMouseLeave(object sender, EventArgs e)
@@ -268,7 +249,7 @@ namespace PersistentWindows.Common
                 else
                 {
                     SendKeys.Send("^t"); //new tab
-                    SendKeys.Send("^l");
+                    SendKeys.Send("^l"); //focus in address bar
                     return_focus_to_hotkey_window = false;
                     if (tiny)
                         Visible = false;
@@ -529,9 +510,12 @@ namespace PersistentWindows.Common
                     ResetHotKeyVirtualDesktop();
                     ResetHotkeyWindowPos();
 
+                    if (hCursor == Cursors.Default.Handle)
+                        handCursor = false;
+
                     if (!Visible)
                         Show();
-                    else
+                    else if (!handCursor)
                         User32.SetForegroundWindow(Handle);
 
                     if (hCursor == Cursors.Default.Handle)
@@ -539,13 +523,21 @@ namespace PersistentWindows.Common
                         //arrow cursor
                         BackColor = dfltBackColor;
                         Cursor = Cursors.Default;
+                        return;
                     }
-                    else
+
+                    if (!handCursor)
                     {
                         BackColor = Color.Red;
                         Cursor = new Cursor(hCursor);
+
+                        Left -= 10;
+                        handCursor = true;
                     }
-                    return;
+                    else
+                    {
+                        Left -= 10;
+                    }
                 }
 
                 StartAliveTimer();
