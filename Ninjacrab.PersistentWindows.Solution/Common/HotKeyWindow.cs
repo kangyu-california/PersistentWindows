@@ -256,7 +256,7 @@ namespace PersistentWindows.Common
             {
                 //reload
                 User32.SetForegroundWindow(fgwnd);
-                SendKeys.Send("^r");
+                SendKeys.Send("{F5}");
             }
             else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
             {
