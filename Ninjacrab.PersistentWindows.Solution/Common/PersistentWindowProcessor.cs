@@ -578,35 +578,13 @@ namespace PersistentWindows.Common
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
-                    string displayKey = GetDisplayKey();
-                    Log.Trace("");
-                    Log.Info("Display settings changing {0}", displayKey);
+                    if (!freezeCapture)
                     {
                         lastDisplayChangeTime = DateTime.Now;
+                        EndDisplaySession();
                         freezeCapture = true;
-
-                        // undo disqualified capture time
-                        if (lastUserActionTime.ContainsKey(curDisplayKey))
-                        {
-                            var lastCaptureTime = lastUserActionTime[curDisplayKey];
-                            var diff = lastDisplayChangeTime - lastCaptureTime;
-                            if (diff.TotalMilliseconds < CaptureLatency)
-                            {
-                                if (lastUserActionTimeBackup.ContainsKey(curDisplayKey))
-                                {
-                                    lastUserActionTime[curDisplayKey] = lastUserActionTimeBackup[curDisplayKey];
-                                    Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
-                                }
-                            }
-                        }
-
-                        if (!restoringFromMem)
-                        {
-                            EndDisplaySession();
-                        }
                     }
                 };
-
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
 
             this.displaySettingsChangedHandler =
@@ -614,6 +592,22 @@ namespace PersistentWindows.Common
                 {
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
+
+                    // undo disqualified capture time
+                    if (lastUserActionTime.ContainsKey(curDisplayKey))
+                    {
+                        var lastCaptureTime = lastUserActionTime[curDisplayKey];
+                        var diff = lastDisplayChangeTime - lastCaptureTime;
+                        if (diff.TotalMilliseconds < CaptureLatency)
+                        {
+                            if (lastUserActionTimeBackup.ContainsKey(curDisplayKey))
+                            {
+                                lastUserActionTime[curDisplayKey] = lastUserActionTimeBackup[curDisplayKey];
+                                Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
+                            }
+                        }
+                    }
+
 
                     {
                         EndDisplaySession();
