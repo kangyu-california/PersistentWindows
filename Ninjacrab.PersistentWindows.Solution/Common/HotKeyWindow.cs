@@ -37,7 +37,7 @@ namespace PersistentWindows.Common
             origHeight = Height;
             dfltBackColor = BackColor;
 
-            KeyUp += new KeyEventHandler(FormKeyUp);
+            KeyDown += new KeyEventHandler(FormKeyDown);
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
@@ -211,8 +211,10 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
 
-        void FormKeyUp(object sender, KeyEventArgs e)
+        void FormKeyDown(object sender, KeyEventArgs e)
         {
+            e.Handled = true;
+
             //allow shift
             if (e.Control || e.Alt)
                 return;
@@ -262,7 +264,7 @@ namespace PersistentWindows.Common
                 //SetCursorPos();
                 //new tab, ctrl + t
                 if (e.Shift)
-                    SendKeys.Send("^T"); //open last closed tab
+                    SendKeys.Send("^+t"); //open last closed tab
                 else
                 {
                     SendKeys.Send("^t"); //new tab
