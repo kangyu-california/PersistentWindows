@@ -258,13 +258,9 @@ namespace PersistentWindows.Common
             {
                 User32.SetForegroundWindow(fgwnd);
                 if (e.Shift)
-                {
                     SendKeys.Send("^+{TAB}");
-                }
                 else
-                {
                     SendKeys.Send("^{TAB}");
-                }
             }
             else if (e.KeyCode == Keys.Q)
             {
@@ -284,7 +280,6 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
                 User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
                 //address, ctrl L
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
@@ -295,8 +290,10 @@ namespace PersistentWindows.Common
             {
                 // search
                 User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
-                SendKeys.Send("^k");
+                if (e.Shift)
+                    SendKeys.Send("^k");
+                else
+                    SendKeys.Send("^f");
                 return_focus_to_hotkey_window = false;
                 if (tiny)
                     Visible = false;
