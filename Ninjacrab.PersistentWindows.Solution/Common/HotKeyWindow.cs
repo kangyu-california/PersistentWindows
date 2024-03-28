@@ -204,19 +204,18 @@ namespace PersistentWindows.Common
             TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
+            bool isBrowserWindow = IsBrowserWindow(fgwnd);
+
+            User32.SetForegroundWindow(fgwnd);
 
             bool return_focus_to_hotkey_window = true;
-            if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
+            if (e.KeyCode == Keys.W && isBrowserWindow)
             {
-                User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
-            else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.T && isBrowserWindow)
             {
-                User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
                 //new tab, ctrl + t
                 if (e.Shift)
                     SendKeys.Send("^+t"); //open last closed tab
@@ -252,11 +251,12 @@ namespace PersistentWindows.Common
             TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
+            bool isBrowserWindow = IsBrowserWindow(fgwnd);
+            User32.SetForegroundWindow(fgwnd);
 
             bool return_focus_to_hotkey_window = true;
             if (e.KeyCode == Keys.Tab)
             {
-                User32.SetForegroundWindow(fgwnd);
                 if (e.Shift)
                     SendKeys.Send("^+{TAB}");
                 else
@@ -268,28 +268,24 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.E)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{HOME}");
             }
             else if (e.KeyCode == Keys.R)
             {
                 //reload
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{F5}");
             }
-            else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.A && isBrowserWindow)
             {
-                User32.SetForegroundWindow(fgwnd);
                 //address, ctrl L
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
                 if (tiny)
                     Visible = false;
             }
-            else if (e.KeyCode == Keys.S && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.S && isBrowserWindow)
             {
                 // search
-                User32.SetForegroundWindow(fgwnd);
                 if (e.Shift)
                     SendKeys.Send("^k");
                 else
@@ -300,21 +296,18 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.D)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{END}");
             }
-            else if (e.KeyCode == Keys.F && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.F && isBrowserWindow)
             {
-                User32.SetForegroundWindow(fgwnd);
                 //SetCursorPos();
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
-            else if (e.KeyCode == Keys.G && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.G && isBrowserWindow)
             {
                 //goto tab
                 //ctrl shift A (only for chrome)
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("^+a");
                 if (tiny)
                     Visible = false;
@@ -331,7 +324,6 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.C)
             {
                 //copy (duplicate) tab
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("^l");
                 SendKeys.Send("%{ENTER}");
             }
@@ -339,9 +331,8 @@ namespace PersistentWindows.Common
             {
                 //TODO
             }
-            else if (e.KeyCode == Keys.B && IsBrowserWindow(fgwnd))
+            else if (e.KeyCode == Keys.B && isBrowserWindow)
             {
-                User32.SetForegroundWindow(fgwnd);
                 //SetCursorPos();
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
@@ -349,73 +340,62 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.J)
             {
                 //down one line
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{DOWN}");
             }
             else if (e.KeyCode == Keys.K)
             {
                 //up one line
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{UP}");
             }
             else if (e.KeyCode == Keys.P)
             {
                 //up one page
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{PGUP}");
             }
             else if (e.KeyCode == Keys.N || e.KeyCode == Keys.Space)
             {
                 //down one page
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{PGDN}");
             }
             else if (e.KeyCode == Keys.H)
             {
                 //left
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{LEFT}");
             }
             else if (e.KeyCode == Keys.L)
             {
                 //right
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{RIGHT}");
             }
             else if (e.KeyCode == Keys.F5)
             {
-                User32.SetForegroundWindow(fgwnd);
                 //refresh
                 SendKeys.Send("{F5}");
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                User32.SetForegroundWindow(fgwnd);
                 //delete
                 SendKeys.Send("{DEL}");
             }
             else if (e.KeyCode == Keys.Home)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{HOME}");
             }
             else if (e.KeyCode == Keys.End)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{END}");
             }
             else if (e.KeyCode == Keys.PageUp)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{PGUP}");
             }
             else if (e.KeyCode == Keys.PageDown)
             {
-                User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{PGDN}");
             }
             else
             {
+                User32.SetForegroundWindow(Handle); //foward to KeyUp handler
                 return_focus_to_hotkey_window = false;
             }
 
