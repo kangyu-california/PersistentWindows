@@ -104,7 +104,7 @@ namespace PersistentWindows.Common
         //hack to resolve failure to repeatively set cursor pos to same value in rdp session
         private void ResetCursorPos()
         {
-            User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset, Top + Size.Height / 2);
+            User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset + (handCursor ? 10 : 0), Top + Size.Height / 2);
             mouseOffset++;
             if (mouseOffset == 2)
                 mouseOffset = -1;
@@ -459,7 +459,7 @@ namespace PersistentWindows.Common
             }    
             else if (tiny)
             {
-                Show();
+                //Visible = true; keep hiding hotkey window, let OS update cursor shape, and alive timer callback show correct hotkey window position
                 User32.SetForegroundWindow(Handle);
                 ResetCursorPos();
             }
@@ -514,7 +514,7 @@ namespace PersistentWindows.Common
                         handCursor = false;
 
                     if (!Visible)
-                        Show();
+                        Visible = true;
                     else if (!handCursor)
                         User32.SetForegroundWindow(Handle);
 
