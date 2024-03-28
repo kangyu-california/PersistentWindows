@@ -420,7 +420,7 @@ namespace PersistentWindows.Common
             StartAliveTimer();
         }
 
-        private static void StartAliveTimer(int milliseconds = 1000)
+        private static void StartAliveTimer(int milliseconds = 500)
         {
             User32.GetCursorPos(out lastCursorPos);
 
