@@ -39,6 +39,7 @@ namespace PersistentWindows.Common
             dfltBackColor = BackColor;
 
             KeyDown += new KeyEventHandler(FormKeyDown);
+            KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
@@ -192,6 +193,54 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
 
+        void FormKeyUp(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+
+            //allow shift
+            if (e.Control || e.Alt)
+                return;
+
+            TopMost = true;
+
+            IntPtr fgwnd = GetForegroundWindow();
+
+            bool return_focus_to_hotkey_window = true;
+            if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
+            {
+                User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
+                //kill tab, ctrl + w
+                SendKeys.Send("^w");
+            }
+            else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
+            {
+                User32.SetForegroundWindow(fgwnd);
+                //SetCursorPos();
+                //new tab, ctrl + t
+                if (e.Shift)
+                    SendKeys.Send("^+t"); //open last closed tab
+                else
+                {
+                    SendKeys.Send("^t"); //new tab
+                    SendKeys.Send("^l"); //focus in address bar
+                    return_focus_to_hotkey_window = false;
+                    if (tiny)
+                        Visible = false;
+                }
+            }
+            else
+            {
+                return_focus_to_hotkey_window = false;
+            }
+
+            if (return_focus_to_hotkey_window)
+            {
+                User32.SetForegroundWindow(Handle);
+                ResetCursorPos();
+            }
+        }
+
         void FormKeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
@@ -221,13 +270,6 @@ namespace PersistentWindows.Common
             {
                 //TODO
             }
-            else if (e.KeyCode == Keys.W && IsBrowserWindow(fgwnd))
-            {
-                User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
-                //kill tab, ctrl + w
-                SendKeys.Send("^w");
-            }
             else if (e.KeyCode == Keys.E)
             {
                 User32.SetForegroundWindow(fgwnd);
@@ -238,22 +280,6 @@ namespace PersistentWindows.Common
                 //reload
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{F5}");
-            }
-            else if (e.KeyCode == Keys.T && IsBrowserWindow(fgwnd))
-            {
-                User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
-                //new tab, ctrl + t
-                if (e.Shift)
-                    SendKeys.Send("^+t"); //open last closed tab
-                else
-                {
-                    SendKeys.Send("^t"); //new tab
-                    SendKeys.Send("^l"); //focus in address bar
-                    return_focus_to_hotkey_window = false;
-                    if (tiny)
-                        Visible = false;
-                }
             }
             else if (e.KeyCode == Keys.A && IsBrowserWindow(fgwnd))
             {
@@ -493,7 +519,7 @@ namespace PersistentWindows.Common
                     //User32.SetForegroundWindow(fgwnd);
                     Visible = false;
                 } 
-                else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 1 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 1)
+                else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
                 {
                     //mouse moving, continue monitor
                 }
