@@ -319,13 +319,6 @@ namespace PersistentWindows.Common
                 if (tiny)
                     Visible = false;
             }
-            else if (e.KeyCode == Keys.F5)
-            {
-                User32.SetForegroundWindow(fgwnd);
-                //SetCursorPos();
-                //refresh
-                SendKeys.Send("{F5}");
-            }
             else if (e.KeyCode == Keys.Z)
             {
                 //toggle zoom (tiny) mode
@@ -388,6 +381,38 @@ namespace PersistentWindows.Common
                 //right
                 User32.SetForegroundWindow(fgwnd);
                 SendKeys.Send("{RIGHT}");
+            }
+            else if (e.KeyCode == Keys.F5)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                //refresh
+                SendKeys.Send("{F5}");
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                //delete
+                SendKeys.Send("{DEL}");
+            }
+            else if (e.KeyCode == Keys.Home)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{HOME}");
+            }
+            else if (e.KeyCode == Keys.End)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{END}");
+            }
+            else if (e.KeyCode == Keys.PageUp)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{PGUP}");
+            }
+            else if (e.KeyCode == Keys.PageDown)
+            {
+                User32.SetForegroundWindow(fgwnd);
+                SendKeys.Send("{PGDN}");
             }
             else
             {
