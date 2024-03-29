@@ -550,14 +550,14 @@ namespace PersistentWindows.Common
                     {
                         //arrow cursor
                         BackColor = dfltBackColor;
-                        Cursor = Cursors.Default;
+                        //Cursor = Cursors.Default;
                         return;
                     }
 
                     if (!handCursor)
                     {
                         BackColor = Color.Red;
-                        Cursor = new Cursor(hCursor);
+                        //Cursor = new Cursor(hCursor);
 
                         Left -= 10;
                         handCursor = true;
