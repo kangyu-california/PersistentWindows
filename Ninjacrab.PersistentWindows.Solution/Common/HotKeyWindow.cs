@@ -29,6 +29,7 @@ namespace PersistentWindows.Common
         private static POINT lastCursorPos;
         private Color dfltBackColor;
         private bool handCursor = false;
+        private int titleHeight;
 
         public HotKeyWindow()
         {
@@ -37,6 +38,8 @@ namespace PersistentWindows.Common
             origWidth = Width;
             origHeight = Height;
             dfltBackColor = BackColor;
+
+            titleHeight = this.Height - ClientRectangle.Height;
 
             KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
@@ -514,6 +517,9 @@ namespace PersistentWindows.Common
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                     return;
 
+                RECT rect = new RECT();
+                User32.GetWindowRect(fgwnd, ref rect);
+
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
@@ -523,6 +529,11 @@ namespace PersistentWindows.Common
                     //User32.SetForegroundWindow(fgwnd);
                     Visible = false;
                 } 
+                else if (cursorPos.Y - rect.Top <= titleHeight * 2)
+                {
+                    //avoid conflict with title bar
+                    Visible = false;
+                }
                 else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
                 {
                     //mouse moving, continue monitor
