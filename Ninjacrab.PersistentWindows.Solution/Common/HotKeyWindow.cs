@@ -563,15 +563,9 @@ namespace PersistentWindows.Common
                         return;
                     }
 
+                    Left -= 10;
                     if (!handCursor)
-                    {
-                        Left -= 10;
                         handCursor = true;
-                    }
-                    else
-                    {
-                        Left -= 10;
-                    }
                 }
 
                 StartAliveTimer();
