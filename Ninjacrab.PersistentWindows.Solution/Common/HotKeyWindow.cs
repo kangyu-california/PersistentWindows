@@ -450,11 +450,13 @@ namespace PersistentWindows.Common
 
         private static void StartAliveTimer(int milliseconds = 500)
         {
-            User32.GetCursorPos(out lastCursorPos);
-
-            aliveTimer.Interval = milliseconds;
-            aliveTimer.AutoReset = false;
-            aliveTimer.Enabled = true;
+            if (aliveTimer != null)
+            {
+                User32.GetCursorPos(out lastCursorPos);
+                aliveTimer.Interval = milliseconds;
+                aliveTimer.AutoReset = false;
+                aliveTimer.Enabled = true;
+            }
         }
 
         private static void StopAliveTimer()
