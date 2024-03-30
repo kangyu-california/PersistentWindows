@@ -22,12 +22,11 @@ namespace PersistentWindows.Common
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool init = true;
         private bool active = false;
-        private static bool tiny = false;
+        private bool tiny = false;
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0;
         private static POINT lastCursorPos;
-        private Color dfltBackColor;
         private bool handCursor = false;
         private int titleHeight;
 
@@ -37,7 +36,6 @@ namespace PersistentWindows.Common
 
             origWidth = Width;
             origHeight = Height;
-            dfltBackColor = BackColor;
 
             titleHeight = this.Height - ClientRectangle.Height;
 
@@ -562,16 +560,11 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         //arrow cursor
-                        BackColor = dfltBackColor;
-                        //Cursor = Cursors.Default;
                         return;
                     }
 
                     if (!handCursor)
                     {
-                        BackColor = Color.Red;
-                        //Cursor = new Cursor(hCursor);
-
                         Left -= 10;
                         handCursor = true;
                     }
