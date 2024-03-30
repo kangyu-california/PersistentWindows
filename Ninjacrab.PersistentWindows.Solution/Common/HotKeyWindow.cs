@@ -573,7 +573,10 @@ namespace PersistentWindows.Common
                 StartAliveTimer();
             }
             else
+            {
                 ResetHotKeyVirtualDesktop();
+                Activate();
+            }
         }
 
         private void buttonPrevTab_Click(object sender, EventArgs e)
