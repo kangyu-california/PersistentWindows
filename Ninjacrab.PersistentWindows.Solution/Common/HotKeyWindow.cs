@@ -27,6 +27,7 @@ namespace PersistentWindows.Common
         private int origHeight;
         private int mouseOffset = 0;
         private static POINT lastCursorPos;
+        private static POINT lastWheelCursorPos;
         private bool handCursor = false;
         private int titleHeight;
 
@@ -104,37 +105,49 @@ namespace PersistentWindows.Common
         }
 
         //hack to resolve failure to repeatively set cursor pos to same value in rdp session
-        private void ResetCursorPos()
+        private void ResetCursorPos(bool last_mouse_wheel_pos = false)
         {
-            User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset + (handCursor ? 10 : 0), Top + Size.Height / 2);
+            if (last_mouse_wheel_pos)
+                User32.SetCursorPos(lastWheelCursorPos.X + mouseOffset, lastWheelCursorPos.Y);
+            else
+                User32.SetCursorPos(Left + Size.Width / 2 + mouseOffset + (handCursor ? 10 : 0), Top + Size.Height / 2);
+
             mouseOffset++;
             if (mouseOffset == 2)
                 mouseOffset = -1;
         }
 
-        private void SetCursorPos()
+        private void SetCursorPos(POINT cursorPos)
         {
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
+
             if (tiny)
             {
                 Visible = false;
                 return;
             }
 
-            IntPtr fgwnd = GetForegroundWindow();
             RECT fgwinPos = new RECT();
             User32.GetWindowRect(fgwnd, ref fgwinPos);
 
             RECT hkRect = new RECT();
             User32.GetWindowRect(Handle, ref hkRect);
 
+            IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+            IntPtr cursorTopWnd = User32.GetAncestor(cursorWnd, User32.GetAncestorRoot);
+
             RECT intersect = new RECT();
             bool overlap = User32.IntersectRect(out intersect, ref hkRect, ref fgwinPos);
-            if (overlap)
+            /*
+            if (overlap && (cursorWnd == Handle))
             {
                 Visible = false;
             }
+            */
 
-            User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
+            if (cursorTopWnd != fgwnd || !overlap)
+                User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
         }
 
         private void FormClose(object sender, FormClosingEventArgs e)
@@ -179,16 +192,17 @@ namespace PersistentWindows.Common
 
         private void FormMouseWheel(object sender, MouseEventArgs e)
         {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SetCursorPos();
+            User32.GetCursorPos(out lastWheelCursorPos);
+            SetCursorPos(lastWheelCursorPos);
 
             int delta = e.Delta;
             User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
-            //Show();
 
             StartMouseScrollTimer();
             StartAliveTimer();
+
+            if (!tiny)
+                ResetCursorPos(true);
         }
 
         private void FormMouseLeave(object sender, EventArgs e)
@@ -432,14 +446,15 @@ namespace PersistentWindows.Common
             }
             else
             {
-                User32.SetForegroundWindow(Handle); //foward to KeyUp handler
+                User32.SetForegroundWindow(Handle); //forward to KeyUp handler
                 return_focus_to_hotkey_window = false;
             }
 
             if (return_focus_to_hotkey_window)
             {
                 User32.SetForegroundWindow(Handle);
-                ResetCursorPos();
+                if (tiny)
+                    ResetCursorPos();
             }
         }
 
@@ -522,7 +537,7 @@ namespace PersistentWindows.Common
             else if (Visible)
             {
                 User32.SetForegroundWindow(Handle);
-                ResetCursorPos();
+                //ResetCursorPos(true);
             }    
             else if (tiny)
             {
@@ -533,7 +548,7 @@ namespace PersistentWindows.Common
             else
             {
                 Visible = true;
-                ResetCursorPos();
+                //ResetCursorPos(true);
             }
         }
 
