@@ -210,8 +210,6 @@ namespace PersistentWindows.Common
             if (e.Control || e.Alt)
                 return;
 
-            //TopMost = true;
-
             IntPtr fgwnd = GetForegroundWindow();
             bool isBrowserWindow = IsBrowserWindow(fgwnd);
 
@@ -233,8 +231,9 @@ namespace PersistentWindows.Common
                     SendKeys.Send("^t"); //new tab
                     SendKeys.Send("^l"); //focus in address bar
                     return_focus_to_hotkey_window = false;
-                    if (tiny)
-                        Visible = false;
+                    Visible = false;
+                    if (!tiny)
+                        StartAliveTimer();
                 }
             }
             else
@@ -256,8 +255,6 @@ namespace PersistentWindows.Common
             //allow shift
             if (e.Control || e.Alt)
                 return;
-
-            TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
             bool isBrowserWindow = IsBrowserWindow(fgwnd);
@@ -289,8 +286,9 @@ namespace PersistentWindows.Common
                 //address, ctrl L
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
-                if (tiny)
-                    Visible = false;
+                Visible = false;
+                if (!tiny)
+                    StartAliveTimer();
             }
             else if (e.KeyCode == Keys.S && isBrowserWindow)
             {
@@ -300,8 +298,9 @@ namespace PersistentWindows.Common
                 else
                     SendKeys.Send("^f");
                 return_focus_to_hotkey_window = false;
-                if (tiny)
-                    Visible = false;
+                Visible = false;
+                if (!tiny)
+                    StartAliveTimer();
             }
             else if (e.KeyCode == Keys.D)
             {
@@ -586,7 +585,10 @@ namespace PersistentWindows.Common
             else
             {
                 ResetHotKeyVirtualDesktop();
-                Activate();
+                if (Visible)
+                    Activate();
+                else
+                    Visible = true;
             }
         }
 
