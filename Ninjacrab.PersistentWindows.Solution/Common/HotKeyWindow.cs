@@ -317,8 +317,12 @@ namespace PersistentWindows.Common
                 //goto tab
                 //ctrl shift A (only for chrome)
                 SendKeys.Send("^+a");
-                if (tiny)
-                    Visible = false;
+                Visible = false;
+                if (!tiny)
+                {
+                    return_focus_to_hotkey_window = false;
+                    StartAliveTimer();
+                }
             }
             else if (e.KeyCode == Keys.Z)
             {
