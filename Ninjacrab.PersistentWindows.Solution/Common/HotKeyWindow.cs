@@ -206,9 +206,11 @@ namespace PersistentWindows.Common
         {
             e.Handled = true;
 
-            //allow shift
+            //allow all ctrl alt shift modifiers
+            /*
             if (e.Control || e.Alt)
                 return;
+            */
 
             IntPtr fgwnd = GetForegroundWindow();
             bool isBrowserWindow = IsBrowserWindow(fgwnd);
@@ -235,6 +237,34 @@ namespace PersistentWindows.Common
                     if (!tiny)
                         StartAliveTimer();
                 }
+            }
+            else if (e.KeyCode >= Keys.F1 && e.KeyCode <= Keys.F12)
+            {
+                //forward Function key
+                int fn = e.KeyCode - Keys.F1 + 1;
+                string mod = "";
+                if (e.Control)
+                    mod += "^";
+                if (e.Alt)
+                    mod += "%";
+                if (e.Shift)
+                    mod += "+";
+                SendKeys.Send(mod + "{F" + fn + "}");
+            }
+            else if (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9)
+            {
+                //forward digital key
+                int digit = e.KeyCode - Keys.D0;
+                string mod = "";
+                if (isBrowserWindow)
+                    mod += "^"; //force ctrl
+                else if (e.Control)
+                    mod += "^";
+                if (e.Alt)
+                    mod += "%";
+                if (e.Shift)
+                    mod += "+";
+                SendKeys.Send(mod + "{" + digit + "}");
             }
             else
             {
@@ -378,19 +408,6 @@ namespace PersistentWindows.Common
             {
                 //right
                 SendKeys.Send("{RIGHT}");
-            }
-            else if (e.KeyCode >= Keys.F1 && e.KeyCode <= Keys.F12)
-            {
-                //forward Function key
-                int fn = e.KeyCode - Keys.F1 + 1;
-                string mod = "";
-                if (e.Control)
-                    mod += "^";
-                if (e.Alt)
-                    mod += "%";
-                if (e.Shift)
-                    mod += "+";
-                SendKeys.Send(mod + "{F" + fn + "}");
             }
             else if (e.KeyCode == Keys.Delete)
             {
