@@ -589,6 +589,23 @@ namespace PersistentWindows.Common
             else
             {
                 ResetHotKeyVirtualDesktop();
+
+                IntPtr fgwnd = GetForegroundWindow();
+                if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                    return;
+
+                RECT rect = new RECT();
+                User32.GetWindowRect(fgwnd, ref rect);
+
+                POINT cursorPos;
+                User32.GetCursorPos(out cursorPos);
+                IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+                if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
+                {
+                    //yield focus
+                    return;
+                } 
+
                 if (Visible)
                     Activate();
                 else
