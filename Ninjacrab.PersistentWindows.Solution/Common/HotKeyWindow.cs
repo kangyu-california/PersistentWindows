@@ -114,17 +114,24 @@ namespace PersistentWindows.Common
 
         private void SetCursorPos()
         {
+            if (tiny)
+            {
+                Visible = false;
+                return;
+            }
+
             IntPtr fgwnd = GetForegroundWindow();
             RECT fgwinPos = new RECT();
             User32.GetWindowRect(fgwnd, ref fgwinPos);
 
-            POINT cursor;
-            User32.GetCursorPos(out cursor);
-            if (User32.PtInRect(ref fgwinPos, cursor))
+            RECT hkRect = new RECT();
+            User32.GetWindowRect(Handle, ref hkRect);
+
+            RECT intersect = new RECT();
+            bool overlap = User32.IntersectRect(out intersect, ref hkRect, ref fgwinPos);
+            if (overlap)
             {
-                if (tiny)
-                    Visible = false;
-                return; //not need to reposition cursor
+                Visible = false;
             }
 
             User32.SetCursorPos(fgwinPos.Left + fgwinPos.Width / 2, fgwinPos.Top + fgwinPos.Height / 2);
@@ -493,6 +500,11 @@ namespace PersistentWindows.Common
             {
                 //Visible = true; keep hiding hotkey window, let OS update cursor shape, and alive timer callback show correct hotkey window position
                 User32.SetForegroundWindow(Handle);
+                ResetCursorPos();
+            }
+            else
+            {
+                Visible = true;
                 ResetCursorPos();
             }
         }
