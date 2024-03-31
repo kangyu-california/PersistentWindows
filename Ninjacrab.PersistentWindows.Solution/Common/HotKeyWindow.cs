@@ -186,7 +186,8 @@ namespace PersistentWindows.Common
 
         private void FormMouseLeave(object sender, EventArgs e)
         {
-            StartAliveTimer();
+            if (tiny)
+                StartAliveTimer();
         }
 
         bool IsBrowserWindow(IntPtr hwnd)
@@ -202,7 +203,7 @@ namespace PersistentWindows.Common
             if (e.Control || e.Alt)
                 return;
 
-            TopMost = true;
+            //TopMost = true;
 
             IntPtr fgwnd = GetForegroundWindow();
             bool isBrowserWindow = IsBrowserWindow(fgwnd);
