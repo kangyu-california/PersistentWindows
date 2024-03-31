@@ -379,10 +379,18 @@ namespace PersistentWindows.Common
                 //right
                 SendKeys.Send("{RIGHT}");
             }
-            else if (e.KeyCode == Keys.F5)
+            else if (e.KeyCode >= Keys.F1 && e.KeyCode <= Keys.F12)
             {
-                //refresh
-                SendKeys.Send("{F5}");
+                //forward Function key
+                int fn = e.KeyCode - Keys.F1 + 1;
+                string mod = "";
+                if (e.Control)
+                    mod += "^";
+                if (e.Alt)
+                    mod += "%";
+                if (e.Shift)
+                    mod += "+";
+                SendKeys.Send(mod + "{F" + fn + "}");
             }
             else if (e.KeyCode == Keys.Delete)
             {
