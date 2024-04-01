@@ -658,6 +658,13 @@ namespace PersistentWindows.Common
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                     return;
 
+                IntPtr hCursor = GetCursor();
+                if (hCursor == Cursors.IBeam.Handle)
+                {
+                    StartAliveTimer(10);
+                    return;
+                }
+
                 RECT rect = new RECT();
                 User32.GetWindowRect(fgwnd, ref rect);
 
