@@ -206,6 +206,23 @@ namespace PersistentWindows.Common
                 Log.Error(ex.ToString());
             }
         }
+
+        private bool IsRdpWindow(IntPtr hwnd)
+        {
+            bool r = false;
+            try
+            {
+                if (User32.IsWindow(hwnd) && windowProcessName.ContainsKey(hwnd) && windowProcessName[hwnd].Equals("mstsc"))
+                    r = true;
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
+            return r;
+        }
+
         private void CleanupDisplayRegKeyCore(string key)
         {
             RegistryKey top = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Configuration", true);
@@ -360,7 +377,7 @@ namespace PersistentWindows.Common
                         return;
 
                     ActivateWindow(hwnd); //window could be active on alt-tab
-                    if (IsFullScreen(hwnd) || windowProcessName[hwnd].Equals("mstsc"))
+                    if (IsFullScreen(hwnd) || IsRdpWindow(hwnd))
                     {
                         if (User32.IsWindowVisible(HotKeyWindow.handle))
                         {
@@ -3553,7 +3570,7 @@ namespace PersistentWindows.Common
                     {
                         Log.Error("recover full screen window {0}", GetWindowTitle(hWnd));
                         long style = User32.GetWindowLong(hWnd, User32.GWL_STYLE);
-                        if (windowProcessName[hWnd].Equals("mstsc") && ((style & (long)WindowStyleFlags.CAPTION)) != 0L)
+                        if (IsRdpWindow(hWnd) && ((style & (long)WindowStyleFlags.CAPTION)) != 0L)
                         {
                             //already has caption bar, bypass normal window move and go directly to mouse double click simulation
                             need_move_window = false;
