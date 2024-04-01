@@ -415,12 +415,12 @@ namespace PersistentWindows.SystrayShell
             }
         }
 
-        public static void HideRestoreTip()
+        public static void HideRestoreTip(bool show_icon = true)
         {
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
                 {
-                    HideRestoreTip();
+                    HideRestoreTip(show_icon);
                 });
             else
             {
@@ -428,7 +428,12 @@ namespace PersistentWindows.SystrayShell
                 ni.Icon = IdleIcon;
 
                 if (Gui)
-                    ni.Visible = true;
+                {
+                    if (show_icon)
+                        ni.Visible = true;
+                    else
+                        ni.Visible = false;
+                }
             }
         }
 

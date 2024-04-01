@@ -158,10 +158,11 @@ namespace PersistentWindows.Common
 
         // callbacks
         public delegate void CallBack();
-        public CallBack showRestoreTip;
-        public CallBack hideRestoreTip;
+        public delegate void CallBackBool(bool en = true);
 
-        public delegate void CallBackBool(bool en);
+        public CallBack showRestoreTip;
+        public CallBackBool hideRestoreTip;
+
         public CallBackBool enableRestoreSnapshotMenu;
         public delegate void CallBackBool2(bool en, bool en2);
         public CallBackBool2 enableRestoreMenu;

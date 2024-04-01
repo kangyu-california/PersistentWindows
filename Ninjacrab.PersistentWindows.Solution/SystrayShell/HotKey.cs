@@ -43,7 +43,7 @@ namespace PersistentWindows.SystrayShell
                 User32.KeyModifier modifier = (User32.KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
                 int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
 
-                Program.ShowRestoreTip();
+                Program.HideRestoreTip(false); //hide icon
                 Program.HideRestoreTip(); //show icon
                 hkwin.HotKeyPressed();
                 return;
