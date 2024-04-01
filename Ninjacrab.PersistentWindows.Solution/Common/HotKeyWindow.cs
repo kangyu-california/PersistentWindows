@@ -30,7 +30,8 @@ namespace PersistentWindows.Common
         private POINT lastWheelCursorPos;
         private bool handCursor = false;
         private int titleHeight;
-        private static int callerAliveTimer = -1;
+        private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
+        private Color dfltBackColor;
 
         public HotKeyWindow()
         {
@@ -40,6 +41,8 @@ namespace PersistentWindows.Common
             origHeight = Height;
 
             titleHeight = this.Height - ClientRectangle.Height;
+
+            dfltBackColor = BackColor;
 
             KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
@@ -323,7 +326,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Q)
             {
-                //TODO
+                //prev Tab
+                SendKeys.Send("^+{TAB}");
             }
             else if (e.KeyCode == Keys.E)
             {
@@ -384,7 +388,11 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.X)
             {
-                //TODO
+                //switch background color
+                if (BackColor == dfltBackColor)
+                    BackColor = Color.White;
+                else
+                    BackColor = dfltBackColor;
             }
             else if (e.KeyCode == Keys.C)
             {
