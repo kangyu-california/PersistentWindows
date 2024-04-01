@@ -652,24 +652,37 @@ namespace PersistentWindows.Common
             }
             else
             {
+                POINT cursorPos;
+                User32.GetCursorPos(out cursorPos);
+                if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
+                {
+                    StartAliveTimer(10, 1000);
+                    return;
+                }
+
+                bool holding_left_button= (User32.GetKeyState(0x01) & 0x8000) != 0;
+                if (holding_left_button)
+                {
+                    Activate();
+                    return;
+                }
+
+                IntPtr hCursor = GetCursor();
+                if (hCursor == Cursors.IBeam.Handle)
+                {
+                    StartAliveTimer(12);
+                    return;
+                }
+
                 ResetHotKeyVirtualDesktop();
 
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                     return;
 
-                IntPtr hCursor = GetCursor();
-                if (hCursor == Cursors.IBeam.Handle)
-                {
-                    StartAliveTimer(10);
-                    return;
-                }
-
                 RECT rect = new RECT();
                 User32.GetWindowRect(fgwnd, ref rect);
 
-                POINT cursorPos;
-                User32.GetCursorPos(out cursorPos);
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
                 if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
@@ -688,7 +701,10 @@ namespace PersistentWindows.Common
                 } 
 
                 if (Visible)
+                {
+                    Console.WriteLine("activate by caller {0}", callerAliveTimer);
                     Activate();
+                }
                 else
                 {
                     Visible = true;
