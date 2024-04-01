@@ -358,6 +358,8 @@ namespace PersistentWindows.SystrayShell
                 StartSplashForm();
             }
 
+            //systrayForm.notifyIconMain.Visible = false;
+
             Application.Run();
         }
 
@@ -403,7 +405,6 @@ namespace PersistentWindows.SystrayShell
                 if (silent)
                     return;
 
-                //systrayForm.notifyIconMain.Visible = false;
                 if (Gui)
                     ni.Visible = true;
 
@@ -426,12 +427,6 @@ namespace PersistentWindows.SystrayShell
                 NotifyIcon ni = systrayForm.notifyIconMain;
                 ni.Icon = IdleIcon;
 
-                /*
-                if (silent)
-                    return;
-                */
-
-                //systrayForm.notifyIconMain.Visible = false;
                 if (Gui)
                     ni.Visible = true;
             }
