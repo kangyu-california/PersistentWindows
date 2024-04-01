@@ -229,6 +229,11 @@ namespace PersistentWindows.Common
             if (e.Control || e.Alt)
                 return;
             */
+            if (e.KeyCode == Keys.Q && e.Alt && !e.Control) 
+            {
+                //hotkey
+                return;
+            }
 
             IntPtr fgwnd = GetForegroundWindow();
             bool isBrowserWindow = IsBrowserWindow(fgwnd);
