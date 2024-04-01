@@ -44,7 +44,7 @@ namespace PersistentWindows.Common
 
             dfltBackColor = BackColor;
 
-            KeyDown += new KeyEventHandler(FormKeyDown);
+            //KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
             MouseDown += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
@@ -227,6 +227,12 @@ namespace PersistentWindows.Common
         {
             e.Handled = true;
 
+            IntPtr fgwnd = GetForegroundWindow();
+            bool isBrowserWindow = IsBrowserWindow(fgwnd);
+
+            User32.SetForegroundWindow(fgwnd);
+
+            bool return_focus_to_hotkey_window = true;
             //allow all ctrl alt shift modifiers
             /*
             if (e.Control || e.Alt)
@@ -238,12 +244,6 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            IntPtr fgwnd = GetForegroundWindow();
-            bool isBrowserWindow = IsBrowserWindow(fgwnd);
-
-            User32.SetForegroundWindow(fgwnd);
-
-            bool return_focus_to_hotkey_window = true;
             if (e.KeyCode == Keys.W && isBrowserWindow)
             {
                 //kill tab, ctrl + w
@@ -292,32 +292,19 @@ namespace PersistentWindows.Common
                     mod += "+";
                 SendKeys.Send(mod + "{" + digit + "}");
             }
+            /*
             else
             {
                 return_focus_to_hotkey_window = false;
             }
+            */
 
-            if (return_focus_to_hotkey_window)
+            //only allow shift
+            else if (e.Control || e.Alt)
             {
-                User32.SetForegroundWindow(Handle);
-                ResetCursorPos();
+                ;
             }
-        }
-
-        void FormKeyDown(object sender, KeyEventArgs e)
-        {
-            e.Handled = true;
-
-            //allow shift
-            if (e.Control || e.Alt)
-                return;
-
-            IntPtr fgwnd = GetForegroundWindow();
-            bool isBrowserWindow = IsBrowserWindow(fgwnd);
-            User32.SetForegroundWindow(fgwnd);
-
-            bool return_focus_to_hotkey_window = true;
-            if (e.KeyCode == Keys.Tab)
+            else if (e.KeyCode == Keys.Tab)
             {
                 if (e.Shift)
                     SendKeys.Send("^+{TAB}");
@@ -463,7 +450,7 @@ namespace PersistentWindows.Common
             }
             else
             {
-                User32.SetForegroundWindow(Handle); //forward to KeyUp handler
+                //User32.SetForegroundWindow(Handle); //forward to KeyUp handler
                 return_focus_to_hotkey_window = false;
             }
 
@@ -473,6 +460,12 @@ namespace PersistentWindows.Common
                 if (tiny)
                     ResetCursorPos();
             }
+        }
+
+        void FormKeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
+
         }
 
         public void HotKeyPressed()
@@ -702,7 +695,7 @@ namespace PersistentWindows.Common
 
                 if (Visible)
                 {
-                    Console.WriteLine("activate by caller {0}", callerAliveTimer);
+                    Console.WriteLine("hotkey window activated by caller {0}", callerAliveTimer);
                     Activate();
                 }
                 else
