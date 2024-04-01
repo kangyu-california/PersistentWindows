@@ -388,7 +388,7 @@ namespace PersistentWindows.SystrayShell
             return false;
         }
 
-        static void ShowRestoreTip()
+        public static void ShowRestoreTip()
         {
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
@@ -414,7 +414,7 @@ namespace PersistentWindows.SystrayShell
             }
         }
 
-        static void HideRestoreTip()
+        public static void HideRestoreTip()
         {
             if (systrayForm.contextMenuStripSysTray.InvokeRequired)
                 systrayForm.contextMenuStripSysTray.BeginInvoke((Action)delegate ()
