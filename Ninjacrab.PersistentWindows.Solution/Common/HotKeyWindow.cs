@@ -22,14 +22,15 @@ namespace PersistentWindows.Common
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool init = true;
         private bool active = false;
-        private bool tiny = false;
+        private static bool tiny = false;
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0;
         private static POINT lastCursorPos;
-        private static POINT lastWheelCursorPos;
+        private POINT lastWheelCursorPos;
         private bool handCursor = false;
         private int titleHeight;
+        private static int callerAliveTimer = -1;
 
         public HotKeyWindow()
         {
@@ -161,7 +162,10 @@ namespace PersistentWindows.Common
             {
                 e.Cancel = true;
                 if (User32.IsWindow(Handle))
+                {
                     Visible = false;
+                    active = false;
+                }
             }
         }
 
@@ -199,7 +203,7 @@ namespace PersistentWindows.Common
             User32.mouse_event(MouseAction.MOUSEEVENTF_WHEEL, 0, 0, delta, UIntPtr.Zero);
 
             StartMouseScrollTimer();
-            StartAliveTimer();
+            StartAliveTimer(0);
 
             if (!tiny)
                 ResetCursorPos(true);
@@ -208,7 +212,7 @@ namespace PersistentWindows.Common
         private void FormMouseLeave(object sender, EventArgs e)
         {
             if (tiny)
-                StartAliveTimer();
+                StartAliveTimer(1);
         }
 
         bool IsBrowserWindow(IntPtr hwnd)
@@ -249,7 +253,7 @@ namespace PersistentWindows.Common
                     return_focus_to_hotkey_window = false;
                     Visible = false;
                     if (!tiny)
-                        StartAliveTimer();
+                        StartAliveTimer(2);
                 }
             }
             else if (e.KeyCode >= Keys.F1 && e.KeyCode <= Keys.F12)
@@ -332,7 +336,7 @@ namespace PersistentWindows.Common
                 return_focus_to_hotkey_window = false;
                 Visible = false;
                 if (!tiny)
-                    StartAliveTimer();
+                    StartAliveTimer(3);
             }
             else if (e.KeyCode == Keys.S && isBrowserWindow)
             {
@@ -344,7 +348,7 @@ namespace PersistentWindows.Common
                 return_focus_to_hotkey_window = false;
                 Visible = false;
                 if (!tiny)
-                    StartAliveTimer();
+                    StartAliveTimer(4);
             }
             else if (e.KeyCode == Keys.D)
             {
@@ -365,7 +369,7 @@ namespace PersistentWindows.Common
                 if (!tiny)
                 {
                     return_focus_to_hotkey_window = false;
-                    StartAliveTimer();
+                    StartAliveTimer(5);
                 }
             }
             else if (e.KeyCode == Keys.Z)
@@ -497,13 +501,17 @@ namespace PersistentWindows.Common
 
         public static void BrowserActivate(IntPtr hwnd)
         {
-            StartAliveTimer();
+            if (!tiny && !User32.IsWindowVisible(handle))
+                return;
+            StartAliveTimer(6);
         }
 
-        private static void StartAliveTimer(int milliseconds = 500)
+        private static void StartAliveTimer(int caller_id, int milliseconds = 500)
         {
             if (aliveTimer != null)
             {
+                callerAliveTimer = caller_id;
+
                 User32.GetCursorPos(out lastCursorPos);
                 aliveTimer.Interval = milliseconds;
                 aliveTimer.AutoReset = false;
@@ -597,7 +605,7 @@ namespace PersistentWindows.Common
                     IntPtr hCursor = GetCursor();
                     if (hCursor == Cursors.IBeam.Handle)
                     {
-                        StartAliveTimer();
+                        StartAliveTimer(7);
                         return;
                     }
 
@@ -609,7 +617,10 @@ namespace PersistentWindows.Common
                         handCursor = false;
 
                     if (!Visible)
+                    {
                         Visible = true;
+                        TopMost = true;
+                    }
                     else if (!handCursor)
                         User32.SetForegroundWindow(Handle);
 
@@ -624,7 +635,7 @@ namespace PersistentWindows.Common
                         handCursor = true;
                 }
 
-                StartAliveTimer();
+                StartAliveTimer(8);
             }
             else
             {
@@ -642,14 +653,27 @@ namespace PersistentWindows.Common
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
                 if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
-                    //yield focus
-                    return;
+                    RECT cursorRect = new RECT();
+                    User32.GetWindowRect(cursorWnd, ref cursorRect);
+
+                    RECT intersect = new RECT();
+                    User32.IntersectRect(out intersect, ref cursorRect, ref rect);
+
+                    if (intersect.Equals(cursorRect))
+                    {
+                        //yield focus to internal window (right mouse invoked menu)
+                        StartAliveTimer(9);
+                        return;
+                    }
                 } 
 
                 if (Visible)
                     Activate();
                 else
+                {
                     Visible = true;
+                    TopMost = true;
+                }
             }
         }
 
