@@ -86,8 +86,8 @@
   | R | | Reload web page
   | A | | enter web Address
   | S | | Search in web page
-  | E | Home | jump to head of page
-  | D | End | jump end of page
+  | E | Home | goto page head
+  | D | End | goto page end
   | F | Alt + Right | go Forward to next web page
   | B | Alt + Left | go Backward to previous web page
   | G | | Go to the list of tabs (for google chrome only)
