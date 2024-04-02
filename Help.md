@@ -11,6 +11,7 @@
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for the processes *notepad.exe* and *foo*
   | -foreground_background_dual_position=0 | Turn off dual position switching
+  | -hotkey_window=0 | Turn off hotkey window for web browsing
   | -ctrl_minimize_to_tray=0 | Turn off ctrl minimize window to notification tray
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
@@ -68,6 +69,36 @@
 * To enable/disable auto restore for non-toplevel windows (such as a child or dialog window):
   * To include a child/dialog window for auto capture/restore, move the window once using the mouse
   * To exclude a window from auto capture/restore, press the Ctrl-Shift keys when moving the window
+
+### Hotkey window for efficient web browsing
+* A hotkey window is used to translate simplified keyboard/mouse commands and relay them to the underlying web browser window.
+* Press Alt + Q to activate/deactivate the hotkey window.
+* Once the hotkey window is activated, the following command shortcuts are ready to use
+  | Keyboard shortcut| Translation | Meaning|
+  | --- | --- | --- |
+  | TAB | Ctrl + TAB | next tab
+  | Q | Shift + Ctrl + TAB | previous tab
+  | W | Ctrl + W | close tab
+  | T | Ctrl + T | new tab
+  | 1-8 | Ctrl + #n | goto tab #n
+  | 9 || goto last tab
+  | C | | Copy tab (duplicate tab)
+  | R | | Reload web page
+  | A | | enter web Address
+  | S | | Search in web page
+  | E | Home | jump to head of page
+  | D | End | jump end of page
+  | F | Alt + Right | go Forward to next web page
+  | B | Alt + Left | go Backward to previous web page
+  | G | | Go to the list of tabs (for google chrome only)
+  | P | | page up
+  | N | | page down
+  | J | | scroll down
+  | K | | scroll up
+  | Z | | toggle the size of hotkey window, Zoom in/out
+  | X | | toggle the color of hotkey window
+  | left mouse button click in the blank area of hotkey window || page down
+  | right mouse button click in the blank area hotkey window || page up
 
 ### Other features
 * To replace the default app icon with your customized one:
