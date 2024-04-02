@@ -1130,6 +1130,8 @@ namespace PersistentWindows.Common
                 if (hwnd == topHwnd)
                     HotKeyWindow.BrowserActivate(topHwnd);
             }
+            else
+               HotKeyWindow.BrowserActivate(hwnd, false);
 
             try
             {

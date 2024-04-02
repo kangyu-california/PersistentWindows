@@ -23,6 +23,7 @@ namespace PersistentWindows.Common
         private bool init = true;
         private bool active = false;
         private static bool tiny = false;
+        private static bool browserWindowActivated = false;
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0;
@@ -505,10 +506,13 @@ namespace PersistentWindows.Common
         }
 
 
-        public static void BrowserActivate(IntPtr hwnd)
+        public static void BrowserActivate(IntPtr hwnd, bool is_browser_window = true)
         {
+            browserWindowActivated = is_browser_window;
+
             if (!tiny && !User32.IsWindowVisible(handle))
                 return;
+
             StartAliveTimer(6);
         }
 
@@ -645,6 +649,13 @@ namespace PersistentWindows.Common
             }
             else
             {
+                ResetHotKeyVirtualDesktop();
+
+                if (browserWindowActivated)
+                    TopMost = true;
+                else
+                    TopMost = false;
+
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
                 if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
@@ -667,7 +678,6 @@ namespace PersistentWindows.Common
                     return;
                 }
 
-                ResetHotKeyVirtualDesktop();
 
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
