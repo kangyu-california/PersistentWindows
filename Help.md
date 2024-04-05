@@ -36,39 +36,39 @@
   | Restore snapshot 0 | Click the PersistentWindows icon
   | Capture snapshot X | Double click the PersistentWindows icon, then immediately press key X (X represents a digit [0-9] or a letter [a-z])
   | Restore snapshot X | Click the PersistentWindows icon, then immediately press key X
-  | Undo the last snapshot restore | Alt-click the PersistentWindows icon
+  | Undo the last snapshot restore | Alt + Click the PersistentWindows icon
 
 ### Shortcuts for capture/restore windows on disk
-  * To save a named capture to disk, Ctrl-click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
-  * To restore the named capture from disk, Ctrl-click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
-  * To restore capture from a different display config, Shift-click the "Restore windows from disk" menu option.
+  * To save a named capture to disk, Ctrl + Click the "Capture windows to disk" menu option, then enter a name in the pop-up dialog
+  * To restore the named capture from disk, Ctrl + Click the "Restore windows from disk" menu option, then enter the name of the previously saved capture in the dialog
+  * To restore capture from a different display config, Shift + Click the "Restore windows from disk" menu option.
 
 ---
 ### Shortcuts to manipulate positions of a window
 * Dual Position Switching allows a window to switch between foreground and background mode of different positions and sizes
 
   * To activate Dual Position Switching: 
-    * move or resize the window while pressing the Ctrl key.
+    * Ctrl + Move or resize the window.
 
   * Dual Position Switching functionality:
     * Click the desktop window to bring the foreground window to its previous background position and Z-order.
-    * Shift-click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups. 
-    * Ctrl-click the desktop window to bring the foreground window to its previous Z-order while keeping the current location and size.
+    * Shift + Click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups.
+    * Ctrl + Click the desktop window to bring the foreground window to its previous Z-order while keeping the current location and size.
 
   * To cancel Dual Position Switching:
-    * move or resize the window without pressing the Ctrl key.
+    * move or resize the window (without pressing the Ctrl key).
   * To bring a background DPS window to foreground *without* restoring to the previous foreground position:
     * press any of Ctrl/Shift/Alt key when activating the window
 * To restore a new window to its last closing position:
-  * Ctrl-click the PersistentWindows icon
+  * Ctrl + Click the PersistentWindows icon
 * To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by the Windows OS, which, however, does not work for windows inside a remote desktop window):
-  * Alt-click the desktop window.
-  * Ctrl-Alt-click the PersistentWindows icon if the foreground window is maximized.
+  * Alt + Click the desktop window to bring foreground window to bottom Z-order.
+  * Ctrl + Alt + Click the PersistentWindows icon to bring *maximized* foreground window to bottom Z-order.
 * To hide a window to the notification area in the taskbar:
-  * Press the Ctrl key when clicking the minimize button
+  * Ctrl + Click the minimize button
 * To enable/disable auto restore for non-toplevel windows (such as a child or dialog window):
   * To include a child/dialog window for auto capture/restore, move the window once using the mouse
-  * To exclude a window from auto capture/restore, press the Ctrl-Shift keys when moving the window
+  * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
 
 ### Hotkey window for efficient web browsing
 * A hotkey window is used to translate simplified keyboard/mouse commands and relay them to the underlying web browser window.
