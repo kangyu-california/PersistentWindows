@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 using PersistentWindows.Common.WinApiBridge;
+using System.Threading;
 
 namespace PersistentWindows.Common
 {
@@ -388,9 +389,12 @@ namespace PersistentWindows.Common
                 SendKeys.Send("^l");
                 SendKeys.Send("%{ENTER}");
             }
-            else if (e.KeyCode == Keys.V)
+            else if (e.KeyCode == Keys.V && isBrowserWindow)
             {
-                //TODO
+                //switch to last tab (chrome only)
+                SendKeys.Send("^+a");
+                Thread.Sleep(250);
+                SendKeys.Send("{ENTER}");
             }
             else if (e.KeyCode == Keys.B && isBrowserWindow)
             {
