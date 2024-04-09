@@ -17,6 +17,7 @@ namespace PersistentWindows.Common
 {
     public partial class HotKeyWindow : Form
     {
+        public static IntPtr parentHandle = IntPtr.Zero;
         public static IntPtr handle = IntPtr.Zero;
 
         private static System.Timers.Timer aliveTimer;
@@ -165,6 +166,13 @@ namespace PersistentWindows.Common
                 });
             else
             {
+                bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+                if (alt_key_pressed)
+                {
+                    User32.UnregisterHotKey(parentHandle, 0);
+                    return;
+                }
+
                 e.Cancel = true;
                 if (User32.IsWindow(Handle))
                 {
@@ -467,21 +475,17 @@ namespace PersistentWindows.Common
             }
         }
 
-        void FormKeyDown(object sender, KeyEventArgs e)
-        {
-            e.Handled = true;
-
-        }
-
-        public void HotKeyPressed()
+        public void HotKeyPressed(IntPtr parent_handle)
         {
             if (InvokeRequired)
                 BeginInvoke((Action) delegate ()
                 {
-                    HotKeyPressed();
+                    HotKeyPressed(parent_handle);
                 });
             else
             {
+                parentHandle = parent_handle;
+
                 if (!active)
                 {
                     if (init)

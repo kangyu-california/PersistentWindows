@@ -45,7 +45,7 @@ namespace PersistentWindows.SystrayShell
 
                 Program.HideRestoreTip(false); //hide icon
                 Program.HideRestoreTip(); //show icon
-                hkwin.HotKeyPressed();
+                hkwin.HotKeyPressed(this.Handle);
                 return;
             }
 
