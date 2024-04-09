@@ -488,6 +488,15 @@ namespace PersistentWindows.Common
 
                 if (!active)
                 {
+                    IntPtr fgwnd = GetForegroundWindow();
+                    if (!IsBrowserWindow(fgwnd))
+                    {
+                        User32.UnregisterHotKey(parentHandle, 0);
+                        //forward Alt + Q
+                        SendKeys.Send("%q");
+                        return;
+                    }
+
                     if (init)
                     {
                         ResetHotkeyWindowPos();
