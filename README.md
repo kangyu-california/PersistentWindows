@@ -78,9 +78,10 @@ Choose one of the two options:
   * window caption text
   * window class name
   * process id and command line of the window
-  * key-strokes when interacting with the PersistentWindows icon on taskbar
   * Ctrl, Alt, Shift key strokes when clicking or moving a window
-- The information of the key-strokes is typically stored for less than 2 seconds
+  * key-stroke events when interacting with the PersistentWindows icon on taskbar
+  * key-stroke events (only as command shortcut), mouse click/scroll events and cursor position/shape in web browser when hotkey window is activated (Alt + Q)
+- The history of keyboard/mouse events is typically erased 1 second after received
 - Window information history is kept in memory or in the hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
 - PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
   
