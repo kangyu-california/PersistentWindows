@@ -635,6 +635,12 @@ namespace PersistentWindows.Common
                         StartAliveTimer(7);
                         return;
                     }
+                    if (callerAliveTimer == 7 && Math.Abs(cursorPos.X - lastCursorPos.X) < 3 && Math.Abs(cursorPos.Y - lastCursorPos.Y) < 3)
+                    {
+                        //cursor shape changed from ibeam, but no position change, keep on waiting
+                        StartAliveTimer(7);
+                        return;
+                    }
 
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
@@ -694,7 +700,6 @@ namespace PersistentWindows.Common
                     StartAliveTimer(12);
                     return;
                 }
-
 
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
