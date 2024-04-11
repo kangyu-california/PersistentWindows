@@ -627,17 +627,17 @@ namespace PersistentWindows.Common
                 {
                     //mouse moving, continue monitor
                 }
+                else if (callerAliveTimer == 7)
+                {
+                    //cursor shape changed from ibeam/cross, but no position change, keep on waiting
+                    StartAliveTimer(7);
+                    return;
+                }
                 else
                 {
                     IntPtr hCursor = GetCursor();
-                    if (hCursor == Cursors.IBeam.Handle)
+                    if (hCursor == Cursors.IBeam.Handle || hCursor == Cursors.Cross.Handle)
                     {
-                        StartAliveTimer(7);
-                        return;
-                    }
-                    if (callerAliveTimer == 7 && Math.Abs(cursorPos.X - lastCursorPos.X) < 3 && Math.Abs(cursorPos.Y - lastCursorPos.Y) < 3)
-                    {
-                        //cursor shape changed from ibeam, but no position change, keep on waiting
                         StartAliveTimer(7);
                         return;
                     }
