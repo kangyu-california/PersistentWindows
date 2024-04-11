@@ -274,6 +274,11 @@ namespace PersistentWindows.Common
                         StartAliveTimer(2);
                 }
             }
+            else if (e.KeyCode == Keys.U && isBrowserWindow)
+            {
+                //Undo close tab
+                SendKeys.Send("^+t"); //open last closed tab
+            }
             else if (e.KeyCode >= Keys.F1 && e.KeyCode <= Keys.F12)
             {
                 //forward Function key
