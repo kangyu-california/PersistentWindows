@@ -437,7 +437,7 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.N)
             {
                 //new window
-                SendKeys.Send("^N");
+                SendKeys.Send("^n");
             }
             else if (e.KeyCode == Keys.H)
             {
