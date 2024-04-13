@@ -71,6 +71,7 @@ namespace PersistentWindows.SystrayShell
             bool legacy_icon = false;
             bool waiting_taskbar = false;
             bool hotkey_window = true;
+            uint hotkey = 'W'; //Alt + W
 
             foreach (var arg in args)
             {
@@ -116,6 +117,11 @@ namespace PersistentWindows.SystrayShell
                 {
                     ignore_process = "";
                     pwp.SetIgnoreProcess(arg);
+                    continue;
+                }
+                else if (hotkey == 1)
+                {
+                    hotkey = arg[0];
                     continue;
                 }
 
@@ -196,6 +202,9 @@ namespace PersistentWindows.SystrayShell
                         break;
                     case "-hotkey_window=0":
                         hotkey_window = false;
+                        break;
+                    case "-hotkey":
+                        hotkey = 1;
                         break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
@@ -345,7 +354,7 @@ namespace PersistentWindows.SystrayShell
                 pwp.SetIgnoreProcess(ignore_process);
 
             if (hotkey_window)
-                HotKeyForm.Start();
+                HotKeyForm.Start(hotkey);
 
             if (!pwp.Start(auto_restore_from_db_at_startup))
             {

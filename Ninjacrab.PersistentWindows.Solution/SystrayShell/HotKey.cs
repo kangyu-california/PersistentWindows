@@ -11,12 +11,12 @@ namespace PersistentWindows.SystrayShell
     {
         static HotKeyWindow hkwin = null;
 
-        public static void Start()
+        public static void Start(uint hotkey)
         {
             Thread messageLoop = new Thread(() =>
             {
-                hkwin = new HotKeyWindow();
-                Application.Run(new HotKeyForm());
+                hkwin = new HotKeyWindow(hotkey);
+                Application.Run(new HotKeyForm(hotkey));
             })
             {
                 Name = "MessageLoopThread",
@@ -26,10 +26,10 @@ namespace PersistentWindows.SystrayShell
             messageLoop.Start();
         }
 
-        public HotKeyForm()
+        public HotKeyForm(uint hotkey)
         {
             //InitializeComponent();
-            var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, 0x51);       // Register Alt + Q 
+            var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, hotkey); // Register Alt + W 
         }
 
         protected override void WndProc(ref Message m)

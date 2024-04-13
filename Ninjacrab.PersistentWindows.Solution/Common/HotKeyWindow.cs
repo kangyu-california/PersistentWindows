@@ -17,6 +17,8 @@ namespace PersistentWindows.Common
 {
     public partial class HotKeyWindow : Form
     {
+        private uint hotkey;
+
         public static IntPtr parentHandle = IntPtr.Zero;
         public static IntPtr handle = IntPtr.Zero;
 
@@ -36,8 +38,10 @@ namespace PersistentWindows.Common
         private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
         private Color dfltBackColor;
 
-        public HotKeyWindow()
+        public HotKeyWindow(uint hkey)
         {
+            hotkey = hkey;
+
             InitializeComponent();
 
             origWidth = Width;
@@ -247,7 +251,7 @@ namespace PersistentWindows.Common
             if (e.Control || e.Alt)
                 return;
             */
-            if (e.KeyCode == Keys.Q && e.Alt && !e.Control) 
+            if (e.KeyCode == (Keys)hotkey && e.Alt && !e.Control) 
             {
                 //hotkey
                 return;
@@ -486,19 +490,21 @@ namespace PersistentWindows.Common
             {
                 parentHandle = parent_handle;
 
+                IntPtr fgwnd = GetForegroundWindow();
+                if (!IsBrowserWindow(fgwnd))
+                {
+                    //User32.UnregisterHotKey(parentHandle, 0);
+                    //forward hotkey
+                    char c = Convert.ToChar(hotkey);
+                    string cmd = $"%{c}";
+                    SendKeys.Send(cmd);
+                    return;
+                }
+
                 if (!active)
                 {
                     if (init)
                     {
-                        IntPtr fgwnd = GetForegroundWindow();
-                        if (!IsBrowserWindow(fgwnd))
-                        {
-                            User32.UnregisterHotKey(parentHandle, 0);
-                            //forward Alt + Q
-                            SendKeys.Send("%q");
-                            return;
-                        }
-
                         ResetHotkeyWindowPos();
                         init = false;
                     }
