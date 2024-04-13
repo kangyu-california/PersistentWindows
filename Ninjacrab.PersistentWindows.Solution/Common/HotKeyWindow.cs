@@ -238,7 +238,6 @@ namespace PersistentWindows.Common
             e.Handled = true;
 
             IntPtr fgwnd = GetForegroundWindow();
-            bool isBrowserWindow = IsBrowserWindow(fgwnd);
 
             User32.SetForegroundWindow(fgwnd);
 
@@ -254,12 +253,12 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (e.KeyCode == Keys.W && isBrowserWindow)
+            if (e.KeyCode == Keys.W)
             {
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
-            else if (e.KeyCode == Keys.T && isBrowserWindow)
+            else if (e.KeyCode == Keys.T)
             {
                 //new tab, ctrl + t
                 if (e.Shift)
@@ -274,7 +273,7 @@ namespace PersistentWindows.Common
                         StartAliveTimer(2);
                 }
             }
-            else if (e.KeyCode == Keys.U && isBrowserWindow)
+            else if (e.KeyCode == Keys.U)
             {
                 //Undo close tab
                 SendKeys.Send("^+t"); //open last closed tab
@@ -297,10 +296,7 @@ namespace PersistentWindows.Common
                 //forward digital key
                 int digit = e.KeyCode - Keys.D0;
                 string mod = "";
-                if (isBrowserWindow)
-                    mod += "^"; //force ctrl
-                else if (e.Control)
-                    mod += "^";
+                mod += "^"; //force ctrl
                 if (e.Alt)
                     mod += "%";
                 if (e.Shift)
@@ -340,7 +336,7 @@ namespace PersistentWindows.Common
                 //reload
                 SendKeys.Send("{F5}");
             }
-            else if (e.KeyCode == Keys.A && isBrowserWindow)
+            else if (e.KeyCode == Keys.A)
             {
                 //address, ctrl L
                 SendKeys.Send("^l");
@@ -349,7 +345,7 @@ namespace PersistentWindows.Common
                 if (!tiny)
                     StartAliveTimer(3);
             }
-            else if (e.KeyCode == Keys.S && isBrowserWindow)
+            else if (e.KeyCode == Keys.S)
             {
                 // search
                 if (e.Shift)
@@ -365,13 +361,13 @@ namespace PersistentWindows.Common
             {
                 SendKeys.Send("{END}");
             }
-            else if (e.KeyCode == Keys.F && isBrowserWindow)
+            else if (e.KeyCode == Keys.F)
             {
                 //SetCursorPos();
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
-            else if (e.KeyCode == Keys.G && isBrowserWindow)
+            else if (e.KeyCode == Keys.G)
             {
                 //goto tab
                 //ctrl shift A (only for chrome)
@@ -402,16 +398,15 @@ namespace PersistentWindows.Common
                 SendKeys.Send("^l");
                 SendKeys.Send("%{ENTER}");
             }
-            else if (e.KeyCode == Keys.V && isBrowserWindow)
+            else if (e.KeyCode == Keys.V)
             {
                 //switch to last tab (chrome only)
                 SendKeys.Send("^+a");
                 Thread.Sleep(250);
                 SendKeys.Send("{ENTER}");
             }
-            else if (e.KeyCode == Keys.B && isBrowserWindow)
+            else if (e.KeyCode == Keys.B)
             {
-                //SetCursorPos();
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
