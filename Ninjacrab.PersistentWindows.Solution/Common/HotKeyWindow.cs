@@ -429,10 +429,15 @@ namespace PersistentWindows.Common
                 //up one page
                 SendKeys.Send("{PGUP}");
             }
-            else if (e.KeyCode == Keys.N || e.KeyCode == Keys.Space)
+            else if (e.KeyCode == Keys.Space)
             {
                 //down one page
                 SendKeys.Send("{PGDN}");
+            }
+            else if (e.KeyCode == Keys.N)
+            {
+                //new window
+                SendKeys.Send("^N");
             }
             else if (e.KeyCode == Keys.H)
             {
