@@ -38,6 +38,7 @@ namespace PersistentWindows.Common
         private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
         private Color dfltBackColor;
         private bool promptZkey = true;
+        private bool clickThrough = false;
 
         public HotKeyWindow(uint hkey)
         {
@@ -54,7 +55,7 @@ namespace PersistentWindows.Common
 
             //KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
-            MouseDown += new MouseEventHandler(FormMouseDown);
+            MouseClick += new MouseEventHandler(FormMouseDown);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
             MouseLeave += new EventHandler(FormMouseLeave);
@@ -183,8 +184,18 @@ namespace PersistentWindows.Common
 
         private void FormMouseDown(object sender, MouseEventArgs e)
         {
+            if (clickThrough)
+                Visible = false;
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
+
+            if (clickThrough)
+            {
+                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                    8, 0, 0, UIntPtr.Zero);
+                Visible = true;
+                clickThrough = false;
+            }
 
             if (e.Button == MouseButtons.Left)
             {
@@ -314,6 +325,19 @@ namespace PersistentWindows.Common
             {
                 ;
             }
+            /*
+            else if (e.KeyCode == Keys.Escape)
+            {
+            }
+            */
+            else if (e.KeyCode == Keys.Oemtilde)
+            {
+                //switch background color
+                if (BackColor == dfltBackColor)
+                    BackColor = Color.White;
+                else
+                    BackColor = dfltBackColor;
+            }
             else if (e.KeyCode == Keys.Tab)
             {
                 if (e.Shift)
@@ -341,7 +365,9 @@ namespace PersistentWindows.Common
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
                 Visible = false;
-                if (!tiny)
+                if (tiny)
+                    clickThrough = true;
+                else
                     StartAliveTimer(3);
             }
             else if (e.KeyCode == Keys.S)
@@ -385,11 +411,14 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.X)
             {
-                //switch background color
-                if (BackColor == dfltBackColor)
-                    BackColor = Color.White;
+                // goto search box
+                SendKeys.Send("{DIVIDE}");
+                return_focus_to_hotkey_window = false;
+                Visible = false;
+                if (tiny)
+                    clickThrough = true;
                 else
-                    BackColor = dfltBackColor;
+                    StartAliveTimer(4);
             }
             else if (e.KeyCode == Keys.C)
             {

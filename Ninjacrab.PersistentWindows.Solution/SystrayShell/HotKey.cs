@@ -35,6 +35,8 @@ namespace PersistentWindows.SystrayShell
 
         protected override void WndProc(ref Message m)
         {
+            bool r;
+
             if (m.Msg == 0x0312)
             {
                 /* Note that the three lines below are not needed if you only want to register one hotkey.
@@ -48,6 +50,10 @@ namespace PersistentWindows.SystrayShell
                 Program.HideRestoreTip(); //show icon
                 hkwin.HotKeyPressed(this.Handle);
                 return;
+            }
+            else if (m.Msg == 0x0010 || m.Msg == 0x0002)
+            {
+                r = User32.UnregisterHotKey(this.Handle, 0);
             }
 
             base.WndProc(ref m);
@@ -64,7 +70,6 @@ namespace PersistentWindows.SystrayShell
         {
             if (messageLoop.IsAlive)
                 messageLoop.Abort();
-            User32.UnregisterHotKey(this.Handle, 0);
         }
 #endregion
 
