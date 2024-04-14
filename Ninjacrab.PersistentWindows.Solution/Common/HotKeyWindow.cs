@@ -37,6 +37,7 @@ namespace PersistentWindows.Common
         private int titleHeight;
         private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
         private Color dfltBackColor;
+        private bool promptZkey = true;
 
         public HotKeyWindow(uint hkey)
         {
@@ -832,6 +833,18 @@ namespace PersistentWindows.Common
         {
             if (WindowState == FormWindowState.Minimized)
             {
+                if (promptZkey)
+                {
+                    MessageBox.Show("You may also press Z key to toggle the size of hotkey window",
+                        Application.ProductName,
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information,
+                        MessageBoxDefaultButton.Button1,
+                        MessageBoxOptions.DefaultDesktopOnly
+                    );
+                    promptZkey = false;
+                }
+
                 //User32.ShowWindow(handle, (int)ShowWindowCommands.Normal);
                 WindowState = FormWindowState.Normal;
                 ToggleWindowSize();
