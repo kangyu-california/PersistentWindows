@@ -10,10 +10,11 @@ namespace PersistentWindows.SystrayShell
     public class HotKeyForm : Form
     {
         static HotKeyWindow hkwin = null;
+        static Thread messageLoop;
 
         public static void Start(uint hotkey)
         {
-            Thread messageLoop = new Thread(() =>
+            messageLoop = new Thread(() =>
             {
                 hkwin = new HotKeyWindow(hotkey);
                 Application.Run(new HotKeyForm(hotkey));
@@ -58,26 +59,14 @@ namespace PersistentWindows.SystrayShell
             base.SetVisibleCore(false);
         }
 
-        /*
 #region IDisposable
-        public virtual void Dispose(bool disposing)
-        {
-            //messageLoop.Abort();
-            User32.UnregisterHotKey(this.Handle, 0);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         ~HotKeyForm()
         {
-            Dispose(false);
+            if (messageLoop.IsAlive)
+                messageLoop.Abort();
+            User32.UnregisterHotKey(this.Handle, 0);
         }
 #endregion
-        */
 
     }
 }
