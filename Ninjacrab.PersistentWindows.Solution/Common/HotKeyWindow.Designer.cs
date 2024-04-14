@@ -151,7 +151,6 @@ namespace PersistentWindows.Common
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.KeyPreview = true;
             this.MaximizeBox = false;
-            this.MinimizeBox = false;
             this.Name = "HotKeyWindow";
             this.Opacity = 0.5D;
             this.ShowInTaskbar = false;

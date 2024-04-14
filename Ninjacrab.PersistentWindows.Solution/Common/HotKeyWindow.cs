@@ -57,6 +57,7 @@ namespace PersistentWindows.Common
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
             MouseLeave += new EventHandler(FormMouseLeave);
+            SizeChanged += new EventHandler(FormSizeChanged);
 
             Icon = PersistentWindowProcessor.icon;
 
@@ -827,5 +828,15 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.GetForegroundWindow();
         }
 
+        private void FormSizeChanged(object sender, EventArgs e)
+        {
+            if (WindowState == FormWindowState.Minimized)
+            {
+                //User32.ShowWindow(handle, (int)ShowWindowCommands.Normal);
+                WindowState = FormWindowState.Normal;
+                ToggleWindowSize();
+                Visible = true;
+            }
+        }
     }
 }
