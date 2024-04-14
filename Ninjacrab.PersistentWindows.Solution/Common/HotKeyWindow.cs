@@ -172,13 +172,6 @@ namespace PersistentWindows.Common
                 });
             else
             {
-                bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
-                if (alt_key_pressed)
-                {
-                    User32.UnregisterHotKey(parentHandle, 0);
-                    return;
-                }
-
                 e.Cancel = true;
                 if (User32.IsWindow(Handle))
                 {
