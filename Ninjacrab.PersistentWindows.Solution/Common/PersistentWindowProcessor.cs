@@ -128,7 +128,7 @@ namespace PersistentWindows.Common
 
         private static HashSet<string> browserProcessNames = new HashSet<string>()
         {
-            "chrome", "firefox", "msedge", "vivaldi", "opera", "brave"
+            "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX"
         };
 
         private HashSet<string> ignoreProcess = new HashSet<string>();
