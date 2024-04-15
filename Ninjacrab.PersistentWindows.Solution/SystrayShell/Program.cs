@@ -23,6 +23,7 @@ namespace PersistentWindows.SystrayShell
         public static string AppdataFolder = null;
         public static string CmdArgs;
         public static bool Gui = true;
+        public static bool hotkey_window = true;
 
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
@@ -70,7 +71,6 @@ namespace PersistentWindows.SystrayShell
             bool auto_upgrade = false;
             bool legacy_icon = false;
             bool waiting_taskbar = false;
-            bool hotkey_window = true;
             uint hotkey = 'W'; //Alt + W
 
             foreach (var arg in args)

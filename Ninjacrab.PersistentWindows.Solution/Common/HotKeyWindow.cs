@@ -110,8 +110,13 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void ResetHotkeyWindowPos()
+        private void ResetHotkeyWindowPos(bool center_screen = false)
         {
+            if (center_screen)
+            {
+                return;
+            }
+
             POINT cursor;
             User32.GetCursorPos(out cursor);
             Left = cursor.X - Size.Width / 2;
@@ -508,33 +513,36 @@ namespace PersistentWindows.Common
             }
         }
 
-        public void HotKeyPressed(IntPtr parent_handle)
+        public void HotKeyPressed(IntPtr parent_handle, bool from_menu)
         {
             if (InvokeRequired)
                 BeginInvoke((Action) delegate ()
                 {
-                    HotKeyPressed(parent_handle);
+                    HotKeyPressed(parent_handle, from_menu);
                 });
             else
             {
                 parentHandle = parent_handle;
 
-                IntPtr fgwnd = GetForegroundWindow();
-                if (!IsBrowserWindow(fgwnd))
+                if (!from_menu)
                 {
-                    //User32.UnregisterHotKey(parentHandle, 0);
-                    //forward hotkey
-                    char c = Convert.ToChar(hotkey);
-                    string cmd = $"%{c}";
-                    SendKeys.Send(cmd);
-                    return;
+                    IntPtr fgwnd = GetForegroundWindow();
+                    if (!IsBrowserWindow(fgwnd))
+                    {
+                        //User32.UnregisterHotKey(parentHandle, 0);
+                        //forward hotkey
+                        char c = Convert.ToChar(hotkey);
+                        string cmd = $"%{c}";
+                        SendKeys.Send(cmd);
+                        return;
+                    }
                 }
 
                 if (!active)
                 {
                     if (init)
                     {
-                        ResetHotkeyWindowPos();
+                        ResetHotkeyWindowPos(from_menu);
                         init = false;
                     }
                     else

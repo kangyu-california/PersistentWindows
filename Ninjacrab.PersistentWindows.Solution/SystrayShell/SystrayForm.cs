@@ -327,6 +327,11 @@ namespace PersistentWindows.SystrayShell
             }
         }
 
+        private void WebCommander(object sender, EventArgs e)
+        {
+            HotKeyForm.InvokeFromMenu();
+        }
+
         private void ToggleIcon(object sender, EventArgs e)
         {
             if (toggleIcon)

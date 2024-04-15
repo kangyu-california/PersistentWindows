@@ -10,6 +10,7 @@ namespace PersistentWindows.SystrayShell
     public class HotKeyForm : Form
     {
         static HotKeyWindow hkwin = null;
+        static IntPtr handle;
         static Thread messageLoop;
 
         public static void Start(uint hotkey)
@@ -31,6 +32,7 @@ namespace PersistentWindows.SystrayShell
         {
             //InitializeComponent();
             var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, hotkey); // Register Alt + W 
+            handle = this.Handle;
         }
 
         protected override void WndProc(ref Message m)
@@ -48,7 +50,7 @@ namespace PersistentWindows.SystrayShell
 
                 Program.HideRestoreTip(false); //hide icon
                 Program.HideRestoreTip(); //show icon
-                hkwin.HotKeyPressed(this.Handle);
+                hkwin.HotKeyPressed(this.Handle, from_menu : false);
                 return;
             }
             else if (m.Msg == 0x0010 || m.Msg == 0x0002)
@@ -57,6 +59,13 @@ namespace PersistentWindows.SystrayShell
             }
 
             base.WndProc(ref m);
+        }
+
+        public static void InvokeFromMenu()
+        {
+            Program.HideRestoreTip(false); //hide icon
+            Program.HideRestoreTip(); //show icon
+            hkwin.HotKeyPressed(handle, from_menu: true);
         }
 
         protected override void SetVisibleCore(bool value)
