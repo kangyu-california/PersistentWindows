@@ -154,7 +154,7 @@ namespace PersistentWindows.SystrayShell
 
             // web commander
             this.invokeWebCommander.Name = "web commander";
-            this.invokeWebCommander.Text = "Toggle web navigation helper";
+            this.invokeWebCommander.Text = "Toggle webpage commander";
             this.invokeWebCommander.Click += new System.EventHandler(this.WebCommander);
             if (!Program.hotkey_window)
                 this.invokeWebCommander.Enabled = false;
