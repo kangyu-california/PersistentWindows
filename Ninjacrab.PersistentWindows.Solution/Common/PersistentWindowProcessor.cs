@@ -2964,7 +2964,7 @@ namespace PersistentWindows.Common
             User32.SetCursorPos(rect.Left + rect.Width / 2, rect.Top + rect.Height / 2);
         }
 
-        private bool MoveTaskBar(IntPtr hwnd, RECT targetRect, ref bool extra_restore)
+        private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
         {
             // simulate mouse drag, assuming taskbar is unlocked
             /*
@@ -2990,20 +2990,10 @@ namespace PersistentWindows.Common
             }
 
             RECT intersect = new RECT();
-            if (!User32.IntersectRect(out intersect, ref sourceRect, ref targetRect))
-            {
-                if (!restoringSnapshot && !restoringFromDB)
-                {
-                    extra_restore = true;
-                    return false;
-                }
-            }
+            User32.IntersectRect(out intersect, ref sourceRect, ref targetRect);
 
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
-
-            if (extra_restore)
-                return false;
 
             Log.Event($"move taskbar to {targetRect}");
 
@@ -3061,14 +3051,14 @@ namespace PersistentWindows.Common
         }
 
         // recover height of horizontal taskbar or width of vertical taskbar
-        private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect, ref bool extra_restore)
+        private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
         {
             RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
             int deltaHeight = sourceRect.Height - targetRect.Height;
-            if (Math.Abs(deltaWidth) < 15 && Math.Abs(deltaHeight) < 15)
+            if (Math.Abs(deltaWidth) < 10 && Math.Abs(deltaHeight) < 10)
                 return false;
 
             RECT intersect = new RECT();
@@ -3091,12 +3081,6 @@ namespace PersistentWindows.Common
                         top_edge = true;
                     break;
                 }
-            }
-
-            if (!top_edge && !left_edge && restoreTimes < 3)
-            {
-                extra_restore = true;
-                return false;
             }
 
             Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
@@ -3467,8 +3451,8 @@ namespace PersistentWindows.Common
                     {
                         User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
-                    bool changed_edge = MoveTaskBar(hWnd, rect, ref extra_restore);
-                    bool changed_width = RecoverTaskBarArea(hWnd, rect, ref extra_restore);
+                    bool changed_edge = MoveTaskBar(hWnd, rect);
+                    bool changed_width = RecoverTaskBarArea(hWnd, rect);
                     if (changed_edge || changed_width)
                         restoredWindows.Add(hWnd);
                     if (taskbarMovable == 0)
