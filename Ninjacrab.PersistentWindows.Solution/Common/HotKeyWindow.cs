@@ -580,7 +580,7 @@ namespace PersistentWindows.Common
             StartAliveTimer(6);
         }
 
-        private static void StartAliveTimer(int caller_id, int milliseconds = 500)
+        private static void StartAliveTimer(int caller_id, int milliseconds = 200)
         {
             if (aliveTimer != null)
             {
