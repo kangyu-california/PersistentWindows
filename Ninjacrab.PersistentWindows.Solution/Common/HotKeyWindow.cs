@@ -55,7 +55,7 @@ namespace PersistentWindows.Common
 
             //KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
-            MouseClick += new MouseEventHandler(FormMouseDown);
+            MouseClick += new MouseEventHandler(FormMouseClick);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
             FormClosing += new FormClosingEventHandler(FormClose);
             MouseLeave += new EventHandler(FormMouseLeave);
@@ -187,8 +187,12 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void FormMouseDown(object sender, MouseEventArgs e)
+        private void FormMouseClick(object sender, MouseEventArgs e)
         {
+            bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+            if (alt_key_pressed)
+                clickThrough = true;
+
             if (clickThrough)
                 Visible = false;
             IntPtr fgwnd = GetForegroundWindow();
