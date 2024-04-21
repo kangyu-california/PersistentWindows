@@ -84,6 +84,7 @@ namespace PersistentWindows.Common
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
+        private bool exitFullScreenGaming = false;
         private POINT initCursorPos;
         private bool freezeCapture = false;
         public bool rejectScaleFactorChange = true;
@@ -460,6 +461,7 @@ namespace PersistentWindows.Common
                 restoringFromMem = false;
                 bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
+                exitFullScreenGaming = false;
                 ResetState();
 
                 Log.Trace("");
@@ -1363,7 +1365,11 @@ namespace PersistentWindows.Common
                 noRestoreWindows.Remove(hwnd);
                 windowProcessName.Remove(hwnd);
                 debugWindows.Remove(hwnd);
-                fullScreenGamingWindows.Remove(hwnd);
+                if (fullScreenGamingWindows.Contains(hwnd))
+                {
+                    fullScreenGamingWindows.Remove(hwnd);
+                    exitFullScreenGaming = true;
+                }
                 windowTitle.Remove(hwnd);
                 dualPosSwitchWindows.Remove(hwnd);
 
@@ -3444,6 +3450,9 @@ namespace PersistentWindows.Common
                 if (IsTaskBar(hWnd))
                 {
                     if (!fixTaskBar && !restoringFromDB && !restoringSnapshot)
+                        continue;
+
+                    if (exitFullScreenGaming)
                         continue;
 
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
