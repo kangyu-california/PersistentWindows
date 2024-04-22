@@ -94,7 +94,7 @@ namespace PersistentWindows.Common
         private Timer restoreFinishedTimer;
         public bool restoringFromMem = false; // automatic restore from memory or snapshot
         public bool restoringFromDB = false; // manual restore from DB
-        private bool autoInitialRestoreFromDB = false;
+        public bool autoInitialRestoreFromDB = false;
         public bool restoringSnapshot = false; // implies restoringFromMem
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all

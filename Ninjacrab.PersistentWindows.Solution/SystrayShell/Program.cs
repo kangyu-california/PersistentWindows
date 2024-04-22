@@ -595,7 +595,9 @@ namespace PersistentWindows.SystrayShell
 
         static public void RestoreFromDisk(bool ask_dialog)
         {
-            if (ask_dialog || (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
+            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+            if (ask_dialog || (shift_key_pressed && !ctrl_key_pressed))
             {
                 var listCollection = pwp.GetDbCollections();
                 var dlg = new DbKeySelect();
@@ -615,18 +617,23 @@ namespace PersistentWindows.SystrayShell
             else
             {
                 pwp.dbDisplayKey = pwp.GetDisplayKey();
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+                if (ctrl_key_pressed)
                 {
-                    var name = EnterDbEntryName();
-                    if (String.IsNullOrEmpty(name))
-                        return;
+                    if (shift_key_pressed)
+                        pwp.autoInitialRestoreFromDB = true;
+                    else
+                    {
+                        var name = EnterDbEntryName();
+                        if (String.IsNullOrEmpty(name))
+                            return;
 
-                    pwp.dbDisplayKey += name;
+                        pwp.dbDisplayKey += name;
+                    }
                 }
             }
 
             pwp.restoringFromDB = true;
-            pwp.StartRestoreTimer(milliSecond : 2000 /*wait mouse settle still for taskbar restore*/);
+            pwp.StartRestoreTimer(milliSecond : 1000 /*wait mouse settle still for taskbar restore*/);
         }
 
         static public void RestoreSnapshot(int id)
