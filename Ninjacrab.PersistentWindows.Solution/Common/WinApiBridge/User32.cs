@@ -647,6 +647,13 @@ namespace PersistentWindows.Common.WinApiBridge
         }
     }
 
+    public class Gdi32
+    {
+        [DllImport("gdi32.dll")]
+        public static extern int BitBlt(IntPtr srchDc, int srcX, int srcY, int srcW, int srcH,
+                                     IntPtr desthDc, int destX, int destY, int op);
+    }
+
     public class Shell32
     {
         [DllImport("Shell32.dll", CharSet = CharSet.Auto)]

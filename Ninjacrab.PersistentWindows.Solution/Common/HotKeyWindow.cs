@@ -642,6 +642,38 @@ namespace PersistentWindows.Common
             return cursor_info.hCursor;
         }
 
+        private bool IsUniColor(IntPtr hwnd, int x, int y, int xsize, int ysize)
+        {
+            using (Bitmap screenPixel = new Bitmap(xsize, ysize))
+            {
+                using (Graphics gdest = Graphics.FromImage(screenPixel))
+                {
+                    using (Graphics gsrc = Graphics.FromHwnd(hwnd))
+                    {
+                        IntPtr hsrcdc = gsrc.GetHdc();
+                        IntPtr hdc = gdest.GetHdc();
+                        Gdi32.BitBlt(hdc, 0, 0, xsize, ysize, hsrcdc, x, y, (int)CopyPixelOperation.SourceCopy);
+                        gdest.ReleaseHdc();
+                        gsrc.ReleaseHdc();
+                    }
+                }
+
+                var px = screenPixel.GetPixel(0, 0);
+                Console.WriteLine($"pixel ({x}, {y}) {px}");
+                for (int i = 0; i < xsize; ++i)
+                {
+                    for (int j = 0; j < ysize; ++j)
+                    {
+                        var p = screenPixel.GetPixel(i, j);
+                        if (p != px)
+                            return false;
+                    }
+                }
+
+                return true;
+            }
+        }
+
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
             if (!active)
@@ -659,6 +691,7 @@ namespace PersistentWindows.Common
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+
                 if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
                     //yield focus
@@ -689,12 +722,24 @@ namespace PersistentWindows.Common
                         return;
                     }
 
+                    if (hCursor == Cursors.Default.Handle)
+                    {
+                        handCursor = false;
+                        IntPtr desktopWnd = User32.GetDesktopWindow();
+                        //RECT rectDesktop = new RECT();
+                        //User32.GetWindowRect(desktopWnd, ref rectDesktop);
+                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, Width, Height))
+                        {
+                            // hide hotkey window to allow click through possible link
+                            Visible = false;
+                            StartAliveTimer(11, 1000);
+                            return;
+                        }
+                    }
+
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
                     ResetHotkeyWindowPos();
-
-                    if (hCursor == Cursors.Default.Handle)
-                        handCursor = false;
 
                     if (!Visible)
                     {
