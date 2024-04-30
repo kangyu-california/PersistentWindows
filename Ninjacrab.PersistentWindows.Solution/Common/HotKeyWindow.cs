@@ -658,16 +658,16 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                var px = screenPixel.GetPixel(0, 0);
+                var px = screenPixel.GetPixel(xsize/2, 0);
                 Console.WriteLine($"pixel ({x}, {y}) {px}");
                 for (int i = 0; i < xsize; ++i)
                 {
-                    for (int j = 0; j < ysize; ++j)
-                    {
-                        var p = screenPixel.GetPixel(i, j);
-                        if (p != px)
-                            return false;
-                    }
+                    var p = screenPixel.GetPixel(i, i);
+                    if (p != px)
+                        return false;
+                    p = screenPixel.GetPixel(xsize - i - 1, i);
+                    if (p != px)
+                        return false;
                 }
 
                 return true;
@@ -725,10 +725,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
-                        IntPtr desktopWnd = User32.GetDesktopWindow();
-                        //RECT rectDesktop = new RECT();
-                        //User32.GetWindowRect(desktopWnd, ref rectDesktop);
-                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, Width, Height))
+                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
