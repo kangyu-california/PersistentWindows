@@ -729,7 +729,10 @@ namespace PersistentWindows.Common
             {
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
+                {
+                    Visible = false;
                     return;
+                }
 
                 RECT rect = new RECT();
                 User32.GetWindowRect(fgwnd, ref rect);
