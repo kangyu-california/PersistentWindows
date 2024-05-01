@@ -669,7 +669,7 @@ namespace PersistentWindows.Common
                 }
 
                 var p1 = screenPixel.GetPixel(0, 0);
-                var p2 = screenPixel.GetPixel(0, 0);
+                var p2 = screenPixel.GetPixel(xsize - 1, 0);
                 Console.WriteLine($"pixel ({x}, {y}) {p1}");
                 for (int i = 1; i < xsize; ++i)
                 {
