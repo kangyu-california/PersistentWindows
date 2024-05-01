@@ -642,6 +642,52 @@ namespace PersistentWindows.Common
             return cursor_info.hCursor;
         }
 
+        private int DiffColor(Color c1, Color c2)
+        {
+            int result = 0;
+            result += Math.Abs(c1.A - c2.A);
+            result += Math.Abs(c1.R - c2.R);
+            result += Math.Abs(c1.G - c2.G);
+            result += Math.Abs(c1.B - c2.B);
+            return result;
+        }
+
+        private bool IsSimilarColor(IntPtr hwnd, int x, int y, int xsize, int ysize)
+        {
+            using (Bitmap screenPixel = new Bitmap(xsize, ysize))
+            {
+                using (Graphics gdest = Graphics.FromImage(screenPixel))
+                {
+                    using (Graphics gsrc = Graphics.FromHwnd(hwnd))
+                    {
+                        IntPtr hsrcdc = gsrc.GetHdc();
+                        IntPtr hdc = gdest.GetHdc();
+                        Gdi32.BitBlt(hdc, 0, 0, xsize, ysize, hsrcdc, x, y, (int)CopyPixelOperation.SourceCopy);
+                        gdest.ReleaseHdc();
+                        gsrc.ReleaseHdc();
+                    }
+                }
+
+                var p1 = screenPixel.GetPixel(0, 0);
+                var p2 = screenPixel.GetPixel(0, 0);
+                Console.WriteLine($"pixel ({x}, {y}) {p1}");
+                for (int i = 1; i < xsize; ++i)
+                {
+                    Color p = screenPixel.GetPixel(i, i);
+                    if (DiffColor(p, p1) > 10)
+                        return false;
+                    p1 = p;
+
+                    p = screenPixel.GetPixel(xsize - i - 1, i);
+                    if (DiffColor(p, p2) > 10)
+                        return false;
+                    p2 = p;
+                }
+
+                return true;
+            }
+        }
+
         private bool IsUniColor(IntPtr hwnd, int x, int y, int xsize, int ysize)
         {
             using (Bitmap screenPixel = new Bitmap(xsize, ysize))
@@ -725,7 +771,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
-                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
+                        if (cursorWnd != handle && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
@@ -766,7 +812,10 @@ namespace PersistentWindows.Common
                 if (browserWindowActivated)
                     TopMost = true;
                 else
+                {
                     TopMost = false;
+                    //todo, sink to bottom of z-order
+                }
 
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
