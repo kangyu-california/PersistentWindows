@@ -2376,10 +2376,10 @@ namespace PersistentWindows.Common
                 }
                 else if (displayKey.Equals(curDisplayKey))
                 {
-                    // confirmed user moves
-                    RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
                     if (movedWindows > 0)
                     {
+                        // confirmed user moves
+                        RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
                         Log.Trace("{0} windows captured\n", movedWindows);
                     }
                 }
