@@ -11,7 +11,8 @@
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for the processes *notepad.exe* and *foo*
   | -foreground_background_dual_position=0 | Turn off dual position switching
-  | -hotkey_window=0 | Turn off hotkey window for web browsing
+  | -webpage_commander_window=0 | Turn off commander window for web browsing
+  | -hotkey "Q" | register Alt + Q as the hotkey to (de)activate webpage commander window, default hotkey is "W" (Alt + W)
   | -ctrl_minimize_to_tray=0 | Turn off ctrl minimize window to notification tray
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
@@ -72,37 +73,38 @@
   * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
 
 ### Webpage commander window
-* A webpage commander window captures one-letter command (or trivial mouse click) and relay them to the underlying web browser window to improve efficiency.
+* A webpage commander window captures command shortcuts (which are carefully designed to be done single handedly) and translates them to the underlying web browser window, maximizing the efficiency of web browsing.
 * Press Alt + W to activate/deactivate the webpage commander window.
-* Once the hotkey window is activated, the following command shortcuts are ready to use
-  | Keyboard shortcut| Translation | Meaning|
+* Once activated, Press Z to toggle the size of commander window (the 8x8 tiny sized commander window is strongly suggested),
+and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Edge, Firefox, Opera, Brave, Vivaldi etc)
+  | Command shortcut| Translation | Meaning|
   | --- | --- | --- |
-  | 1-8 | Ctrl + #n | goto tab #n
-  | 9 || goto last tab (on right hand side)
-  | TAB | Ctrl + TAB | next tab (on right hand side)
-  | Q | Shift + Ctrl + TAB | previous tab (on left hand side)
-  | W | Ctrl + W | close tab
+  | 1-8 | Ctrl + #n | select tab #n
+  | 9 || select the right-most tab
+  | TAB | Ctrl + TAB | select the next tab to the right
+  | Q | Shift + Ctrl + TAB | select the previous tab to the left
+  | W | Ctrl + W | close the tab
   | T | Ctrl + T | new tab
-  | R | Ctrl + R | Reload web page
-  | A | Ctrl + L | enter web Address
+  | R | Ctrl + R | Reload the web page
+  | A | Ctrl + L | change the web Address
   | S | Ctrl + F | Search in current page
-  | X (or /) | / | search web (Chrome, Edge, Opera) or quick find (Firefox) 
-  | E | Home | page head
-  | D | End | page end
-  | F | Alt + Right | go Forward to next web page
-  | B | Alt + Left | go Backward to previous web page
-  | G | Ctrl + Shift + A | list tabs (for Chrome/Edge/Brave only)
-  | C | | Copy tab (duplicate tab)
+  | X (or /) | / | search the web
+  | E | Home | scroll to page head
+  | D | End | scroll to page end
+  | F | Alt + Right | go Forward to the next web page in history
+  | B | Alt + Left | go Backward to the previous web page in history
+  | G | Ctrl + Shift + A | list all tabs (for Chrome/Edge/Brave only)
+  | V | | goto the last visited tab
+  | C | | Copy(duplicate) the current tab
   | U (or Shift + T) | Ctrl + Shift + T | Undo close tab
-  | V | | goto the most recently visited tab
   | N | Ctrl + N | New browser window
   | H | Left | scroll left
   | J | Down | scroll down
   | K | Up | scroll up
   | L | Right | scroll right
-  | Space (or left click in commander window) | | Page down
-  | P (or right click in commander window) | | page up
-  | Z | | Zoom in/out (toggle the size of commander window)
+  | Space (or left click in the commander window) | PgDn | page down
+  | P (or right click in the commander window) | PgUp | page up
+  | Z | | Zoom in/out the commander window
   | ~ | | toggle the color of commander window
 
 ### Other features

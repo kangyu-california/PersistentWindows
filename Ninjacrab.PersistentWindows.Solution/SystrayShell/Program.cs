@@ -201,6 +201,7 @@ namespace PersistentWindows.SystrayShell
                         pwp.enableMinimizeToTray = false;
                         break;
                     case "-hotkey_window=0":
+                    case "-webpage_commander_window=0":
                         hotkey_window = false;
                         break;
                     case "-hotkey":
