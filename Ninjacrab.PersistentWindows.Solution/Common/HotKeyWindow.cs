@@ -194,16 +194,22 @@ namespace PersistentWindows.Common
                 clickThrough = true;
 
             if (clickThrough)
-                Visible = false;
+                Left -= 10;
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
             if (clickThrough)
             {
-                User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
-                    8, 0, 0, UIntPtr.Zero);
-                Visible = true;
+                if (e.Button == MouseButtons.Left)
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                        0, 0, 0, UIntPtr.Zero);
+                else if (e.Button == MouseButtons.Right)
+                    User32.mouse_event(MouseAction.MOUSEEVENTF_RIGHTDOWN | MouseAction.MOUSEEVENTF_RIGHTUP,
+                        0, 0, 0, UIntPtr.Zero);
                 clickThrough = false;
+                Thread.Sleep(3000);
+                Left += 10;
+                return;
             }
 
             if (e.Button == MouseButtons.Left)

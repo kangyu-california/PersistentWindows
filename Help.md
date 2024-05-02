@@ -96,10 +96,10 @@
   | U (or Shift + T) | Ctrl + Shift + T | Undo close tab
   | V | | goto the most recently visited tab
   | N | Ctrl + N | New browser window
-  | H | | scroll left
-  | J | | scroll down
-  | K | | scroll up
-  | L | | scroll right
+  | H | Left | scroll left
+  | J | Down | scroll down
+  | K | Up | scroll up
+  | L | Right | scroll right
   | Space (or left click in commander window) | | Page down
   | P (or right click in commander window) | | page up
   | Z | | Zoom in/out (toggle the size of commander window)
