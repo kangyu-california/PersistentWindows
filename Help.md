@@ -71,35 +71,39 @@
   * To include a child/dialog window for auto capture/restore, move the window once using the mouse
   * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
 
-### Hotkey window for efficient web browsing
-* A hotkey window is used to translate simplified keyboard/mouse commands and relay them to the underlying web browser window.
-* Press Alt + Q to activate/deactivate the hotkey window.
+### Webpage commander window
+* A webpage commander window captures one-letter command (or trivial mouse click) and relay them to the underlying web browser window to improve efficiency.
+* Press Alt + W to activate/deactivate the webpage commander window.
 * Once the hotkey window is activated, the following command shortcuts are ready to use
   | Keyboard shortcut| Translation | Meaning|
   | --- | --- | --- |
-  | TAB | Ctrl + TAB | next tab
-  | Q | Shift + Ctrl + TAB | previous tab
+  | 1-8 | Ctrl + #n | goto tab #n
+  | 9 || goto last tab (on right hand side)
+  | TAB | Ctrl + TAB | next tab (on right hand side)
+  | Q | Shift + Ctrl + TAB | previous tab (on left hand side)
   | W | Ctrl + W | close tab
   | T | Ctrl + T | new tab
-  | 1-8 | Ctrl + #n | goto tab #n
-  | 9 || goto last tab
-  | C | | Copy tab (duplicate tab)
-  | R | | Reload web page
-  | A | | enter web Address
-  | S | | Search in web page
-  | E | Home | goto page head
-  | D | End | goto page end
+  | R | Ctrl + R | Reload web page
+  | A | Ctrl + L | enter web Address
+  | S | Ctrl + F | Search in current page
+  | X (or /) | / | search web (Chrome, Edge, Opera) or quick find (Firefox) 
+  | E | Home | page head
+  | D | End | page end
   | F | Alt + Right | go Forward to next web page
   | B | Alt + Left | go Backward to previous web page
-  | G | | Go to the list of tabs (for google chrome only)
-  | P | | page up
-  | N | | page down
+  | G | Ctrl + Shift + A | list tabs (for Chrome/Edge/Brave only)
+  | C | | Copy tab (duplicate tab)
+  | U (or Shift + T) | Ctrl + Shift + T | Undo close tab
+  | V | | goto the most recently visited tab
+  | N | Ctrl + N | New browser window
+  | H | | scroll left
   | J | | scroll down
   | K | | scroll up
-  | Z | | toggle the size of hotkey window, Zoom in/out
-  | X | | toggle the color of hotkey window
-  | left mouse button click in the blank area of hotkey window || page down
-  | right mouse button click in the blank area hotkey window || page up
+  | L | | scroll right
+  | Space (or left click in commander window) | | Page down
+  | P (or right click in commander window) | | page up
+  | Z | | Zoom in/out (toggle the size of commander window)
+  | ~ | | toggle the color of commander window
 
 ### Other features
 * To replace the default app icon with your customized one:

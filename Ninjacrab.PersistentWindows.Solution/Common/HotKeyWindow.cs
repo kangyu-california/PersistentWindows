@@ -418,7 +418,7 @@ namespace PersistentWindows.Common
                 //toggle zoom (tiny) mode
                 ToggleWindowSize();
             }
-            else if (e.KeyCode == Keys.X)
+            else if (e.KeyCode == Keys.X || e.KeyCode == Keys.Divide)
             {
                 // goto search box
                 SendKeys.Send("{DIVIDE}");
