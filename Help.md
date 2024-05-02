@@ -106,6 +106,7 @@ and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Ed
   | P (or right click in the commander window) | PgUp | page up
   | Z | | Zoom in/out the commander window
   | ~ | | toggle the color of commander window
+  | Alt + click commander window || send the mouse click to the underlying browser window
 
 ### Other features
 * To replace the default app icon with your customized one:
