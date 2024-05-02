@@ -86,15 +86,15 @@ and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Ed
   | W | Ctrl + W | close the tab
   | T | Ctrl + T | new tab
   | R | Ctrl + R | Reload the web page
-  | A | Ctrl + L | change the web Address
+  | A | Ctrl + L | edit the web Address
   | S | Ctrl + F | Search in current page
   | X (or /) | / | search the web
   | E | Home | scroll to page head
   | D | End | scroll to page end
   | F | Alt + Right | go Forward to the next url
   | B | Alt + Left | go Backward to the previous url
-  | G | Ctrl + Shift + A | list all tabs (for Chrome/Edge/Brave only)
-  | V | | goto the last visited tab
+  | G | Ctrl + Shift + A | Goto (select) one tab (for Chrome/Edge/Brave only)
+  | V | | goto the last Visited tab
   | C | | Copy(duplicate) the current tab
   | U (or Shift + T) | Ctrl + Shift + T | Undo close tab
   | N | Ctrl + N | New browser window
