@@ -80,7 +80,7 @@ and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Ed
   | Command shortcut| Translation | Meaning|
   | --- | --- | --- |
   | 1-8 | Ctrl + #n | select tab #n
-  | 9 || select the right-most tab
+  | 9 | Ctrl + 9 | select the right-most tab
   | TAB | Ctrl + TAB | select the next tab to the right
   | Q | Shift + Ctrl + TAB | select the previous tab to the left
   | W | Ctrl + W | close the tab
@@ -91,8 +91,8 @@ and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Ed
   | X (or /) | / | search the web
   | E | Home | scroll to page head
   | D | End | scroll to page end
-  | F | Alt + Right | go Forward to the next web page in history
-  | B | Alt + Left | go Backward to the previous web page in history
+  | F | Alt + Right | go Forward to the next url
+  | B | Alt + Left | go Backward to the previous url
   | G | Ctrl + Shift + A | list all tabs (for Chrome/Edge/Brave only)
   | V | | goto the last visited tab
   | C | | Copy(duplicate) the current tab
