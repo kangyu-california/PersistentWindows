@@ -86,7 +86,8 @@ Choose one of the two options:
 - PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
   
 ## Known Issues
-- **Multiple invocations of "Restore windows from disk" might be needed in order to recover all missing windows after system startup.**
+-  PersistentWindows may malfunction on fractionally scaled display (such as 125%, 150% etc), it is strongly suggested to override the high DPI scaling property of PersistentWindows.exe to "Application" via Properties->Compatibility->Change high DPI settings dialog from explorer, user needs to capture windows to disk immediately after relaunching PW w/ the new DPI setting.
+![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/d410aa87-4552-42da-b7a4-e9d7ab1947b1)
 - PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed
 
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="500"/>

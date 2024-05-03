@@ -76,7 +76,7 @@
 * A webpage commander window captures command shortcuts (which are carefully designed to be done single handedly) and translates them to the underlying web browser window, maximizing the efficiency of web browsing.
 * Press Alt + W to activate/deactivate the webpage commander window.
 * Once activated, Press Z to toggle the size of commander window (the 8x8 tiny sized commander window is strongly suggested),
-and now enjoy one-letter command shortcuts on all major web browsers (Chrome, Edge, Firefox, Opera, Brave, Vivaldi etc)
+and now enjoy one-key command shortcuts on all major web browsers (Chrome, Edge, Firefox, Opera, Brave, Vivaldi etc)
   | Command shortcut| Translation | Meaning|
   | --- | --- | --- |
   | 1-8 | Ctrl + #n | select tab #n
