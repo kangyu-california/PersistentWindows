@@ -80,7 +80,7 @@ Choose one of the two options:
   * process id and command line of the window
   * Ctrl, Alt, Shift key strokes when clicking or moving a window
   * key-stroke events when interacting with the PersistentWindows icon on taskbar
-  * key-stroke events (only as command shortcut), mouse click/scroll events and cursor position/shape in web browser when hotkey window is activated (Alt + Q)
+  * key-stroke events (only as command shortcut), mouse click/scroll events and cursor position/shape in web browser when webpage commander window is activated (Alt + W)
 - The history of keyboard/mouse events is typically erased 1 second after received
 - Window information history is kept in memory or in the hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
 - PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
