@@ -188,15 +188,15 @@ namespace PersistentWindows.Common
         private void FormMouseClick(object sender, MouseEventArgs e)
         {
             bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
-            if (alt_key_pressed)
-                clickThrough = true;
 
-            if (clickThrough)
+            if (alt_key_pressed)
                 Left -= 10;
+            if (clickThrough)
+                Visible = false;
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
 
-            if (clickThrough)
+            if (alt_key_pressed || clickThrough)
             {
                 if (e.Button == MouseButtons.Left)
                     User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
@@ -204,9 +204,17 @@ namespace PersistentWindows.Common
                 else if (e.Button == MouseButtons.Right)
                     User32.mouse_event(MouseAction.MOUSEEVENTF_RIGHTDOWN | MouseAction.MOUSEEVENTF_RIGHTUP,
                         0, 0, 0, UIntPtr.Zero);
-                clickThrough = false;
-                Thread.Sleep(3000);
-                Left += 10;
+                if (alt_key_pressed)
+                {
+                    Thread.Sleep(3000);
+                    Left += 10;
+                }
+                if (clickThrough)
+                {
+                    Thread.Sleep(250);
+                    clickThrough = false;
+                    Visible = true;
+                }
                 return;
             }
 
