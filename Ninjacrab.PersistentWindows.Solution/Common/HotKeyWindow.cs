@@ -874,7 +874,7 @@ namespace PersistentWindows.Common
 
                 if (Visible)
                 {
-                    Console.WriteLine("hotkey window activated by caller {0}", callerAliveTimer);
+                    Console.WriteLine("webpage commander window activated by caller {0}", callerAliveTimer);
                     Activate();
                 }
                 else
@@ -969,7 +969,7 @@ namespace PersistentWindows.Common
             {
                 if (promptZkey)
                 {
-                    MessageBox.Show("You may also press Z key to toggle the size of hotkey window",
+                    MessageBox.Show("You may also press Z key to toggle the size of webpage commander window",
                         Application.ProductName,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information,
