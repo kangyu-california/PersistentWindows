@@ -115,9 +115,6 @@ namespace PersistentWindows.Common
             if (center_screen)
                 return;
 
-            if (handCursor)
-                return;
-
             POINT cursor;
             User32.GetCursorPos(out cursor);
             Left = cursor.X - Size.Width / 2;
@@ -763,21 +760,9 @@ namespace PersistentWindows.Common
                 {
                     //mouse moving, continue monitor
                 }
-                else if (callerAliveTimer == 7)
-                {
-                    //cursor shape changed from ibeam/cross, but no position change, keep on waiting
-                    StartAliveTimer(7);
-                    return;
-                }
                 else
                 {
                     IntPtr hCursor = GetCursor();
-                    if (hCursor == Cursors.IBeam.Handle || hCursor == Cursors.Cross.Handle)
-                    {
-                        StartAliveTimer(7);
-                        return;
-                    }
-
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
@@ -788,6 +773,11 @@ namespace PersistentWindows.Common
                             StartAliveTimer(11, 1000);
                             return;
                         }
+                    }
+                    else if (hCursor == Cursors.IBeam.Handle || hCursor == Cursors.Cross.Handle || handCursor)
+                    {
+                        StartAliveTimer(7);
+                        return;
                     }
 
                     // let tiny hotkey window follow cursor position
