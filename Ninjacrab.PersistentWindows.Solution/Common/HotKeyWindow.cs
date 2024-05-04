@@ -778,6 +778,7 @@ namespace PersistentWindows.Common
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
+                            clickThrough = true;
                             StartAliveTimer(11, 1000);
                             return;
                         }
