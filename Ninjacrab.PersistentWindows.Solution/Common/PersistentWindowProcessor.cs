@@ -3950,9 +3950,15 @@ namespace PersistentWindows.Common
         public static bool IsBrowserWindow(IntPtr hwnd)
         {
             string processName;
-            var process = GetProcess(hwnd);
-            if (process != null)
+            if (windowProcessName.ContainsKey(hwnd))
             {
+                processName = windowProcessName[hwnd];
+            }
+            else
+            {
+                var process = GetProcess(hwnd);
+                if (process == null)
+                    return false;
                 try
                 {
                     processName = process.ProcessName;
@@ -3963,11 +3969,8 @@ namespace PersistentWindows.Common
                     //process might have been terminated
                     return false;
                 }
-
-                return browserProcessNames.Contains(processName);
             }
-
-            return false;
+            return browserProcessNames.Contains(processName);
         }
 
         public static bool IsDesktopWindow(IntPtr hwnd)
