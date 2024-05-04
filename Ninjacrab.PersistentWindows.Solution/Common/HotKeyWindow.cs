@@ -113,9 +113,10 @@ namespace PersistentWindows.Common
         private void ResetHotkeyWindowPos(bool center_screen = false)
         {
             if (center_screen)
-            {
                 return;
-            }
+
+            if (handCursor)
+                return;
 
             POINT cursor;
             User32.GetCursorPos(out cursor);
@@ -807,9 +808,12 @@ namespace PersistentWindows.Common
                         return;
                     }
 
-                    Left -= 10;
+                    // hand cursor shape
                     if (!handCursor)
+                    {
                         handCursor = true;
+                        Left -= 10;
+                    }
                 }
 
                 StartAliveTimer(8);
