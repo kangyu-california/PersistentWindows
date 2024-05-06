@@ -110,13 +110,18 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void ResetHotkeyWindowPos(bool center_screen = false)
+        private void ResetHotkeyWindowPos(bool from_menu = false)
         {
-            if (center_screen)
-                return;
-
             POINT cursor;
             User32.GetCursorPos(out cursor);
+            if (from_menu)
+            {
+                IntPtr fgwnd = GetForegroundWindow();
+                RECT fgwinPos = new RECT();
+                User32.GetWindowRect(fgwnd, ref fgwinPos);
+                cursor.X = (fgwinPos.Left + fgwinPos.Right) / 2;
+                cursor.Y = (fgwinPos.Top + fgwinPos.Bottom) / 2;
+            }
             Left = cursor.X - Size.Width / 2;
             Top = cursor.Y - Size.Height / 2;
         }
