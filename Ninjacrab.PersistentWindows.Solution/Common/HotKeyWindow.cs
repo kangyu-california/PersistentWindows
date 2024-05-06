@@ -284,7 +284,16 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (e.KeyCode == Keys.W)
+            if (e.KeyCode == Keys.Menu && !e.Control)
+            {
+                //forward to browser
+                SendKeys.Send("%");
+                return_focus_to_hotkey_window = false;
+                Visible = false;
+                if (!tiny)
+                    StartAliveTimer(13);
+            }
+            else if (e.KeyCode == Keys.W)
             {
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
