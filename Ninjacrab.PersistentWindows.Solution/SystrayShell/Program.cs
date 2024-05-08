@@ -271,13 +271,6 @@ namespace PersistentWindows.SystrayShell
 #endif
             AppdataFolder = appDataFolder;
 
-            if (!waiting_taskbar)
-            {
-                bool ready = WaitTaskbarReady();
-                if (!ready)
-                    return;
-            }
-
             // default icons
             IdleIcon = legacy_icon ? Properties.Resources.pwIcon2 : Properties.Resources.pwIcon;
             var iconHandle = Properties.Resources.pwIconBusy.GetHicon();
@@ -361,6 +354,13 @@ namespace PersistentWindows.SystrayShell
             {
                 systrayForm.notifyIconMain.Visible = false;
                 return;
+            }
+
+            if (!waiting_taskbar)
+            {
+                bool ready = WaitTaskbarReady();
+                if (!ready)
+                    return;
             }
 
             if (splash)
