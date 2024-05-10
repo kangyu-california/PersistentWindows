@@ -76,9 +76,10 @@ Choose one of the two options:
   * window size
   * window Z-order
   * window caption text
-  * window class name
+  * window class name   
   * process id and command line of the window
   * Ctrl, Alt, Shift key strokes when clicking or moving a window
+  * Ctrl, Alt, Shift key strokes when selecting PersistentWindows menu items
   * key-stroke events when interacting with the PersistentWindows icon on taskbar
   * key-stroke events (only as command shortcut), mouse click/scroll events and cursor position/shape in web browser when webpage commander window is activated (Alt + W)
 - The history of keyboard/mouse events is typically erased 1 second after received
@@ -93,8 +94,9 @@ Choose one of the two options:
   <img src="https://user-images.githubusercontent.com/59128756/184041561-5389f540-c61a-4ee7-90ff-f9f725ba3682.png" alt="image" width="500"/>
   <img src="https://user-images.githubusercontent.com/59128756/187988981-b2564618-2724-4e1e-a718-cd0786a4251e.png" alt="wait chain" width="500"/>
 
-## Tips To Digest Before Reporting A Bug
-- The window Z-order can be restored in addition to the two-dimentional layout. This feature is enabled for snapshot restore only.
+## Tips To Digest Before Reporting A Bug or Enhancement Request
+- PersistentWindows provides a rich set of command line options for customization, check out [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md) for a complete list of available options. [how to customize command line options](https://github.com/kangyu-california/PersistentWindows/discussions/313)
+- The window Z-order can be restored in addition to the two-dimentional layout. This feature is enabled for manual snapshot restore only. To turn on Z-order fix for automatic restore, run PersistentWindows with -fix_zorder=1
 - To help me diagnose a bug, please run Event Viewer, locate the "Windows Logs" -> "Application" section, then search for Event ID 9990 and 9999, and copy-paste the content of these events to the new issue report, as shown in the following example
   <img src="https://user-images.githubusercontent.com/59128756/190280503-a96ce57f-a6f0-4aad-9748-221bbb4f9207.png" alt="image" width="800"/>
 - If there are too many events to report, click "Filter current log" from the Action panel in Event Viewer, choose all 9990 and 9999 events in last hour, then click "Save Filtered Log File As", select "Text (*.txt)" format, and attach the saved events file to the bug report
