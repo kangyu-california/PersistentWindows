@@ -19,7 +19,6 @@ namespace PersistentWindows.Common
     {
         private uint hotkey;
 
-        public static IntPtr parentHandle = IntPtr.Zero;
         public static IntPtr handle = IntPtr.Zero;
 
         private static System.Timers.Timer aliveTimer;
@@ -543,23 +542,20 @@ namespace PersistentWindows.Common
             }
         }
 
-        public void HotKeyPressed(IntPtr parent_handle, bool from_menu)
+        public void HotKeyPressed(bool from_menu)
         {
             if (InvokeRequired)
                 BeginInvoke((Action) delegate ()
                 {
-                    HotKeyPressed(parent_handle, from_menu);
+                    HotKeyPressed(from_menu);
                 });
             else
             {
-                parentHandle = parent_handle;
-
                 if (!from_menu)
                 {
                     IntPtr fgwnd = GetForegroundWindow();
                     if (!IsBrowserWindow(fgwnd))
                     {
-                        //User32.UnregisterHotKey(parentHandle, 0);
                         //forward hotkey
                         char c = Convert.ToChar(hotkey);
                         string cmd = $"%{c}";
