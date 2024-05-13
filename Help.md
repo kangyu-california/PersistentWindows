@@ -63,6 +63,8 @@
     * press any of Ctrl/Shift/Alt key when activating the window
 * To restore a new window to its last closing position:
   * Ctrl + Click the PersistentWindows icon
+* To put the foreground window to the center of main monitor
+  * Shift + Click the PersistentWindows icon
 * To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by the Windows OS, which, however, does not work for windows inside a remote desktop window):
   * Alt + Click the desktop window to bring foreground window to bottom Z-order.
   * Ctrl + Alt + Click the PersistentWindows icon to bring *maximized* foreground window to bottom Z-order.
