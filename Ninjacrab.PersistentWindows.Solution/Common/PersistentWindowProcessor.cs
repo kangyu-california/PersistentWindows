@@ -34,7 +34,7 @@ namespace PersistentWindows.Common
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
-        private const int MaxSnapshots = 37; // 0-9, a-z, and final one for undo
+        private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
         private const int MaxHistoryQueueLength = 40; // must be bigger than MaxSnapshots + 1
 
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
@@ -509,6 +509,13 @@ namespace PersistentWindows.Common
 
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
+
+                    if (!wasRestoringSnapshot)
+                    {
+                        if (!snapshotTakenTime.ContainsKey(curDisplayKey))
+                            snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
+                        snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = lastUserActionTime[curDisplayKey];
+                    }
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
                         CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);

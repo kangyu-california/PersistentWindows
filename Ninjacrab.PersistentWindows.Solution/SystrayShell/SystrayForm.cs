@@ -15,6 +15,8 @@ namespace PersistentWindows.SystrayShell
 {
     public partial class SystrayForm : Form
     {
+        private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
+
         public bool restoreToolStripMenuItemEnabled;
         public bool restoreSnapshotMenuItemEnabled;
 
@@ -70,11 +72,11 @@ namespace PersistentWindows.SystrayShell
 
             pauseUpgradeCounter = true;
 
-            int keyPressed = -1;
+            Keys keyPressed = Keys.None;
             //check 0-9 key pressed
-            for (int i = 0x30; i < 0x3a; ++i)
+            for (Keys i = Keys.D0; i <= Keys.D9; ++i)
             {
-                if (User32.GetAsyncKeyState(i) != 0)
+                if (User32.GetAsyncKeyState((int)i) != 0)
                 {
                     keyPressed = i;
                     break;
@@ -82,13 +84,21 @@ namespace PersistentWindows.SystrayShell
             }
 
             //check a-z pressed
-            if (keyPressed < 0)
-            for (int i = 0x41; i < 0x5b; ++i)
+            if (keyPressed == Keys.None)
+            for (Keys i = Keys.A; i <= Keys.Z; ++i)
             {
-                if (User32.GetAsyncKeyState(i) != 0)
+                if (User32.GetAsyncKeyState((int)i) != 0)
                 {
                     keyPressed = i;
                     break;
+                }
+            }
+
+            if (keyPressed == Keys.None)
+            {
+                if (User32.GetAsyncKeyState((int)Keys.Oem3) != 0)
+                {
+                    keyPressed = Keys.Oem3;
                 }
             }
 
@@ -104,7 +114,7 @@ namespace PersistentWindows.SystrayShell
             else if (altKeyPressed == clickCount && altKeyPressed != 0 && ctrlKeyPressed == 0)
             {
                 //restore previous workspace (not necessarily a snapshot)
-                Program.RestoreSnapshot(36); //MaxSnapShot - 1
+                Program.RestoreSnapshot(MaxSnapshots - 1);
             }
             else
             {
@@ -128,12 +138,14 @@ namespace PersistentWindows.SystrayShell
                 else
                 {
                     int snapshot;
-                    if (keyPressed < 0x3a)
-                        snapshot = keyPressed - 0x30;
+                    if (keyPressed == Keys.Oem3)
+                        snapshot = MaxSnapshots - 2;
+                    else if (keyPressed <= Keys.D9)
+                        snapshot = keyPressed - Keys.D0;
                     else
-                        snapshot = keyPressed - 0x41 + 10; 
+                        snapshot = keyPressed - Keys.A + 10; 
 
-                    if (snapshot < 0 || snapshot > 35)
+                    if (snapshot < 0 || snapshot > MaxSnapshots - 2)
                     {
                         //invalid key pressed
                     }
@@ -407,15 +419,17 @@ namespace PersistentWindows.SystrayShell
                 Console.WriteLine("MouseClick");
 
                 // clear memory of keyboard input
-                for (int i = 0x30; i < 0x3a; ++i)
+                for (Keys i = Keys.D0; i <= Keys.D9; ++i)
                 {
-                    User32.GetAsyncKeyState(i);
+                    User32.GetAsyncKeyState((int)i);
                 }
 
-                for (int i = 0x41; i < 0x5b; ++i)
+                for (Keys i = Keys.A; i <= Keys.Z; ++i)
                 {
-                    User32.GetAsyncKeyState(i);
+                    User32.GetAsyncKeyState((int)i);
                 }
+
+                User32.GetAsyncKeyState((int)Keys.Oem3);
             }
         }
 

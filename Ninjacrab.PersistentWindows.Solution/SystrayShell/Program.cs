@@ -25,6 +25,8 @@ namespace PersistentWindows.SystrayShell
         public static bool Gui = true;
         public static bool hotkey_window = true;
 
+        private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
+
         static PersistentWindowProcessor pwp = null;    
         static SystrayForm systrayForm = null;
         static bool silent = false; //suppress all balloon tip & sound prompt
@@ -514,6 +516,8 @@ namespace PersistentWindows.SystrayShell
                 c = '0';
                 c += (char)id;
             }
+            else if (id == MaxSnapshots - 2)
+                c = '`';
             else
             {
                 c = 'a';
@@ -525,6 +529,8 @@ namespace PersistentWindows.SystrayShell
 
         static public int SnapshotCharToId(char c)
         {
+            if (c == '`')
+                return MaxSnapshots - 2;
             if (c < '0')
                 return -1;
             if (c > 'z')
