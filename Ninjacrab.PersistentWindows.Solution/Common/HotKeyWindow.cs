@@ -752,6 +752,11 @@ namespace PersistentWindows.Common
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                 {
+                    if (browserWindowActivated)
+                    {
+                        StartAliveTimer(6, 1000);
+                        return;
+                    }
                     Visible = false;
                     return;
                 }
