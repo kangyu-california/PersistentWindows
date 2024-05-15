@@ -456,6 +456,7 @@ namespace PersistentWindows.Common
                 unResponsiveWindows.Clear();
                 noRecordWindows.Clear();
 
+                bool wasRestoringFromDB = restoringFromDB;
                 restoringFromDB = false;
                 autoInitialRestoreFromDB = false;
                 restoringFromMem = false;
@@ -510,7 +511,7 @@ namespace PersistentWindows.Common
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
 
-                    if (!wasRestoringSnapshot)
+                    if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
