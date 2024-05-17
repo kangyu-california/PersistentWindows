@@ -515,7 +515,8 @@ namespace PersistentWindows.Common
                     {
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
-                        snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = lastUserActionTime[curDisplayKey];
+                        if (lastUserActionTime.ContainsKey(curDisplayKey))
+                            snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = lastUserActionTime[curDisplayKey];
                     }
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
