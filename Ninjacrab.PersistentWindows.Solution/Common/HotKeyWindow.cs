@@ -359,11 +359,10 @@ namespace PersistentWindows.Common
             {
                 ;
             }
-            /*
             else if (e.KeyCode == Keys.Escape)
             {
+                SendKeys.Send("{ESC}");
             }
-            */
             else if (e.KeyCode == Keys.Oemtilde)
             {
                 //switch background color
