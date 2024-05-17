@@ -138,7 +138,9 @@ namespace PersistentWindows.SystrayShell
                 else
                 {
                     int snapshot;
-                    if (keyPressed == Keys.Oem3)
+                    if (keyPressed == Keys.None)
+                        snapshot = 0;
+                    else if (keyPressed == Keys.Oem3)
                         snapshot = MaxSnapshots - 2;
                     else if (keyPressed <= Keys.D9)
                         snapshot = keyPressed - Keys.D0;
