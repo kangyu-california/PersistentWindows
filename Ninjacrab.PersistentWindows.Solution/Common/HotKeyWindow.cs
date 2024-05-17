@@ -472,12 +472,12 @@ namespace PersistentWindows.Common
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
-            else if (e.KeyCode == Keys.J)
+            else if (e.KeyCode == Keys.J || e.KeyCode == Keys.Down)
             {
                 //down one line
                 SendKeys.Send("{DOWN}");
             }
-            else if (e.KeyCode == Keys.K)
+            else if (e.KeyCode == Keys.K || e.KeyCode == Keys.Up)
             {
                 //up one line
                 SendKeys.Send("{UP}");
@@ -497,12 +497,12 @@ namespace PersistentWindows.Common
                 //new window
                 SendKeys.Send("^n");
             }
-            else if (e.KeyCode == Keys.H)
+            else if (e.KeyCode == Keys.H || e.KeyCode == Keys.Left)
             {
                 //left
                 SendKeys.Send("{LEFT}");
             }
-            else if (e.KeyCode == Keys.L)
+            else if (e.KeyCode == Keys.L || e.KeyCode == Keys.Right)
             {
                 //right
                 SendKeys.Send("{RIGHT}");
