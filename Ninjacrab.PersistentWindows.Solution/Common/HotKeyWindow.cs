@@ -796,6 +796,14 @@ namespace PersistentWindows.Common
                             StartAliveTimer(11, 1000);
                             return;
                         }
+
+                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
+                        {
+                            Left = cursorPos.X - 10;
+                            Top = cursorPos.Y - 10;
+                            StartAliveTimer(11, 1000);
+                            return;
+                        }
                     }
                     else if (hCursor == Cursors.IBeam.Handle || hCursor == Cursors.Cross.Handle || handCursor)
                     {
