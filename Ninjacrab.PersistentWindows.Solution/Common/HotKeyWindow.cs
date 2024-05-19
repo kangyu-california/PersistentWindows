@@ -805,7 +805,13 @@ namespace PersistentWindows.Common
                             return;
                         }
                     }
-                    else if (hCursor == Cursors.IBeam.Handle || hCursor == Cursors.Cross.Handle || handCursor)
+                    else if (hCursor == Cursors.IBeam.Handle)
+                    {
+                        Visible = false;
+                        StartAliveTimer(11, 1000);
+                        return;
+                    }
+                    else if (hCursor == Cursors.Cross.Handle || handCursor)
                     {
                         StartAliveTimer(7);
                         return;
