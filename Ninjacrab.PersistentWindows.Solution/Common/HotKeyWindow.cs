@@ -334,6 +334,10 @@ namespace PersistentWindows.Common
                 if (e.Shift)
                     mod += "+";
                 SendKeys.Send(mod + "{F" + fn + "}");
+                return_focus_to_hotkey_window = false;
+                Visible = false;
+                if (!tiny)
+                    StartAliveTimer(2);
             }
             else if (e.KeyCode >= Keys.D0 && e.KeyCode <= Keys.D9)
             {
