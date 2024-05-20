@@ -380,10 +380,10 @@ namespace PersistentWindows.Common
                     ActivateWindow(hwnd); //window could be active on alt-tab
                     if (IsFullScreen(hwnd) || IsRdpWindow(hwnd))
                     {
-                        if (User32.IsWindowVisible(HotKeyWindow.handle))
+                        if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
                         {
                             RECT hkwinPos = new RECT();
-                            User32.GetWindowRect(HotKeyWindow.handle, ref hkwinPos);
+                            User32.GetWindowRect(HotKeyWindow.commanderWnd, ref hkwinPos);
 
                             RECT fgwinPos = new RECT();
                             User32.GetWindowRect(hwnd, ref fgwinPos);
@@ -393,14 +393,14 @@ namespace PersistentWindows.Common
                             if (overlap)
                             {
                                 restoreHotkeyWindow = true;
-                                User32.ShowWindow(HotKeyWindow.handle, (int)ShowWindowCommands.Hide);
+                                User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
                             }
                         }
                     }
                     else if (restoreHotkeyWindow)
                     {
                         restoreHotkeyWindow = false;
-                        User32.ShowWindow(HotKeyWindow.handle, (int)ShowWindowCommands.Show);
+                        User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Show);
                     }
 
                     if (!alt_key_pressed)
@@ -1859,7 +1859,7 @@ namespace PersistentWindows.Common
         // workaround by put these windows behind HWND_NOTOPMOST
         private bool FixTopMostWindow(IntPtr hWnd)
         {
-            if (hWnd == HotKeyWindow.handle)
+            if (hWnd == HotKeyWindow.commanderWnd)
                 return false;
 
             if (!IsWindowTopMost(hWnd))
@@ -3488,7 +3488,7 @@ namespace PersistentWindows.Common
                     if (prevDisplayMetrics.IsInvisible && User32.IsWindowVisible(hWnd))
                     {
                         // #239 IsWindowsMoved() detected difference in screen position
-                        if (hWnd == HotKeyWindow.handle)
+                        if (hWnd == HotKeyWindow.commanderWnd)
                         {
                             User32.ShowWindow(hWnd, (int)ShowWindowCommands.Hide);
                             continue;

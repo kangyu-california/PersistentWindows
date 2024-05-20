@@ -19,7 +19,7 @@ namespace PersistentWindows.Common
     {
         private uint hotkey;
 
-        public static IntPtr handle = IntPtr.Zero;
+        public static IntPtr commanderWnd = IntPtr.Zero;
 
         private static System.Timers.Timer aliveTimer;
         private System.Timers.Timer mouseScrollDelayTimer;
@@ -73,7 +73,7 @@ namespace PersistentWindows.Common
             mouseScrollDelayTimer.AutoReset = false;
             mouseScrollDelayTimer.Enabled = false;
 
-            handle = Handle;
+            commanderWnd = Handle;
         }
 
         private void ToggleWindowSize()
@@ -607,7 +607,7 @@ namespace PersistentWindows.Common
         {
             browserWindowActivated = is_browser_window;
 
-            if (!tiny && !User32.IsWindowVisible(handle))
+            if (!tiny && !User32.IsWindowVisible(commanderWnd))
                 return;
 
             StartAliveTimer(6);
@@ -800,7 +800,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
-                        if (cursorWnd != handle && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
+                        if (cursorWnd != commanderWnd && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
@@ -809,7 +809,7 @@ namespace PersistentWindows.Common
                             return;
                         }
 
-                        if (cursorWnd != handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
+                        if (cursorWnd != commanderWnd && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
                         {
                             Left = cursorPos.X - 10;
                             Top = cursorPos.Y - 10;
