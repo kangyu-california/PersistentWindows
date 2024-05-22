@@ -821,10 +821,6 @@ namespace PersistentWindows.Common
                         return;
                     }
 
-                    // let tiny hotkey window follow cursor position
-                    ResetHotKeyVirtualDesktop();
-                    ResetHotkeyWindowPos();
-
                     if (!Visible)
                     {
                         Visible = true;
@@ -832,6 +828,10 @@ namespace PersistentWindows.Common
                     }
                     else if (!handCursor)
                         User32.SetForegroundWindow(Handle);
+
+                    // let tiny hotkey window follow cursor position
+                    ResetHotKeyVirtualDesktop();
+                    ResetHotkeyWindowPos();
 
                     if (hCursor == Cursors.Default.Handle)
                     {
