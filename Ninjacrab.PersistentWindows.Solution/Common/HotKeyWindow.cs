@@ -428,7 +428,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.F)
             {
-                //SetCursorPos();
+                Thread.Sleep(50);
+
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
@@ -475,6 +476,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.B)
             {
+                Thread.Sleep(50);
+
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
