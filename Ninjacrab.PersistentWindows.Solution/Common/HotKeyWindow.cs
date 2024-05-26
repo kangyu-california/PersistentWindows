@@ -272,11 +272,6 @@ namespace PersistentWindows.Common
         {
             e.Handled = true;
 
-            IntPtr fgwnd = GetForegroundWindow();
-
-            User32.SetForegroundWindow(fgwnd);
-            Thread.Sleep(50);
-
             bool return_focus_to_hotkey_window = true;
             //allow all ctrl alt shift modifiers
             /*
@@ -288,6 +283,9 @@ namespace PersistentWindows.Common
                 //hotkey
                 return;
             }
+
+            IntPtr fgwnd = GetForegroundWindow();
+            User32.SetForegroundWindow(fgwnd);
 
             if (e.KeyCode == Keys.Menu && !e.Control)
             {
@@ -378,6 +376,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Tab)
             {
+                Thread.Sleep(50);
+
                 if (e.Shift)
                     SendKeys.Send("^+{TAB}");
                 else
@@ -385,6 +385,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Q)
             {
+                Thread.Sleep(50);
+
                 //prev Tab
                 SendKeys.Send("^+{TAB}");
             }
