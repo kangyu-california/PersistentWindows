@@ -275,6 +275,7 @@ namespace PersistentWindows.Common
             IntPtr fgwnd = GetForegroundWindow();
 
             User32.SetForegroundWindow(fgwnd);
+            Thread.Sleep(50);
 
             bool return_focus_to_hotkey_window = true;
             //allow all ctrl alt shift modifiers
