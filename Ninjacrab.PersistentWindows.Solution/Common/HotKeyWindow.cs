@@ -573,6 +573,9 @@ namespace PersistentWindows.Common
                         SendKeys.Send(cmd);
                         return;
                     }
+
+                    //start as tiny
+                    ToggleWindowSize();
                 }
 
                 if (!active)
