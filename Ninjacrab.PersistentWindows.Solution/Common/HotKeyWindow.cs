@@ -855,7 +855,7 @@ namespace PersistentWindows.Common
                     {
                         //arrow cursor
                         if (cursorWnd != Handle)
-                            StartAliveTimer(15, 3000);
+                            StartAliveTimer(15);
                         return;
                     }
 
