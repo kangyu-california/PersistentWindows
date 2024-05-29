@@ -247,8 +247,8 @@ namespace PersistentWindows.Common.WinApiBridge
         public static extern bool PtInRect([In] ref RECT lprc, POINT pt);
 
         [DllImport("user32.dll")]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SetFocus(IntPtr hWnd);
+        [return: MarshalAs(UnmanagedType.SysInt)]
+        public static extern IntPtr SetFocus(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
