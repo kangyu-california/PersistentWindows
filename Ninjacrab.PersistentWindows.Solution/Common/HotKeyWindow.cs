@@ -298,6 +298,8 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.W)
             {
+                Thread.Sleep(50);
+
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
