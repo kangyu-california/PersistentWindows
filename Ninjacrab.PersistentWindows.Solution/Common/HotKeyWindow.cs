@@ -56,6 +56,7 @@ namespace PersistentWindows.Common
             KeyUp += new KeyEventHandler(FormKeyUp);
             MouseClick += new MouseEventHandler(FormMouseClick);
             MouseWheel += new MouseEventHandler(FormMouseWheel);
+            MouseMove += new MouseEventHandler(FormMouseMove);
             FormClosing += new FormClosingEventHandler(FormClose);
             MouseLeave += new EventHandler(FormMouseLeave);
             SizeChanged += new EventHandler(FormSizeChanged);
@@ -240,6 +241,12 @@ namespace PersistentWindows.Common
 
             User32.SetForegroundWindow(Handle);
             ResetCursorPos();
+        }
+
+        private void FormMouseMove(object sender, MouseEventArgs e)
+        {
+            if (tiny)
+                StartAliveTimer(14, 3000);
         }
 
         private void FormMouseWheel(object sender, MouseEventArgs e)
@@ -847,6 +854,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         //arrow cursor
+                        StartAliveTimer(15, 3000);
                         return;
                     }
 
