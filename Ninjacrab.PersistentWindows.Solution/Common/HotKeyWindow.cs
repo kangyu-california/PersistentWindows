@@ -810,7 +810,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
-                        if (cursorWnd != commanderWnd && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
+                        if (cursorWnd != Handle && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
@@ -819,7 +819,7 @@ namespace PersistentWindows.Common
                             return;
                         }
 
-                        if (cursorWnd != commanderWnd && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
+                        if (cursorWnd != Handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
                         {
                             Left = cursorPos.X - 10;
                             Top = cursorPos.Y - 10;
