@@ -845,7 +845,10 @@ namespace PersistentWindows.Common
                         TopMost = true;
                     }
                     else if (!handCursor)
-                        User32.SetForegroundWindow(Handle);
+                    {
+                        if (cursorWnd != Handle)
+                            User32.SetForegroundWindow(Handle);
+                    }
 
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
