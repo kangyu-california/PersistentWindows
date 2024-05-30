@@ -788,8 +788,9 @@ namespace PersistentWindows.Common
                 POINT cursorPos;
                 User32.GetCursorPos(out cursorPos);
                 IntPtr cursorWnd = User32.WindowFromPoint(cursorPos);
+                bool commanderWndUnderCursor = cursorWnd == Handle;
 
-                if (cursorWnd != Handle && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
+                if (!commanderWndUnderCursor && cursorWnd != fgwnd && fgwnd != User32.GetAncestor(cursorWnd, User32.GetAncestorRoot))
                 {
                     //yield focus
                     //User32.SetForegroundWindow(fgwnd);
@@ -810,7 +811,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
-                        if (cursorWnd != Handle && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
+                        if (!commanderWndUnderCursor && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
                             Visible = false;
@@ -819,7 +820,7 @@ namespace PersistentWindows.Common
                             return;
                         }
 
-                        if (cursorWnd != Handle && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
+                        if (!commanderWndUnderCursor && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
                         {
                             Left = cursorPos.X - 10;
                             Top = cursorPos.Y - 10;
@@ -846,7 +847,7 @@ namespace PersistentWindows.Common
                     }
                     else if (!handCursor)
                     {
-                        if (cursorWnd != Handle)
+                        if (!commanderWndUnderCursor)
                             User32.SetForegroundWindow(Handle);
                     }
 
@@ -857,7 +858,7 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         //arrow cursor
-                        if (cursorWnd != Handle)
+                        if (!commanderWndUnderCursor)
                             StartAliveTimer(15);
                         return;
                     }
