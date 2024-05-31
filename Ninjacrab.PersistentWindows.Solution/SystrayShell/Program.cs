@@ -529,7 +529,7 @@ namespace PersistentWindows.SystrayShell
 
         static public int SnapshotCharToId(char c)
         {
-            if (c == '`')
+            if (c == '`' || c == '~')
                 return MaxSnapshots - 2;
             if (c < '0')
                 return -1;
