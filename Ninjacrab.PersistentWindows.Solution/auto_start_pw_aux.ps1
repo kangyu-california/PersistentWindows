@@ -12,7 +12,7 @@ if ($existingTask -ne $null) {
 	Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$executablePath = $PSScriptRoot + "\PersistentWindows.exe"
+$executablePath = $PSScriptRoot + "\PersistentWindows.bat"
 
 $action = New-ScheduledTaskAction -Execute $executablePath
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:username
