@@ -1,6 +1,11 @@
 ## Replace with your desired command arguments
 $arguments = "-splash=0"
 
+$executablePath = $PSScriptRoot + "\PersistentWindows.exe"
+
+## create registry to run PersistentWindows.exe in high dpi aware mode
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name $executablePath -Value "~ HIGHDPIAWARE"
+
 ## rename the task as you like
 $taskName = "StartPersistentWindows" + $env:username
 $taskDescription = "This task starts automatically when " + $env:username + " login."
@@ -11,8 +16,6 @@ if ($existingTask -ne $null) {
     Write-Host "Remove existing task."
 	Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
-
-$executablePath = $PSScriptRoot + "\PersistentWindows.bat"
 
 $action = New-ScheduledTaskAction -Execute $executablePath
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:username
