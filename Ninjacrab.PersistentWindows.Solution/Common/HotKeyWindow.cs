@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 
 using PersistentWindows.Common.WinApiBridge;
+using PersistentWindows.Common.Diagnostics;
 using System.Threading;
 
 namespace PersistentWindows.Common
@@ -276,6 +277,17 @@ namespace PersistentWindows.Common
         }
 
         void FormKeyUp(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                FormKeyUpCore(sender, e);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+        }
+        void FormKeyUpCore(object sender, KeyEventArgs e)
         {
             e.Handled = true;
 
