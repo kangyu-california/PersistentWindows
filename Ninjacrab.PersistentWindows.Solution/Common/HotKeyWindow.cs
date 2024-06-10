@@ -276,6 +276,11 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
 
+        void FgSleep()
+        {
+            Thread.Sleep(200);
+        }
+
         void FormKeyUp(object sender, KeyEventArgs e)
         {
             try
@@ -287,6 +292,7 @@ namespace PersistentWindows.Common
                 Log.Error(ex.ToString());
             }
         }
+
         void FormKeyUpCore(object sender, KeyEventArgs e)
         {
             e.Handled = true;
@@ -317,7 +323,7 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.W)
             {
-                Thread.Sleep(50);
+                FgSleep();
 
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
@@ -397,16 +403,16 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Tab)
             {
-                Thread.Sleep(50);
+                FgSleep();
 
                 if (e.Shift)
                     SendKeys.Send("^+{TAB}");
                 else
-                    SendKeys.Send("^{TAB}");
+                    SendKeys.SendWait("^{TAB}");
             }
             else if (e.KeyCode == Keys.Q)
             {
-                Thread.Sleep(50);
+                FgSleep();
 
                 //prev Tab
                 SendKeys.Send("^+{TAB}");
@@ -449,7 +455,7 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.F)
             {
-                Thread.Sleep(50);
+                FgSleep();
 
                 //next url
                 SendKeys.Send("%{RIGHT}");
@@ -497,7 +503,7 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.B)
             {
-                Thread.Sleep(50);
+                FgSleep();
 
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
