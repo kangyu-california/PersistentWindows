@@ -492,6 +492,7 @@ namespace PersistentWindows.Common
             {
                 //copy (duplicate) tab
                 SendKeys.Send("^l");
+                FgSleep();
                 SendKeys.Send("%{ENTER}");
             }
             else if (e.KeyCode == Keys.V)
