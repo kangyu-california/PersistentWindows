@@ -39,6 +39,7 @@ namespace PersistentWindows.Common
         private Color dfltBackColor;
         private bool promptZkey = true;
         private bool clickThrough = false;
+        private bool defocused = false;
 
         public HotKeyWindow(uint hkey)
         {
@@ -432,6 +433,7 @@ namespace PersistentWindows.Common
                 SendKeys.Send("^l");
                 return_focus_to_hotkey_window = false;
                 Visible = false;
+                defocused = true;
                 if (tiny)
                     clickThrough = true;
                 else
@@ -446,6 +448,7 @@ namespace PersistentWindows.Common
                     SendKeys.Send("^f");
                 return_focus_to_hotkey_window = false;
                 Visible = false;
+                defocused = true;
                 if (!tiny)
                     StartAliveTimer(4);
             }
@@ -483,6 +486,7 @@ namespace PersistentWindows.Common
                 SendKeys.Send("{DIVIDE}");
                 return_focus_to_hotkey_window = false;
                 Visible = false;
+                defocused = true;
                 if (tiny)
                     clickThrough = true;
                 else
@@ -859,22 +863,36 @@ namespace PersistentWindows.Common
                         return;
                     }
 
+                    bool regain_focus = true;
                     if (!Visible)
                     {
                         Visible = true;
                         TopMost = true;
+                        if (defocused)
+                        {
+                            defocused = false;
+                            regain_focus = false;
+                        }
                     }
                     else if (!handCursor)
                     {
+                        /*
                         if (!commanderWndUnderCursor)
                         {
                             User32.SetForegroundWindow(Handle);
                             User32.SetFocus(Handle);
                         }
+                        */
+                        regain_focus = !commanderWndUnderCursor;
                     }
 
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
+                    if (regain_focus)
+                    {
+                        User32.SetForegroundWindow(Handle);
+                        User32.SetFocus(Handle);
+                    }
                     ResetHotkeyWindowPos();
 
                     if (hCursor == Cursors.Default.Handle)
