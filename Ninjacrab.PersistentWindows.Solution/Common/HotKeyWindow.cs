@@ -420,6 +420,7 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.E)
             {
+                FgSleep();
                 SendKeys.Send("{HOME}");
             }
             else if (e.KeyCode == Keys.R)
@@ -454,6 +455,7 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.D)
             {
+                FgSleep();
                 SendKeys.Send("{END}");
             }
             else if (e.KeyCode == Keys.F)
