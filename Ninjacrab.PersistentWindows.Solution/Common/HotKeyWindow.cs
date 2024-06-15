@@ -863,19 +863,19 @@ namespace PersistentWindows.Common
                     {
                         Visible = true;
                         TopMost = true;
-                        User32.SetForegroundWindow(Handle);
                     }
                     else if (!handCursor)
                     {
                         if (!commanderWndUnderCursor)
+                        {
                             User32.SetForegroundWindow(Handle);
+                            User32.SetFocus(Handle);
+                        }
                     }
 
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
                     ResetHotkeyWindowPos();
-
-                    User32.SetFocus(Handle);
 
                     if (hCursor == Cursors.Default.Handle)
                     {
