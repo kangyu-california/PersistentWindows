@@ -863,6 +863,7 @@ namespace PersistentWindows.Common
                     {
                         Visible = true;
                         TopMost = true;
+                        User32.SetForegroundWindow(Handle);
                     }
                     else if (!handCursor)
                     {
@@ -873,6 +874,8 @@ namespace PersistentWindows.Common
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
                     ResetHotkeyWindowPos();
+
+                    User32.SetFocus(Handle);
 
                     if (hCursor == Cursors.Default.Handle)
                     {
