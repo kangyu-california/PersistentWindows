@@ -277,9 +277,9 @@ namespace PersistentWindows.Common
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
 
-        void FgSleep()
+        void FgSleep(int ms = 200)
         {
-            Thread.Sleep(200);
+            Thread.Sleep(ms);
         }
 
         void FormKeyUp(object sender, KeyEventArgs e)
@@ -312,6 +312,7 @@ namespace PersistentWindows.Common
 
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
+            FgSleep();
 
             if (e.KeyCode == Keys.Menu && !e.Control)
             {
@@ -324,8 +325,6 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.W)
             {
-                FgSleep();
-
                 //kill tab, ctrl + w
                 SendKeys.Send("^w");
             }
@@ -404,8 +403,6 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Tab)
             {
-                FgSleep();
-
                 if (e.Shift)
                     SendKeys.Send("^+{TAB}");
                 else
@@ -413,14 +410,11 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Q)
             {
-                FgSleep();
-
                 //prev Tab
                 SendKeys.Send("^+{TAB}");
             }
             else if (e.KeyCode == Keys.E)
             {
-                FgSleep();
                 SendKeys.Send("{HOME}");
             }
             else if (e.KeyCode == Keys.R)
@@ -455,13 +449,10 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.D)
             {
-                FgSleep();
                 SendKeys.Send("{END}");
             }
             else if (e.KeyCode == Keys.F)
             {
-                FgSleep();
-
                 //next url
                 SendKeys.Send("%{RIGHT}");
             }
@@ -498,20 +489,21 @@ namespace PersistentWindows.Common
             {
                 //copy (duplicate) tab
                 SendKeys.Send("^l");
-                FgSleep();
                 SendKeys.Send("%{ENTER}");
             }
             else if (e.KeyCode == Keys.V)
             {
                 //switch to last tab (chrome only)
                 SendKeys.Send("^+a");
-                Thread.Sleep(250);
+                FgSleep(300);
                 SendKeys.Send("{ENTER}");
+                return_focus_to_hotkey_window = false;
+                if (tiny)
+                    Visible = false;
+                StartAliveTimer(16);
             }
             else if (e.KeyCode == Keys.B)
             {
-                FgSleep();
-
                 //backward, prev url
                 SendKeys.Send("%{LEFT}");
             }
