@@ -401,6 +401,8 @@ namespace PersistentWindows.Common
                     {
                         restoreHotkeyWindow = false;
                         User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Show);
+                        User32.SetForegroundWindow(HotKeyWindow.commanderWnd);
+                        User32.SetFocus(HotKeyWindow.commanderWnd);
                     }
 
                     if (!alt_key_pressed)
