@@ -5,14 +5,6 @@ using PersistentWindows.Common.Diagnostics;
 
 namespace PersistentWindows.Common.Models
 {
-    public class DeadAppPosition
-    {
-        public string ClassName { get; set; }
-        public string Title { get; set; }
-        public string ProcessPath { get; set; }
-        public RECT ScreenPosition { get; set; }
-    }
-
     public class ApplicationDisplayMetrics
     {
         // for LiteDB use only

@@ -655,7 +655,7 @@ namespace PersistentWindows.SystrayShell
 
         static public void RecallLastKilledPosition()
         {
-            pwp.RecallLastKilledPosition(PersistentWindowProcessor.GetForegroundWindow());
+            pwp.RecallLastPosition(PersistentWindowProcessor.GetForegroundWindow());
         }
 
         static public void CenterWindow()

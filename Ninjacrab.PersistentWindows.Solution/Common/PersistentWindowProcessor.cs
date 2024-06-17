@@ -43,10 +43,12 @@ namespace PersistentWindows.Common
 
         // window position database
         private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
-            = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database
+            = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database of live windows
+        private Dictionary<string, Dictionary<Int64, List<ApplicationDisplayMetrics>>> deadApps
+            = new Dictionary<string, Dictionary<Int64, List<ApplicationDisplayMetrics>>>(); //database of killed windows
+        private Int64 lastKilledWindowId = 0; //monotonically increasing unique id for every killed window
         private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
-        private Dictionary<string, List<DeadAppPosition>> deadApps = new Dictionary<string, List<DeadAppPosition>>();
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
@@ -1012,42 +1014,82 @@ namespace PersistentWindows.Common
             User32.MoveWindow(hwnd, target_rect.Left + target_rect.Width / 4, target_rect.Top + target_rect.Height / 4, target_rect.Width / 2, target_rect.Height / 2, true);
         }
 
-        public bool RecallLastKilledPosition(IntPtr hwnd)
+        public bool RecallLastPositionKilledWindow(IntPtr hwnd)
         {
-            if (deadApps.ContainsKey(curDisplayKey))
+            Int64 kid = FindMatchingKilledWindow(hwnd);
+            if (kid < 0)
+                return false;
+
+            var d = deadApps[curDisplayKey][kid].Last<ApplicationDisplayMetrics>();
+            var r = d.ScreenPosition;
+
+            User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
+            User32.SetForegroundWindow(hwnd);
+            Log.Error("Recover last closing location \"{0}\"", GetWindowTitle(hwnd));
+
+            return true;
+        }
+
+        public void RecallLastPosition(IntPtr hwnd)
+        {
+            int cnt = monitorApplications[curDisplayKey][hwnd].Count;
+            if (cnt < 2)
+                return;
+            var d = monitorApplications[curDisplayKey][hwnd][cnt - 1];
+            var r = d.ScreenPosition;
+            User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
+            User32.SetForegroundWindow(hwnd);
+            Log.Error("Restore last location \"{0}\"", GetWindowTitle(hwnd));
+        }
+
+        private void InheritKilledWindow(IntPtr hwnd, Int64 kid)
+        {
+            foreach (var display_key in deadApps.Keys)
             {
-                var deadAppPos = deadApps[curDisplayKey];
-                string className = GetWindowClassName(hwnd);
-                if (!string.IsNullOrEmpty(className))
+                if (deadApps[display_key].ContainsKey(kid))
                 {
-                    uint processId = 0;
-                    uint threadId = User32.GetWindowThreadProcessId(hwnd, out processId);
-                    string procPath = GetProcExePath(processId);
-                    string title = GetWindowTitle(hwnd);
-                    int idx = deadAppPos.Count;
-                    foreach (var appPos in deadAppPos.Reverse<DeadAppPosition>())
-                    {
-                        --idx;
+                    if (!monitorApplications.ContainsKey(display_key))
+                        monitorApplications[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
+                    monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
+                    deadApps[display_key].Remove(kid);
+                }
+            }
+        }
 
-                        if (!className.Equals(appPos.ClassName))
-                            continue;
-                        if (!title.Equals(appPos.Title))
-                            continue;
-                        if (!procPath.Equals(appPos.ProcessPath))
-                            continue;
+        private Int64 FindMatchingKilledWindow(IntPtr hwnd)
+        {
+            if (!deadApps.ContainsKey(curDisplayKey))
+                return -1;
 
-                        // found match
-                        RECT r = appPos.ScreenPosition;
-                        User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
-                        User32.SetForegroundWindow(hwnd);
-                        Log.Error("Recover last closing location\"{0}\"", GetWindowTitle(hwnd));
-                        //deadApps[curDisplayKey].RemoveAt(idx);
-                        return true;
-                    }
+            var deadAppPos = deadApps[curDisplayKey];
+            string className = GetWindowClassName(hwnd);
+            if (!string.IsNullOrEmpty(className))
+            {
+                string procName = windowProcessName[hwnd];
+                string title = GetWindowTitle(hwnd);
+                foreach (var kid in deadAppPos.Keys)
+                {
+                    var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
+
+                    if (!className.Equals(appPos.ClassName))
+                        continue;
+                    if (!procName.Equals(appPos.ProcessName))
+                        continue;
+
+                    // match position first
+                    RECT r = appPos.ScreenPosition;
+                    RECT rect = new RECT();
+                    User32.GetWindowRect(hwnd, ref rect);
+                    if (rect.Equals(r))
+                        return kid;
+
+                    // lastly match title
+                    if (title.Equals(appPos.Title))
+                        return kid;
                 }
             }
 
-            return false;
+            return -1;
         }
 
         private void FixOffScreenWindow(IntPtr hwnd)
@@ -1059,7 +1101,7 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (RecallLastKilledPosition(hwnd))
+            if (RecallLastPositionKilledWindow(hwnd))
                 return;
 
             RECT rect = new RECT();
@@ -1374,51 +1416,51 @@ namespace PersistentWindows.Common
                 }
 
                 noRestoreWindows.Remove(hwnd);
-                windowProcessName.Remove(hwnd);
                 debugWindows.Remove(hwnd);
                 if (fullScreenGamingWindows.Contains(hwnd))
                 {
                     fullScreenGamingWindows.Remove(hwnd);
                     exitFullScreenGaming = true;
                 }
-                windowTitle.Remove(hwnd);
                 dualPosSwitchWindows.Remove(hwnd);
 
-                foreach (var key in monitorApplications.Keys)
+                foreach (var display_config in monitorApplications.Keys)
                 {
-                    if (!monitorApplications[key].ContainsKey(hwnd))
+                    if (!monitorApplications[display_config].ContainsKey(hwnd))
                         continue;
 
-                    if (monitorApplications[key][hwnd].Count > 0)
+                    if (monitorApplications[display_config][hwnd].Count > 0)
                     {
                         // save window size of closed app to restore off-screen window later
-                        if (!deadApps.ContainsKey(key))
+                        if (!deadApps.ContainsKey(display_config))
                         {
-                            deadApps.Add(key, new List<DeadAppPosition>());
+                            deadApps.Add(display_config, new Dictionary<Int64, List<ApplicationDisplayMetrics>>());
                         }
-                        var appPos = new DeadAppPosition();
-                        var lastMetric = monitorApplications[key][hwnd].Last();
-                        appPos.ClassName = lastMetric.ClassName;
-                        appPos.Title = lastMetric.Title;
-                        appPos.ScreenPosition = lastMetric.ScreenPosition;
-                        string procPath = GetProcExePath(lastMetric.ProcessId);
-                        appPos.ProcessPath = procPath;
-                        deadApps[key].Add(appPos);
 
-                        windowTitle.Remove((IntPtr)lastMetric.WindowId);
+                        // for matching new window with killed one
+                        monitorApplications[display_config][hwnd].Last().ProcessName = windowProcessName[hwnd];
 
-                        //limit list size
-                        while (deadApps[key].Count > 50)
+                        deadApps[display_config][lastKilledWindowId] = monitorApplications[display_config][hwnd];
+
+                        windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
+
+                        //limit deadApp size
+                        foreach (var kid in deadApps[display_config].Keys)
                         {
-                            deadApps[key].RemoveAt(0);
+                            if (lastKilledWindowId - kid > 50)
+                                deadApps[display_config].Remove(kid);
+                            break;
                         }
                     }
 
-                    monitorApplications[key].Remove(hwnd);
+                    monitorApplications[display_config].Remove(hwnd);
                 }
 
-                bool found = windowTitle.Remove(hwnd);
+                ++lastKilledWindowId;
 
+                windowProcessName.Remove(hwnd);
+
+                bool found = windowTitle.Remove(hwnd);
                 if (sessionActive && found)
                 {
                     StartCaptureTimer(); //update z-order
@@ -2571,6 +2613,10 @@ namespace PersistentWindows.Common
             {
                 if (noRestoreWindows.Contains(hwnd))
                     return false;
+
+                Int64 kid = FindMatchingKilledWindow(hwnd);
+                if (kid >= 0)
+                    InheritKilledWindow(hwnd, kid);
 
                 //newly created window or new display setting
                 curDisplayMetrics.WindowId = (uint)realHwnd;
