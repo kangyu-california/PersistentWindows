@@ -2616,7 +2616,10 @@ namespace PersistentWindows.Common
 
                 Int64 kid = FindMatchingKilledWindow(hwnd);
                 if (kid >= 0)
+                {
                     InheritKilledWindow(hwnd, kid);
+                    Log.Error($"Inherit position data from killed window {kid} for {curDisplayMetrics.Title}");
+                }
 
                 //newly created window or new display setting
                 curDisplayMetrics.WindowId = (uint)realHwnd;
