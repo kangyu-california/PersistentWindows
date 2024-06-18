@@ -424,13 +424,7 @@ namespace PersistentWindows.Common
                     return;
 
                 if (normalSessions.Contains(curDisplayKey))
-                {
-                    var diff = DateTime.Now.Subtract(lastKillTime);
-                    if (diff.TotalMilliseconds < 200)
-                        CaptureApplicationsOnCurrentDisplays(curDisplayKey);
-                    else
-                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
-                }
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
             });
 
             captureTimer = new Timer(state =>
@@ -2337,6 +2331,7 @@ namespace PersistentWindows.Common
             int pendingEventCnt = pendingMoveEvents.Count;
             pendingMoveEvents.Clear();
 
+            var time_from_last_kill_window = DateTime.Now.Subtract(lastKillTime);
             if (saveToDB)
             {
                 using (var persistDB = new LiteDatabase(persistDbName))
@@ -2406,7 +2401,8 @@ namespace PersistentWindows.Common
                     processCmd.Clear();
                 }
             }
-            else if (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)
+            else if (time_from_last_kill_window.TotalMilliseconds < 200
+                || (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents))
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
