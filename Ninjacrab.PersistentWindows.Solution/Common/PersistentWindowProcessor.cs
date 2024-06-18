@@ -80,6 +80,7 @@ namespace PersistentWindows.Common
         private bool userMove = false; //received window event due to user move
         private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
+        private DateTime lastKillTime = DateTime.Now;
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private IntPtr foreGroundWindow;
@@ -423,7 +424,13 @@ namespace PersistentWindows.Common
                     return;
 
                 if (normalSessions.Contains(curDisplayKey))
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                {
+                    var diff = DateTime.Now.Subtract(lastKillTime);
+                    if (diff.TotalMilliseconds < 200)
+                        CaptureApplicationsOnCurrentDisplays(curDisplayKey);
+                    else
+                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
+                }
             });
 
             captureTimer = new Timer(state =>
@@ -1460,7 +1467,10 @@ namespace PersistentWindows.Common
                 }
 
                 if (found_history)
+                {
+                    lastKillTime = DateTime.Now;
                     ++lastKilledWindowId;
+                }
 
                 windowProcessName.Remove(hwnd);
 
