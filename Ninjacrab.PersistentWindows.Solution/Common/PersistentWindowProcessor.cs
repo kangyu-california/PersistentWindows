@@ -1424,6 +1424,7 @@ namespace PersistentWindows.Common
                 }
                 dualPosSwitchWindows.Remove(hwnd);
 
+                bool found_history = false;
                 foreach (var display_config in monitorApplications.Keys)
                 {
                     if (!monitorApplications[display_config].ContainsKey(hwnd))
@@ -1431,6 +1432,8 @@ namespace PersistentWindows.Common
 
                     if (monitorApplications[display_config][hwnd].Count > 0)
                     {
+                        found_history = true;
+
                         // save window size of closed app to restore off-screen window later
                         if (!deadApps.ContainsKey(display_config))
                         {
@@ -1456,7 +1459,8 @@ namespace PersistentWindows.Common
                     monitorApplications[display_config].Remove(hwnd);
                 }
 
-                ++lastKilledWindowId;
+                if (found_history)
+                    ++lastKilledWindowId;
 
                 windowProcessName.Remove(hwnd);
 
