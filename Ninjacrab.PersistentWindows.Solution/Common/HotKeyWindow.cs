@@ -339,6 +339,7 @@ namespace PersistentWindows.Common
                     SendKeys.Send("^l"); //focus in address bar
                     return_focus_to_hotkey_window = false;
                     Visible = false;
+                    defocused = true;
                     if (!tiny)
                         StartAliveTimer(2);
                 }
@@ -462,6 +463,7 @@ namespace PersistentWindows.Common
                 //ctrl shift A (only for chrome)
                 SendKeys.Send("^+a");
                 Visible = false;
+                defocused = true;
                 if (!tiny)
                 {
                     return_focus_to_hotkey_window = false;
