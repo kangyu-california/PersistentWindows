@@ -4,6 +4,7 @@ using System.Windows.Forms;
 
 using PersistentWindows.Common;
 using PersistentWindows.Common.WinApiBridge;
+using PersistentWindows.Common.Diagnostics;
 
 namespace PersistentWindows.SystrayShell
 {
@@ -11,13 +12,15 @@ namespace PersistentWindows.SystrayShell
     {
         static HotKeyWindow hkwin = null;
         static Thread messageLoop;
+        static HotKeyForm hkf = null;
 
         public static void Start(uint hotkey)
         {
             messageLoop = new Thread(() =>
             {
                 hkwin = new HotKeyWindow(hotkey);
-                Application.Run(new HotKeyForm(hotkey));
+                hkf = new HotKeyForm(hotkey);
+                Application.Run(hkf);
             })
             {
                 Name = "MessageLoopThread",
@@ -25,6 +28,12 @@ namespace PersistentWindows.SystrayShell
             };
 
             messageLoop.Start();
+        }
+
+        public static void Stop()
+        {
+            if (messageLoop.IsAlive)
+                messageLoop.Abort();
         }
 
         public HotKeyForm(uint hotkey)
@@ -54,6 +63,7 @@ namespace PersistentWindows.SystrayShell
             else if (m.Msg == 0x0010 || m.Msg == 0x0002)
             {
                 r = User32.UnregisterHotKey(this.Handle, 0);
+                Log.Event($"unregister hotkey {r}");
             }
 
             base.WndProc(ref m);
@@ -65,7 +75,7 @@ namespace PersistentWindows.SystrayShell
             Program.HideRestoreTip(); //show icon
             hkwin.HotKeyPressed(from_menu: true);
         }
-
+        
         protected override void SetVisibleCore(bool value)
         {
             // Ensure the window never becomes visible
