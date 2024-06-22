@@ -312,6 +312,8 @@ namespace PersistentWindows.Common
                 }
             }
 
+            curDisplayKey = GetDisplayKey();
+
 #if DEBUG
             //TestSetWindowPos();
 
@@ -790,7 +792,6 @@ namespace PersistentWindows.Common
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
 
-            curDisplayKey = GetDisplayKey();
             CaptureNewDisplayConfig(curDisplayKey);
 
             initialized = true;
@@ -1404,6 +1405,9 @@ namespace PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            if (!initialized)
+                return;
+
             {
                 switch (eventType)
                 {
