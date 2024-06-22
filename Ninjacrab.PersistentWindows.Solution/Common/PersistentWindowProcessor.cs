@@ -1045,14 +1045,39 @@ namespace PersistentWindows.Common
 
         private void InheritKilledWindow(IntPtr hwnd, Int64 kid)
         {
+            uint pid;
+            User32.GetWindowThreadProcessId(hwnd, out pid);
+
             foreach (var display_key in deadApps.Keys)
             {
                 if (deadApps[display_key].ContainsKey(kid))
                 {
+                    //update new process id
+                    for (int i = 0; i < deadApps[display_key][kid].Count; i++)
+                    {
+                        deadApps[display_key][kid][i].ProcessId = pid;
+                    }
+
+                    IntPtr dead_hwnd = deadApps[display_key][kid].Last<ApplicationDisplayMetrics>().HWnd;
+
                     if (!monitorApplications.ContainsKey(display_key))
                         monitorApplications[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
                     monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
                     deadApps[display_key].Remove(kid);
+
+                    //replace prev zorder reference of dead_hwnd with hwnd
+                    foreach (var hw in monitorApplications[display_key].Keys)
+                    {
+                        if (hw == hwnd)
+                            continue;
+
+                        for (int i = 0; i < monitorApplications[display_key][hw].Count; i++)
+                        {
+                            if (monitorApplications[display_key][hw][i].PrevZorderWindow == dead_hwnd)
+                                monitorApplications[display_key][hw][i].PrevZorderWindow = hwnd;
+                        }
+
+                    }
                 }
             }
         }
