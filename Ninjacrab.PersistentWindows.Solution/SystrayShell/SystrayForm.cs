@@ -343,16 +343,13 @@ namespace PersistentWindows.SystrayShell
 
         private void WebCommander(object sender, EventArgs e)
         {
-            if ((User32.GetKeyState(0x5b) & 0x8000) != 0 //left window logo key pressed
-             && (User32.GetKeyState(0x11) & 0x8000) != 0) //ctrl key pressed
+            if ((User32.GetKeyState(0x11) & 0x8000) != 0)
+                HotKeyForm.InvokeFromMenu();
+            else
             {
                 //this.invokeWebCommander.Enabled = false;
                 this.invokeWebCommander.Visible = false;
                 HotKeyForm.Stop();
-            }
-            else
-            {
-                HotKeyForm.InvokeFromMenu();
             }
         }
 

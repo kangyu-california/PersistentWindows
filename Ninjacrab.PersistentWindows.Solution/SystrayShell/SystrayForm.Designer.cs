@@ -153,11 +153,11 @@ namespace PersistentWindows.SystrayShell
             this.toggleIconMenuItem.Click += new System.EventHandler(this.ToggleIcon);
 
             // web commander
-            this.invokeWebCommander.Name = "web commander";
-            this.invokeWebCommander.Text = "Toggle webpage commander";
+            this.invokeWebCommander.Name = "web commander on/off";
+            this.invokeWebCommander.Text = "Turn off webpage commander";
             this.invokeWebCommander.Click += new System.EventHandler(this.WebCommander);
             if (!Program.hotkey_window)
-                this.invokeWebCommander.Enabled = false;
+                this.invokeWebCommander.Visible = false;
             // 
             // aboutToolStripMenuItem
             // 

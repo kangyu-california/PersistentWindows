@@ -12,14 +12,13 @@ namespace PersistentWindows.SystrayShell
     {
         static HotKeyWindow hkwin = null;
         static Thread messageLoop;
-        static HotKeyForm hkf = null;
 
         public static void Start(uint hotkey)
         {
             messageLoop = new Thread(() =>
             {
                 hkwin = new HotKeyWindow(hotkey);
-                hkf = new HotKeyForm(hotkey);
+                HotKeyForm hkf = new HotKeyForm(hotkey);
                 Application.Run(hkf);
             })
             {
