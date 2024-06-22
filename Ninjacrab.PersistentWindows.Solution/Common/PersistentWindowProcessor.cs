@@ -312,9 +312,6 @@ namespace PersistentWindows.Common
                 }
             }
 
-            curDisplayKey = GetDisplayKey();
-            CaptureNewDisplayConfig(curDisplayKey);
-
 #if DEBUG
             //TestSetWindowPos();
 
@@ -792,6 +789,9 @@ namespace PersistentWindows.Common
             };
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
+
+            curDisplayKey = GetDisplayKey();
+            CaptureNewDisplayConfig(curDisplayKey);
 
             initialized = true;
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
