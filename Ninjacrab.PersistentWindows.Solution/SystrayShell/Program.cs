@@ -373,6 +373,9 @@ namespace PersistentWindows.SystrayShell
             //systrayForm.notifyIconMain.Visible = false;
 
             Application.Run();
+
+            if (hotkey_window)
+                HotKeyForm.Stop();
         }
 
         static bool WaitTaskbarReady()

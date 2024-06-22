@@ -3497,8 +3497,10 @@ namespace PersistentWindows.Common
                     continue;
 
                 ApplicationDisplayMetrics curDisplayMetrics;
-                ApplicationDisplayMetrics prevDisplayMetrics;
+                ApplicationDisplayMetrics prevDisplayMetrics = null;
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
+                    continue;
+                if (prevDisplayMetrics == null)
                     continue;
 
                 if (User32.IsHungAppWindow(hWnd) && !IsTaskBar(hWnd))

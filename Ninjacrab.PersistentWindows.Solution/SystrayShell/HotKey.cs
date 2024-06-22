@@ -17,7 +17,6 @@ namespace PersistentWindows.SystrayShell
         {
             messageLoop = new Thread(() =>
             {
-                hkwin = new HotKeyWindow(hotkey);
                 HotKeyForm hkf = new HotKeyForm(hotkey);
                 Application.Run(hkf);
             })
@@ -31,12 +30,21 @@ namespace PersistentWindows.SystrayShell
 
         public static void Stop()
         {
-            if (messageLoop.IsAlive)
-                messageLoop.Abort();
+            try
+            {
+                if (messageLoop.IsAlive)
+                    messageLoop.Abort();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
         }
 
         public HotKeyForm(uint hotkey)
         {
+            hkwin = new HotKeyWindow(hotkey);
+
             //InitializeComponent();
             var r = User32.RegisterHotKey(this.Handle, 0, (int)User32.KeyModifier.Alt, hotkey); // Register Alt + W 
         }
