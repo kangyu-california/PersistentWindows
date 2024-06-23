@@ -1707,6 +1707,12 @@ namespace PersistentWindows.Common
 
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
+                                //treat unminimized window as foreground
+                                realForeGroundWindow = hwnd;
+                                if (hwnd != vacantDeskWindow)
+                                    foreGroundWindow = hwnd;
+                                foregroundTimer.Change(100, Timeout.Infinite);
+
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
                                 StartCaptureTimer(UserMoveLatency / 4);
                                 Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
