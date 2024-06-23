@@ -118,7 +118,7 @@ namespace PersistentWindows.SystrayShell
             }
             else
             {
-                if (keyPressed < 0)
+                if (keyPressed == Keys.None)
                 {
                     if (clickCount == 1 && firstClick && !doubleClick)
                     {
@@ -137,17 +137,15 @@ namespace PersistentWindows.SystrayShell
                 }
                 else
                 {
-                    int snapshot;
-                    if (keyPressed == Keys.None)
-                        snapshot = 0;
-                    else if (keyPressed == Keys.Oem3)
+                    int snapshot = -1;
+                    if (keyPressed == Keys.Oem3)
                         snapshot = MaxSnapshots - 2;
-                    else if (keyPressed <= Keys.D9)
+                    else if (keyPressed >= Keys.D0 && keyPressed <= Keys.D9)
                         snapshot = keyPressed - Keys.D0;
-                    else
+                    else if (keyPressed >= Keys.A && keyPressed <= Keys.Z)
                         snapshot = keyPressed - Keys.A + 10; 
 
-                    if (snapshot < 0 || snapshot > MaxSnapshots - 2)
+                    if (snapshot < 0)
                     {
                         //invalid key pressed
                     }
