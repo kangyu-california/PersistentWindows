@@ -51,6 +51,7 @@ namespace PersistentWindows.SystrayShell
 
             bool splash = true;
             int delay_start = 0;
+            bool relaunch = false;
             int delay_manual_capture = 0;
             int delay_auto_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
@@ -88,7 +89,11 @@ namespace PersistentWindows.SystrayShell
                 else if (delay_start != 0)
                 {
                     delay_start = 0;
-                    Thread.Sleep((Int32)(float.Parse(arg) * 1000));
+                    if (!waiting_taskbar)
+                    {
+                        Thread.Sleep((Int32)(float.Parse(arg) * 1000));
+                        relaunch = true;
+                    }
                     continue;
                 }
                 else if (delay_manual_capture != 0)
@@ -319,6 +324,19 @@ namespace PersistentWindows.SystrayShell
             else
                 systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
+            if (relaunch)
+            {
+                Restart();
+                return;
+            }
+
+            if (!waiting_taskbar)
+            {
+                bool ready = WaitTaskbarReady();
+                if (!ready)
+                    return;
+            }
+
             PersistentWindowProcessor.icon = IdleIcon;
             if (fix_zorder_specified)
             {
@@ -358,13 +376,6 @@ namespace PersistentWindows.SystrayShell
                 return;
             }
 
-            if (!waiting_taskbar)
-            {
-                bool ready = WaitTaskbarReady();
-                if (!ready)
-                    return;
-            }
-
             if (splash)
             {
                 StartSplashForm();
@@ -394,12 +405,19 @@ namespace PersistentWindows.SystrayShell
                 Log.Error("taskbar not ready, restart PersistentWindows");
             }
 
+            Restart();
+            return false;
+        }
+
+        static void Restart()
+        {
             string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
             string content = "timeout /t 10 /nobreak > NUL";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             Process.Start(batFile);
-            return false;
+
+            Log.Error("program restarted");
         }
 
         public static void ShowRestoreTip()
