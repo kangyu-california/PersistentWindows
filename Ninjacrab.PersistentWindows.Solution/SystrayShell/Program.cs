@@ -24,6 +24,7 @@ namespace PersistentWindows.SystrayShell
         public static string CmdArgs;
         public static bool Gui = true;
         public static bool hotkey_window = true;
+        public static uint hotkey = 'W'; //Alt + W
 
         private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
 
@@ -74,7 +75,6 @@ namespace PersistentWindows.SystrayShell
             bool auto_upgrade = false;
             bool legacy_icon = false;
             bool waiting_taskbar = false;
-            uint hotkey = 'W'; //Alt + W
 
             foreach (var arg in args)
             {

@@ -343,11 +343,15 @@ namespace PersistentWindows.SystrayShell
         {
             if ((User32.GetKeyState(0x11) & 0x8000) != 0)
                 HotKeyForm.InvokeFromMenu();
+            else if (this.invokeWebCommander.Text.Contains("Disable"))
+            {
+                this.invokeWebCommander.Text = "Enable webpage commander";
+                HotKeyForm.Stop();
+            }
             else
             {
-                //this.invokeWebCommander.Enabled = false;
-                this.invokeWebCommander.Visible = false;
-                HotKeyForm.Stop();
+                this.invokeWebCommander.Text = "Disable webpage commander";
+                HotKeyForm.Start(Program.hotkey);
             }
         }
 

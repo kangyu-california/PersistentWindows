@@ -154,7 +154,7 @@ namespace PersistentWindows.SystrayShell
 
             // web commander
             this.invokeWebCommander.Name = "web commander on/off";
-            this.invokeWebCommander.Text = "Turn off webpage commander";
+            this.invokeWebCommander.Text = "Disable webpage commander";
             this.invokeWebCommander.Click += new System.EventHandler(this.WebCommander);
             if (!Program.hotkey_window)
                 this.invokeWebCommander.Visible = false;

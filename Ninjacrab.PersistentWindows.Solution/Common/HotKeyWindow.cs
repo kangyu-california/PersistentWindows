@@ -43,6 +43,7 @@ namespace PersistentWindows.Common
 
         public HotKeyWindow(uint hkey)
         {
+            init = true;
             hotkey = hkey;
 
             InitializeComponent();
