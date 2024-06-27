@@ -44,7 +44,6 @@ namespace PersistentWindows.Common
         public HotKeyWindow(uint hkey)
         {
             tiny = false;
-            init = true;
             hotkey = hkey;
 
             InitializeComponent();
