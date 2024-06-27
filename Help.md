@@ -75,10 +75,9 @@
   * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
 
 ### Webpage commander window
-* A webpage commander window captures command shortcuts (which are carefully designed to be done single handedly) and translates them to the underlying web browser window, maximizing the efficiency of web browsing.
-* Press Alt + W to activate/deactivate the webpage commander window.
-* Once activated, Press Z to toggle the size of commander window (the 8x8 tiny sized commander window is strongly suggested),
-and now enjoy one-key command shortcuts on all major web browsers (Chrome, Edge, Firefox, Opera, Brave, Vivaldi etc)
+* A webpage commander window captures command shortcuts (which is carefully designed to be done single handedly) and translates them to the underlying web browser window, maximizing the efficiency of web browsing.
+* Press Alt + W to activate/deactivate the webpage commander window inside any browser window (Chrome, Edge, Firefox, Opera, Brave, Vivaldi etc)
+* Once activated, a tiny commander window in blue color is displayed in synchronization with the mouse cursor.
   | Command shortcut| Translation | Meaning|
   | --- | --- | --- |
   | 1-8 | Ctrl + #n | select tab #n
