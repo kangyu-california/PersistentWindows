@@ -14,7 +14,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Keeps track of window position changes, and automatically restores the desktop layout, including the taskbar position, to the last matching monitor setup.
 - Supports remote desktop sessions with multiple display configurations.
 - Capture windows to disk: saves desktop layout capture to hard drive in liteDB format, so that closed windows can be restored after PC reboot, with virtual desktop observed.
-- Capture snapshot to ram: saves desktop layout in memory using one char from [0-9a-z] as name. The window Z-order is preserved in the snapshot.
+- Capture snapshot to ram: saves desktop layout in memory using one char from [0-9a-z] as the name. The window Z-order is preserved in the snapshot.
 - Webpage commander to improve the efficiency of web browsing for all major web browsers using one-letter commands like in vi editor.
 - Efficient window switching between foreground and background dual positions.
 - Pause/resume auto restore.
@@ -87,9 +87,9 @@ schtasks /create /sc onlogon /tn "StartPersistentWindows" /f /tr "'%~dp0pw.bat'"
   * Ctrl, Alt, Shift key strokes when clicking or moving a window
   * Ctrl, Alt, Shift key strokes when selecting PersistentWindows menu items
   * key-stroke events when interacting with the PersistentWindows icon on taskbar
-  * key-stroke events (only as command shortcut), mouse click/scroll events and cursor position/shape in web browser when webpage commander window is activated (Alt + W)
+  * key-stroke events (only as webpage command shortcut), mouse click/scroll events and cursor position/shape in web browser when webpage commander window is activated (Alt + W)
 - The history of keyboard/mouse events is typically erased 1 second after received
-- Window information history is kept in memory or in the hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
+- Window information history is kept in ram or on the hard drive in LiteDB file format, waiting to be recalled by auto/manual restore
 - PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
   
 ## Known Issues
