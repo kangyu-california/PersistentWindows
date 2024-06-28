@@ -29,20 +29,26 @@ this tool and not have to worry about re-arranging when all is back to normal.
 > *C:\Users\\[User]\AppData\Local\PersistentWindows*
 
 ### To set up PersistentWindows to automatically start at user login:
-This can be done by creating a task in **Task Scheduler** on Windows 10/11, or by adding a shortcut to the **Startup Folder** (shell:startup) on Windows 7/10/11.
+This can be done by creating a task in **Task Scheduler**, or by adding a shortcut to the **Startup Folder** (shell:startup).
 
 For PersistentWindows to be able to restore windows with elevated privileges (for tools like Task Manager or Event Viewer), it needs to be run with Administrator privileges.
 
-Choose one of the two options:
+Choose **one** of the three options:
 
-**Task Scheduler**
-*  Double-click the *auto_start_pw.bat* file to run it. This will create a task in the Task Scheduler.
-* For Administrator Privileges: 
-    * *auto_start_pw.bat* should be run as administrator. 
-
+**Task Scheduler (Windows 10/11)**
+* Run *auto_start_pw.bat* file (preferably as administrator) to create a task in the Task Scheduler.
         <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
 
-**Startup Folder**
+**Task Scheduler (Windows 7/10/11)**
+* Create a pw.bat file in the installation folder with following content
+```
+  start "" /B "%~dp0PersistentWindows.exe" -splash=0
+```
+* Launch a DOS window (cmd.exe) with admin privileges, goto (cd) the PW installation folder, and run the following command
+```
+schtasks /create /sc onlogon /tn "StartPersistentWindows" /f /tr "'%~dp0pw.bat'" /rl HIGHEST
+``` 
+**Startup Folder (Windows 7/10/11)**
 * Create a shortcut in the startup folder:
   * `Win + R`, type `shell:startup`
   * Create a shortcut to *PersistentWindows.exe* and place it in the Startup folder
