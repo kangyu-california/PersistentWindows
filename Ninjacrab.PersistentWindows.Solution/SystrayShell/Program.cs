@@ -319,10 +319,6 @@ namespace PersistentWindows.SystrayShell
             systrayForm = new SystrayForm();
             systrayForm.enableUpgradeNotice = check_upgrade;
             systrayForm.autoUpgrade = auto_upgrade;
-            if (check_upgrade)
-                systrayForm.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
-            else
-                systrayForm.upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
             if (relaunch)
             {
