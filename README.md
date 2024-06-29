@@ -47,6 +47,8 @@ Choose **one** of the three options:
 * Launch a DOS window (cmd.exe) with admin privileges, goto (cd) the PW installation folder, and run the following command
 ```
 schtasks /create /sc onlogon /tn "StartPersistentWindows" /f /tr "'%~dp0pw.bat'" /rl HIGHEST
+REM Override High DPI Scaling
+REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%~dp0PersistentWindows.exe" /t REG_SZ /d "~ HIGHDPIAWARE" /f
 ``` 
 **Startup Folder (Windows 7/10/11)**
 * Create a shortcut in the startup folder:
