@@ -322,7 +322,7 @@ namespace PersistentWindows.SystrayShell
 
             if (relaunch)
             {
-                Restart();
+                Restart(2);
                 return;
             }
 
@@ -401,14 +401,14 @@ namespace PersistentWindows.SystrayShell
                 Log.Error("taskbar not ready, restart PersistentWindows");
             }
 
-            Restart();
+            Restart(10);
             return false;
         }
 
-        static void Restart()
+        static void Restart(int delay)
         {
             string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
-            string content = "timeout /t 10 /nobreak > NUL";
+            string content = $"timeout /t {delay} /nobreak > NUL";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             Process.Start(batFile);
