@@ -17,9 +17,8 @@ namespace PersistentWindows.SystrayShell
         {
             messageLoop = new Thread(() =>
             {
-                HotKeyForm hkf = new HotKeyForm(hotkey);
                 hkwin = new HotKeyWindow(hotkey);
-                Application.Run(hkf);
+                Application.Run(new HotKeyForm(hotkey));
             })
             {
                 Name = "MessageLoopThread",
