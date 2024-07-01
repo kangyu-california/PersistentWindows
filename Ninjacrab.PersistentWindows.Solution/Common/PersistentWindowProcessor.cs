@@ -313,6 +313,7 @@ namespace PersistentWindows.Common
             }
 
             curDisplayKey = GetDisplayKey();
+            CaptureNewDisplayConfig(curDisplayKey);
 
 #if DEBUG
             //TestSetWindowPos();
@@ -791,8 +792,6 @@ namespace PersistentWindows.Common
             };
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
-
-            CaptureNewDisplayConfig(curDisplayKey);
 
             initialized = true;
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
@@ -2436,8 +2435,8 @@ namespace PersistentWindows.Common
                     processCmd.Clear();
                 }
             }
-            else if (time_from_last_kill_window.TotalMilliseconds < 200
-                || (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents))
+            else if (initialized && (time_from_last_kill_window.TotalMilliseconds < 200
+                || (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)))
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
