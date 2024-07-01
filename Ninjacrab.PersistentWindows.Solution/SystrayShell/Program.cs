@@ -316,8 +316,7 @@ namespace PersistentWindows.SystrayShell
                 }
             }
 
-            systrayForm = new SystrayForm();
-            systrayForm.enableUpgradeNotice = check_upgrade;
+            systrayForm = new SystrayForm(check_upgrade);
             systrayForm.autoUpgrade = auto_upgrade;
 
             if (relaunch)

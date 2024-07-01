@@ -43,9 +43,15 @@ namespace PersistentWindows.SystrayShell
 
         private Dictionary<string, bool> upgradeDownloaded = new Dictionary<string, bool>();
 
-        public SystrayForm()
+        public SystrayForm(bool enable_upgrade_notice)
         {
             InitializeComponent();
+
+            enableUpgradeNotice = enable_upgrade_notice;
+            if (enableUpgradeNotice)
+                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            else
+                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
             clickDelayTimer = new System.Timers.Timer(1000);
             clickDelayTimer.Elapsed += ClickTimerCallBack;
