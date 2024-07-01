@@ -17,7 +17,7 @@ if ($existingTask -ne $null) {
 	Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
 }
 
-$action = New-ScheduledTaskAction -Execute $executablePath
+$action = New-ScheduledTaskAction -Execute `"$executablePath`"
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:username
 
 ## set PW process priority to below normal
