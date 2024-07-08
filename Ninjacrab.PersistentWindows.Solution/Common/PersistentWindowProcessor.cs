@@ -1093,6 +1093,7 @@ namespace PersistentWindows.Common
             {
                 string procName = windowProcessName[hwnd];
                 string title = GetWindowTitle(hwnd);
+                long dflt_kid = -1;
 
                 foreach (var kid in deadAppPos.Keys)
                 {
@@ -1113,7 +1114,12 @@ namespace PersistentWindows.Common
                     // lastly match title
                     if (title.Equals(appPos.Title))
                         return kid;
+
+                    dflt_kid = kid;
                 }
+
+                if (dflt_kid != -1)
+                    return dflt_kid;
             }
 
             return -1;
