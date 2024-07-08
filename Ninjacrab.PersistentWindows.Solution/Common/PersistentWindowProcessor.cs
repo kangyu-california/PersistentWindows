@@ -1062,22 +1062,21 @@ namespace PersistentWindows.Common
 
                     if (!monitorApplications.ContainsKey(display_key))
                         monitorApplications[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
-                    monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
-                    deadApps[display_key].Remove(kid);
 
-                    //replace prev zorder reference of dead_hwnd with hwnd
+                    //replace prev zorder reference of dead_hwnd with hwnd in monitorApplication
                     foreach (var hw in monitorApplications[display_key].Keys)
                     {
-                        if (hw == hwnd)
-                            continue;
-
                         for (int i = 0; i < monitorApplications[display_key][hw].Count; i++)
                         {
                             if (monitorApplications[display_key][hw][i].PrevZorderWindow == dead_hwnd)
                                 monitorApplications[display_key][hw][i].PrevZorderWindow = hwnd;
                         }
-
                     }
+
+                    monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
+                    deadApps[display_key].Remove(kid);
+
+                    //replace prev zorder reference in deadApps as well
                 }
             }
         }
@@ -1482,6 +1481,7 @@ namespace PersistentWindows.Common
                         deadApps[display_config][lastKilledWindowId] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
+                        windowTitle.Remove(hwnd);
 
                         //limit deadApp size
                         foreach (var kid in deadApps[display_config].Keys)
