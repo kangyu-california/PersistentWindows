@@ -1486,7 +1486,7 @@ namespace PersistentWindows.Common
                         //limit deadApp size
                         foreach (var kid in deadApps[display_config].Keys)
                         {
-                            if (lastKilledWindowId - kid > 50)
+                            if (lastKilledWindowId - kid > 1024)
                                 deadApps[display_config].Remove(kid);
                             break;
                         }
