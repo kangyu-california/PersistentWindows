@@ -44,9 +44,9 @@ namespace PersistentWindows.Common
         // window position database
         private Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> monitorApplications
             = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database of live windows
-        private Dictionary<string, Dictionary<Int64, List<ApplicationDisplayMetrics>>> deadApps
-            = new Dictionary<string, Dictionary<Int64, List<ApplicationDisplayMetrics>>>(); //database of killed windows
-        private Int64 lastKilledWindowId = 0; //monotonically increasing unique id for every killed window
+        private Dictionary<string, Dictionary<long, List<ApplicationDisplayMetrics>>> deadApps
+            = new Dictionary<string, Dictionary<long, List<ApplicationDisplayMetrics>>>(); //database of killed windows
+        private long lastKilledWindowId = 0; //monotonically increasing unique id for every killed window
         private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
@@ -1017,7 +1017,7 @@ namespace PersistentWindows.Common
 
         public bool RecallLastPositionKilledWindow(IntPtr hwnd)
         {
-            Int64 kid = FindMatchingKilledWindow(hwnd);
+            long kid = FindMatchingKilledWindow(hwnd);
             if (kid < 0)
                 return false;
 
@@ -1043,7 +1043,7 @@ namespace PersistentWindows.Common
             Log.Error("Restore last location \"{0}\"", GetWindowTitle(hwnd));
         }
 
-        private void InheritKilledWindow(IntPtr hwnd, Int64 kid)
+        private void InheritKilledWindow(IntPtr hwnd, long kid)
         {
             uint pid;
             User32.GetWindowThreadProcessId(hwnd, out pid);
@@ -1082,7 +1082,7 @@ namespace PersistentWindows.Common
             }
         }
 
-        private Int64 FindMatchingKilledWindow(IntPtr hwnd)
+        private long FindMatchingKilledWindow(IntPtr hwnd)
         {
             if (!deadApps.ContainsKey(curDisplayKey))
                 return -1;
@@ -1093,6 +1093,7 @@ namespace PersistentWindows.Common
             {
                 string procName = windowProcessName[hwnd];
                 string title = GetWindowTitle(hwnd);
+
                 foreach (var kid in deadAppPos.Keys)
                 {
                     var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
@@ -1466,7 +1467,7 @@ namespace PersistentWindows.Common
                         // save window size of closed app to restore off-screen window later
                         if (!deadApps.ContainsKey(display_config))
                         {
-                            deadApps.Add(display_config, new Dictionary<Int64, List<ApplicationDisplayMetrics>>());
+                            deadApps.Add(display_config, new Dictionary<long, List<ApplicationDisplayMetrics>>());
                         }
 
                         // for matching new window with killed one
@@ -2658,7 +2659,7 @@ namespace PersistentWindows.Common
                 if (noRestoreWindows.Contains(hwnd))
                     return false;
 
-                Int64 kid = FindMatchingKilledWindow(hwnd);
+                long kid = FindMatchingKilledWindow(hwnd);
                 if (kid >= 0)
                 {
                     InheritKilledWindow(hwnd, kid);
