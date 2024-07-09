@@ -1122,7 +1122,7 @@ namespace PersistentWindows.Common
                     if (title.Equals(appPos.Title))
                         return kid;
 
-                    if (dflt_kid != -1)
+                    if (dflt_kid == -1)
                         dflt_kid = kid;
                 }
 
