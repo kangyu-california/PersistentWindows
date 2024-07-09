@@ -1077,6 +1077,14 @@ namespace PersistentWindows.Common
                     deadApps[display_key].Remove(kid);
 
                     //replace prev zorder reference in deadApps as well
+                    foreach (var kd in deadApps[display_key].Keys)
+                    {
+                        for (int i = 0; i < deadApps[display_key][kd].Count; i++)
+                        {
+                            if (deadApps[display_key][kd][i].PrevZorderWindow == dead_hwnd)
+                                deadApps[display_key][kd][i].PrevZorderWindow = hwnd;
+                        }
+                    }
                 }
             }
         }
