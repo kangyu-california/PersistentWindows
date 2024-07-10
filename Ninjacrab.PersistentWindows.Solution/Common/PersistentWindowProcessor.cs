@@ -1096,10 +1096,21 @@ namespace PersistentWindows.Common
 
             var deadAppPos = deadApps[curDisplayKey];
             string className = GetWindowClassName(hwnd);
+            if (string.IsNullOrEmpty(className))
+                return -1;
+
+            string procName = windowProcessName[hwnd];
+            string title = GetWindowTitle(hwnd);
+            if (className.Equals("ApplicationFrameWindow"))
+            {
+                //retrieve info about windows core app hidden under top window
+                IntPtr realHwnd = GetCoreAppWindow(hwnd);
+                className = GetWindowClassName(realHwnd);
+                title = GetWindowTitle(realHwnd);
+            }
+
             if (!string.IsNullOrEmpty(className))
             {
-                string procName = windowProcessName[hwnd];
-                string title = GetWindowTitle(hwnd);
                 long dflt_kid = -1;
 
                 foreach (var kid in deadAppPos.Keys)
