@@ -1094,7 +1094,6 @@ namespace PersistentWindows.Common
             if (!deadApps.ContainsKey(curDisplayKey))
                 return -1;
 
-            var deadAppPos = deadApps[curDisplayKey];
             string className = GetWindowClassName(hwnd);
             if (string.IsNullOrEmpty(className))
                 return -1;
@@ -1113,6 +1112,7 @@ namespace PersistentWindows.Common
             {
                 long dflt_kid = -1;
 
+                var deadAppPos = deadApps[curDisplayKey];
                 foreach (var kid in deadAppPos.Keys)
                 {
                     var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
