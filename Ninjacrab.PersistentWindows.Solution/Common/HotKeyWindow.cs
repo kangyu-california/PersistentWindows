@@ -23,6 +23,8 @@ namespace PersistentWindows.Common
         public static IntPtr commanderWnd = IntPtr.Zero;
 
         private static System.Timers.Timer aliveTimer;
+        private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
+
         private System.Timers.Timer mouseScrollDelayTimer;
         private bool init = true;
         private bool active = false;
@@ -30,12 +32,11 @@ namespace PersistentWindows.Common
         private static bool browserWindowActivated = false;
         private int origWidth;
         private int origHeight;
-        private int mouseOffset = 0;
+        private int mouseOffset = 0; //mouse dithering to workaround mouse location mis-update issue in rdp session
         private static POINT lastCursorPos;
         private POINT lastWheelCursorPos;
         private bool handCursor = false;
         private int titleHeight;
-        private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
         private Color dfltBackColor;
         private bool promptZkey = true;
         private bool clickThrough = false;
