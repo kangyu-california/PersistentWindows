@@ -137,6 +137,7 @@ namespace PersistentWindows.Common
             "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX"
         };
 
+        public bool dumpDataWhenExit = true;
         private string windowPosDataFile = "window_pos.xml";
         private string snapshotTimeFile = "snapshot_time.xml";
 
@@ -247,7 +248,8 @@ namespace PersistentWindows.Common
         {
             try
             {
-                ReadDataDump();
+                if (dumpDataWhenExit)
+                    ReadDataDump();
             }
             catch (Exception e)
             {

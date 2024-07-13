@@ -263,6 +263,9 @@ namespace PersistentWindows.SystrayShell
                     case "-auto_upgrade=1":
                         auto_upgrade = true;
                         break;
+                    case "-dump_window_pos_at_exit=0":
+                        pwp.dumpDataWhenExit = false;
+                        break;
                 }
             }
 
@@ -778,7 +781,8 @@ namespace PersistentWindows.SystrayShell
         {
             try
             {
-                pwp.WriteDataDump();
+                if (pwp.dumpDataWhenExit)
+                    pwp.WriteDataDump();
             }
             catch (Exception e)
             {
