@@ -9,6 +9,8 @@ using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Win32;
+using System.Xml;
+using System.Runtime.Serialization;
 
 using LiteDB;
 
@@ -135,6 +137,9 @@ namespace PersistentWindows.Common
             "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX"
         };
 
+        private string windowPosDataFile = "window_pos.xml";
+        private string snapshotTimeFile = "snapshot_time.xml";
+
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
         private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
@@ -197,6 +202,59 @@ namespace PersistentWindows.Common
             ;
         }
 #endif
+
+        public void WriteDataDump()
+        {
+            DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
+            StringBuilder sb = new StringBuilder();
+            using (XmlWriter xw = XmlWriter.Create(sb))
+            {
+                dcs.WriteObject(xw, monitorApplications);
+            }
+            string xml = sb.ToString();
+            File.WriteAllText(Path.Combine(appDataFolder, windowPosDataFile), xml, Encoding.Unicode);
+
+            DataContractSerializer dcs2 = new DataContractSerializer(typeof(Dictionary<string, Dictionary<int, DateTime>>));
+            StringBuilder sb2 = new StringBuilder();
+            using (XmlWriter xw = XmlWriter.Create(sb2))
+            {
+                dcs2.WriteObject(xw, snapshotTakenTime);
+            }
+            string xml2 = sb2.ToString();
+            File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
+        }
+
+        private void ReadDataDump()
+        {
+            DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
+            using (FileStream fs = File.OpenRead(Path.Combine(appDataFolder, windowPosDataFile)))
+            using (XmlReader xr = XmlReader.Create(fs))
+            {
+                monitorApplications = (Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>)dcs.ReadObject(xr);
+            }
+            File.Delete(Path.Combine(appDataFolder, windowPosDataFile));
+
+            DataContractSerializer dcs2 = new DataContractSerializer(typeof(Dictionary<string, Dictionary<int, DateTime>>));
+            using (FileStream fs = File.OpenRead(Path.Combine(appDataFolder, snapshotTimeFile)))
+            using (XmlReader xr = XmlReader.Create(fs))
+            {
+                snapshotTakenTime = (Dictionary<string, Dictionary<int, DateTime>>)dcs2.ReadObject(xr);
+            }
+            File.Delete(Path.Combine(appDataFolder, snapshotTimeFile));
+        }
+
+        private void ReadDataDumpSafe()
+        {
+            try
+            {
+                ReadDataDump();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
+
         private void CleanupDisplayRegKey(string key)
         {
             if (key.Contains("__"))
@@ -312,6 +370,7 @@ namespace PersistentWindows.Common
                 }
             }
 
+            ReadDataDumpSafe();
             curDisplayKey = GetDisplayKey();
             CaptureNewDisplayConfig(curDisplayKey);
 
@@ -795,6 +854,8 @@ namespace PersistentWindows.Common
 
             initialized = true;
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
+            bool sshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+            enableRestoreSnapshotMenu(sshot_exist);
             Log.Event($"Display config is {curDisplayKey}");
             using (var persistDB = new LiteDatabase(persistDbName))
             {

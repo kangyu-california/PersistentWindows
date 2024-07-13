@@ -172,7 +172,6 @@ namespace PersistentWindows.SystrayShell
             ctrlKeyPressed = 0;
             shiftKeyPressed = 0;
             altKeyPressed = 0;
-
         }
 
         //private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
@@ -281,6 +280,8 @@ namespace PersistentWindows.SystrayShell
 
         private void Exit()
         {
+            Program.WriteDataDump();
+
 #if DEBUG
             this.notifyIconMain.Visible = false;
 #endif
@@ -288,8 +289,11 @@ namespace PersistentWindows.SystrayShell
             Log.Exit();
             Application.Exit();
         }
+
         private void Upgrade()
         {
+            Program.WriteDataDump();
+
             string batFile = Path.Combine(Program.AppdataFolder, "pw_upgrade.bat");
             Process.Start(batFile);
             Exit();

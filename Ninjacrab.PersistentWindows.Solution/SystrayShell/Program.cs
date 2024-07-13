@@ -774,5 +774,16 @@ namespace PersistentWindows.SystrayShell
             Log.Error(format, args);
         }
 
+        public static void WriteDataDump()
+        {
+            try
+            {
+                pwp.WriteDataDump();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
     }
 }
