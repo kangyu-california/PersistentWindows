@@ -51,8 +51,8 @@ namespace PersistentWindows.SystrayShell
             pwp = new PersistentWindowProcessor();
 
             bool splash = true;
-            int delay_start = 0;
-            bool relaunch = false;
+            int delay_restart = 0;
+            int relaunch_delay = 0;
             int delay_manual_capture = 0;
             int delay_auto_capture = 0;
             bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
@@ -86,13 +86,12 @@ namespace PersistentWindows.SystrayShell
                     pwp.haltRestore = (Int32)(float.Parse(arg) * 1000);
                     continue;
                 }
-                else if (delay_start != 0)
+                else if (delay_restart != 0)
                 {
-                    delay_start = 0;
+                    delay_restart = 0;
                     if (!waiting_taskbar)
                     {
-                        Thread.Sleep((Int32)(float.Parse(arg) * 1000));
-                        relaunch = true;
+                        relaunch_delay = (Int32)(float.Parse(arg));
                     }
                     continue;
                 }
@@ -153,8 +152,8 @@ namespace PersistentWindows.SystrayShell
                     case "-enable_auto_restore_by_manual_capture":
                         pwp.manualNormalSession = true;
                         break;
-                    case "-delay_start":
-                        delay_start = 1;
+                    case "-delay_restart":
+                        delay_restart = 1;
                         break;
                     case "-wait_taskbar":
                         waiting_taskbar = true;
@@ -322,9 +321,9 @@ namespace PersistentWindows.SystrayShell
             systrayForm = new SystrayForm(check_upgrade);
             systrayForm.autoUpgrade = auto_upgrade;
 
-            if (relaunch)
+            if (relaunch_delay > 0)
             {
-                Restart(2);
+                RestartHidden(relaunch_delay);
                 return;
             }
 
@@ -414,6 +413,21 @@ namespace PersistentWindows.SystrayShell
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             Process.Start(batFile);
+
+            Log.Error("program restarted");
+        }
+
+        static void RestartHidden(int delay)
+        {
+            Process p = new Process();
+            string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
+            string content = $"timeout /t {delay} /nobreak > NUL";
+            content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
+            File.WriteAllText(batFile, content);
+            p.StartInfo.FileName = batFile;
+            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            p.StartInfo.UseShellExecute = true;
+            p.Start();
 
             Log.Error("program restarted");
         }
