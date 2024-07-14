@@ -15,6 +15,7 @@
   | -hotkey "Q" | register Alt + Q as the hotkey to (de)activate webpage commander window, default hotkey is "W" (Alt + W)
   | -ctrl_minimize_to_tray=0 | Turn off ctrl minimize window to notification tray
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
+  | -delay_restart 5 | Restart PersistentWindows in 5 seconds. This option should only be used in case normal start of PersistentWindows fails.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
   | *-delay_auto_restore 2.5* | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second). This is in case the restore is incomplete or the monitor fails to go to sleep due to the restore starting too early.
   | -redraw_desktop | Redraw the whole desktop after a restore, in case some window workarea is not refreshed
@@ -28,6 +29,7 @@
   | -invoke_multi_window_process_only_once=0 | Launch an application multiple times when multiple windows of the same process need to be restored from the database.
   | -check_upgrade=0 | Disable the PersistentWindows upgrade check
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
+  | -dump_windows_pos_at_exit=0 | Disable window pos dump at exit of PersistentWindows
 
 ---
 
