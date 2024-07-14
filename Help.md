@@ -29,7 +29,7 @@
   | -invoke_multi_window_process_only_once=0 | Launch an application multiple times when multiple windows of the same process need to be restored from the database.
   | -check_upgrade=0 | Disable the PersistentWindows upgrade check
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
-  | -dump_windows_pos_at_exit=0 | Disable window pos dump at exit of PersistentWindows
+  | -dump_window_pos_at_exit=0 | Disable window pos dump at exit of PersistentWindows
 
 ---
 
