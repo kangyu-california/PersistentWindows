@@ -4046,7 +4046,7 @@ namespace PersistentWindows.Common
 
                                         File.WriteAllText(batFile, "start \"\" /B " + dir);
                                     }
-                                    else if (dir.Equals("This PC"))
+                                    else if (dir.Equals("This PC") || dir.Equals("Computer"))
                                     {
                                         File.WriteAllText(batFile, "explorer /n, /select, %SystemDrive%");
                                     }
