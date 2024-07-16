@@ -4046,6 +4046,10 @@ namespace PersistentWindows.Common
 
                                         File.WriteAllText(batFile, "start \"\" /B " + dir);
                                     }
+                                    else if (dir.Equals("This PC"))
+                                    {
+                                        File.WriteAllText(batFile, "explorer /n, /select, %SystemDrive%");
+                                    }
                                     else
                                     {
                                         string home = System.Environment.GetEnvironmentVariable("USERPROFILE");
