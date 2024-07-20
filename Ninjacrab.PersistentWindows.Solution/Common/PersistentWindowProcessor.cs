@@ -36,8 +36,9 @@ namespace PersistentWindows.Common
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
-        private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
-        private const int MaxHistoryQueueLength = 40; // must be bigger than MaxSnapshots + 1
+        private const int MaxSnapshots = 38; // 0-9, a-z, ` (for redo last auto restore) and final one for undo last snapshot restore
+        //[MaxSnapshots] is current capture, [MaxSnapshots + 1] is previous capture
+        private const int MaxHistoryQueueLength = 41; // ideally bigger than MaxSnapshots + 2
 
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
 
@@ -158,8 +159,6 @@ namespace PersistentWindows.Common
         private bool remoteSession = false;
 
         // restore time
-        private Dictionary<string, DateTime> lastUserActionTime = new Dictionary<string, DateTime>();
-        private Dictionary<string, DateTime> lastUserActionTimeBackup = new Dictionary<string, DateTime>();
         private Dictionary<string, Dictionary<int, DateTime>> snapshotTakenTime = new Dictionary<string, Dictionary<int, DateTime>>();
         public int snapshotId;
 
@@ -227,16 +226,22 @@ namespace PersistentWindows.Common
 
         private void ReadDataDump()
         {
+            string path = Path.Combine(appDataFolder, windowPosDataFile);
+            if (!File.Exists(path))
+                return;
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
-            using (FileStream fs = File.OpenRead(Path.Combine(appDataFolder, windowPosDataFile)))
+            using (FileStream fs = File.OpenRead(path))
             using (XmlReader xr = XmlReader.Create(fs))
             {
                 monitorApplications = (Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>)dcs.ReadObject(xr);
             }
             File.Delete(Path.Combine(appDataFolder, windowPosDataFile));
 
+            string path2 = Path.Combine(appDataFolder, snapshotTimeFile);
+            if (!File.Exists(path2))
+                return;
             DataContractSerializer dcs2 = new DataContractSerializer(typeof(Dictionary<string, Dictionary<int, DateTime>>));
-            using (FileStream fs = File.OpenRead(Path.Combine(appDataFolder, snapshotTimeFile)))
+            using (FileStream fs = File.OpenRead(path2))
             using (XmlReader xr = XmlReader.Create(fs))
             {
                 snapshotTakenTime = (Dictionary<string, Dictionary<int, DateTime>>)dcs2.ReadObject(xr);
@@ -307,6 +312,22 @@ namespace PersistentWindows.Common
                 top.DeleteSubKeyTree(config_name);
             }
         }
+
+        private bool SnapshotExists(string displayKey)
+        {
+            if (!snapshotTakenTime.ContainsKey(displayKey))
+                return false;
+
+            foreach (var id in snapshotTakenTime[displayKey].Keys)
+            {
+                // 26 + 10 maximum manual snapshots
+                if (id < 36)
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool Start(bool auto_restore_from_db = false)
         {
             process = Process.GetCurrentProcess();
@@ -581,8 +602,8 @@ namespace PersistentWindows.Common
                     {
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
-                        if (lastUserActionTime.ContainsKey(curDisplayKey))
-                            snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = lastUserActionTime[curDisplayKey];
+                        if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
+                            snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = snapshotTakenTime[curDisplayKey][MaxSnapshots];
                     }
 
                     if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
@@ -608,7 +629,7 @@ namespace PersistentWindows.Common
                 enableRestoreMenu(db_exist, checkUpgrade);
                 freezeCapture = false;
 
-                bool snapshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+                bool snapshot_exist = SnapshotExists(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
                 //changeIconText(null);
 
@@ -689,15 +710,15 @@ namespace PersistentWindows.Common
                     Log.Event("Display settings changed {0}", displayKey);
 
                     // undo disqualified capture time
-                    if (lastUserActionTime.ContainsKey(curDisplayKey))
+                    if (snapshotTakenTime.ContainsKey(curDisplayKey) && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
                     {
-                        var lastCaptureTime = lastUserActionTime[curDisplayKey];
+                        var lastCaptureTime = snapshotTakenTime[curDisplayKey][MaxSnapshots];
                         var diff = lastDisplayChangeTime - lastCaptureTime;
                         if (diff.TotalMilliseconds < CaptureLatency)
                         {
-                            if (lastUserActionTimeBackup.ContainsKey(curDisplayKey))
+                            if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots + 1))
                             {
-                                lastUserActionTime[curDisplayKey] = lastUserActionTimeBackup[curDisplayKey];
+                                snapshotTakenTime[curDisplayKey][MaxSnapshots] = snapshotTakenTime[curDisplayKey][MaxSnapshots + 1];
                                 Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
                             }
                         }
@@ -856,7 +877,7 @@ namespace PersistentWindows.Common
 
             initialized = true;
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
-            bool sshot_exist = snapshotTakenTime.ContainsKey(curDisplayKey);
+            bool sshot_exist = SnapshotExists(curDisplayKey);
             enableRestoreSnapshotMenu(sshot_exist);
             Log.Event($"Display config is {curDisplayKey}");
             using (var persistDB = new LiteDatabase(persistDbName))
@@ -2421,9 +2442,11 @@ namespace PersistentWindows.Common
                         monitorApplications[displayKey][hwnd].Last().IsValid = true;
                 }
 
-                if (lastUserActionTime.ContainsKey(displayKey))
-                    lastUserActionTimeBackup[displayKey] = lastUserActionTime[displayKey];
-                lastUserActionTime[displayKey] = time;
+                if (!snapshotTakenTime.ContainsKey(displayKey))
+                    snapshotTakenTime[displayKey] = new Dictionary<int, DateTime>();
+                if (snapshotTakenTime[displayKey].ContainsKey(MaxSnapshots))
+                    snapshotTakenTime[displayKey][MaxSnapshots + 1] = snapshotTakenTime[displayKey][MaxSnapshots];
+                snapshotTakenTime[displayKey][MaxSnapshots] = time;
 
                 Log.Trace("Capture time {0}", time);
             }
@@ -3403,20 +3426,18 @@ namespace PersistentWindows.Common
                 sWindows = CaptureWindowsOfInterest();
 
                 // determine the time to be restored
-                if (lastUserActionTime.ContainsKey(displayKey))
+                if (restoringSnapshot)
                 {
-                    if (restoringSnapshot)
-                    {
-                        if (!snapshotTakenTime.ContainsKey(curDisplayKey)
-                            || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
-                            return false;
+                    if (!snapshotTakenTime.ContainsKey(curDisplayKey)
+                        || !snapshotTakenTime[curDisplayKey].ContainsKey(snapshotId))
+                        return false;
 
-                        lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
-                    }
-                    else
-                    {
-                        lastCaptureTime = lastUserActionTime[displayKey];
-                    }
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey][snapshotId];
+                }
+                else if (snapshotTakenTime.ContainsKey(curDisplayKey)
+                        && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
+                {
+                    lastCaptureTime = snapshotTakenTime[displayKey][MaxSnapshots];
                 }
             }
 
