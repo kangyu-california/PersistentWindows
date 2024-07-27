@@ -317,6 +317,18 @@ namespace PersistentWindows.SystrayShell
                 {
                     BusyIcon = new System.Drawing.Icon(icon_path);
                 }
+
+                icon_path = Path.Combine(iconFolder, "pwIconUpdate.ico");
+                icon_png_path = Path.Combine(iconFolder, "pwIconUpdate.png");
+                if (File.Exists(icon_png_path))
+                {
+                    var bitmap = new System.Drawing.Bitmap(icon_png_path);
+                    UpdateIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                }
+                else if (File.Exists(icon_path))
+                {
+                    UpdateIcon = new System.Drawing.Icon(icon_path);
+                }
             }
 
             systrayForm = new SystrayForm(check_upgrade);
