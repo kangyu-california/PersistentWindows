@@ -825,6 +825,7 @@ namespace PersistentWindows.Common
                 else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
                 {
                     //mouse moving, continue monitor
+                    Visible = false;
                 }
                 else
                 {
@@ -862,9 +863,10 @@ namespace PersistentWindows.Common
                     }
 
                     bool regain_focus = true;
+                    bool change_to_visible = false;
                     if (!Visible)
                     {
-                        Visible = true;
+                        change_to_visible = true;
                         TopMost = true;
                         if (defocused)
                         {
@@ -886,12 +888,14 @@ namespace PersistentWindows.Common
 
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
+                    ResetHotkeyWindowPos();
+                    if (change_to_visible)
+                        Visible = true;
                     if (regain_focus)
                     {
                         User32.SetForegroundWindow(Handle);
                         User32.SetFocus(Handle);
                     }
-                    ResetHotkeyWindowPos();
 
                     if (hCursor == Cursors.Default.Handle)
                     {
