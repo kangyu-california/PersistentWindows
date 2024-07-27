@@ -61,22 +61,22 @@ namespace PersistentWindows.SystrayShell.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Icon pwIcon {
+        internal static System.Drawing.Bitmap pwIcon {
             get {
                 object obj = ResourceManager.GetObject("pwIcon", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Icon pwIcon2 {
+        internal static System.Drawing.Bitmap pwIcon2 {
             get {
                 object obj = ResourceManager.GetObject("pwIcon2", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -91,12 +91,12 @@ namespace PersistentWindows.SystrayShell.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Icon pwIconBusy2 {
+        internal static System.Drawing.Bitmap pwIconBusy2 {
             get {
                 object obj = ResourceManager.GetObject("pwIconBusy2", resourceCulture);
-                return ((System.Drawing.Icon)(obj));
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         
@@ -106,6 +106,16 @@ namespace PersistentWindows.SystrayShell.Properties {
         internal static System.Drawing.Bitmap pwIconUpdate {
             get {
                 object obj = ResourceManager.GetObject("pwIconUpdate", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap pwIconUpdate2 {
+            get {
+                object obj = ResourceManager.GetObject("pwIconUpdate2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
