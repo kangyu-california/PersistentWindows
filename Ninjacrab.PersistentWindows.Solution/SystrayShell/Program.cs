@@ -284,7 +284,7 @@ namespace PersistentWindows.SystrayShell
             var iconHandle = (legacy_icon ? Properties.Resources.pwIcon2: Properties.Resources.pwIcon).GetHicon();
             IdleIcon = System.Drawing.Icon.FromHandle(iconHandle);
             iconHandle = (legacy_icon ? Properties.Resources.pwIconBusy2 : Properties.Resources.pwIconBusy).GetHicon();
-            BusyIcon = System.Drawing.Icon.FromHandle(legacy_icon ? Properties.Resources.pwIconBusy2.GetHicon() : iconHandle);
+            BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
             iconHandle = (legacy_icon ? Properties.Resources.pwIconUpdate2 : Properties.Resources.pwIconUpdate2).GetHicon();
             UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
 
@@ -294,40 +294,40 @@ namespace PersistentWindows.SystrayShell
                 if (i == 1)
                     iconFolder = AppDomain.CurrentDomain.BaseDirectory;
 
-                string icon_path = Path.Combine(iconFolder, "pwIcon.ico");
-                string icon_png_path = Path.Combine(iconFolder, "pwIcon.png");
-                if (File.Exists(icon_png_path))
+                string ico_path = Path.Combine(iconFolder, "pwIcon.ico");
+                string png_path = Path.Combine(iconFolder, "pwIcon.png");
+                if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(icon_png_path); // or get it from resource
+                    var bitmap = new System.Drawing.Bitmap(png_path);
                     IdleIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
                 }
-                else if (File.Exists(icon_path))
+                else if (File.Exists(ico_path))
                 {
-                    IdleIcon = new System.Drawing.Icon(icon_path);
+                    IdleIcon = new System.Drawing.Icon(ico_path);
                 }
 
-                icon_path = Path.Combine(iconFolder, "pwIconBusy.ico");
-                icon_png_path = Path.Combine(iconFolder, "pwIconBusy.png");
-                if (File.Exists(icon_png_path))
+                ico_path = Path.Combine(iconFolder, "pwIconBusy.ico");
+                png_path = Path.Combine(iconFolder, "pwIconBusy.png");
+                if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(icon_png_path);
+                    var bitmap = new System.Drawing.Bitmap(png_path);
                     BusyIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
                 }
-                else if (File.Exists(icon_path))
+                else if (File.Exists(ico_path))
                 {
-                    BusyIcon = new System.Drawing.Icon(icon_path);
+                    BusyIcon = new System.Drawing.Icon(ico_path);
                 }
 
-                icon_path = Path.Combine(iconFolder, "pwIconUpdate.ico");
-                icon_png_path = Path.Combine(iconFolder, "pwIconUpdate.png");
-                if (File.Exists(icon_png_path))
+                ico_path = Path.Combine(iconFolder, "pwIconUpdate.ico");
+                png_path = Path.Combine(iconFolder, "pwIconUpdate.png");
+                if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(icon_png_path);
+                    var bitmap = new System.Drawing.Bitmap(png_path);
                     UpdateIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
                 }
-                else if (File.Exists(icon_path))
+                else if (File.Exists(ico_path))
                 {
-                    UpdateIcon = new System.Drawing.Icon(icon_path);
+                    UpdateIcon = new System.Drawing.Icon(ico_path);
                 }
             }
 
