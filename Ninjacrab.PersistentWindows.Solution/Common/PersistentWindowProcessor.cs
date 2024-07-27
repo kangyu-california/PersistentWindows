@@ -328,6 +328,22 @@ namespace PersistentWindows.Common
             return false;
         }
 
+        private bool RestoreExists(string displayKey)
+        {
+            if (!snapshotTakenTime.ContainsKey(displayKey))
+                return false;
+
+            foreach (var id in snapshotTakenTime[displayKey].Keys)
+            {
+                // 26 + 10 maximum manual snapshots
+                // + last auto restore, + last snapshot restore
+                if (id < MaxSnapshots)
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool Start(bool auto_restore_from_db = false)
         {
             process = Process.GetCurrentProcess();
@@ -896,7 +912,7 @@ namespace PersistentWindows.Common
                     dbDisplayKey = curDisplayKey;
                     StartRestoreTimer();
                 }
-                else if (db_exist && autoRestoreLiveWindows)
+                else if (db_exist && autoRestoreLiveWindows && !RestoreExists(curDisplayKey))
                 {
                     Log.Event("auto restore from db");
                     restoringFromDB = true;
