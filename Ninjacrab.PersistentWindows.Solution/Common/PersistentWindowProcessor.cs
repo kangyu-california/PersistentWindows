@@ -1514,6 +1514,18 @@ namespace PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            try
+            {
+                WinEventProcCore(hWinEventHook, eventType, hwnd, idObject, idChild, dwEventThread, dwmsEventTime);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+        }
+
+        private void WinEventProcCore(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        {
             if (!initialized)
                 return;
 
