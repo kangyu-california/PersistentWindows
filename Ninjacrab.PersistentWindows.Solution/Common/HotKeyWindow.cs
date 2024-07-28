@@ -41,6 +41,7 @@ namespace PersistentWindows.Common
         private bool promptZkey = true;
         private bool clickThrough = false;
         private bool defocused = false;
+        private int totalWaitSecondsForWhiteColor = 0;
 
         public HotKeyWindow(uint hkey)
         {
@@ -784,6 +785,37 @@ namespace PersistentWindows.Common
             }
         }
 
+        private bool IsColor(IntPtr hwnd, int x, int y, int xsize, int ysize, Color px)
+        {
+            using (Bitmap screenPixel = new Bitmap(xsize, ysize))
+            {
+                using (Graphics gdest = Graphics.FromImage(screenPixel))
+                {
+                    using (Graphics gsrc = Graphics.FromHwnd(hwnd))
+                    {
+                        IntPtr hsrcdc = gsrc.GetHdc();
+                        IntPtr hdc = gdest.GetHdc();
+                        Gdi32.BitBlt(hdc, 0, 0, xsize, ysize, hsrcdc, x, y, (int)CopyPixelOperation.SourceCopy);
+                        gdest.ReleaseHdc();
+                        gsrc.ReleaseHdc();
+                    }
+                }
+
+                Console.WriteLine($"pixel ({x}, {y}) {px}");
+                for (int i = 0; i < xsize; ++i)
+                {
+                    var p = screenPixel.GetPixel(i, i);
+                    if (p.ToArgb() != px.ToArgb())
+                        return false;
+                    p = screenPixel.GetPixel(xsize - i - 1, i);
+                    if (p.ToArgb() != px.ToArgb())
+                        return false;
+                }
+
+                return true;
+            }
+        }
+
         private void AliveTimerCallBack(Object source, ElapsedEventArgs e)
         {
             if (!active)
@@ -838,6 +870,7 @@ namespace PersistentWindows.Common
                             // hide hotkey window to allow click through possible link
                             Visible = false;
                             clickThrough = true;
+                            totalWaitSecondsForWhiteColor = 0;
                             StartAliveTimer(11, 1000);
                             return;
                         }
@@ -846,8 +879,20 @@ namespace PersistentWindows.Common
                         {
                             Left = cursorPos.X - 10;
                             Top = cursorPos.Y - 10;
+                            totalWaitSecondsForWhiteColor = 0;
                             StartAliveTimer(11, 1000);
                             return;
+                        }
+
+                        if (!commanderWndUnderCursor && !IsColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 1, 1, Color.White))
+                        {
+                            // wait for possible menu selection within webpage
+                            ++totalWaitSecondsForWhiteColor;
+                            if (totalWaitSecondsForWhiteColor < 5)
+                            {
+                                StartAliveTimer(11, 1000);
+                                return;
+                            }
                         }
                     }
                     else if (hCursor == Cursors.IBeam.Handle)
@@ -861,6 +906,8 @@ namespace PersistentWindows.Common
                         StartAliveTimer(7);
                         return;
                     }
+
+                    totalWaitSecondsForWhiteColor = 0;
 
                     bool regain_focus = true;
                     bool change_to_visible = false;
