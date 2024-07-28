@@ -865,6 +865,8 @@ namespace PersistentWindows.Common
                     if (hCursor == Cursors.Default.Handle)
                     {
                         handCursor = false;
+
+                        /*
                         if (!commanderWndUnderCursor && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
                         {
                             // hide hotkey window to allow click through possible link
@@ -874,9 +876,11 @@ namespace PersistentWindows.Common
                             StartAliveTimer(11, 1000);
                             return;
                         }
+                        */
 
                         if (!commanderWndUnderCursor && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
                         {
+                            // shift commander window to allow click possible link
                             Left = cursorPos.X - 10;
                             Top = cursorPos.Y - 10;
                             totalWaitSecondsForWhiteColor = 0;
