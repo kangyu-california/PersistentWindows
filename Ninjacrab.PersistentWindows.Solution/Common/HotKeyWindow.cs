@@ -857,7 +857,7 @@ namespace PersistentWindows.Common
                 else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
                 {
                     //mouse moving, continue monitor
-                    Visible = false;
+                    totalWaitSecondsForWhiteColor = 0;
                 }
                 else
                 {
