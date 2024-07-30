@@ -717,7 +717,7 @@ namespace PersistentWindows.Common
             return result;
         }
 
-        private bool IsSimilarColor(IntPtr hwnd, int x, int y, int xsize, int ysize)
+        private bool IsSimilarColor(IntPtr hwnd, int x, int y, int xsize, int ysize, Color px)
         {
             using (Bitmap screenPixel = new Bitmap(xsize, ysize))
             {
@@ -733,20 +733,16 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                var p1 = screenPixel.GetPixel(0, 0);
-                var p2 = screenPixel.GetPixel(xsize - 1, 0);
-                Console.WriteLine($"pixel ({x}, {y}) {p1}");
-                for (int i = 1; i < xsize; ++i)
+                Console.WriteLine($"pixel ({x}, {y}) {px}");
+                for (int i = 0; i < xsize; ++i)
                 {
                     Color p = screenPixel.GetPixel(i, i);
-                    if (DiffColor(p, p1) > 10)
+                    if (DiffColor(p, px) > 15)
                         return false;
-                    p1 = p;
 
                     p = screenPixel.GetPixel(xsize - i - 1, i);
-                    if (DiffColor(p, p2) > 10)
+                    if (DiffColor(p, px) > 15)
                         return false;
-                    p2 = p;
                 }
 
                 return true;
@@ -785,7 +781,7 @@ namespace PersistentWindows.Common
             }
         }
 
-        private bool IsColor(IntPtr hwnd, int x, int y, int xsize, int ysize, Color px)
+        private bool IsSameColor(IntPtr hwnd, int x, int y, int xsize, int ysize, Color px)
         {
             using (Bitmap screenPixel = new Bitmap(xsize, ysize))
             {
@@ -866,19 +862,12 @@ namespace PersistentWindows.Common
                     {
                         handCursor = false;
 
-                        /*
-                        if (!commanderWndUnderCursor && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width/2, cursorPos.Y - Height/2, 12, 12))
+                        if (callerAliveTimer == 6)
                         {
-                            // hide hotkey window to allow click through possible link
-                            Visible = false;
-                            clickThrough = true;
-                            totalWaitSecondsForWhiteColor = 0;
-                            StartAliveTimer(11, 1000);
-                            return;
+                            //browser activation
+                            ;
                         }
-                        */
-
-                        if (!commanderWndUnderCursor && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
+                        else if (!commanderWndUnderCursor && !IsUniColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 12, 12))
                         {
                             // shift commander window to allow click possible link
                             Left = cursorPos.X - 10;
@@ -887,12 +876,11 @@ namespace PersistentWindows.Common
                             StartAliveTimer(11, 1000);
                             return;
                         }
-
-                        if (!commanderWndUnderCursor && !IsColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 1, 1, Color.White))
+                        else if (!commanderWndUnderCursor && !IsSimilarColor(IntPtr.Zero, cursorPos.X - Width / 2, cursorPos.Y - Height / 2, 1, 1, Color.White))
                         {
                             // wait for possible menu selection within webpage
                             ++totalWaitSecondsForWhiteColor;
-                            if (totalWaitSecondsForWhiteColor < 5)
+                            if (totalWaitSecondsForWhiteColor < 3)
                             {
                                 StartAliveTimer(11, 1000);
                                 return;
