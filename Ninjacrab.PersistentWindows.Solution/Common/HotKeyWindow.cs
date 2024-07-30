@@ -823,11 +823,9 @@ namespace PersistentWindows.Common
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                 {
                     if (browserWindowActivated)
-                    {
                         StartAliveTimer(6, 1000);
-                        return;
-                    }
-                    Visible = false;
+                    else
+                        Visible = false;
                     return;
                 }
 
@@ -880,7 +878,7 @@ namespace PersistentWindows.Common
                         {
                             // wait for possible menu selection within webpage
                             ++totalWaitSecondsForWhiteColor;
-                            if (totalWaitSecondsForWhiteColor < 3)
+                            if (Visible && totalWaitSecondsForWhiteColor < 3)
                             {
                                 StartAliveTimer(11, 1000);
                                 return;
