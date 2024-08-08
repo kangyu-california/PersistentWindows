@@ -280,6 +280,9 @@ namespace PersistentWindows.SystrayShell
 #endif
             AppdataFolder = appDataFolder;
 
+            if (!Directory.Exists(appDataFolder))
+                Directory.CreateDirectory(appDataFolder);
+
             // default icons
             var iconHandle = (legacy_icon ? Properties.Resources.pwIcon2: Properties.Resources.pwIcon).GetHicon();
             IdleIcon = System.Drawing.Icon.FromHandle(iconHandle);

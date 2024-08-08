@@ -358,7 +358,6 @@ namespace PersistentWindows.Common
             //appDataFolder = ".";
             appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
 #endif
-            var dir = Directory.CreateDirectory(appDataFolder);
 
             try
             {
@@ -384,7 +383,9 @@ namespace PersistentWindows.Common
             bool found_latest_db_file_version = false;
             if (File.Exists(persistDbName))
                 found_latest_db_file_version = true;
-            foreach (var file in dir.EnumerateFiles($@"{productName}*.db"))
+
+            var dir_info = new DirectoryInfo(appDataFolder);
+            foreach (var file in dir_info.EnumerateFiles($@"{productName}*.db"))
             {
                 var fname = file.Name;
                 if (found_latest_db_file_version && !fname.Contains(db_version))
