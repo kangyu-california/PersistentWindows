@@ -539,12 +539,6 @@ namespace PersistentWindows.Common
                 if (fullScreenGamingWindows.Contains(foreGroundWindow))
                     return;
 
-                foreach (var hwnd in fullScreenGamingWindows)
-                {
-                    if (IsFullScreen(hwnd))
-                        return;
-                }
-
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
             });
@@ -2409,6 +2403,12 @@ namespace PersistentWindows.Common
         {
             try
             {
+                foreach (var hwnd in fullScreenGamingWindows)
+                {
+                    if (IsFullScreen(hwnd))
+                        return;
+                }
+
                 if (restoringFromMem)
                 {
                     return;
