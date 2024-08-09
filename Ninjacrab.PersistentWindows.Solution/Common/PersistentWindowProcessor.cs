@@ -57,7 +57,6 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private static IntPtr vacantDeskWindow = IntPtr.Zero;
-        private bool restoreHotkeyWindow = false;
 
         // windows that are not to be restored
         private static HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
@@ -494,17 +493,9 @@ namespace PersistentWindows.Common
                             bool overlap = User32.IntersectRect(out intersect, ref hkwinPos, ref fgwinPos);
                             if (overlap)
                             {
-                                restoreHotkeyWindow = true;
                                 User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
                             }
                         }
-                    }
-                    else if (restoreHotkeyWindow)
-                    {
-                        restoreHotkeyWindow = false;
-                        User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Show);
-                        User32.SetForegroundWindow(HotKeyWindow.commanderWnd);
-                        User32.SetFocus(HotKeyWindow.commanderWnd);
                     }
 
                     if (!alt_key_pressed)
@@ -2042,6 +2033,8 @@ namespace PersistentWindows.Common
                     break;
                 if (result == result_prev)
                     break;
+                if (result == HotKeyWindow.commanderWnd)
+                    continue;
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
                 {
@@ -2731,6 +2724,9 @@ namespace PersistentWindows.Common
             {
                 return false;
             }
+
+            if (hwnd == HotKeyWindow.commanderWnd)
+                return false;
 
             bool isTaskBar = false;
             if (IsTaskBar(hwnd))
