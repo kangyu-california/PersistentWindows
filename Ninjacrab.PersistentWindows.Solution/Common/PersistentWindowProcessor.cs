@@ -1321,7 +1321,7 @@ namespace PersistentWindows.Common
             {
                 IntPtr topHwnd = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
                 if (hwnd == topHwnd)
-                    HotKeyWindow.BrowserActivate(topHwnd);
+                    HotKeyWindow.BrowserActivate(topHwnd, in_restore : restoringFromMem);
             }
             else
                HotKeyWindow.BrowserActivate(hwnd, false);

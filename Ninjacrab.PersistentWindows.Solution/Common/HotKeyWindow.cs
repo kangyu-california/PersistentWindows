@@ -30,6 +30,7 @@ namespace PersistentWindows.Common
         private bool active = false;
         private static bool tiny = false;
         private static bool browserWindowActivated = false;
+        private static bool restoring = false;
         private int origWidth;
         private int origHeight;
         private int mouseOffset = 0; //mouse dithering to workaround mouse location mis-update issue in rdp session
@@ -635,9 +636,10 @@ namespace PersistentWindows.Common
         }
 
 
-        public static void BrowserActivate(IntPtr hwnd, bool is_browser_window = true)
+        public static void BrowserActivate(IntPtr hwnd, bool is_browser_window = true, bool in_restore = false)
         {
             browserWindowActivated = is_browser_window;
+            restoring = in_restore;
 
             if (!tiny && !User32.IsWindowVisible(commanderWnd))
                 return;
@@ -822,10 +824,15 @@ namespace PersistentWindows.Common
                 IntPtr fgwnd = GetForegroundWindow();
                 if (!PersistentWindowProcessor.IsBrowserWindow(fgwnd))
                 {
-                    if (browserWindowActivated)
+                    if (browserWindowActivated || restoring)
                         StartAliveTimer(6, 1000);
                     else
                         Visible = false;
+                    return;
+                }
+                else if (restoring)
+                {
+                    StartAliveTimer(6, 1000);
                     return;
                 }
 
