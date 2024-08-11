@@ -89,6 +89,7 @@ namespace PersistentWindows.Common
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
+        private IntPtr fullScreenGamingWindow = IntPtr.Zero;
         private bool exitFullScreenGaming = false;
         private POINT initCursorPos;
         private bool freezeCapture = false;
@@ -528,6 +529,13 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
+                if (fullScreenGamingWindow == foreGroundWindow)
+                {
+                    fullScreenGamingWindows.Add(fullScreenGamingWindow);
+                    fullScreenGamingWindow = IntPtr.Zero;
+                    return;
+                }
+
                 if (fullScreenGamingWindows.Contains(foreGroundWindow))
                     return;
 
@@ -778,7 +786,7 @@ namespace PersistentWindows.Common
                             {
                                 if (IsNewWindow(foreGroundWindow))
                                 {
-                                    fullScreenGamingWindows.Add(foreGroundWindow);
+                                    fullScreenGamingWindow = foreGroundWindow;
                                     Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
                                 }
                                 else
@@ -1573,6 +1581,7 @@ namespace PersistentWindows.Common
                 if (fullScreenGamingWindows.Contains(hwnd))
                 {
                     fullScreenGamingWindows.Remove(hwnd);
+                    fullScreenGamingWindow = IntPtr.Zero;
                     exitFullScreenGaming = true;
                 }
                 dualPosSwitchWindows.Remove(hwnd);
