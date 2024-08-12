@@ -3310,6 +3310,13 @@ namespace PersistentWindows.Common
         // recover height of horizontal taskbar or width of vertical taskbar
         private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
         {
+            if (remoteSession)
+            {
+                //attempt to restore taskbar size only once for rdp session
+                if (restoreTimes != 2)
+                    return false;
+            }
+
             RECT sourceRect = new RECT();
             User32.GetWindowRect(hwnd, ref sourceRect);
 
@@ -3340,8 +3347,6 @@ namespace PersistentWindows.Common
                 }
             }
 
-            Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
-
             int start_y;
             int start_x;
             int end_x = -25600;
@@ -3349,6 +3354,8 @@ namespace PersistentWindows.Common
             if (deltaWidth != 0)
             {
                 //restore width
+                Log.Error("restore width of taskbar window {0}", GetWindowTitle(hwnd));
+
                 start_y = sourceRect.Top + sourceRect.Height / 2;
                 if (left_edge)
                 {
@@ -3366,6 +3373,8 @@ namespace PersistentWindows.Common
             else
             {
                 //restore height
+                Log.Error("restore height of taskbar window {0}", GetWindowTitle(hwnd));
+
                 start_x = sourceRect.Left + sourceRect.Width / 2;
                 if (top_edge)
                 {
