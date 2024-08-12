@@ -834,6 +834,7 @@ namespace PersistentWindows.Common
                     case SessionSwitchReason.SessionLock:
                         Log.Event("Session closing: reason {0}", args.Reason);
                         {
+                            UndoCapture(DateTime.Now);
                             sessionLocked = true;
                             sessionActive = false;
                             EndDisplaySession();
