@@ -719,21 +719,8 @@ namespace PersistentWindows.Common
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
 
-                    // undo disqualified capture time
-                    if (snapshotTakenTime.ContainsKey(curDisplayKey) && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
-                    {
-                        var lastCaptureTime = snapshotTakenTime[curDisplayKey][MaxSnapshots];
-                        var diff = lastDisplayChangeTime - lastCaptureTime;
-                        if (diff.TotalMilliseconds < CaptureLatency)
-                        {
-                            if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots + 1))
-                            {
-                                snapshotTakenTime[curDisplayKey][MaxSnapshots] = snapshotTakenTime[curDisplayKey][MaxSnapshots + 1];
-                                Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
-                            }
-                        }
-                    }
-
+                    // rewind disqualified capture time
+                    UndoCapture(lastDisplayChangeTime);
 
                     {
                         EndDisplaySession();
@@ -2497,6 +2484,24 @@ namespace PersistentWindows.Common
             if (dm != null && dm.IsValid)
                 return dm;
             return null;
+        }
+
+        private void UndoCapture(DateTime ref_time)
+        {
+            // rewind disqualified capture time
+            if (snapshotTakenTime.ContainsKey(curDisplayKey) && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
+            {
+                var lastCaptureTime = snapshotTakenTime[curDisplayKey][MaxSnapshots];
+                var diff = ref_time - lastCaptureTime;
+                if (diff.TotalMilliseconds < CaptureLatency)
+                {
+                    if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots + 1))
+                    {
+                        snapshotTakenTime[curDisplayKey][MaxSnapshots] = snapshotTakenTime[curDisplayKey][MaxSnapshots + 1];
+                        Log.Error("undo capture of {0} at {1}", curDisplayKey, lastCaptureTime);
+                    }
+                }
+            }
         }
 
         private void CaptureApplicationsOnCurrentDisplays(string displayKey, bool saveToDB = false, bool immediateCapture = false)
