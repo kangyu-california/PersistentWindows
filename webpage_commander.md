@@ -1,5 +1,5 @@
 
-### Webpage commander window is activated via hotkey (Alt + W)
-* If the activation is unintentional, press the hotkey again to deactivate webpage commander. This feature can be disabled via PW menu or command line.
-* Webpage commander improves the efficiency of web browsing using single-letter command shortcut
-* Check out online help for more details
+### Webpage commander window is invoked via hotkey (Alt + W)
+* If the invocation is unintentional, press the hotkey again to revoke webpage commander. The hotkey can be disabled via PW menu or command line.
+* Webpage commander improves the efficiency of web browsing using single-letter command shortcut.
+* Check out [Online Help](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md) for detailed instructions.

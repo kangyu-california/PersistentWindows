@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
+using System.IO;
 
 using PersistentWindows.Common;
 using PersistentWindows.Common.WinApiBridge;
@@ -10,6 +12,7 @@ namespace PersistentWindows.SystrayShell
 {
     public class HotKeyForm : Form
     {
+        static bool init = true;
         static HotKeyWindow hkwin = null;
         static Thread messageLoop;
 
@@ -63,6 +66,18 @@ namespace PersistentWindows.SystrayShell
                 Program.HideRestoreTip(false); //hide icon
                 Program.HideRestoreTip(); //show icon
                 hkwin.HotKeyPressed(from_menu : false);
+                if (init)
+                {
+                    init = false;
+                    string webpage_commander_notification = Path.Combine(Program.AppdataFolder, "webpage_commander_notification");
+                    if (!File.Exists(webpage_commander_notification))
+                    {
+                        File.Create(webpage_commander_notification);
+                        Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                    }
+                    Program.systrayForm.notifyIconMain.ShowBalloonTip(5000, $"webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                }
+
                 return;
             }
             else if (m.Msg == 0x0010 || m.Msg == 0x0002)
