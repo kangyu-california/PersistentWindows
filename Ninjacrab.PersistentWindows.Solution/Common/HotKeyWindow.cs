@@ -594,7 +594,9 @@ namespace PersistentWindows.Common
             {
                 if (!from_menu)
                 {
-                    IntPtr fgwnd = GetForegroundWindow();
+                    IntPtr fgwnd = GetForegroundWindow(strict : true);
+                    if (fgwnd == commanderWnd)
+                        fgwnd = GetForegroundWindow();
                     if (IsBrowserWindow(fgwnd))
                     {
                         invokedFromBrowser = true;
@@ -1107,9 +1109,9 @@ namespace PersistentWindows.Common
             User32.SetForegroundWindow(Handle);
         }
 
-        private static IntPtr GetForegroundWindow()
+        private static IntPtr GetForegroundWindow(bool strict = false)
         {
-            return PersistentWindowProcessor.GetForegroundWindow();
+            return PersistentWindowProcessor.GetForegroundWindow(strict);
         }
 
         private void FormSizeChanged(object sender, EventArgs e)

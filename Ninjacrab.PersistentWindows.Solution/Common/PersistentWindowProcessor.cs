@@ -2125,8 +2125,11 @@ namespace PersistentWindows.Common
             return fixZorder == 2 || (restoringSnapshot && fixZorder > 0);
         }
 
-        public static IntPtr GetForegroundWindow()
+        public static IntPtr GetForegroundWindow(bool strict = false)
         {
+            if (strict)
+                return User32.GetForegroundWindow();
+
             IntPtr topMostWindow = User32.GetTopWindow(desktopWindow);
             for (IntPtr hwnd = topMostWindow; hwnd != IntPtr.Zero; hwnd = User32.GetWindow(hwnd, 2))
             {
