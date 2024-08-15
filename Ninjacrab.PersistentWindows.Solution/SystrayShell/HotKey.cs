@@ -78,7 +78,7 @@ namespace PersistentWindows.SystrayShell
                             File.Create(webpage_commander_notification);
                             Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
                         }
-                        Program.systrayForm.notifyIconMain.ShowBalloonTip(5000, $"webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                        Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
                     }
                 }
 
