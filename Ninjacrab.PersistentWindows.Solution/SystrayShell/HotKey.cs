@@ -63,19 +63,23 @@ namespace PersistentWindows.SystrayShell
                 User32.KeyModifier modifier = (User32.KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
                 int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
 
-                Program.HideRestoreTip(false); //hide icon
-                Program.HideRestoreTip(); //show icon
                 hkwin.HotKeyPressed(from_menu : false);
-                if (init)
+                if (HotKeyWindow.invokedFromBrowser)
                 {
-                    init = false;
-                    string webpage_commander_notification = Path.Combine(Program.AppdataFolder, "webpage_commander_notification");
-                    if (!File.Exists(webpage_commander_notification))
+                    Program.HideRestoreTip(false); //hide icon
+                    Program.HideRestoreTip(); //show icon
+
+                    if (init)
                     {
-                        File.Create(webpage_commander_notification);
-                        Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                        init = false;
+                        string webpage_commander_notification = Path.Combine(Program.AppdataFolder, "webpage_commander_notification");
+                        if (!File.Exists(webpage_commander_notification))
+                        {
+                            File.Create(webpage_commander_notification);
+                            Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                        }
+                        Program.systrayForm.notifyIconMain.ShowBalloonTip(5000, $"webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
                     }
-                    Program.systrayForm.notifyIconMain.ShowBalloonTip(5000, $"webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
                 }
 
                 return;

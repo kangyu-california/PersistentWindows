@@ -20,6 +20,7 @@ namespace PersistentWindows.Common
         private uint hotkey;
 
         public static IntPtr commanderWnd = IntPtr.Zero;
+        public static bool invokedFromBrowser = false;
 
         private static System.Timers.Timer aliveTimer;
         private static int callerAliveTimer = -1; //for tracing the starting source of alive timer
@@ -594,8 +595,13 @@ namespace PersistentWindows.Common
                 if (!from_menu)
                 {
                     IntPtr fgwnd = GetForegroundWindow();
-                    if (!IsBrowserWindow(fgwnd))
+                    if (IsBrowserWindow(fgwnd))
                     {
+                        invokedFromBrowser = true;
+                    }
+                    else
+                    {
+                        invokedFromBrowser = false;
                         //forward hotkey
                         char c = Convert.ToChar(hotkey);
                         string cmd = $"%{c}";
