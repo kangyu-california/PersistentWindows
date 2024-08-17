@@ -276,7 +276,7 @@ namespace PersistentWindows.Common
                 StartAliveTimer(1);
         }
 
-        bool IsBrowserWindow(IntPtr hwnd)
+        private bool IsBrowserWindow(IntPtr hwnd)
         {
             return PersistentWindowProcessor.IsBrowserWindow(hwnd);
         }
@@ -1109,7 +1109,7 @@ namespace PersistentWindows.Common
             User32.SetForegroundWindow(Handle);
         }
 
-        private static IntPtr GetForegroundWindow(bool strict = false)
+        public static IntPtr GetForegroundWindow(bool strict = false)
         {
             return PersistentWindowProcessor.GetForegroundWindow(strict);
         }

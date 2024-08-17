@@ -63,8 +63,9 @@ namespace PersistentWindows.SystrayShell
                 User32.KeyModifier modifier = (User32.KeyModifier)((int)m.LParam & 0xFFFF);       // The modifier of the hotkey that was pressed.
                 int id = m.WParam.ToInt32();                                        // The id of the hotkey that was pressed.
 
+                IntPtr fgWnd = PersistentWindowProcessor.GetForegroundWindow(strict : true);
                 hkwin.HotKeyPressed(from_menu : false);
-                if (HotKeyWindow.invokedFromBrowser)
+                if (PersistentWindowProcessor.IsBrowserWindow(fgWnd))
                 {
                     Program.HideRestoreTip(false); //hide icon
                     Program.HideRestoreTip(); //show icon
@@ -73,12 +74,28 @@ namespace PersistentWindows.SystrayShell
                     {
                         init = false;
                         string webpage_commander_notification = Path.Combine(Program.AppdataFolder, "webpage_commander_notification");
-                        if (!File.Exists(webpage_commander_notification))
+                        if (File.Exists(webpage_commander_notification))
                         {
-                            File.Create(webpage_commander_notification);
-                            Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                            Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
                         }
-                        Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                        else
+                        {
+                            try
+                            {
+                                File.Create(webpage_commander_notification);
+
+                                uint processId;
+                                User32.GetWindowThreadProcessId(fgWnd, out processId);
+                                string procPath = PersistentWindowProcessor.GetProcExePath(processId);
+                                Process.Start(procPath, Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                            }
+                            catch (Exception ex)
+                            {
+                                Log.Error(ex.ToString());
+                                Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                                Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
+                            }
+                        }
                     }
                 }
 

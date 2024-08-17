@@ -29,7 +29,7 @@ namespace PersistentWindows.SystrayShell
 
         private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
 
-        static PersistentWindowProcessor pwp = null;    
+        public static PersistentWindowProcessor pwp = null;    
         public static SystrayForm systrayForm = null;
         static bool silent = false; //suppress all balloon tip & sound prompt
         static bool notification = false; //pop balloon when auto restore

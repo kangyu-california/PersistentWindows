@@ -4177,7 +4177,7 @@ namespace PersistentWindows.Common
         }
 
 
-        private string GetProcExePath(uint proc_id)
+        public static string GetProcExePath(uint proc_id)
         {
             IntPtr hProcess = Kernel32.OpenProcess(Kernel32.ProcessAccessFlags.QueryInformation, false, proc_id);
             string pathToExe = string.Empty;
