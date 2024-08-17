@@ -53,6 +53,12 @@ namespace PersistentWindows.SystrayShell
             else
                 upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
+            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
+            if (File.Exists(disable_webpage_commander))
+            {
+                invokeWebCommander.Text = "Enable webpage commander";
+            }
+
             clickDelayTimer = new System.Timers.Timer(1000);
             clickDelayTimer.Elapsed += ClickTimerCallBack;
             clickDelayTimer.SynchronizingObject = this.contextMenuStripSysTray;
@@ -351,15 +357,27 @@ namespace PersistentWindows.SystrayShell
 
         private void WebCommander(object sender, EventArgs e)
         {
+            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
+
             if ((User32.GetKeyState(0x11) & 0x8000) != 0)
                 HotKeyForm.InvokeFromMenu();
             else if (this.invokeWebCommander.Text.Contains("Disable"))
             {
+                File.Create(disable_webpage_commander);
                 this.invokeWebCommander.Text = "Enable webpage commander";
                 HotKeyForm.Stop();
             }
             else
             {
+                try
+                {
+                    File.Delete(disable_webpage_commander);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+
                 this.invokeWebCommander.Text = "Disable webpage commander";
                 HotKeyForm.Start(Program.hotkey);
             }

@@ -380,7 +380,8 @@ namespace PersistentWindows.SystrayShell
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
 
-            if (hotkey_window)
+            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
+            if (!File.Exists(disable_webpage_commander) && hotkey_window)
                 HotKeyForm.Start(hotkey);
 
             if (!pwp.Start(auto_restore_from_db_at_startup))
