@@ -21,6 +21,7 @@ namespace PersistentWindows.SystrayShell
         public static System.Drawing.Icon BusyIcon = null;
         public static System.Drawing.Icon UpdateIcon = null;
         public static string AppdataFolder = null;
+        public static string DisableWebpageCommander = null;
         public static string CmdArgs;
         public static bool Gui = true;
         public static bool hotkey_window = true;
@@ -283,6 +284,8 @@ namespace PersistentWindows.SystrayShell
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
 
+            DisableWebpageCommander = Path.Combine(AppdataFolder, "disable_webpage_commander");
+
             // default icons
             var iconHandle = (legacy_icon ? Properties.Resources.pwIcon2: Properties.Resources.pwIcon).GetHicon();
             IdleIcon = System.Drawing.Icon.FromHandle(iconHandle);
@@ -380,8 +383,7 @@ namespace PersistentWindows.SystrayShell
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
 
-            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
-            if (!File.Exists(disable_webpage_commander) && hotkey_window)
+            if (!File.Exists(DisableWebpageCommander) && hotkey_window)
                 HotKeyForm.Start(hotkey);
 
             if (!pwp.Start(auto_restore_from_db_at_startup))

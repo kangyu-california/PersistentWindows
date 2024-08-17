@@ -53,8 +53,7 @@ namespace PersistentWindows.SystrayShell
             else
                 upgradeNoticeMenuItem.Text = "Enable upgrade notice";
 
-            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
-            if (File.Exists(disable_webpage_commander))
+            if (File.Exists(Program.DisableWebpageCommander))
             {
                 invokeWebCommander.Text = "Enable webpage commander";
             }
@@ -357,13 +356,11 @@ namespace PersistentWindows.SystrayShell
 
         private void WebCommander(object sender, EventArgs e)
         {
-            string disable_webpage_commander= Path.Combine(Program.AppdataFolder, "disable_webpage_commander");
-
             if ((User32.GetKeyState(0x11) & 0x8000) != 0)
                 HotKeyForm.InvokeFromMenu();
             else if (this.invokeWebCommander.Text.Contains("Disable"))
             {
-                File.Create(disable_webpage_commander);
+                File.Create(Program.DisableWebpageCommander);
                 this.invokeWebCommander.Text = "Enable webpage commander";
                 HotKeyForm.Stop();
             }
@@ -371,7 +368,7 @@ namespace PersistentWindows.SystrayShell
             {
                 try
                 {
-                    File.Delete(disable_webpage_commander);
+                    File.Delete(Program.DisableWebpageCommander);
                 }
                 catch (Exception ex)
                 {
