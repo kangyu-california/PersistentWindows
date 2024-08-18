@@ -1180,6 +1180,9 @@ namespace PersistentWindows.Common
             if (string.IsNullOrEmpty(className))
                 return -1;
 
+            if (!windowProcessName.ContainsKey(hwnd))
+                return -1;
+
             string procName = windowProcessName[hwnd];
             string title = GetWindowTitle(hwnd);
             if (className.Equals("ApplicationFrameWindow"))
