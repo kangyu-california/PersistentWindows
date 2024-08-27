@@ -139,8 +139,9 @@ namespace PersistentWindows.Common
         };
 
         public bool dumpDataWhenExit = true;
-        private string windowPosDataFile = "window_pos.xml";
+        private string windowPosDataFile = "window_pos.xml"; //for PW restart without PC reboot
         private string snapshotTimeFile = "snapshot_time.xml";
+        //private string deadAppPosFile = "killed_window_pos.xml"; //for pc reboot / os upgrade
 
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
@@ -203,6 +204,18 @@ namespace PersistentWindows.Common
         }
 #endif
 
+        private void DumpSnapshotTakenTime()
+        {
+            DataContractSerializer dcs2 = new DataContractSerializer(typeof(Dictionary<string, Dictionary<int, DateTime>>));
+            StringBuilder sb2 = new StringBuilder();
+            using (XmlWriter xw = XmlWriter.Create(sb2))
+            {
+                dcs2.WriteObject(xw, snapshotTakenTime);
+            }
+            string xml2 = sb2.ToString();
+            File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
+        }
+
         public void WriteDataDump()
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
@@ -213,15 +226,6 @@ namespace PersistentWindows.Common
             }
             string xml = sb.ToString();
             File.WriteAllText(Path.Combine(appDataFolder, windowPosDataFile), xml, Encoding.Unicode);
-
-            DataContractSerializer dcs2 = new DataContractSerializer(typeof(Dictionary<string, Dictionary<int, DateTime>>));
-            StringBuilder sb2 = new StringBuilder();
-            using (XmlWriter xw = XmlWriter.Create(sb2))
-            {
-                dcs2.WriteObject(xw, snapshotTakenTime);
-            }
-            string xml2 = sb2.ToString();
-            File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
         }
 
         private void ReadDataDump()
@@ -1964,6 +1968,8 @@ namespace PersistentWindows.Common
                 snapshotTakenTime[curDisplayKey][snapshotId] = now;
                 Log.Event("Snapshot {0} is captured", snapshotId);
             }
+
+            DumpSnapshotTakenTime();
 
             return true;
         }
