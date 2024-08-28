@@ -618,6 +618,8 @@ namespace PersistentWindows.Common
 
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
+                        WriteDataDump();
+
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
                         if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
@@ -2833,7 +2835,7 @@ namespace PersistentWindows.Common
                 if (kid != IntPtr.Zero)
                 {
                     InheritKilledWindow(hwnd, kid);
-                    Log.Error($"Inherit position data from killed window {kid} for {curDisplayMetrics.Title}");
+                    Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
                 }
 
                 //newly created window or new display setting
