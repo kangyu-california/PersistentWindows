@@ -2844,7 +2844,10 @@ namespace PersistentWindows.Common
                 if (kid != IntPtr.Zero)
                 {
                     InheritKilledWindow(hwnd, kid);
-                    Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+                    if (hwnd != kid)
+                        Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+                    else
+                        Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
                 }
 
                 //newly created window or new display setting
