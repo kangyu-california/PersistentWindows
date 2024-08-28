@@ -814,8 +814,7 @@ namespace PersistentWindows.SystrayShell
         {
             try
             {
-                if (pwp.dumpDataWhenExit)
-                    pwp.WriteDataDump();
+                pwp.WriteDataDump();
             }
             catch (Exception e)
             {

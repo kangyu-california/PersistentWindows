@@ -217,6 +217,9 @@ namespace PersistentWindows.Common
 
         public void WriteDataDump()
         {
+            if (!dumpDataWhenExit)
+                return;
+
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
             StringBuilder sb = new StringBuilder();
             using (XmlWriter xw = XmlWriter.Create(sb))
@@ -240,7 +243,7 @@ namespace PersistentWindows.Common
             {
                 deadApps = (Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>)dcs.ReadObject(xr);
             }
-            File.Delete(Path.Combine(appDataFolder, windowPosDataFile));
+            //File.Delete(Path.Combine(appDataFolder, windowPosDataFile));
 
             string path2 = Path.Combine(appDataFolder, snapshotTimeFile);
             if (!File.Exists(path2))
@@ -251,7 +254,7 @@ namespace PersistentWindows.Common
             {
                 snapshotTakenTime = (Dictionary<string, Dictionary<int, DateTime>>)dcs2.ReadObject(xr);
             }
-            File.Delete(Path.Combine(appDataFolder, snapshotTimeFile));
+            //File.Delete(Path.Combine(appDataFolder, snapshotTimeFile));
         }
 
         private void ReadDataDumpSafe()
@@ -1972,7 +1975,7 @@ namespace PersistentWindows.Common
                 Log.Event("Snapshot {0} is captured", snapshotId);
             }
 
-            DumpSnapshotTakenTime();
+            WriteDataDump();
 
             return true;
         }
