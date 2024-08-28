@@ -291,7 +291,7 @@ namespace PersistentWindows.SystrayShell
             IdleIcon = System.Drawing.Icon.FromHandle(iconHandle);
             iconHandle = (legacy_icon ? Properties.Resources.pwIconBusy2 : Properties.Resources.pwIconBusy).GetHicon();
             BusyIcon = System.Drawing.Icon.FromHandle(iconHandle);
-            iconHandle = (legacy_icon ? Properties.Resources.pwIconUpdate2 : Properties.Resources.pwIconUpdate2).GetHicon();
+            iconHandle = (legacy_icon ? Properties.Resources.pwIconUpdate2 : Properties.Resources.pwIconUpdate).GetHicon();
             UpdateIcon = System.Drawing.Icon.FromHandle(iconHandle);
 
             // customized icon/png
