@@ -215,11 +215,8 @@ namespace PersistentWindows.Common
             File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
         }
 
-        public void WriteDataDump()
+        private void WriteDataDumpCore()
         {
-            if (!dumpDataWhenExit)
-                return;
-
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
             StringBuilder sb = new StringBuilder();
             using (XmlWriter xw = XmlWriter.Create(sb))
@@ -230,6 +227,18 @@ namespace PersistentWindows.Common
             File.WriteAllText(Path.Combine(appDataFolder, windowPosDataFile), xml, Encoding.Unicode);
 
             DumpSnapshotTakenTime();
+        }
+        public void WriteDataDump()
+        {
+            try
+            {
+                if (dumpDataWhenExit)
+                    WriteDataDumpCore();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
         }
 
         private void ReadDataDump()

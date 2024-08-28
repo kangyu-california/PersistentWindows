@@ -812,14 +812,7 @@ namespace PersistentWindows.SystrayShell
 
         public static void WriteDataDump()
         {
-            try
-            {
-                pwp.WriteDataDump();
-            }
-            catch (Exception e)
-            {
-                Log.Error(e.ToString());
-            }
+            pwp.WriteDataDump();
         }
     }
 }
