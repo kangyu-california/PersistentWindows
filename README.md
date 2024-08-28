@@ -15,6 +15,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - Supports remote desktop sessions with multiple display configurations.
 - Capture windows to disk: saves desktop layout capture to hard drive in liteDB format, so that closed windows can be restored after PC reboot, with virtual desktop observed.
 - Capture snapshot to ram: saves desktop layout in memory using one char from [0-9a-z] as the name. The window Z-order is preserved in the snapshot.
+- Automatically save window position history as xml files, so that snapshots and auto-restore points will continue to function after PC reboot or PersistentWindows upgrade/restart.
 - Webpage commander to improve the efficiency of web browsing for all major web browsers using one-letter commands like in vi editor.
 - Efficient window switching between foreground and background dual positions.
 - Pause/resume auto restore.

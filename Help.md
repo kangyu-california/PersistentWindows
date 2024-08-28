@@ -112,7 +112,8 @@
   | Alt + click commander window || send the mouse click to the underlying browser window
 
 ### Other features
-* To replace the default app icon with your customized one:
-  * Rename your .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to the PersistentWindows program folder, or alternatively to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`.
-  * Copy another icon file to the same directory and rename it to `pwIconBusy.*`. This icon is displayed when PersistentWindows is busy restoring windows.
+* To replace the default app icons with customized one:
+  * Rename customized .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to the PersistentWindows program folder, or alternatively to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`.
+  * Copy another ico/png file to the same directory and rename it to `pwIconBusy.*`. This icon is displayed when PersistentWindows is busy restoring windows.
+  * Copy yet another ico/png file to the same directory and rename it to `pwIconUpdate.*`. This icon is displayed when a new PersistentWindows release is available.
 
