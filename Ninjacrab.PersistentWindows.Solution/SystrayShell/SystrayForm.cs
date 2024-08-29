@@ -266,7 +266,10 @@ namespace PersistentWindows.SystrayShell
                         upgradeDownloaded[latestVersion] = true;
 
                         string batFile = Path.Combine(Program.AppdataFolder, $"pw_upgrade.bat");
-                        string content = "timeout /t 10 /nobreak > NUL";
+                        string content = ":wait_to_finish";
+                        content += "\ntimeout /t 2 /nobreak >nul";
+                        content += "\ntasklist | find \"PersistentWindows\" >nul";
+                        content += "\nif not errorlevel 1 goto wait_to_finish";
                         content += $"\ncopy /Y \"{dst_dir}\\*.*\" \"{install_dir}\"";
                         content += "\nstart \"\" /B \"" + Path.Combine(install_dir, Application.ProductName) + ".exe\" " + Program.CmdArgs;
                         File.WriteAllText(batFile, content);
