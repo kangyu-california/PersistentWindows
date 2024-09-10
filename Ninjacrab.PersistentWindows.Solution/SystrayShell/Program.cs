@@ -165,6 +165,9 @@ namespace PersistentWindows.SystrayShell
                     case "-delay_auto_capture":
                         delay_auto_capture = 1;
                         break;
+                    case "-capture_floating_window":
+                        pwp.captureFloatingWindow = true;
+                        break;
                     case "-dpi_sensitive_call=1":
                         User32.DpiSenstiveCall = true;
                         break;
