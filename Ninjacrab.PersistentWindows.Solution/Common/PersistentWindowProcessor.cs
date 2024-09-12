@@ -1625,11 +1625,18 @@ namespace PersistentWindows.Common
                         while (deadApps[display_config].Count > 1024)
                         {
                             var keys = deadApps[display_config].Keys;
+                            DateTime tm = DateTime.Now;
+                            IntPtr oldest_window = IntPtr.Zero;
                             foreach (var kid in keys)
                             {
-                                deadApps[display_config].Remove(kid);
-                                break;
+                                if (deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime < tm)
+                                {
+                                    tm = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
+                                    oldest_window = kid;
+                                    break;
+                                }
                             }
+                            deadApps[display_config].Remove(oldest_window);
                         }
                     }
 
