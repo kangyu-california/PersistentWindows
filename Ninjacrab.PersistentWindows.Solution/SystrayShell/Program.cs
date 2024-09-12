@@ -26,6 +26,10 @@ namespace PersistentWindows.SystrayShell
         public static bool Gui = true;
         public static bool hotkey_window = true;
         public static uint hotkey = 'W'; //Alt + W
+        public static string WaitPwFinish = @":wait_to_finish
+timeout /t 2 /nobreak >nul
+tasklist | find ""PersistentWindows"" >nul
+if not errorlevel 1 goto wait_to_finish";
 
         private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
 
@@ -424,26 +428,16 @@ namespace PersistentWindows.SystrayShell
                 Log.Error("taskbar not ready, restart PersistentWindows");
             }
 
-            Restart(10);
+            RestartHidden(1);
             return false;
-        }
-
-        static void Restart(int delay)
-        {
-            string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
-            string content = $"timeout /t {delay} /nobreak > NUL";
-            content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
-            File.WriteAllText(batFile, content);
-            Process.Start(batFile);
-
-            Log.Error("program restarted");
         }
 
         static void RestartHidden(int delay)
         {
             Process p = new Process();
             string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
-            string content = $"timeout /t {delay} /nobreak > NUL";
+            string content = WaitPwFinish;
+            content += $"\ntimeout /t {delay} /nobreak > NUL";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             p.StartInfo.FileName = batFile;
