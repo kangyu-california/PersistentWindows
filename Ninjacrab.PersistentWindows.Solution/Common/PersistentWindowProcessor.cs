@@ -1629,9 +1629,10 @@ namespace PersistentWindows.Common
                             IntPtr oldest_window = IntPtr.Zero;
                             foreach (var kid in keys)
                             {
-                                if (deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime < tm)
+                                DateTime t = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
+                                if (t < tm)
                                 {
-                                    tm = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
+                                    tm = t;
                                     oldest_window = kid;
                                     break;
                                 }
