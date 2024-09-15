@@ -227,10 +227,10 @@ namespace PersistentWindows.Common
                     var allApps = monitorApplications;
                     foreach (var display_key in deadApps.Keys)
                     {
+                        if (!monitorApplications.ContainsKey(display_key))
+                            continue;
                         foreach (var hwnd in deadApps[display_key].Keys)
                         {
-                            if (!monitorApplications.ContainsKey(display_key))
-                                continue;
                             if (monitorApplications[display_key].ContainsKey(hwnd))
                                 continue;
                             allApps[display_key][hwnd] = deadApps[display_key][hwnd];
@@ -646,7 +646,7 @@ namespace PersistentWindows.Common
 
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
-                        WriteDataDump(dump_dead_window : false);
+                        WriteDataDump();
 
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
