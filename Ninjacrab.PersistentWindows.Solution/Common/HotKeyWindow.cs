@@ -644,8 +644,13 @@ namespace PersistentWindows.Common
 
         public static void BrowserActivate(IntPtr hwnd, bool is_browser_window = true, bool in_restore = false)
         {
+            if (browserWindowActivated == is_browser_window)
+                return;
+
             browserWindowActivated = is_browser_window;
             restoring = in_restore;
+
+            Console.WriteLine($"browser activated {hwnd.ToString("X")}");
 
             if (!tiny && !User32.IsWindowVisible(commanderWnd))
                 return;
