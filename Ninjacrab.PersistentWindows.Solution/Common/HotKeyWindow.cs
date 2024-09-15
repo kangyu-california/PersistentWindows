@@ -929,7 +929,7 @@ namespace PersistentWindows.Common
                             regain_focus = false;
                         }
                     }
-                    else if (!handCursor)
+                    else if (hCursor == Cursors.Default.Handle)
                     {
                         /*
                         if (!commanderWndUnderCursor)
@@ -939,6 +939,10 @@ namespace PersistentWindows.Common
                         }
                         */
                         regain_focus = !commanderWndUnderCursor;
+                    }
+                    else if (!handCursor)
+                    {
+                        regain_focus = false;
                     }
 
                     // let tiny hotkey window follow cursor position
