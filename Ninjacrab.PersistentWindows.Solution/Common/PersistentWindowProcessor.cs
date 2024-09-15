@@ -216,25 +216,43 @@ namespace PersistentWindows.Common
             File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
         }
 
-        private void WriteDataDumpCore()
+        private void WriteDataDumpCore(bool dump_dead_window)
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
             StringBuilder sb = new StringBuilder();
             using (XmlWriter xw = XmlWriter.Create(sb))
             {
-                dcs.WriteObject(xw, monitorApplications);
+                if (dump_dead_window)
+                {
+                    var allApps = monitorApplications;
+                    foreach (var display_key in deadApps.Keys)
+                    {
+                        foreach (var hwnd in deadApps[display_key].Keys)
+                        {
+                            if (!monitorApplications.ContainsKey(display_key))
+                                continue;
+                            if (monitorApplications[display_key].ContainsKey(hwnd))
+                                continue;
+                            allApps[display_key][hwnd] = deadApps[display_key][hwnd];
+                        }
+                    }
+
+                    dcs.WriteObject(xw, allApps);
+                }
+                else
+                    dcs.WriteObject(xw, monitorApplications);
             }
             string xml = sb.ToString();
             File.WriteAllText(Path.Combine(appDataFolder, windowPosDataFile), xml, Encoding.Unicode);
 
             DumpSnapshotTakenTime();
         }
-        public void WriteDataDump()
+        public void WriteDataDump(bool dump_dead_window = true)
         {
             try
             {
                 if (dumpDataWhenExit)
-                    WriteDataDumpCore();
+                    WriteDataDumpCore(dump_dead_window);
             }
             catch (Exception e)
             {
@@ -628,7 +646,7 @@ namespace PersistentWindows.Common
 
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
-                        WriteDataDump();
+                        WriteDataDump(dump_dead_window : false);
 
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
