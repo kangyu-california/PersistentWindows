@@ -11,11 +11,11 @@ and restores back to its previous settings.
 this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Key Features
-- Keeps track of window position changes, and automatically restores the desktop layout, including the taskbar position, to the last matching monitor setup.
+- Auto restore: Keeps track of window position changes, and automatically restores the desktop layout, including the taskbar position, to the last matching monitor setup.
 - Supports remote desktop sessions with multiple display configurations.
-- Capture windows to disk: saves desktop layout capture to hard drive in liteDB format, so that closed windows can be restored after PC reboot, with virtual desktop observed.
-- Capture snapshot to ram: saves desktop layout in memory using one char from [0-9a-z] as the name. The window Z-order is preserved in the snapshot.
-- Automatically save window position history as xml files, so that snapshots and auto-restore points will continue to function after PC reboot or PersistentWindows upgrade/restart.
+- Capture windows to disk: manually saves desktop layout capture to hard drive in liteDB format, so that closed windows can be restored to corresponding virtual desktop after PC reboot.
+- Capture snapshot: manually saves desktop layout to ram. The window Z-order is preserved in the snapshot. Up to 36 snapshots ([0-9a-z]) can be taken for each display configuration.
+- Automatically persists the location history of all windows (alive and closed) to hard drive in xml format, so that manual-restore-point (aka snapshot) and auto-restore-point will continue to function smoothly upon app upgrade/restart, even after PC reboot.
 - Webpage commander to improve the efficiency of web browsing for all major web browsers using one-letter commands like in vi editor.
 - Efficient window switching between foreground and background dual positions.
 - Pause/resume auto restore.
