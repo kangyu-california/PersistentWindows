@@ -742,6 +742,8 @@ namespace PersistentWindows.Common
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
+                    process.PriorityClass = ProcessPriorityClass.High;
+
                     if (!freezeCapture)
                     {
                         lastDisplayChangeTime = DateTime.Now;
@@ -3061,8 +3063,6 @@ namespace PersistentWindows.Common
                 normalSessions.Add(curDisplayKey);
 
             Log.Trace("Restore timer expired");
-
-            process.PriorityClass = ProcessPriorityClass.High;
 
             lock (restoreLock)
                 BatchRestoreApplicationsOnCurrentDisplays();
