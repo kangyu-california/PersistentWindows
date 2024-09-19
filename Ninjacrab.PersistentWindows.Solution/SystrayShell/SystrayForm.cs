@@ -290,10 +290,9 @@ namespace PersistentWindows.SystrayShell
 
             Program.WriteDataDump();
 
-#if DEBUG
             this.notifyIconMain.Visible = false;
-#endif
             //this.notifyIconMain.Icon = null;
+
             Log.Exit();
             Application.Exit();
         }
