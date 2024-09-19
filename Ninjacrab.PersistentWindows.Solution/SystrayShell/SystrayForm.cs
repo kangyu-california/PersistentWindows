@@ -285,6 +285,9 @@ namespace PersistentWindows.SystrayShell
 
         private void Exit()
         {
+            var process = Process.GetCurrentProcess();
+            process.PriorityClass = ProcessPriorityClass.High;
+
             Program.WriteDataDump();
 
 #if DEBUG
