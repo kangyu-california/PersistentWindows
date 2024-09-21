@@ -58,6 +58,8 @@ namespace PersistentWindows.Common
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private static IntPtr vacantDeskWindow = IntPtr.Zero;
+        private uint fakeHwnd = 1; //for resolving handle value conflict of live and dead window
+        public bool resolveHwndConflict = true;
 
         // windows that are not to be restored
         private static HashSet<IntPtr> noRestoreWindows = new HashSet<IntPtr>(); //windows excluded from auto-restore
@@ -1163,6 +1165,52 @@ namespace PersistentWindows.Common
             User32.MoveWindow(hwnd, r.Left, r.Top, r.Width, r.Height, true);
             User32.SetForegroundWindow(hwnd);
             Log.Error("Restore last location \"{0}\"", GetWindowTitle(hwnd));
+        }
+
+        private void ResolveWindowHandleCollision(IntPtr hwnd)
+        {
+            bool found_conflict = false;
+            foreach (var display_key in deadApps.Keys)
+            {
+                if (deadApps[display_key].ContainsKey(hwnd))
+                {
+                    found_conflict = true;
+
+                    IntPtr fake_hwnd = (IntPtr)(((ulong)fakeHwnd << 32) + (ulong)hwnd);
+
+                    //replace prev zorder reference of dead hwnd with new fake_hwnd in monitorApplication
+                    foreach (var hw in monitorApplications[display_key].Keys)
+                    {
+                        for (int i = 0; i < monitorApplications[display_key][hw].Count; i++)
+                        {
+                            if (monitorApplications[display_key][hw][i].PrevZorderWindow == hwnd)
+                                monitorApplications[display_key][hw][i].PrevZorderWindow = fake_hwnd;
+                        }
+                    }
+
+                    //replace prev zorder reference in deadApps as well
+                    foreach (var kd in deadApps[display_key].Keys)
+                    {
+                        for (int i = 0; i < deadApps[display_key][kd].Count; i++)
+                        {
+                            if (deadApps[display_key][kd][i].PrevZorderWindow == hwnd)
+                                deadApps[display_key][kd][i].PrevZorderWindow = fake_hwnd;
+                        }
+
+                        if (kd == hwnd)
+                        {
+                            deadApps[display_key][fake_hwnd] = deadApps[display_key][hwnd];
+                            deadApps[display_key].Remove(hwnd);
+                        }
+                    }
+                }
+            }
+
+            if (found_conflict)
+            {
+                Log.Error($"Resolved window handle conflict between live and dead record {fakeHwnd}");
+                fakeHwnd++;
+            }
         }
 
         private void InheritKilledWindow(IntPtr hwnd, IntPtr kid)
@@ -2872,7 +2920,20 @@ namespace PersistentWindows.Common
                     return false;
 
                 IntPtr kid = FindMatchingKilledWindow(hwnd);
-                if (kid != IntPtr.Zero)
+                if (kid == IntPtr.Zero)
+                {
+                    if (resolveHwndConflict)
+                    {
+                        try
+                        {
+                            ResolveWindowHandleCollision(hwnd);
+                        } catch (Exception ex)
+                        {
+                            Log.Error(ex.ToString());
+                        }
+                    }
+                }
+                else
                 {
                     InheritKilledWindow(hwnd, kid);
                     if (hwnd != kid)
