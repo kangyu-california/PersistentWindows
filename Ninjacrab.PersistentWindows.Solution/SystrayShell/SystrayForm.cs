@@ -445,6 +445,9 @@ namespace PersistentWindows.SystrayShell
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
+            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            if (ctrl_key_pressed)
+                Program.Restart(2, hidden:false);
             Exit();
         }
 

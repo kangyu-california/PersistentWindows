@@ -349,7 +349,7 @@ if not errorlevel 1 goto wait_to_finish";
 
             if (relaunch_delay > 0)
             {
-                RestartHidden(relaunch_delay);
+                Restart(relaunch_delay);
                 return;
             }
 
@@ -428,11 +428,11 @@ if not errorlevel 1 goto wait_to_finish";
                 Log.Error("taskbar not ready, restart PersistentWindows");
             }
 
-            RestartHidden(1);
+            Restart(1);
             return false;
         }
 
-        static void RestartHidden(int delay)
+        static public void Restart(int delay, bool hidden = true)
         {
             Process p = new Process();
             string batFile = Path.Combine(AppdataFolder, $"pw_restart.bat");
@@ -441,8 +441,11 @@ if not errorlevel 1 goto wait_to_finish";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
             File.WriteAllText(batFile, content);
             p.StartInfo.FileName = batFile;
-            p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            p.StartInfo.UseShellExecute = true;
+            if (hidden)
+            {
+                p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                p.StartInfo.UseShellExecute = true;
+            }
             p.Start();
 
             Log.Error("program restarted");
