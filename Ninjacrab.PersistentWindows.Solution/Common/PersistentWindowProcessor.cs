@@ -1170,11 +1170,13 @@ namespace PersistentWindows.Common
         private void ResolveWindowHandleCollision(IntPtr hwnd)
         {
             bool found_conflict = false;
+            string process_name = "";
             foreach (var display_key in deadApps.Keys)
             {
                 if (deadApps[display_key].ContainsKey(hwnd))
                 {
                     found_conflict = true;
+                    process_name = deadApps[display_key][hwnd].Last<ApplicationDisplayMetrics>().ProcessName;
 
                     IntPtr fake_hwnd = (IntPtr)((fakeHwnd << 24) | (uint)hwnd);
                     if (fake_hwnd == hwnd)
@@ -1208,7 +1210,7 @@ namespace PersistentWindows.Common
 
             if (found_conflict)
             {
-                Log.Error($"Resolved window handle conflict between live and dead record {fakeHwnd}");
+                Log.Error($"Resolved window handle conflict between live and dead record {fakeHwnd} for {process_name}");
                 fakeHwnd++;
             }
         }
