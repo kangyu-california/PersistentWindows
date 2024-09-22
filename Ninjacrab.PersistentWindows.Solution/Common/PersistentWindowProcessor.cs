@@ -1176,7 +1176,9 @@ namespace PersistentWindows.Common
                 {
                     found_conflict = true;
 
-                    IntPtr fake_hwnd = (IntPtr)(((ulong)fakeHwnd << 32) + (ulong)hwnd);
+                    IntPtr fake_hwnd = (IntPtr)((fakeHwnd << 24) | (uint)hwnd);
+                    if (fake_hwnd == hwnd)
+                        continue;
 
                     //replace prev zorder reference of dead hwnd with new fake_hwnd in monitorApplication
                     foreach (var hw in monitorApplications[display_key].Keys)
@@ -1188,6 +1190,10 @@ namespace PersistentWindows.Common
                         }
                     }
 
+                    //reindex
+                    deadApps[display_key][fake_hwnd] = deadApps[display_key][hwnd];
+                    deadApps[display_key].Remove(hwnd);
+
                     //replace prev zorder reference in deadApps as well
                     foreach (var kd in deadApps[display_key].Keys)
                     {
@@ -1195,12 +1201,6 @@ namespace PersistentWindows.Common
                         {
                             if (deadApps[display_key][kd][i].PrevZorderWindow == hwnd)
                                 deadApps[display_key][kd][i].PrevZorderWindow = fake_hwnd;
-                        }
-
-                        if (kd == hwnd)
-                        {
-                            deadApps[display_key][fake_hwnd] = deadApps[display_key][hwnd];
-                            deadApps[display_key].Remove(hwnd);
                         }
                     }
                 }
