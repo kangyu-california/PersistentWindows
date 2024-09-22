@@ -1229,10 +1229,10 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void InheritKilledWindow(IntPtr hwnd, IntPtr kid)
+        private void InheritKilledWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid)
         {
             uint pid;
-            User32.GetWindowThreadProcessId(hwnd, out pid);
+            User32.GetWindowThreadProcessId(realHwnd, out pid);
 
             foreach (var display_key in deadApps.Keys)
             {
@@ -1284,17 +1284,24 @@ namespace PersistentWindows.Common
             if (string.IsNullOrEmpty(className))
                 return IntPtr.Zero;
 
-            if (!windowProcessName.ContainsKey(hwnd))
-                return IntPtr.Zero;
-
-            string procName = windowProcessName[hwnd];
-            string title = GetWindowTitle(hwnd);
+            string procName;
+            string title;
             if (className.Equals("ApplicationFrameWindow"))
             {
                 //retrieve info about windows core app hidden under top window
                 IntPtr realHwnd = GetCoreAppWindow(hwnd);
+                if (!windowProcessName.ContainsKey(realHwnd))
+                    return IntPtr.Zero;
+                procName = windowProcessName[realHwnd];
                 className = GetWindowClassName(realHwnd);
                 title = GetWindowTitle(realHwnd);
+            }
+            else
+            {
+                if (!windowProcessName.ContainsKey(hwnd))
+                    return IntPtr.Zero;
+                procName = windowProcessName[hwnd];
+                title = GetWindowTitle(hwnd);
             }
 
             if (!string.IsNullOrEmpty(className))
@@ -2942,7 +2949,7 @@ namespace PersistentWindows.Common
                 }
                 else
                 {
-                    InheritKilledWindow(hwnd, kid);
+                    InheritKilledWindow(hwnd, realHwnd, kid);
                     if (hwnd != kid)
                     {
                         Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
