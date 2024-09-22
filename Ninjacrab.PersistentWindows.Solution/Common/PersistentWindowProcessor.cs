@@ -1169,6 +1169,20 @@ namespace PersistentWindows.Common
 
         private void ResolveWindowHandleCollision(IntPtr hwnd)
         {
+            if (resolveHwndConflict)
+            {
+                try
+                {
+                    ResolveWindowHandleCollisionCore(hwnd);
+                } catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+            }
+        }
+
+        private void ResolveWindowHandleCollisionCore(IntPtr hwnd)
+        {
             bool found_conflict = false;
             string process_name = "";
             foreach (var display_key in deadApps.Keys)
@@ -2924,22 +2938,16 @@ namespace PersistentWindows.Common
                 IntPtr kid = FindMatchingKilledWindow(hwnd);
                 if (kid == IntPtr.Zero)
                 {
-                    if (resolveHwndConflict)
-                    {
-                        try
-                        {
-                            ResolveWindowHandleCollision(hwnd);
-                        } catch (Exception ex)
-                        {
-                            Log.Error(ex.ToString());
-                        }
-                    }
+                    ResolveWindowHandleCollision(hwnd);
                 }
                 else
                 {
                     InheritKilledWindow(hwnd, kid);
                     if (hwnd != kid)
+                    {
                         Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+                        ResolveWindowHandleCollision(hwnd);
+                    }
                     else
                         Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
                 }
