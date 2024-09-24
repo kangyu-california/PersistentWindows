@@ -3857,7 +3857,7 @@ namespace PersistentWindows.Common
                     if (!fixTaskBar && !restoringFromDB && !restoringSnapshot)
                         continue;
 
-                    if (fullScreenGamingWindows.Count > 0 || exitFullScreenGaming)
+                    if (fullScreenGamingWindow != IntPtr.Zero || fullScreenGamingWindows.Count > 0 || exitFullScreenGaming)
                         continue;
 
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
