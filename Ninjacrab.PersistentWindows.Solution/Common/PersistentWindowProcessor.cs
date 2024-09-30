@@ -1626,14 +1626,20 @@ namespace PersistentWindows.Common
 
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+#if DEBUG
+#else
             try
+#endif
             {
                 WinEventProcCore(hWinEventHook, eventType, hwnd, idObject, idChild, dwEventThread, dwmsEventTime);
             }
+#if DEBUG
+#else
             catch (Exception ex)
             {
                 Log.Error(ex.ToString());
             }
+#endif
         }
 
         private void WinEventProcCore(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
