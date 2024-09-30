@@ -3023,7 +3023,11 @@ namespace PersistentWindows.Common
                     return !restoringFromMem;
                 }
 
+                //update title even if window is not moved
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
+                if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
+                    prevDisplayMetrics.Title = curDisplayMetrics.Title;
+
                 curDisplayMetrics.Id = prevDisplayMetrics.Id;
                 //curDisplayMetrics.ProcessName = prevDisplayMetrics.ProcessName;
                 curDisplayMetrics.WindowId = prevDisplayMetrics.WindowId;
