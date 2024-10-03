@@ -108,7 +108,7 @@ namespace PersistentWindows.Common
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 5; // bit i represent restore method for pass i
-        public bool fixTaskBar = true;
+        public int fixTaskBar = -1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
@@ -3864,9 +3864,10 @@ namespace PersistentWindows.Common
 
                 if (IsTaskBar(hWnd))
                 {
-                    if (!fixTaskBar && !restoringFromDB && !restoringSnapshot)
-                        continue;
+                    if (fixTaskBar == 0 && !restoringFromDB && !restoringSnapshot)
+                        continue; //auto restore taskbar disabled
 
+                    if (fixTaskBar == -1) //disable possible bogus taskbar restore after game play due to inaccurate position report
                     if (fullScreenGamingWindow != IntPtr.Zero || fullScreenGamingWindows.Count > 0 || exitFullScreenGaming)
                         continue;
 

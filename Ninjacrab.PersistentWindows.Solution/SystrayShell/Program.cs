@@ -206,7 +206,10 @@ if not errorlevel 1 goto wait_to_finish";
                         fix_unminimized_window = false;
                         break;
                     case "-fix_taskbar=0":
-                        pwp.fixTaskBar = false;
+                        pwp.fixTaskBar = 0;
+                        break;
+                    case "-fix_taskbar=1":
+                        pwp.fixTaskBar = 1;
                         break;
                     case "-foreground_background_dual_position=0":
                         pwp.enableDualPosSwitch = false;
