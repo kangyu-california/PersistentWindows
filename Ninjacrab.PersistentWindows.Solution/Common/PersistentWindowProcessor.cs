@@ -567,7 +567,7 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
-                if (fullScreenGamingWindow == foreGroundWindow)
+                if (foreGroundWindow != IntPtr.Zero && fullScreenGamingWindow == foreGroundWindow)
                 {
                     fullScreenGamingWindows.Add(fullScreenGamingWindow);
                     fullScreenGamingWindow = IntPtr.Zero;
