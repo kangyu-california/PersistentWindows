@@ -1707,7 +1707,7 @@ namespace PersistentWindows.Common
                         // save window size of closed app to restore off-screen window later
                         if (!deadApps.ContainsKey(display_config))
                         {
-                            deadApps.Add(display_config, new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>());
+                            deadApps[display_config] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
                         }
 
                         // for matching new window with killed one
