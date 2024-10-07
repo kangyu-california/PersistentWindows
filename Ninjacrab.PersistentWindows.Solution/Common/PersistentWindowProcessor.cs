@@ -226,7 +226,7 @@ namespace PersistentWindows.Common
             {
                 if (dump_dead_window)
                 {
-                    var allApps = monitorApplications;
+                    var allApps = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(monitorApplications); //in-memory database of live windows
                     foreach (var display_key in deadApps.Keys)
                     {
                         if (!monitorApplications.ContainsKey(display_key))
