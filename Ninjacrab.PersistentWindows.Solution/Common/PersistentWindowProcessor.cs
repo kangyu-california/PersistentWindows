@@ -1904,7 +1904,7 @@ namespace PersistentWindows.Common
 
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                                         StartCaptureTimer(UserMoveLatency / 2);
-                                    else
+                                    else if (foreGroundWindow != fullScreenGamingWindow)
                                     {
                                         StartCaptureTimer();
 
