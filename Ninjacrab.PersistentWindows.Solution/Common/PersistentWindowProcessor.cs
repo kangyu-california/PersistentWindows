@@ -622,7 +622,8 @@ namespace PersistentWindows.Common
                         //restore icon to idle
                         hideRestoreTip();
                         iconBusy = false;
-                        sessionActive = true;
+                        if (!fullScreenGamingWindows.Contains(foreGroundWindow))
+                            sessionActive = true;
                     }
                     else
                     {
