@@ -218,6 +218,34 @@ namespace PersistentWindows.Common
             File.WriteAllText(Path.Combine(appDataFolder, snapshotTimeFile), xml2, Encoding.Unicode);
         }
 
+        private void TrimDumpHistory(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> dump_apps)
+        {
+            foreach (var display_key in dump_apps.Keys)
+            {
+                foreach (var hwnd in dump_apps[display_key].Keys)
+                {
+                    if (dualPosSwitchWindows.Contains(hwnd))
+                        continue;
+
+                    List<int> history = new List<int>();
+                    for (int i = 0; i < dump_apps[display_key][hwnd].Count; ++i)
+                    {
+                        if (dump_apps[display_key][hwnd][i].SnapShotFlags != 0)
+                            continue;
+                        if (!dump_apps[display_key][hwnd][i].IsValid)
+                            continue;
+                        history.Add(i);
+                    }
+
+                    //keep the last record
+                    for (int i = history.Count - 2; i >= 0; --i)
+                    {
+                        dump_apps[display_key][hwnd].RemoveAt(history[i]);
+                    }
+                }
+            }
+        }
+
         private void WriteDataDumpCore(bool dump_dead_window)
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
@@ -238,6 +266,8 @@ namespace PersistentWindows.Common
                             allApps[display_key][hwnd] = deadApps[display_key][hwnd];
                         }
                     }
+
+                    TrimDumpHistory(allApps);
 
                     dcs.WriteObject(xw, allApps);
                 }
