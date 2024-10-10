@@ -1349,15 +1349,19 @@ namespace PersistentWindows.Common
                     if (!procName.Equals(appPos.ProcessName))
                         continue;
 
-                    // match position first
                     RECT r = appPos.ScreenPosition;
                     RECT rect = new RECT();
                     User32.GetWindowRect(hwnd, ref rect);
-                    if (rect.Equals(r))
+                    // find exact match first
+                    if (rect.Equals(r) && title.Equals(appPos.Title))
                         return kid;
 
-                    // lastly match title
+                    // match title second
                     if (title.Equals(appPos.Title))
+                        return kid;
+
+                    // match position last
+                    if (rect.Equals(r))
                         return kid;
 
                     if (dflt_kid == IntPtr.Zero)
