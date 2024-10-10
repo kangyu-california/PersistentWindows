@@ -1338,6 +1338,9 @@ namespace PersistentWindows.Common
             if (!string.IsNullOrEmpty(className))
             {
                 IntPtr dflt_kid = IntPtr.Zero;
+                int title_match_cnt = 0;
+                IntPtr title_match_hid = IntPtr.Zero;
+                IntPtr pos_match_hid = IntPtr.Zero;
 
                 var deadAppPos = deadApps[curDisplayKey];
                 foreach (var kid in deadAppPos.Keys)
@@ -1356,17 +1359,23 @@ namespace PersistentWindows.Common
                     if (rect.Equals(r) && title.Equals(appPos.Title))
                         return kid;
 
-                    // match title second
                     if (title.Equals(appPos.Title))
-                        return kid;
-
-                    // match position last
-                    if (rect.Equals(r))
-                        return kid;
-
-                    if (dflt_kid == IntPtr.Zero)
+                    {
+                        if (title_match_cnt == 0)
+                            title_match_hid = kid;
+                        ++title_match_cnt;
+                    }
+                    else if (rect.Equals(r))
+                        pos_match_hid = kid;
+                    else if (dflt_kid == IntPtr.Zero)
                         dflt_kid = kid;
                 }
+
+                if (title_match_cnt == 1)
+                    return title_match_hid;
+
+                if (pos_match_hid != IntPtr.Zero)
+                    return pos_match_hid;
 
                 if (dflt_kid != IntPtr.Zero)
                     return dflt_kid;
