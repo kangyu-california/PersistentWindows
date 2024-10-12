@@ -289,6 +289,7 @@ namespace PersistentWindows.SystrayShell
             process.PriorityClass = ProcessPriorityClass.High;
 
             Program.WriteDataDump();
+            Log.Event("Session exit");
 
             this.notifyIconMain.Visible = false;
             //this.notifyIconMain.Icon = null;

@@ -185,6 +185,7 @@ namespace PersistentWindows.Common
         private EventHandler displaySettingsChangingHandler;
         private EventHandler displaySettingsChangedHandler;
         private SessionSwitchEventHandler sessionSwitchEventHandler;
+        private SessionEndingEventHandler sessionEndingEventHandler;
 
         private readonly List<IntPtr> winEventHooks = new List<IntPtr>();
         private User32.WinEventDelegate winEventsCaptureDelegate;
@@ -263,7 +264,7 @@ namespace PersistentWindows.Common
                         {
                             if (monitorApplications[display_key].ContainsKey(hwnd))
                                 continue;
-                            allApps[display_key][hwnd] = deadApps[display_key][hwnd];
+                            allApps[display_key][hwnd] = new List<ApplicationDisplayMetrics>(deadApps[display_key][hwnd]);
                         }
                     }
 
@@ -679,8 +680,6 @@ namespace PersistentWindows.Common
 
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
-                        WriteDataDump();
-
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
                             snapshotTakenTime[curDisplayKey] = new Dictionary<int, DateTime>();
                         if (snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
@@ -772,6 +771,14 @@ namespace PersistentWindows.Common
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
+            this.sessionEndingEventHandler =
+                (s, e) =>
+                {
+                    WriteDataDump();
+                    Log.Event("Session ending");
+                };
+            SystemEvents.SessionEnding += sessionEndingEventHandler;
+
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
@@ -782,6 +789,9 @@ namespace PersistentWindows.Common
                         lastDisplayChangeTime = DateTime.Now;
                         EndDisplaySession();
                         freezeCapture = true;
+
+                        WriteDataDump();
+                        Log.Event("Session changing");
                     }
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -2142,7 +2152,6 @@ namespace PersistentWindows.Common
             }
 
             WriteDataDump();
-
             return true;
         }
 
@@ -4543,6 +4552,7 @@ namespace PersistentWindows.Common
                 SystemEvents.DisplaySettingsChanged -= displaySettingsChangedHandler;
                 SystemEvents.PowerModeChanged -= powerModeChangedHandler;
                 SystemEvents.SessionSwitch -= sessionSwitchEventHandler;
+                SystemEvents.SessionEnding -= sessionEndingEventHandler;
 
                 foreach (var handle in this.winEventHooks)
                 {
