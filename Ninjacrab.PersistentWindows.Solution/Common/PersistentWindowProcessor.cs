@@ -799,8 +799,11 @@ namespace PersistentWindows.Common
                         EndDisplaySession();
                         freezeCapture = true;
 
-                        WriteDataDump();
-                        Log.Event("Session changing");
+                        if (normalSessions.Contains(curDisplayKey))
+                        {
+                            WriteDataDump();
+                            Log.Event("Display session changed, dump history in xml");
+                        }
                     }
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
