@@ -255,14 +255,23 @@ namespace PersistentWindows.Common
             {
                 if (dump_dead_window)
                 {
-                    var allApps = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(monitorApplications); //in-memory database of live windows
+                    var allApps = new Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>(); //in-memory database of live windows
+                    foreach (var display_key in monitorApplications.Keys)
+                    {
+                        allApps[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
+                        foreach (var hwnd in monitorApplications[display_key].Keys)
+                        {
+                            allApps[display_key][hwnd] = new List<ApplicationDisplayMetrics>(monitorApplications[display_key][hwnd]);
+                        }
+                    }
+
                     foreach (var display_key in deadApps.Keys)
                     {
-                        if (!monitorApplications.ContainsKey(display_key))
+                        if (!allApps.ContainsKey(display_key))
                             continue;
                         foreach (var hwnd in deadApps[display_key].Keys)
                         {
-                            if (monitorApplications[display_key].ContainsKey(hwnd))
+                            if (allApps[display_key].ContainsKey(hwnd))
                                 continue;
                             allApps[display_key][hwnd] = new List<ApplicationDisplayMetrics>(deadApps[display_key][hwnd]);
                         }
