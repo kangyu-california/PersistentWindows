@@ -29,10 +29,10 @@ this tool and not have to worry about re-arranging when all is back to normal.
 > Note: the program can be run from any directory, but the program saves its data in 
 > *C:\Users\\[User]\AppData\Local\PersistentWindows*
 
+**For PersistentWindows to be able to restore windows with elevated privileges (for tools like Task Manager or Event Viewer), it needs to be run with Administrator privileges.**
+
 ### To set up PersistentWindows to automatically start at user login:
 This can be done by creating a task in **Task Scheduler**, or by adding a shortcut to the **Startup Folder** (shell:startup).
-
-For PersistentWindows to be able to restore windows with elevated privileges (for tools like Task Manager or Event Viewer), it needs to be run with Administrator privileges.
 
 Choose **one** of the three options:
 
