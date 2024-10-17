@@ -97,6 +97,7 @@ namespace PersistentWindows.Common
         private POINT initCursorPos;
         private bool freezeCapture = false;
         public bool rejectScaleFactorChange = true;
+        private Object captureLock = new object();
 
         // restore control
         private Timer restoreTimer;
@@ -1285,6 +1286,7 @@ namespace PersistentWindows.Common
             uint pid;
             User32.GetWindowThreadProcessId(realHwnd, out pid);
 
+            lock(captureLock)
             foreach (var display_key in deadApps.Keys)
             {
                 if (deadApps[display_key].ContainsKey(kid))
@@ -1363,6 +1365,7 @@ namespace PersistentWindows.Common
                 IntPtr pos_match_hid = IntPtr.Zero;
 
                 var deadAppPos = deadApps[curDisplayKey];
+                lock(captureLock)
                 foreach (var kid in deadAppPos.Keys)
                 {
                     var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
@@ -1759,6 +1762,7 @@ namespace PersistentWindows.Common
                 dualPosSwitchWindows.Remove(hwnd);
 
                 bool found_history = false;
+                lock(captureLock)
                 foreach (var display_config in monitorApplications.Keys)
                 {
                     if (!monitorApplications[display_config].ContainsKey(hwnd))
