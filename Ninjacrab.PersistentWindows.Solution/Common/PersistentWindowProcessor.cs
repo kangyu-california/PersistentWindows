@@ -232,9 +232,18 @@ namespace PersistentWindows.Common
                     List<int> history = new List<int>();
                     for (int i = 0; i < dump_apps[display_key][hwnd].Count; ++i)
                     {
-                        if (dump_apps[display_key][hwnd][i].SnapShotFlags != 0)
-                            continue;
                         if (!dump_apps[display_key][hwnd][i].IsValid)
+                            history.Add(i);
+                    }
+                    for (int i = history.Count - 1; i >= 0; --i)
+                    {
+                        dump_apps[display_key][hwnd].RemoveAt(history[i]);
+                    }
+
+                    history.Clear();
+                    for (int i = 0; i < dump_apps[display_key][hwnd].Count; ++i)
+                    {
+                        if (dump_apps[display_key][hwnd][i].SnapShotFlags != 0)
                             continue;
                         history.Add(i);
                     }
