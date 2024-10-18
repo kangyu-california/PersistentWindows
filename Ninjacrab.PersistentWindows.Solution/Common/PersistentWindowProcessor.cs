@@ -793,6 +793,7 @@ namespace PersistentWindows.Common
             this.sessionEndingEventHandler =
                 (s, e) =>
                 {
+                    process.PriorityClass = ProcessPriorityClass.High;
                     WriteDataDump();
                     Log.Event("Session ending");
                 };
@@ -809,6 +810,9 @@ namespace PersistentWindows.Common
 
                         if (normalSessions.Contains(curDisplayKey))
                         {
+                            // rewind disqualified capture time
+                            UndoCapture(lastDisplayChangeTime);
+
                             WriteDataDump();
                             Log.Event("Display session changed, dump history in xml");
                         }
@@ -821,9 +825,6 @@ namespace PersistentWindows.Common
                 {
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
-
-                    // rewind disqualified capture time
-                    UndoCapture(lastDisplayChangeTime);
 
                     {
                         EndDisplaySession();
