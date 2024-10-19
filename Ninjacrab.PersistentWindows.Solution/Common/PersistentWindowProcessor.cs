@@ -145,6 +145,7 @@ namespace PersistentWindows.Common
         public bool dumpDataWhenExit = true;
         private string windowPosDataFile = "window_pos.xml"; //for PW restart without PC reboot
         private string snapshotTimeFile = "snapshot_time.xml";
+        private string debugWindowDump = "debug_window.xml";
 
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
@@ -259,6 +260,22 @@ namespace PersistentWindows.Common
 
         private void WriteDataDumpCore(bool dump_dead_window)
         {
+            if (debugWindows.Count > 0)
+            {
+                DataContractSerializer ds = new DataContractSerializer(typeof(List<ApplicationDisplayMetrics>));
+                StringBuilder s = new StringBuilder();
+                using (XmlWriter xw = XmlWriter.Create(s))
+                {
+                    foreach (var hwnd in debugWindows)
+                    {
+                        ds.WriteObject(xw, monitorApplications[curDisplayKey][hwnd]);
+                        break;
+                    }
+                }
+                string x = s.ToString();
+                File.WriteAllText(Path.Combine(appDataFolder, debugWindowDump), x, Encoding.Unicode);
+            }
+
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
             StringBuilder sb = new StringBuilder();
             using (XmlWriter xw = XmlWriter.Create(sb))
@@ -3361,6 +3378,8 @@ namespace PersistentWindows.Common
 
         private void RestoreFullScreenWindow(IntPtr hwnd, RECT target_rect)
         {
+            int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
+            Thread.Sleep(4 * double_clck_interval);
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
@@ -3399,7 +3418,6 @@ namespace PersistentWindows.Common
 
             int centery = screenPosition.Top + 15;
             User32.SetCursorPos(centerx, centery);
-            int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(double_clck_interval);
