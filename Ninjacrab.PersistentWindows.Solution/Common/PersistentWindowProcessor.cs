@@ -3364,6 +3364,7 @@ namespace PersistentWindows.Common
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
+                Log.Error("no need to restore full screen window {0}", GetWindowTitle(hwnd));
                 return;
                 /*
                 style |= (long)WindowStyleFlags.CAPTION;
@@ -3397,7 +3398,6 @@ namespace PersistentWindows.Common
             int centerx = screenPosition.Left + screenPosition.Width / 8;
 
             int centery = screenPosition.Top + 15;
-            //User32.SetActiveWindow(hwnd);
             User32.SetCursorPos(centerx, centery);
             int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
@@ -3405,18 +3405,31 @@ namespace PersistentWindows.Common
             Thread.Sleep(double_clck_interval);
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
-            Thread.Sleep(double_clck_interval);
+            Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
 
+            Thread.Sleep(3 * double_clck_interval);
             style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
-                Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
                 return;
             }
 
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
+            Thread.Sleep(double_clck_interval);
+            User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
+                0, 0, 0, UIntPtr.Zero);
+
             Log.Error("double restore full screen window {0}", GetWindowTitle(hwnd));
+
+            Thread.Sleep(3 * double_clck_interval);
+            style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
+            {
+                return;
+            }
+
+            Log.Error("fail to restore full screen window {0}", GetWindowTitle(hwnd));
         }
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
