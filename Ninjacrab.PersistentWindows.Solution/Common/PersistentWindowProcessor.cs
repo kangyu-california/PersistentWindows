@@ -1592,7 +1592,9 @@ namespace PersistentWindows.Common
                         return;
 
                     // unminimize to previous location
+                    RemoveInvalidCapture(hwnd);
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
+                    /*
                     var diff = prevDisplayMetrics.CaptureTime.Subtract(lastUnminimizeTime);
                     if (diff.TotalMilliseconds > 0 && diff.TotalMilliseconds < 400)
                     {
@@ -1610,6 +1612,7 @@ namespace PersistentWindows.Common
 
                         prevDisplayMetrics = lastMetrics;
                     }
+                    */
 
                     RECT target_rect = prevDisplayMetrics.ScreenPosition;
                     if (prevDisplayMetrics.IsFullScreen)
@@ -2139,7 +2142,7 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void RemoveInvalidCapture()
+        private void RemoveInvalidCapture(IntPtr h)
         {
             if (restoringSnapshot || restoringFromDB)
                 return;
@@ -2148,6 +2151,9 @@ namespace PersistentWindows.Common
             {
                 foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                 {
+                    if (h != IntPtr.Zero && hwnd != h)
+                        continue;
+
                     for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
                     {
                         if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
@@ -3301,7 +3307,7 @@ namespace PersistentWindows.Common
 
                     try
                     {
-                        RemoveInvalidCapture();
+                        RemoveInvalidCapture(IntPtr.Zero);
                         extra_restore = RestoreApplicationsOnCurrentDisplays(displayKey, IntPtr.Zero, DateTime.Now);
                     }
                     catch (Exception ex)
