@@ -106,6 +106,7 @@ namespace PersistentWindows.Common
         public bool restoringFromDB = false; // manual restore from DB
         public bool autoInitialRestoreFromDB = false;
         public bool restoringSnapshot = false; // implies restoringFromMem
+        private bool restoringFullScreenWindow = false;
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 5; // bit i represent restore method for pass i
@@ -258,24 +259,29 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void WriteDataDumpCore(bool dump_dead_window)
+        private void WriteDebugWindowHistory(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>> allApps)
         {
             if (debugWindows.Count > 0)
             {
-                DataContractSerializer ds = new DataContractSerializer(typeof(List<ApplicationDisplayMetrics>));
+                DataContractSerializer dcs = new DataContractSerializer(typeof(List<ApplicationDisplayMetrics>));
                 StringBuilder s = new StringBuilder();
                 using (XmlWriter xw = XmlWriter.Create(s))
                 {
                     foreach (var hwnd in debugWindows)
                     {
-                        ds.WriteObject(xw, monitorApplications[curDisplayKey][hwnd]);
+                        if (!allApps[curDisplayKey].ContainsKey(hwnd))
+                            continue;
+                        dcs.WriteObject(xw, allApps[curDisplayKey][hwnd]);
                         break;
                     }
                 }
                 string x = s.ToString();
                 File.WriteAllText(Path.Combine(appDataFolder, debugWindowDump), x, Encoding.Unicode);
             }
+        }
 
+        private void WriteDataDumpCore(bool dump_dead_window)
+        {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
             StringBuilder sb = new StringBuilder();
             using (XmlWriter xw = XmlWriter.Create(sb))
@@ -307,6 +313,8 @@ namespace PersistentWindows.Common
                     TrimDumpHistory(allApps);
 
                     dcs.WriteObject(xw, allApps);
+
+                    WriteDebugWindowHistory(allApps);
                 }
                 else
                     dcs.WriteObject(xw, monitorApplications);
@@ -1308,8 +1316,10 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void InheritKilledWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid)
+        private ApplicationDisplayMetrics InheritKilledWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid)
         {
+            ApplicationDisplayMetrics r = null;
+
             uint pid;
             User32.GetWindowThreadProcessId(realHwnd, out pid);
 
@@ -1342,6 +1352,8 @@ namespace PersistentWindows.Common
                     monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
                     deadApps[display_key].Remove(kid);
 
+                    r = monitorApplications[display_key][hwnd].Last<ApplicationDisplayMetrics>();
+
                     //replace prev zorder reference in deadApps as well
                     foreach (var kd in deadApps[display_key].Keys)
                     {
@@ -1353,6 +1365,8 @@ namespace PersistentWindows.Common
                     }
                 }
             }
+
+            return r;
         }
 
         private IntPtr FindMatchingKilledWindow(IntPtr hwnd)
@@ -1621,6 +1635,7 @@ namespace PersistentWindows.Common
                                || target_rect.Left <= -25600)
                             {
                                 Log.Error("no qualified position data to restore minimized window \"{0}\"", GetWindowTitle(hwnd));
+                                Log.Error("{0}", prevDisplayMetrics);
                                 return; // captured without previous history info, let OS handle it
                             }
 
@@ -1867,20 +1882,15 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (!CaptureProcessName(hwnd))
-                return;
-
-            if (ignoreProcess.Count > 0 || debugProcess.Count > 0)
+            if (ignoreProcess.Count > 0)
             {
-                string processName;
-                processName = windowProcessName[hwnd];
+                string processName = windowProcessName[hwnd];
                 if (ignoreProcess.Contains(processName))
                     return;
-                if (debugProcess.Contains(processName))
-                {
-                    debugWindows.Add(hwnd);
-                }
             }
+
+            if (!CaptureProcessName(hwnd))
+                return;
 
 #if DEBUG
             if (title.Contains("Microsoft Visual Studio")
@@ -1889,13 +1899,6 @@ namespace PersistentWindows.Common
             {
                 return;
             }
-
-            /*
-            if (debugProcess.Count > 0 && !debugWindows.Contains(hwnd))
-            {
-                return;
-            }
-            */
 #endif
 
             // suppress capture for taskbar operation
@@ -1909,8 +1912,9 @@ namespace PersistentWindows.Common
             {
                 if (debugWindows.Contains(hwnd))
                 {
-                    Log.Trace("WinEvent received. Type: {0:x4}, Window: {1:x8}", (uint)eventType, hwnd.ToInt64());
+                    Log.Event("WinEvent received {0} \"{1}\" {2:x4}", eventType, GetWindowTitle(hwnd), hwnd.ToInt32());
 
+                #if DEBUG
                     RECT screenPosition = new RECT();
                     User32.GetWindowRect(hwnd, ref screenPosition);
                     var process = GetProcess(hwnd);
@@ -1923,6 +1927,7 @@ namespace PersistentWindows.Common
                         title
                         );
                     Log.Trace(log);
+                #endif
                 }
 
                 if (restoringFromMem)
@@ -2008,7 +2013,6 @@ namespace PersistentWindows.Common
                                         if (!cursorPos.Equals(initCursorPos))
                                             userMove = true;
                                     }
-
                                 }
                             }
 
@@ -2066,7 +2070,6 @@ namespace PersistentWindows.Common
 
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
                                 StartCaptureTimer(UserMoveLatency / 4);
-                                Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 userMove = true;
                             }
 
@@ -3006,6 +3009,18 @@ namespace PersistentWindows.Common
             if (!CaptureProcessName(realHwnd))
                 return false;
 
+            if (debugProcess.Count > 0)
+            {
+                if (windowProcessName.ContainsKey(hwnd))
+                {
+                    string processName = windowProcessName[hwnd];
+                    if (debugProcess.Contains(processName))
+                    {
+                        debugWindows.Add(hwnd);
+                    }
+                }
+            }
+
             bool isFullScreen = IsFullScreen(hwnd);
 
             curDisplayMetrics = new ApplicationDisplayMetrics
@@ -3052,7 +3067,7 @@ namespace PersistentWindows.Common
                 }
                 else
                 {
-                    InheritKilledWindow(hwnd, realHwnd, kid);
+                    prevDisplayMetrics = InheritKilledWindow(hwnd, realHwnd, kid);
                     if (hwnd != kid)
                     {
                         Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
@@ -3080,7 +3095,10 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                moved = true;
+                if (curDisplayMetrics.IsMinimized && prevDisplayMetrics != null && prevDisplayMetrics.IsMinimized)
+                    moved = false;
+                else
+                    moved = true;
             }
             else if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
@@ -3379,7 +3397,6 @@ namespace PersistentWindows.Common
         private void RestoreFullScreenWindow(IntPtr hwnd, RECT target_rect)
         {
             int double_clck_interval = System.Windows.Forms.SystemInformation.DoubleClickTime / 2;
-            Thread.Sleep(4 * double_clck_interval);
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
@@ -3392,6 +3409,11 @@ namespace PersistentWindows.Common
                 Log.Error("restore caption style for {0}", GetWindowTitle(hwnd));
                 */
             }
+
+            if (restoringFullScreenWindow)
+                return;
+
+            restoringFullScreenWindow = true;
 
             bool wrong_screen = false;
             RECT cur_rect = new RECT();
@@ -3426,6 +3448,9 @@ namespace PersistentWindows.Common
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
 
             Thread.Sleep(3 * double_clck_interval);
+
+            restoringFullScreenWindow = false;
+
             style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
