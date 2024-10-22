@@ -1594,7 +1594,7 @@ namespace PersistentWindows.Common
                     // unminimize to previous location
                     RemoveInvalidCapture(hwnd);
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
-                    /*
+
                     var diff = prevDisplayMetrics.CaptureTime.Subtract(lastUnminimizeTime);
                     if (diff.TotalMilliseconds > 0 && diff.TotalMilliseconds < 400)
                     {
@@ -1610,9 +1610,10 @@ namespace PersistentWindows.Common
                             return;
                         }
 
+                        Log.Error("removed disqualified capture");
+
                         prevDisplayMetrics = lastMetrics;
                     }
-                    */
 
                     RECT target_rect = prevDisplayMetrics.ScreenPosition;
                     if (prevDisplayMetrics.IsFullScreen)
@@ -3406,8 +3407,13 @@ namespace PersistentWindows.Common
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
             {
-                Log.Error("no need to restore full screen window {0}", GetWindowTitle(hwnd));
-                return;
+                Thread.Sleep(3 * double_clck_interval);
+                style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+                if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
+                {
+                    Log.Error("no need to restore full screen window {0}", GetWindowTitle(hwnd));
+                    return;
+                }
                 /*
                 style |= (long)WindowStyleFlags.CAPTION;
                 User32.SetWindowLong(hwnd, User32.GWL_STYLE, style);
