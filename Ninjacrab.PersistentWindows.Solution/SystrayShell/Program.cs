@@ -821,5 +821,10 @@ if not errorlevel 1 goto wait_to_finish";
         {
             pwp.WriteDataDump();
         }
+
+        public static void Stop()
+        {
+            pwp.Stop();
+        }
     }
 }

@@ -295,6 +295,7 @@ namespace PersistentWindows.SystrayShell
             //this.notifyIconMain.Icon = null;
 
             Log.Exit();
+            Program.Stop();
             Application.Exit();
         }
 

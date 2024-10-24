@@ -4637,13 +4637,13 @@ namespace PersistentWindows.Common
             }
         }
 
-#region IDisposable
-        public virtual void Dispose(bool disposing)
+        public void Stop()
         {
-            StopRunningThreads();
-
             if (initialized)
             {
+                initialized = false;
+                EndDisplaySession();
+
                 SystemEvents.DisplaySettingsChanging -= displaySettingsChangingHandler;
                 SystemEvents.DisplaySettingsChanged -= displaySettingsChangedHandler;
                 SystemEvents.PowerModeChanged -= powerModeChangedHandler;
@@ -4655,6 +4655,13 @@ namespace PersistentWindows.Common
                     User32.UnhookWinEvent(handle);
                 }
             }
+        }
+
+#region IDisposable
+        public virtual void Dispose(bool disposing)
+        {
+            Stop();
+            StopRunningThreads();
         }
 
         public void Dispose()
