@@ -75,6 +75,7 @@ if not errorlevel 1 goto wait_to_finish";
             bool enhanced_offscreen_fix = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
+            bool auto_restore_last_capture_at_startup = true;
             bool launch_once_per_process_id = true;
             bool check_upgrade = true;
             bool auto_upgrade = false;
@@ -249,6 +250,9 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-redraw_desktop":
                         redraw_desktop = true;
                         break;
+                    case "-auto_restore_last_capture_at_startup=0":
+                        auto_restore_last_capture_at_startup = false;
+                        break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":
                         auto_restore_missing_windows = true;
@@ -396,7 +400,7 @@ if not errorlevel 1 goto wait_to_finish";
             if (!File.Exists(DisableWebpageCommander) && hotkey_window)
                 HotKeyForm.Start(hotkey);
 
-            if (!pwp.Start(auto_restore_from_db_at_startup))
+            if (!pwp.Start(auto_restore_from_db_at_startup, auto_restore_last_capture_at_startup))
             {
                 systrayForm.notifyIconMain.Visible = false;
                 return;

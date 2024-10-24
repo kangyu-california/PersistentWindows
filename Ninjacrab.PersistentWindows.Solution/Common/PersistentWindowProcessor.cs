@@ -446,18 +446,15 @@ namespace PersistentWindows.Common
             if (!snapshotTakenTime.ContainsKey(displayKey))
                 return false;
 
-            foreach (var id in snapshotTakenTime[displayKey].Keys)
+            if (snapshotTakenTime[displayKey].Keys.Contains<int>(MaxSnapshots))
             {
-                // 26 + 10 maximum manual snapshots
-                // + last auto restore, + last snapshot restore
-                if (id < MaxSnapshots)
-                    return true;
+                return true;
             }
 
             return false;
         }
 
-        public bool Start(bool auto_restore_from_db = false)
+        public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
         {
             process = Process.GetCurrentProcess();
             processPriority = process.PriorityClass;
@@ -1017,13 +1014,18 @@ namespace PersistentWindows.Common
                 {
                     normalSessions.Add(item);
                 }
+
                 if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
                     dbDisplayKey = curDisplayKey;
                     StartRestoreTimer();
                 }
-                else if (db_exist && autoRestoreLiveWindows && !RestoreExists(curDisplayKey))
+                else if (auto_restore_last_capture_at_startup && RestoreExists(curDisplayKey))
+                {
+                    RestoreSnapshot(MaxSnapshots);
+                }
+                else if (db_exist && autoRestoreLiveWindows)
                 {
                     Log.Event("auto restore from db");
                     restoringFromDB = true;
@@ -2218,7 +2220,7 @@ namespace PersistentWindows.Common
                 || !snapshotTakenTime[curDisplayKey].ContainsKey(id))
                 return; //snapshot not taken yet
 
-            if (id != MaxSnapshots - 1)
+            if (id < MaxSnapshots - 1)
             {
                 // MaxSnapshots - 1 is for undo snapshot restore
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
@@ -2232,7 +2234,7 @@ namespace PersistentWindows.Common
             restoringSnapshot = true;
             snapshotId = id;
             restoringFromMem = true;
-            StartRestoreTimer(milliSecond: 0 /*wait mouse settle still for taskbar restore*/);
+            StartRestoreTimer(milliSecond: 0);
             Log.Event("restore snapshot {0}", id);
         }
 
@@ -2675,7 +2677,7 @@ namespace PersistentWindows.Common
         {
             if (!manualNormalSession)
                 normalSessions.Add(displayKey);
-            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
+            CaptureApplicationsOnCurrentDisplays(displayKey);
         }
 
         private void EndDisplaySession()
@@ -2858,7 +2860,12 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                if (!initialized)
+                {
+                    // history data inherited, keep the last capture untouched for initial auto restore
+                    ;
+                }
+                else if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
                     // defer acknowledge of user action by one more cycle
