@@ -446,7 +446,7 @@ namespace PersistentWindows.Common
             if (!snapshotTakenTime.ContainsKey(displayKey))
                 return false;
 
-            if (snapshotTakenTime[displayKey].Keys.Contains<int>(MaxSnapshots))
+            if (snapshotTakenTime[displayKey].Keys.Contains<int>(MaxSnapshots + 1))
             {
                 return true;
             }
@@ -1023,7 +1023,7 @@ namespace PersistentWindows.Common
                 }
                 else if (auto_restore_last_capture_at_startup && RestoreExists(curDisplayKey))
                 {
-                    RestoreSnapshot(MaxSnapshots);
+                    RestoreSnapshot(MaxSnapshots + 1);
                 }
                 else if (db_exist && autoRestoreLiveWindows)
                 {
@@ -2222,7 +2222,7 @@ namespace PersistentWindows.Common
 
             if (id < MaxSnapshots - 1)
             {
-                // MaxSnapshots - 1 is for undo snapshot restore
+                // MaxSnapshots - 1 is used for undo snapshot restore
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 snapshotTakenTime[curDisplayKey][MaxSnapshots - 1] = DateTime.Now;
             }
@@ -2677,7 +2677,7 @@ namespace PersistentWindows.Common
         {
             if (!manualNormalSession)
                 normalSessions.Add(displayKey);
-            CaptureApplicationsOnCurrentDisplays(displayKey);
+            CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
         }
 
         private void EndDisplaySession()
@@ -2860,12 +2860,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (!initialized)
-                {
-                    // history data inherited, keep the last capture untouched for initial auto restore
-                    ;
-                }
-                else if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
                     // defer acknowledge of user action by one more cycle
@@ -2874,7 +2869,7 @@ namespace PersistentWindows.Common
                 }
                 else if (displayKey.Equals(curDisplayKey))
                 {
-                    if (movedWindows > 0)
+                    if (!initialized || movedWindows > 0)
                     {
                         // confirmed user moves
                         RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
