@@ -845,6 +845,8 @@ namespace PersistentWindows.Common
             this.displaySettingsChangedHandler =
                 (s, e) =>
                 {
+                    process.PriorityClass = ProcessPriorityClass.High;
+
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
 
@@ -3276,8 +3278,6 @@ namespace PersistentWindows.Common
 
             Log.Trace("Restore timer expired");
 
-            process.PriorityClass = ProcessPriorityClass.High;
-
             lock (restoreLock)
                 BatchRestoreApplicationsOnCurrentDisplays();
         }
@@ -3530,6 +3530,9 @@ namespace PersistentWindows.Common
 
         private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
         {
+            if (restoreTimes != 2)
+                return false;
+
             // simulate mouse drag, assuming taskbar is unlocked
             /*
                 ControlGetPos x, y, w, h, MSTaskListWClass1, ahk_class Shell_TrayWnd
