@@ -1806,9 +1806,10 @@ namespace PersistentWindows.Common
                 if (fullScreenGamingWindows.Contains(hwnd))
                 {
                     fullScreenGamingWindows.Remove(hwnd);
-                    fullScreenGamingWindow = IntPtr.Zero;
                     exitFullScreenGaming = true;
                 }
+                if (hwnd == fullScreenGamingWindow)
+                    fullScreenGamingWindow = IntPtr.Zero;
                 dualPosSwitchWindows.Remove(hwnd);
 
                 bool found_history = false;
