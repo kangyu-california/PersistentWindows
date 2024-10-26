@@ -3530,9 +3530,6 @@ namespace PersistentWindows.Common
 
         private bool MoveTaskBar(IntPtr hwnd, RECT targetRect)
         {
-            if (restoreTimes != 2)
-                return false;
-
             // simulate mouse drag, assuming taskbar is unlocked
             /*
                 ControlGetPos x, y, w, h, MSTaskListWClass1, ahk_class Shell_TrayWnd
@@ -3562,13 +3559,16 @@ namespace PersistentWindows.Common
             if (intersect.Equals(sourceRect) || intersect.Equals(targetRect))
                 return false; //only taskbar size changes
 
-            Log.Event($"move taskbar to {targetRect}");
+            /*
+            if (sourceRect.Width != targetRect.Width && sourceRect.Height != targetRect.Height)
+            {
+                Log.Error("wait taskbar stabilize");
+                return false;
+            }
+            */
 
-            //IntPtr hReBar = User32.FindWindowEx(hwnd, IntPtr.Zero, "ReBarWindow32", null);
-            //User32.GetWindowRect(hReBar, ref screenPosition);
+            Log.Event($"move taskbar from {sourceRect} to {targetRect}");
 
-            //IntPtr hTaskBar = User32.FindWindowEx(hReBar, IntPtr.Zero, "MSTaskSwWClass", null);
-            //hTaskBar = User32.FindWindowEx(hTaskBar, IntPtr.Zero, "MSTaskListWClass", null);
             IntPtr hTaskBar = GetRealTaskBar(hwnd);
             User32.GetWindowRect(hTaskBar, ref sourceRect);
 
@@ -3640,6 +3640,12 @@ namespace PersistentWindows.Common
                 return false;
             if (!intersect.Equals(sourceRect) && !intersect.Equals(targetRect))
                 return false;
+
+            if (sourceRect.Width != targetRect.Width && sourceRect.Height != targetRect.Height)
+            {
+                //only one metric (either width or height) should be fixed
+                return false;
+            }
 
             List<Display> displays = GetDisplays();
             bool top_edge = false;
@@ -4031,8 +4037,11 @@ namespace PersistentWindows.Common
                     {
                         User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
-                    bool changed_edge = MoveTaskBar(hWnd, rect);
                     bool changed_width = RecoverTaskBarArea(hWnd, rect);
+                    bool changed_edge = false;
+                    if (!changed_width)
+                        changed_edge = MoveTaskBar(hWnd, rect);
+
                     if (changed_edge || changed_width)
                         restoredWindows.Add(hWnd);
                     if (taskbarMovable == 0)
