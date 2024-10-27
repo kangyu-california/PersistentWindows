@@ -127,6 +127,7 @@ namespace PersistentWindows.Common
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
+        public bool fastRestore = false;
 
         public bool enableDualPosSwitch = true;
         private HashSet<IntPtr> dualPosSwitchWindows = new HashSet<IntPtr>();
@@ -845,7 +846,8 @@ namespace PersistentWindows.Common
             this.displaySettingsChangedHandler =
                 (s, e) =>
                 {
-                    process.PriorityClass = ProcessPriorityClass.High;
+                    if (fastRestore)
+                        process.PriorityClass = ProcessPriorityClass.High;
 
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
@@ -3278,6 +3280,7 @@ namespace PersistentWindows.Common
                 normalSessions.Add(curDisplayKey);
 
             Log.Trace("Restore timer expired");
+            process.PriorityClass = ProcessPriorityClass.High;
 
             lock (restoreLock)
                 BatchRestoreApplicationsOnCurrentDisplays();
