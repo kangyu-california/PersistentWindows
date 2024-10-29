@@ -34,6 +34,7 @@ namespace PersistentWindows.Common
         public int UserForcedRestoreLatency = 0;
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
+        private const int ForegroundTimerLatency = UserMoveLatency / 5;
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxSnapshots = 38; // 0-9, a-z, ` (for redo last auto restore) and final one for undo last snapshot restore
@@ -2001,7 +2002,7 @@ namespace PersistentWindows.Common
                                     if (hwnd != vacantDeskWindow)
                                         foreGroundWindow = hwnd;
 
-                                    foregroundTimer.Change(100, Timeout.Infinite);
+                                    foregroundTimer.Change(ForegroundTimerLatency, Timeout.Infinite);
 
                                     // Occasionaly OS might bring a window to foreground upon sleep
                                     // If the window move is initiated by OS (before sleep),
@@ -2051,7 +2052,7 @@ namespace PersistentWindows.Common
 
                                     if (foreGroundWindow == hwnd)
                                     {
-                                        StartCaptureTimer(UserMoveLatency / 4);
+                                        StartCaptureTimer(UserMoveLatency);
                                     }
                                     else
                                     {
@@ -2077,10 +2078,10 @@ namespace PersistentWindows.Common
                                 realForeGroundWindow = hwnd;
                                 if (hwnd != vacantDeskWindow)
                                     foreGroundWindow = hwnd;
-                                foregroundTimer.Change(100, Timeout.Infinite);
+                                foregroundTimer.Change(ForegroundTimerLatency, Timeout.Infinite);
 
                                 //capture with slight delay inperceivable by user, required for full screen mode recovery 
-                                StartCaptureTimer(UserMoveLatency / 4);
+                                StartCaptureTimer(UserMoveLatency);
                                 userMove = true;
                             }
 
@@ -2121,7 +2122,7 @@ namespace PersistentWindows.Common
                             // only respond to move of captured window to avoid miscapture
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd) || allUserMoveWindows.Contains(hwnd))
                             {
-                                StartCaptureTimer(UserMoveLatency / 4);
+                                StartCaptureTimer(UserMoveLatency / 2);
                                 Log.Trace("{0} {1}", eventType, GetWindowTitle(hwnd));
                                 userMove = true;
                             }
