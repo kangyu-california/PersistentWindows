@@ -641,15 +641,16 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
+                /*
                 if (foreGroundWindow != IntPtr.Zero && fullScreenGamingWindow == foreGroundWindow)
                 {
-                    fullScreenGamingWindows.Add(fullScreenGamingWindow);
                     fullScreenGamingWindow = IntPtr.Zero;
                     return;
                 }
 
                 if (fullScreenGamingWindows.Contains(foreGroundWindow))
                     return;
+                */
 
                 Log.Trace("Capture timer expired");
                 BatchCaptureApplicationsOnCurrentDisplays();
@@ -671,7 +672,8 @@ namespace PersistentWindows.Common
                 restoringFromMem = false;
                 bool wasRestoringSnapshot = restoringSnapshot;
                 restoringSnapshot = false;
-                exitFullScreenGaming = false;
+                if (fullScreenGamingWindow == IntPtr.Zero)
+                    exitFullScreenGaming = false;
                 ResetState();
 
                 Log.Trace("");
@@ -905,6 +907,7 @@ namespace PersistentWindows.Common
                                 if (IsNewWindow(foreGroundWindow))
                                 {
                                     fullScreenGamingWindow = foreGroundWindow;
+                                    fullScreenGamingWindows.Add(fullScreenGamingWindow);
                                     Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
                                 }
                                 else
