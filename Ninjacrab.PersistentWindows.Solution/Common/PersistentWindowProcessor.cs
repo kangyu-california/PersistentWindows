@@ -2526,7 +2526,7 @@ namespace PersistentWindows.Common
                 | SetWindowPosFlags.IgnoreResize
             );
 
-            Log.Event("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"",
+            Log.Trace("Restore zorder {2} by repositioning window \"{0}\" under \"{1}\"",
                 GetWindowTitle(hWnd),
                 GetWindowTitle(prev),
                 ok ? "succeeded" : "failed");
