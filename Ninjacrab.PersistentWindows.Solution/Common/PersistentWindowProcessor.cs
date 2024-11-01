@@ -3670,7 +3670,7 @@ namespace PersistentWindows.Common
 
             int deltaWidth = sourceRect.Width - targetRect.Width;
             int deltaHeight = sourceRect.Height - targetRect.Height;
-            if (Math.Abs(deltaWidth) < 10 && Math.Abs(deltaHeight) < 10)
+            if (Math.Abs(deltaWidth) < 25 && Math.Abs(deltaHeight) < 25)
                 return false;
 
             RECT intersect = new RECT();
@@ -3678,12 +3678,6 @@ namespace PersistentWindows.Common
                 return false;
             if (!intersect.Equals(sourceRect) && !intersect.Equals(targetRect))
                 return false;
-
-            if (sourceRect.Width != targetRect.Width && sourceRect.Height != targetRect.Height)
-            {
-                //only one metric (either width or height) should be fixed
-                return false;
-            }
 
             List<Display> displays = GetDisplays();
             bool top_edge = false;
