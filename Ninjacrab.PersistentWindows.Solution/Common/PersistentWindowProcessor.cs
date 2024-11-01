@@ -3625,6 +3625,36 @@ namespace PersistentWindows.Common
             return true;
         }
 
+        // 3 edges of taskbar are aligned to screen border
+        private bool IsTaskbarAligned(IntPtr hwnd)
+        {
+            int x_aligned = 0;
+            int y_aligned = 0;
+            RECT rect = new RECT();
+            User32.GetWindowRect(hwnd, ref rect);
+
+            RECT intersect = new RECT();
+            List<Display> displays = GetDisplays();
+            foreach (var display in displays)
+            {
+                RECT screen = display.Position;
+                if (User32.IntersectRect(out intersect, ref rect, ref screen))
+                {
+                    if (Math.Abs(rect.Left - screen.Left) < 5)
+                        x_aligned += 1;
+                    if (Math.Abs(rect.Right - screen.Right) < 5)
+                        x_aligned += 1;
+                    if (Math.Abs(rect.Top - screen.Top) < 5)
+                        y_aligned += 1;
+                    if (Math.Abs(rect.Bottom - screen.Bottom) < 5)
+                        y_aligned += 1;
+                    break;
+                }
+            }
+
+            return x_aligned + y_aligned == 3;
+        }
+
         // recover height of horizontal taskbar or width of vertical taskbar
         private bool RecoverTaskBarArea(IntPtr hwnd, RECT targetRect)
         {
@@ -4036,9 +4066,17 @@ namespace PersistentWindows.Common
                     if (fixTaskBar == 0 && !restoringFromDB && !restoringSnapshot)
                         continue; //auto restore taskbar disabled
 
+                    if (!IsTaskbarAligned(hWnd))
+                    {
+                        Log.Error("Taskbar not aligned");
+                        continue;
+                    }
+
+                    /*
                     if (fixTaskBar == -1) //disable possible bogus taskbar restore after game play due to inaccurate position report
                     if (fullScreenGamingWindow != IntPtr.Zero || fullScreenGamingWindows.Count > 0 || exitFullScreenGaming)
                         continue;
+                    */
 
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
                     if (taskbarMovable == 0)
