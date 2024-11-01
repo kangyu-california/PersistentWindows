@@ -111,7 +111,7 @@ namespace PersistentWindows.Common
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 5; // bit i represent restore method for pass i
-        public int fixTaskBar = -1;
+        public int fixTaskBar = 1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
         public bool redrawDesktop = false;
@@ -4068,25 +4068,23 @@ namespace PersistentWindows.Common
 
                     if (!IsTaskbarAligned(hWnd))
                     {
+                        //not ready to drag
                         Log.Error("Taskbar not aligned");
                         continue;
                     }
 
-                    /*
                     if (fixTaskBar == -1) //disable possible bogus taskbar restore after game play due to inaccurate position report
                     if (fullScreenGamingWindow != IntPtr.Zero || fullScreenGamingWindows.Count > 0 || exitFullScreenGaming)
                         continue;
-                    */
 
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
                     if (taskbarMovable == 0)
                     {
                         User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
                     }
+
+                    bool changed_edge = MoveTaskBar(hWnd, rect);
                     bool changed_width = RecoverTaskBarArea(hWnd, rect);
-                    bool changed_edge = false;
-                    if (!changed_width)
-                        changed_edge = MoveTaskBar(hWnd, rect);
 
                     if (changed_edge || changed_width)
                         restoredWindows.Add(hWnd);
