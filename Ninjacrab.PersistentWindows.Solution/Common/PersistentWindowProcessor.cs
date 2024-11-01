@@ -53,7 +53,7 @@ namespace PersistentWindows.Common
         //private long lastKilledWindowId = 0; //monotonically increasing unique id for every killed window
         private string persistDbName = null; //on-disk database name
         private Dictionary<string, POINT> lastCursorPos = new Dictionary<string, POINT>();
-        public bool captureFloatingWindow = false;
+        public bool captureFloatingWindow = true;
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();

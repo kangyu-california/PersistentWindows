@@ -173,8 +173,8 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-delay_auto_capture":
                         delay_auto_capture = 1;
                         break;
-                    case "-capture_floating_window":
-                        pwp.captureFloatingWindow = true;
+                    case "-capture_floating_window=0":
+                        pwp.captureFloatingWindow = false;
                         break;
                     case "-dpi_sensitive_call=1":
                         User32.DpiSenstiveCall = true;
