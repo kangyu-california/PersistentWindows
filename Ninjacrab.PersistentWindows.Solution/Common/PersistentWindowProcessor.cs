@@ -128,7 +128,7 @@ namespace PersistentWindows.Common
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
-        public bool fastRestore = false;
+        public bool fastRestore = true;
 
         public bool enableDualPosSwitch = true;
         private HashSet<IntPtr> dualPosSwitchWindows = new HashSet<IntPtr>();
