@@ -1426,6 +1426,11 @@ namespace PersistentWindows.Common
                     if (!procName.Equals(appPos.ProcessName))
                         continue;
 
+                    if (IsMinimized(hwnd) != appPos.IsMinimized)
+                        continue;
+                    if (User32.IsWindowVisible(hwnd) == appPos.IsInvisible)
+                        continue;
+
                     RECT r = appPos.ScreenPosition;
                     RECT rect = new RECT();
                     User32.GetWindowRect(hwnd, ref rect);
