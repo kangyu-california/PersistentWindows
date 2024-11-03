@@ -233,29 +233,29 @@ namespace PersistentWindows.Common
                     if (dualPosSwitchWindows.Contains(hwnd))
                         continue;
 
-                    List<int> history = new List<int>();
+                    List<int> invalid_entries = new List<int>();
                     for (int i = 0; i < dump_apps[display_key][hwnd].Count; ++i)
                     {
                         if (!dump_apps[display_key][hwnd][i].IsValid)
-                            history.Add(i);
+                            invalid_entries.Add(i);
                     }
-                    for (int i = history.Count - 1; i >= 0; --i)
+                    for (int i = invalid_entries.Count - 1; i >= 0; --i)
                     {
-                        dump_apps[display_key][hwnd].RemoveAt(history[i]);
+                        dump_apps[display_key][hwnd].RemoveAt(invalid_entries[i]);
                     }
 
-                    history.Clear();
+                    invalid_entries.Clear();
                     for (int i = 0; i < dump_apps[display_key][hwnd].Count; ++i)
                     {
                         if (dump_apps[display_key][hwnd][i].SnapShotFlags != 0)
                             continue;
-                        history.Add(i);
+                        invalid_entries.Add(i);
                     }
 
                     //keep the last record
-                    for (int i = history.Count - 2; i >= 0; --i)
+                    for (int i = invalid_entries.Count - 2; i >= 0; --i)
                     {
-                        dump_apps[display_key][hwnd].RemoveAt(history[i]);
+                        dump_apps[display_key][hwnd].RemoveAt(invalid_entries[i]);
                     }
                 }
             }
