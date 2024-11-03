@@ -303,6 +303,7 @@ namespace PersistentWindows.SystrayShell
         {
             Program.WriteDataDump();
 
+            Process.Start(Program.ProjectUrl + "/releases");
             string batFile = Path.Combine(Program.AppdataFolder, "pw_upgrade.bat");
             Process.Start(batFile);
             Exit();
