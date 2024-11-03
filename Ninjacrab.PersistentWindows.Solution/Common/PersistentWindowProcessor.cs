@@ -2653,6 +2653,8 @@ namespace PersistentWindows.Common
         {
             try
             {
+                if (exitFullScreenGaming)
+                    return;
                 foreach (var hwnd in fullScreenGamingWindows)
                 {
                     if (IsFullScreen(hwnd))
