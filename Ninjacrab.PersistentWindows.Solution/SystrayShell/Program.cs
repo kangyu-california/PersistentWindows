@@ -22,6 +22,7 @@ namespace PersistentWindows.SystrayShell
         public static System.Drawing.Icon UpdateIcon = null;
         public static string AppdataFolder = null;
         public static string DisableWebpageCommander = null;
+        public static string DisableUpgradeNotice = null;
         public static string CmdArgs;
         public static bool Gui = true;
         public static bool hotkey_window = true;
@@ -302,6 +303,7 @@ if not errorlevel 1 goto wait_to_finish";
                 Directory.CreateDirectory(appDataFolder);
 
             DisableWebpageCommander = Path.Combine(AppdataFolder, "disable_webpage_commander");
+            DisableUpgradeNotice = Path.Combine(AppdataFolder, "disable_upgrade_notice");
 
             // default icons
             var iconHandle = (legacy_icon ? Properties.Resources.pwIcon2: Properties.Resources.pwIcon).GetHicon();

@@ -17,16 +17,11 @@ namespace PersistentWindows.SystrayShell
     {
         private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
 
-        public bool restoreToolStripMenuItemEnabled;
-        public bool restoreSnapshotMenuItemEnabled;
-
         private bool pauseAutoRestore = false;
         private bool toggleIcon = false;
 
-        public bool enableUpgradeNotice = true;
         private int skipUpgradeCounter = 0;
         private bool pauseUpgradeCounter = false;
-        private bool foundUpgrade = false;
 
         public bool autoUpgrade = false;
 
@@ -47,11 +42,15 @@ namespace PersistentWindows.SystrayShell
         {
             InitializeComponent();
 
-            enableUpgradeNotice = enable_upgrade_notice;
-            if (enableUpgradeNotice)
-                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
-            else
+            if (File.Exists(Program.DisableUpgradeNotice))
                 upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+            else if (!enable_upgrade_notice)
+            {
+                File.Create(Program.DisableUpgradeNotice);
+                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+            }
+            else
+                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
 
             if (File.Exists(Program.DisableWebpageCommander))
             {
@@ -187,7 +186,7 @@ namespace PersistentWindows.SystrayShell
             else
                 restoreToolStripMenuItem.Image = Properties.Resources.question;
 
-            if (checkUpgrade && enableUpgradeNotice)
+            if (checkUpgrade && upgradeNoticeMenuItem.Text.Contains("Disable"))
             {
                 if (pauseUpgradeCounter)
                 {
@@ -249,10 +248,12 @@ namespace PersistentWindows.SystrayShell
                 || current_major == latest_major && current_minor < latest_minor)
             {
                 notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
-                foundUpgrade = true;
+                upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
 
                 if (!upgradeDownloaded.ContainsKey(latestVersion))
                 {
+                    Process.Start(Program.ProjectUrl + "/releases");
+
                     var src_file = $"{Program.ProjectUrl}/releases/download/{latestVersion}/{System.Windows.Forms.Application.ProductName}{latestVersion}.zip";
                     var dst_file = $"{Program.AppdataFolder}/upgrade.zip";
                     var dst_dir = Path.Combine($"{Program.AppdataFolder}", "upgrade");
@@ -274,10 +275,7 @@ namespace PersistentWindows.SystrayShell
                         if (autoUpgrade)
                             Upgrade();
                         else
-                        {
-                            upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
                             notifyIconMain.Icon = Program.UpdateIcon;
-                        }
                     }
                 }
             }
@@ -303,7 +301,6 @@ namespace PersistentWindows.SystrayShell
         {
             Program.WriteDataDump();
 
-            Process.Start(Program.ProjectUrl + "/releases");
             string batFile = Path.Combine(Program.AppdataFolder, "pw_upgrade.bat");
             Process.Start(batFile);
             Exit();
@@ -424,20 +421,27 @@ namespace PersistentWindows.SystrayShell
 
         private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
         {
-            if (foundUpgrade)
+            if (upgradeNoticeMenuItem.Text.Contains("Upgrade to"))
             {
                 Upgrade();
             }
-            else if (enableUpgradeNotice)
+            else if (upgradeNoticeMenuItem.Text.Contains("Enable"))
             {
-                enableUpgradeNotice = false;
-                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
-            }
-            else
-            {
-                enableUpgradeNotice = true;
                 upgradeNoticeMenuItem.Text = "Disable upgrade notice";
                 CheckUpgradeSafe();
+                try
+                {
+                    File.Delete(Program.DisableUpgradeNotice);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+            }
+            else //menu is "Disable upgrade notice"
+            {
+                File.Create(Program.DisableUpgradeNotice);
+                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
             }
         }
 
