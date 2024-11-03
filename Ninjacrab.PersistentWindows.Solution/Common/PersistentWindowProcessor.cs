@@ -2166,11 +2166,10 @@ namespace PersistentWindows.Common
 
             if (monitorApplications.ContainsKey(curDisplayKey))
             {
-                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                //foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                if (monitorApplications[curDisplayKey].ContainsKey(h))
                 {
-                    if (h != IntPtr.Zero && hwnd != h)
-                        continue;
-
+                    IntPtr hwnd = h;
                     for (int i = monitorApplications[curDisplayKey][hwnd].Count - 1; i >= 0; --i)
                     {
                         if (!monitorApplications[curDisplayKey][hwnd][i].IsValid)
