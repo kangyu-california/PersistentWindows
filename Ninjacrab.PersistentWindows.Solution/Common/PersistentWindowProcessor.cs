@@ -3085,6 +3085,7 @@ namespace PersistentWindows.Common
                     return false;
 
                 IntPtr kid = FindMatchingKilledWindow(hwnd);
+                bool restore_last = false;
                 if (kid == IntPtr.Zero)
                 {
                     ResolveWindowHandleCollision(hwnd);
@@ -3099,6 +3100,8 @@ namespace PersistentWindows.Common
                     }
                     else
                         Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+
+                    restore_last = true;
                 }
 
                 //newly created window or new display setting
@@ -3122,7 +3125,18 @@ namespace PersistentWindows.Common
                 if (curDisplayMetrics.IsMinimized && prevDisplayMetrics != null && prevDisplayMetrics.IsMinimized)
                     moved = false;
                 else
+                {
                     moved = true;
+
+                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB)
+                    {
+                        Log.Error($"recall last position for {windowTitle[hwnd]}");
+                        restoringFromMem = true;
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
+                        restoringFromMem = false;
+                        return false;
+                    }
+                }
             }
             else if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
