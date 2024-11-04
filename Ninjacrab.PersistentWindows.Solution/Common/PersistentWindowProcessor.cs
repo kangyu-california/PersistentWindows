@@ -731,10 +731,7 @@ namespace PersistentWindows.Common
                             snapshotTakenTime[curDisplayKey][MaxSnapshots - 2] = snapshotTakenTime[curDisplayKey][MaxSnapshots];
                     }
 
-                    if (wasRestoringSnapshot || noRestoreWindowsTmp.Count > 0)
-                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
-                    else
-                        StartCaptureTimer();
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
                 }
 
                 bool db_exist = false;
