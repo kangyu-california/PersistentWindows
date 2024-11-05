@@ -3127,7 +3127,7 @@ namespace PersistentWindows.Common
 
                     if (restore_last && prevDisplayMetrics != null && !restoringFromDB)
                     {
-                        Log.Error($"recall last position for {windowTitle[hwnd]}");
+                        Log.Error($"restore {windowTitle[hwnd]} to last captured position");
                         restoringFromMem = true;
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
                         restoringFromMem = false;
