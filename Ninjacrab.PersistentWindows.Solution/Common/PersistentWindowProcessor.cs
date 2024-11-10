@@ -698,8 +698,6 @@ namespace PersistentWindows.Common
                         //restore icon to idle
                         hideRestoreTip();
                         iconBusy = false;
-                        if (!fullScreenGamingWindows.Contains(foreGroundWindow))
-                            sessionActive = true;
                     }
                     else
                     {
@@ -2019,7 +2017,10 @@ namespace PersistentWindows.Common
                                     // delay capture by a few seconds should be fine.
 
                                     if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                                    {
+                                        userMove = true;
                                         StartCaptureTimer(UserMoveLatency / 2);
+                                    }
                                     else if (fullScreenGamingWindow == IntPtr.Zero)
                                     {
                                         StartCaptureTimer();
@@ -2674,9 +2675,8 @@ namespace PersistentWindows.Common
                 {
                     normalSessions.Add(curDisplayKey);
                     Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
+                    CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB: saveToDB); //implies auto delayed capture
                 }
-
-                CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB: saveToDB); //implies auto delayed capture
             }
             catch (Exception ex)
             {
