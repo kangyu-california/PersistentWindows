@@ -1193,7 +1193,7 @@ namespace PersistentWindows.Common
             {
                 return false;
             }
-            Log.Error("top left {0} is off-screen", topLeft.ToString());
+            Log.Error($"top left {topLeft} is off-screen");
 
             POINT topRight = new POINT(rect.Left + rect.Width - MinSize, rect.Top + MinSize);
             if (User32.MonitorFromPoint(topRight, User32.MONITOR_DEFAULTTONULL) != IntPtr.Zero)
@@ -1201,7 +1201,7 @@ namespace PersistentWindows.Common
                 return false;
             }
 
-            Log.Error("top right {0} is off-screen", topRight.ToString());
+            Log.Error($"top right {topRight} is off-screen");
             return true;
         }
 
