@@ -3163,7 +3163,7 @@ namespace PersistentWindows.Common
                     Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
                     noRecordWindows.Add(hwnd);
 
-                    if (restoringFromMem && monitorApplications[displayKey][hwnd].Count < 2)
+                    if (restoringFromMem)
                     {
                         //the window did not exist when snapshot was taken
                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
