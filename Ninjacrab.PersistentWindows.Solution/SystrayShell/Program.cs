@@ -269,7 +269,7 @@ if not errorlevel 1 goto wait_to_finish";
                         auto_restore_missing_windows = true;
                         break;
                     case "-auto_restore_new_display_session_from_db=0":
-                        pwp.autoRestoreLiveWindows = false;
+                        pwp.autoRestoreLiveWindowsFromDb = false;
                         Log.Error("turn off auto restore db for new session");
                         break;
                     case "-invoke_multi_window_process_only_once=0":

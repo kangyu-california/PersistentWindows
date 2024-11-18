@@ -119,7 +119,7 @@ namespace PersistentWindows.Common
         public bool enhancedOffScreenFix = false;
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
-        public bool autoRestoreLiveWindows = true; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
+        public bool autoRestoreLiveWindowsFromDb = true; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
@@ -882,7 +882,7 @@ namespace PersistentWindows.Common
                                 {
                                     PromptSessionRestore();
                                 }
-                                if (autoRestoreLiveWindows && !monitorApplications.ContainsKey(displayKey))
+                                if (autoRestoreLiveWindowsFromDb && !monitorApplications.ContainsKey(displayKey))
                                 {
                                     CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
                                     Log.Event("auto restore from db");
@@ -1028,7 +1028,7 @@ namespace PersistentWindows.Common
                 {
                     RestoreSnapshot(MaxSnapshots + 1);
                 }
-                else if (db_exist && autoRestoreLiveWindows)
+                else if (db_exist && autoRestoreLiveWindowsFromDb)
                 {
                     Log.Event("auto restore from db");
                     restoringFromDB = true;
