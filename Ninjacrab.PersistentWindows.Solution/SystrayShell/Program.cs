@@ -254,8 +254,11 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-redraw_desktop":
                         redraw_desktop = true;
                         break;
-                    case "-auto_restore_last_capture_at_startup=0":
+                    case "-auto_restore_existing_window_to_last_capture=0":
                         auto_restore_last_capture_at_startup = false;
+                        break;
+                    case "-auto_restore_new_window_to_last_capture=0":
+                        pwp.autoRestoreNewWindowToLastCapture = false;
                         break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":

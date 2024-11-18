@@ -120,6 +120,7 @@ namespace PersistentWindows.Common
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
         public bool autoRestoreLiveWindowsFromDb = true; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
+        public bool autoRestoreNewWindowToLastCapture = true;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
@@ -3098,7 +3099,8 @@ namespace PersistentWindows.Common
                     else
                         Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
 
-                    restore_last = true;
+                    if (autoRestoreNewWindowToLastCapture)
+                        restore_last = true;
                 }
 
                 //newly created window or new display setting
