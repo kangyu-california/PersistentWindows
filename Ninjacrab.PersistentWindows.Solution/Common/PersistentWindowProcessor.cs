@@ -93,6 +93,7 @@ namespace PersistentWindows.Common
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
+        private HashSet<string> fullScreenGamingProcesses = new HashSet<string>();
         private IntPtr fullScreenGamingWindow = IntPtr.Zero;
         private bool exitFullScreenGaming = false;
         private POINT initCursorPos;
@@ -629,25 +630,28 @@ namespace PersistentWindows.Common
                 if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                     return;
 
-                if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                string proc_name = windowProcessName[hwnd];
+                if (!fullScreenGamingProcesses.Contains(proc_name))
                 {
-                    if (!normalSessions.Contains(curDisplayKey))
-                        return;
-
                     var appWindows = CaptureWindowsOfInterest();
                     DateTime now = DateTime.Now;
                     foreach (var h in appWindows)
                     {
+                        //restore windows of the same process name
+                        if (!windowProcessName.ContainsKey(h))
+                            continue;
+                        if (proc_name != windowProcessName[h])
+                            continue;
+
                         ApplicationDisplayMetrics curDisplayMetrics;
                         ApplicationDisplayMetrics prevDisplayMetrics;
                         //try to inherit from killed window database
                         bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
                     }
-                    return;
-                }
 
-                if (normalSessions.Contains(curDisplayKey))
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
+                    if (normalSessions.Contains(curDisplayKey))
+                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
+                }
             });
 
             captureTimer = new Timer(state =>
@@ -919,9 +923,10 @@ namespace PersistentWindows.Common
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
+                                fullScreenGamingWindow = foreGroundWindow;
+                                fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
                                 if (IsNewWindow(foreGroundWindow))
                                 {
-                                    fullScreenGamingWindow = foreGroundWindow;
                                     fullScreenGamingWindows.Add(fullScreenGamingWindow);
                                     Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
                                 }
@@ -1021,8 +1026,8 @@ namespace PersistentWindows.Common
             };
 
             SystemEvents.SessionSwitch += sessionSwitchEventHandler;
-
             initialized = true;
+
             remoteSession = System.Windows.Forms.SystemInformation.TerminalServerSession;
             bool sshot_exist = SnapshotExists(curDisplayKey);
             enableRestoreSnapshotMenu(sshot_exist);
