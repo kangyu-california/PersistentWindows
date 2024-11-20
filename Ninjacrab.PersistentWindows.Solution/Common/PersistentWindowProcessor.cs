@@ -624,8 +624,22 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                     return;
+
+                if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                {
+                    var appWindows = CaptureWindowsOfInterest();
+                    DateTime now = DateTime.Now;
+                    foreach (var h in appWindows)
+                    {
+                        ApplicationDisplayMetrics curDisplayMetrics;
+                        ApplicationDisplayMetrics prevDisplayMetrics;
+                        //try to inherit from killed window database
+                        bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
+                    }
+                    return;
+                }
 
                 if (normalSessions.Contains(curDisplayKey))
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
