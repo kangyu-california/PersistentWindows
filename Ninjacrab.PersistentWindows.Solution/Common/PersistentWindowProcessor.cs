@@ -2285,6 +2285,9 @@ namespace PersistentWindows.Common
             if (IsMinimized(hWnd))
                 return IntPtr.Zero;
 
+            if (!monitorApplications.ContainsKey(curDisplayKey))
+                return IntPtr.Zero;
+
             RECT rect = new RECT();
             User32.GetWindowRect(hWnd, ref rect);
 
