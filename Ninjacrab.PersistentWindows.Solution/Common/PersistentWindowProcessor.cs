@@ -552,9 +552,11 @@ namespace PersistentWindows.Common
             {
                 if (!sessionActive) //disable foreground event handling
                     return;
-
                 IntPtr hwnd = foreGroundWindow;
                 if (!User32.IsWindow(hwnd))
+                    return;
+
+                if (hwnd == fullScreenGamingWindow)
                     return;
 
                 if (noRestoreWindows.Contains(hwnd))
@@ -629,6 +631,9 @@ namespace PersistentWindows.Common
 
                 if (!monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 {
+                    if (!normalSessions.Contains(curDisplayKey))
+                        return;
+
                     var appWindows = CaptureWindowsOfInterest();
                     DateTime now = DateTime.Now;
                     foreach (var h in appWindows)
