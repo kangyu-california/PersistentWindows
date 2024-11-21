@@ -665,6 +665,8 @@ namespace PersistentWindows.Common
                 if (restoringFromMem)
                     return;
 
+                if (freezeCapture)
+                    return;
                 /*
                 if (foreGroundWindow != IntPtr.Zero && fullScreenGamingWindow == foreGroundWindow)
                 {
@@ -754,6 +756,7 @@ namespace PersistentWindows.Common
                     }
 
                     CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
+                    freezeCapture = false;
                 }
 
                 bool db_exist = false;
@@ -771,7 +774,6 @@ namespace PersistentWindows.Common
                 }
 
                 enableRestoreMenu(db_exist, checkUpgrade);
-                freezeCapture = false;
 
                 bool snapshot_exist = SnapshotExists(curDisplayKey);
                 enableRestoreSnapshotMenu(snapshot_exist);
