@@ -551,9 +551,36 @@ namespace PersistentWindows.Common
 
             foregroundTimer = new Timer(state =>
             {
+                IntPtr hwnd = foreGroundWindow;
+
+                // Occasionaly OS might bring a window to foreground upon sleep
+                // If the window move is initiated by OS (before sleep),
+                // keep restart capture timer would eventually discard these moves
+                // either by power suspend event handler calling CancelCaptureTimer()
+                // or due to capture timer handler found too many window moves
+
+                // If the window move is caused by user snapping window to screen edge,
+                // delay capture by a few seconds should be fine.
+
+                if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                {
+                    //capture with slight delay inperceivable by user, required for full screen mode recovery
+                    userMove = true;
+                    StartCaptureTimer(UserMoveLatency / 2);
+                }
+                else if (fullScreenGamingWindow == IntPtr.Zero)
+                {
+                    StartCaptureTimer();
+
+                    //speed up initial capture
+                    POINT cursorPos;
+                    User32.GetCursorPos(out cursorPos);
+                    if (!cursorPos.Equals(initCursorPos))
+                        userMove = true;
+                }
+
                 if (!sessionActive) //disable foreground event handling
                     return;
-                IntPtr hwnd = foreGroundWindow;
                 if (!User32.IsWindow(hwnd))
                     return;
 
@@ -2033,31 +2060,6 @@ namespace PersistentWindows.Common
                                         foreGroundWindow = hwnd;
 
                                     foregroundTimer.Change(ForegroundTimerLatency, Timeout.Infinite);
-
-                                    // Occasionaly OS might bring a window to foreground upon sleep
-                                    // If the window move is initiated by OS (before sleep),
-                                    // keep restart capture timer would eventually discard these moves
-                                    // either by power suspend event handler calling CancelCaptureTimer()
-                                    // or due to capture timer handler found too many window moves
-
-                                    // If the window move is caused by user snapping window to screen edge,
-                                    // delay capture by a few seconds should be fine.
-
-                                    if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
-                                    {
-                                        userMove = true;
-                                        StartCaptureTimer(UserMoveLatency / 2);
-                                    }
-                                    else if (fullScreenGamingWindow == IntPtr.Zero)
-                                    {
-                                        StartCaptureTimer();
-
-                                        //speed up initial capture
-                                        POINT cursorPos;
-                                        User32.GetCursorPos(out cursorPos);
-                                        if (!cursorPos.Equals(initCursorPos))
-                                            userMove = true;
-                                    }
                                 }
                             }
 
@@ -2112,10 +2114,6 @@ namespace PersistentWindows.Common
                                 if (hwnd != vacantDeskWindow)
                                     foreGroundWindow = hwnd;
                                 foregroundTimer.Change(ForegroundTimerLatency, Timeout.Infinite);
-
-                                //capture with slight delay inperceivable by user, required for full screen mode recovery 
-                                StartCaptureTimer(UserMoveLatency);
-                                userMove = true;
                             }
 
                             break;
