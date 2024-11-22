@@ -67,8 +67,6 @@ namespace PersistentWindows.Common
         private static HashSet<IntPtr> noRestoreWindowsTmp = new HashSet<IntPtr>(); //user moved windows during restore
 
         // realtime fixing window location
-        private IntPtr curMovingWnd = IntPtr.Zero;
-        private Timer moveTimer; // when user move a window
         private Timer foregroundTimer; // when user bring a window to foreground
         private DateTime lastDisplayChangeTime = DateTime.Now;
 
@@ -538,17 +536,6 @@ namespace PersistentWindows.Common
             });
             debugTimer.Change(2000, 2000);
 #endif            
-
-            moveTimer = new Timer(state =>
-            {
-                if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
-                    && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
-                {
-                    Log.Event("ignore window {0}", GetWindowTitle(curMovingWnd));
-                    noRestoreWindows.Add(curMovingWnd);
-                }
-            }
-            );
 
             foregroundTimer = new Timer(state =>
             {
@@ -2102,7 +2089,12 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
-                            curMovingWnd = hwnd;
+                            if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
+                                && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
+                            {
+                                Log.Event("turn off auto-restore for window {0}", GetWindowTitle(hwnd));
+                                noRestoreWindows.Add(hwnd);
+                            }
                             break;
 
                         case User32Events.EVENT_SYSTEM_MINIMIZEEND:
@@ -2142,7 +2134,6 @@ namespace PersistentWindows.Common
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
                             if (eventType == User32Events.EVENT_SYSTEM_MOVESIZEEND)
                             {
-                                moveTimer.Change(100, Timeout.Infinite);
                                 if (!shift_key_pressed && !alt_key_pressed)
                                 {
                                     if (ctrl_key_pressed)
