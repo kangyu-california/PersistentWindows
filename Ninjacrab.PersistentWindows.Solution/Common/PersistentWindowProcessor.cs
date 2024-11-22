@@ -77,6 +77,7 @@ namespace PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
+        private bool captureTimerStarted = false;
         private string curDisplayKey; // current display config name
         public string dbDisplayKey = null;
         private static Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
@@ -683,6 +684,8 @@ namespace PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
+                captureTimerStarted = false;
+
                 userMovePrev = userMove;
                 userMove = false;
 
@@ -2632,15 +2635,16 @@ namespace PersistentWindows.Common
 
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
+            // ignore defer timer request to capture user move ASAP
+            if (captureTimerStarted)
+                return;
+            captureTimerStarted = true;
+
             if (UserForcedCaptureLatency > 0)
             {
                 captureTimer.Change(UserForcedCaptureLatency, Timeout.Infinite);
                 return;
             }
-
-            // ignore defer timer request to capture user move ASAP
-            if (userMove)
-                return; //assuming timer has already started
 
             // restart capture timer
             captureTimer.Change(milliSeconds, Timeout.Infinite);
@@ -3156,7 +3160,7 @@ namespace PersistentWindows.Common
 
                     if (restore_last && prevDisplayMetrics != null && !restoringFromDB)
                     {
-                        Log.Error($"restore {windowTitle[hwnd]} to last captured position");
+                        Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
                         restoringFromMem = true;
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
                         restoringFromMem = false;
