@@ -159,8 +159,8 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-enable_auto_restore_by_manual_capture":
                         pwp.manualNormalSession = true;
                         break;
-                    case "-fast_restore":
-                        pwp.fastRestore = true;
+                    case "-fast_restore=0":
+                        pwp.fastRestore = false;
                         break;
                     case "-delay_restart":
                         delay_restart = 1;
