@@ -598,7 +598,7 @@ namespace PersistentWindows.Common
                     else if (ctrl_key_pressed && !alt_key_pressed)
                     {
                         //restore to previous background zorder with current size/pos
-                        SwitchForeBackground(hwnd, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
+                        SwitchForeBackground(hwnd, strict_dps_check: false, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
                     }
                     else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
                     {
@@ -2451,15 +2451,18 @@ namespace PersistentWindows.Common
             Log.Event("Bring foreground window {0} to bottom", GetWindowTitle(hwnd));
         }
 
-        public void SwitchForeBackground(IntPtr hwnd, bool toForeground=false, bool updateBackgroundPos=false, bool secondBackGround = false)
+        public void SwitchForeBackground(IntPtr hwnd, bool strict_dps_check = true, bool toForeground=false, bool updateBackgroundPos=false, bool secondBackGround = false)
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
-            if (!enableDualPosSwitch)
-                return;
-            if (!dualPosSwitchWindows.Contains(hwnd))
-                return;
+            if (strict_dps_check)
+            {
+                if (!enableDualPosSwitch)
+                    return;
+                if (!dualPosSwitchWindows.Contains(hwnd))
+                    return;
+            }
 
             if (!monitorApplications.ContainsKey(curDisplayKey) || !monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 return;
