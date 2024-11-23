@@ -2456,10 +2456,10 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
 
+            if (!enableDualPosSwitch)
+                return;
             if (strict_dps_check)
             {
-                if (!enableDualPosSwitch)
-                    return;
                 if (!dualPosSwitchWindows.Contains(hwnd))
                     return;
             }
