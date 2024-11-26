@@ -1760,6 +1760,15 @@ namespace PersistentWindows.Common
                 || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
+        private static bool IsResizableWindow(IntPtr hwnd)
+        {
+            if (IsTaskBar(hwnd))
+                return false;
+
+            long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+            return (style & (long)WindowStyleFlags.THICKFRAME) != 0L;
+        }
+
         private bool CaptureProcessName(IntPtr hwnd)
         {
             if (!windowProcessName.ContainsKey(hwnd))
@@ -3543,6 +3552,9 @@ namespace PersistentWindows.Common
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
         {
+            if (!IsResizableWindow(hwnd))
+                return;
+
             List<Display> displays = GetDisplays();
             foreach (var display in displays)
             {
@@ -4207,6 +4219,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
+                bool resizable = IsResizableWindow(hWnd);
                 if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
@@ -4251,7 +4264,7 @@ namespace PersistentWindows.Common
                         }
                     }
 
-                    if (need_move_window)
+                    if (need_move_window && resizable)
                     {
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
@@ -4262,7 +4275,14 @@ namespace PersistentWindows.Common
                 {
                     if (need_move_window)
                     {
-                        success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        if (resizable)
+                            success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        else
+                        {
+                            Log.Error($"keep window size for floating window {GetWindowTitle(hWnd)}");
+                            success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, curDisplayMetrics.ScreenPosition.Width, curDisplayMetrics.ScreenPosition.Height, true);
+                        }
+                            
                         if (debugWindows.Contains(hWnd))
                         Log.Event("MoveWindow({0} [{1}x{2}]-[{3}x{4}]) - {5}",
                             prevDisplayMetrics.ProcessName,
