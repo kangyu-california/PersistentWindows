@@ -728,7 +728,7 @@ namespace PersistentWindows.Common
                     restoreHalted = false;
                     topmostWindowsFixed.Clear();
 
-                    Log.Error("Restore aborted for {0}", curDisplayKey);
+                    Log.Error("Restore aborted for {0}", displayKey);
 
                     curDisplayKey = displayKey;
                     if (fullScreenGamingWindows.Contains(foreGroundWindow) || !normalSessions.Contains(curDisplayKey))
@@ -880,6 +880,8 @@ namespace PersistentWindows.Common
                             WriteDataDump();
                             Log.Event("Display session changed, dump history in xml");
                         }
+
+                        curDisplayKey = "invalid_display";
                     }
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
