@@ -386,7 +386,7 @@ namespace PersistentWindows.Common
             {
                 CleanupDisplayRegKeyCore(key);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex.ToString());
             }
@@ -455,6 +455,138 @@ namespace PersistentWindows.Common
             }
 
             return false;
+        }
+
+        private void foregroundTimerCallback(object state)
+        {
+            IntPtr hwnd = foreGroundWindow;
+
+            // Occasionaly OS might bring a window to foreground upon sleep
+            // If the window move is initiated by OS (before sleep),
+            // keep restart capture timer would eventually discard these moves
+            // either by power suspend event handler calling CancelCaptureTimer()
+            // or due to capture timer handler found too many window moves
+
+            // If the window move is caused by user snapping window to screen edge,
+            // delay capture by a few seconds should be fine.
+
+            if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+            {
+                //capture with slight delay inperceivable by user, required for full screen mode recovery
+                userMove = true;
+                StartCaptureTimer(UserMoveLatency / 2);
+            }
+            else if (fullScreenGamingWindow == IntPtr.Zero)
+            {
+                StartCaptureTimer();
+
+                //speed up initial capture
+                POINT cursorPos;
+                User32.GetCursorPos(out cursorPos);
+                if (!cursorPos.Equals(initCursorPos))
+                    userMove = true;
+            }
+
+            if (!sessionActive) //disable foreground event handling
+                return;
+            if (!User32.IsWindow(hwnd))
+                return;
+
+            if (hwnd == fullScreenGamingWindow)
+                return;
+
+            if (noRestoreWindows.Contains(hwnd))
+                return;
+
+            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+
+            int leftClicks = leftButtonClicks;
+            leftButtonClicks = 0;
+
+            if (realForeGroundWindow == vacantDeskWindow)
+            {
+                if (leftClicks != 1)
+                    return;
+
+                if (!ctrl_key_pressed && !alt_key_pressed)
+                {
+                    //restore window to previous background position
+                    SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
+                }
+                else if (ctrl_key_pressed && !alt_key_pressed)
+                {
+                    //restore to previous background zorder with current size/pos
+                    SwitchForeBackground(hwnd, strict_dps_check: false, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
+                }
+                else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
+                {
+                    FgWindowToBottom();
+                }
+            }
+            else if (!ctrl_key_pressed && !shift_key_pressed)
+            {
+                if (fullScreenGamingWindows.Contains(hwnd))
+                    return;
+
+                ActivateWindow(hwnd); //window could be active on alt-tab
+                if (IsFullScreen(hwnd) || IsRdpWindow(hwnd))
+                {
+                    if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
+                    {
+                        RECT hkwinPos = new RECT();
+                        User32.GetWindowRect(HotKeyWindow.commanderWnd, ref hkwinPos);
+
+                        RECT fgwinPos = new RECT();
+                        User32.GetWindowRect(hwnd, ref fgwinPos);
+
+                        RECT intersect = new RECT();
+                        bool overlap = User32.IntersectRect(out intersect, ref hkwinPos, ref fgwinPos);
+                        if (overlap)
+                        {
+                            User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
+                        }
+                    }
+                }
+
+                if (!alt_key_pressed)
+                {
+                    /*
+                    if (pendingMoveEvents.Count > 1)
+                        return;
+                    */
+
+                    //restore window to previous foreground position
+                    SwitchForeBackground(hwnd, toForeground: true);
+                }
+            }
+
+            if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
+                return;
+
+            string proc_name = windowProcessName[hwnd];
+            if (!fullScreenGamingProcesses.Contains(proc_name))
+            {
+                var appWindows = CaptureWindowsOfInterest();
+                DateTime now = DateTime.Now;
+                foreach (var h in appWindows)
+                {
+                    //restore windows of the same process name
+                    if (!windowProcessName.ContainsKey(h))
+                        continue;
+                    if (proc_name != windowProcessName[h])
+                        continue;
+
+                    ApplicationDisplayMetrics curDisplayMetrics;
+                    ApplicationDisplayMetrics prevDisplayMetrics;
+                    //try to inherit from killed window database
+                    bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
+                }
+
+                if (normalSessions.Contains(curDisplayKey))
+                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
+            }
         }
 
         public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
@@ -537,137 +669,7 @@ namespace PersistentWindows.Common
             debugTimer.Change(2000, 2000);
 #endif            
 
-            foregroundTimer = new Timer(state =>
-            {
-                IntPtr hwnd = foreGroundWindow;
-
-                // Occasionaly OS might bring a window to foreground upon sleep
-                // If the window move is initiated by OS (before sleep),
-                // keep restart capture timer would eventually discard these moves
-                // either by power suspend event handler calling CancelCaptureTimer()
-                // or due to capture timer handler found too many window moves
-
-                // If the window move is caused by user snapping window to screen edge,
-                // delay capture by a few seconds should be fine.
-
-                if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
-                {
-                    //capture with slight delay inperceivable by user, required for full screen mode recovery
-                    userMove = true;
-                    StartCaptureTimer(UserMoveLatency / 2);
-                }
-                else if (fullScreenGamingWindow == IntPtr.Zero)
-                {
-                    StartCaptureTimer();
-
-                    //speed up initial capture
-                    POINT cursorPos;
-                    User32.GetCursorPos(out cursorPos);
-                    if (!cursorPos.Equals(initCursorPos))
-                        userMove = true;
-                }
-
-                if (!sessionActive) //disable foreground event handling
-                    return;
-                if (!User32.IsWindow(hwnd))
-                    return;
-
-                if (hwnd == fullScreenGamingWindow)
-                    return;
-
-                if (noRestoreWindows.Contains(hwnd))
-                    return;
-
-                bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
-                bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
-                bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
-
-                int leftClicks = leftButtonClicks;
-                leftButtonClicks = 0;
-
-                if (realForeGroundWindow == vacantDeskWindow)
-                {
-                    if (leftClicks != 1)
-                        return;
-
-                    if (!ctrl_key_pressed && !alt_key_pressed)
-                    {
-                        //restore window to previous background position
-                        SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
-                    }
-                    else if (ctrl_key_pressed && !alt_key_pressed)
-                    {
-                        //restore to previous background zorder with current size/pos
-                        SwitchForeBackground(hwnd, strict_dps_check: false, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
-                    }
-                    else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
-                    {
-                        FgWindowToBottom();
-                    }
-                }
-                else if (!ctrl_key_pressed && !shift_key_pressed)
-                {
-                    if (fullScreenGamingWindows.Contains(hwnd))
-                        return;
-
-                    ActivateWindow(hwnd); //window could be active on alt-tab
-                    if (IsFullScreen(hwnd) || IsRdpWindow(hwnd))
-                    {
-                        if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
-                        {
-                            RECT hkwinPos = new RECT();
-                            User32.GetWindowRect(HotKeyWindow.commanderWnd, ref hkwinPos);
-
-                            RECT fgwinPos = new RECT();
-                            User32.GetWindowRect(hwnd, ref fgwinPos);
-
-                            RECT intersect = new RECT();
-                            bool overlap = User32.IntersectRect(out intersect, ref hkwinPos, ref fgwinPos);
-                            if (overlap)
-                            {
-                                User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
-                            }
-                        }
-                    }
-
-                    if (!alt_key_pressed)
-                    {
-                        /*
-                        if (pendingMoveEvents.Count > 1)
-                            return;
-                        */
-
-                        //restore window to previous foreground position
-                        SwitchForeBackground(hwnd, toForeground: true);
-                    }
-                }
-
-                if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
-                    return;
-
-                string proc_name = windowProcessName[hwnd];
-                if (!fullScreenGamingProcesses.Contains(proc_name))
-                {
-                    var appWindows = CaptureWindowsOfInterest();
-                    DateTime now = DateTime.Now;
-                    foreach (var h in appWindows)
-                    {
-                        //restore windows of the same process name
-                        if (!windowProcessName.ContainsKey(h))
-                            continue;
-                        if (proc_name != windowProcessName[h])
-                            continue;
-
-                        ApplicationDisplayMetrics curDisplayMetrics;
-                        ApplicationDisplayMetrics prevDisplayMetrics;
-                        //try to inherit from killed window database
-                        bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
-                    }
-
-                    if (normalSessions.Contains(curDisplayKey))
-                        CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
-                }
-            });
+            foregroundTimer = new Timer(foregroundTimerCallback);
 
             captureTimer = new Timer(state =>
             {
