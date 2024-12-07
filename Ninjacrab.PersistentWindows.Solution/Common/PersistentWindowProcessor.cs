@@ -565,6 +565,8 @@ namespace PersistentWindows.Common
             if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                 return;
 
+            if (!windowProcessName.ContainsKey(hwnd))
+                return;
             string proc_name = windowProcessName[hwnd];
             if (!fullScreenGamingProcesses.Contains(proc_name))
             {
