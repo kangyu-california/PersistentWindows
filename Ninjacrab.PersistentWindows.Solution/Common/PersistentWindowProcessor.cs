@@ -3167,7 +3167,7 @@ namespace PersistentWindows.Common
                 {
                     moved = true;
 
-                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB)
+                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB && IsResizableWindow(hwnd))
                     {
                         Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
                         restoringFromMem = true;
