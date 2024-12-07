@@ -701,7 +701,7 @@ namespace PersistentWindows.Common
                 BatchCaptureApplicationsOnCurrentDisplays();
             });
 
-            restoreTimer = new Timer(state => { TimerRestore(); });
+            restoreTimer = new Timer(TimerRestore);
 
             restoreFinishedTimer = new Timer(state =>
             {
@@ -3329,7 +3329,7 @@ namespace PersistentWindows.Common
             return moved;
         }
 
-        private void TimerRestore()
+        private void TimerRestore(object state)
         {
             if (pauseAutoRestore && !restoringFromDB && !restoringSnapshot)
                 return;
