@@ -2664,6 +2664,8 @@ namespace PersistentWindows.Common
             userMove = false;
             userMovePrev = false;
 
+            captureTimerStarted = false;
+
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
