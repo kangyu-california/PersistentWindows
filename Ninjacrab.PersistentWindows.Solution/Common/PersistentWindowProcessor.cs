@@ -1649,7 +1649,7 @@ namespace PersistentWindows.Common
                         return;
 
                     // unminimize to previous location
-                    RemoveInvalidCapture(hwnd);
+                    // RemoveInvalidCapture(hwnd);
                     ApplicationDisplayMetrics prevDisplayMetrics = monitorApplications[curDisplayKey][hwnd].Last<ApplicationDisplayMetrics>();
 
                     var diff = prevDisplayMetrics.CaptureTime.Subtract(lastUnminimizeTime);
