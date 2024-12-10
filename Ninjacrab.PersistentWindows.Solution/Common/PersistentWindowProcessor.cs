@@ -585,9 +585,6 @@ namespace PersistentWindows.Common
                     //try to inherit from killed window database
                     bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
                 }
-
-                if (normalSessions.Contains(curDisplayKey))
-                    CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture:true);
             }
         }
 
@@ -2645,7 +2642,7 @@ namespace PersistentWindows.Common
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
             // ignore defer timer request to capture user move ASAP
-            if (captureTimerStarted)
+            if (captureTimerStarted && milliSeconds > UserMoveLatency)
                 return;
             captureTimerStarted = true;
 
