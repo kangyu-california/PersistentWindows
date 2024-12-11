@@ -93,6 +93,7 @@ namespace PersistentWindows.Common
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
         private HashSet<string> fullScreenGamingProcesses = new HashSet<string>();
+        private HashSet<string> fullScreenGamingConfig = new HashSet<string>();
         private IntPtr fullScreenGamingWindow = IntPtr.Zero;
         private bool exitFullScreenGaming = false;
         private POINT initCursorPos;
@@ -876,7 +877,9 @@ namespace PersistentWindows.Common
                         if (normalSessions.Contains(curDisplayKey))
                         {
                             // rewind disqualified capture time
-                            UndoCapture(lastDisplayChangeTime);
+                            string display_key = GetDisplayKey();
+                            if (!fullScreenGamingConfig.Contains(display_key))
+                                UndoCapture(lastDisplayChangeTime);
 
                             WriteDataDump();
                             Log.Event("Display session changed, dump history in xml");
@@ -947,6 +950,7 @@ namespace PersistentWindows.Common
                             {
                                 fullScreenGamingWindow = foreGroundWindow;
                                 fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
+                                fullScreenGamingConfig.Add(displayKey);
                                 if (IsNewWindow(foreGroundWindow))
                                 {
                                     fullScreenGamingWindows.Add(fullScreenGamingWindow);
