@@ -586,6 +586,12 @@ namespace PersistentWindows.Common
                     //try to inherit from killed window database
                     bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
                 }
+
+                if (normalSessions.Contains(curDisplayKey))
+                {
+                    process.PriorityClass = ProcessPriorityClass.High;
+                    StartCaptureTimer(UserMoveLatency / 4);
+                }
             }
         }
 
@@ -673,6 +679,8 @@ namespace PersistentWindows.Common
 
             captureTimer = new Timer(state =>
             {
+                process.PriorityClass = processPriority;
+
                 captureTimerStarted = false;
 
                 userMovePrev = userMove;
