@@ -1189,23 +1189,13 @@ namespace PersistentWindows.Common
                 if (curDisplayKey.Contains(size))
                     isFullScreen = true;
 
-                if (!isFullScreen)
+                List<Display> displays = GetDisplays();
+                foreach (var display in displays)
                 {
-                    List<Display> displays = GetDisplays();
-                    foreach (var display in displays)
-                    {
-                        RECT screen = display.Position;
-                        RECT intersect = new RECT();
-                        if (!User32.IntersectRect(out intersect, ref screenPosition, ref screen))
-                        {
-                            //must intersect with all screens
-                            isFullScreen = false;
-                            break;
-                        }
-
-                        if (intersect.Equals(screen))
-                            isFullScreen = true; //fully covers at least one screen
-                    }
+                    RECT screen = display.Position;
+                    RECT intersect = new RECT();
+                    if (User32.IntersectRect(out intersect, ref screenPosition, ref screen))
+                        isFullScreen = intersect.Equals(screen); //fully covers at least one screen
                 }
             }
 
