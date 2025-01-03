@@ -206,6 +206,7 @@ namespace PersistentWindows.Common
                 Visible = false;
             IntPtr fgwnd = GetForegroundWindow();
             User32.SetForegroundWindow(fgwnd);
+            FgSleep();
 
             if (alt_key_pressed || clickThrough)
             {
