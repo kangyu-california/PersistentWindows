@@ -476,7 +476,9 @@ if not errorlevel 1 goto wait_to_finish";
             else
             {
                 NotifyIcon ni = systrayForm.notifyIconMain;
-                ni.Icon = BusyIcon;
+                if (!systrayForm.toggleIcon) {
+                    ni.Icon = BusyIcon; 
+                }
 
                 if (silent)
                     return;
@@ -501,7 +503,10 @@ if not errorlevel 1 goto wait_to_finish";
             else
             {
                 NotifyIcon ni = systrayForm.notifyIconMain;
-                ni.Icon = IdleIcon;
+                if (!systrayForm.toggleIcon)
+                {
+                    ni.Icon = IdleIcon;
+                }
 
                 if (Gui)
                 {

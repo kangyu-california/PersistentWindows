@@ -18,7 +18,7 @@ namespace PersistentWindows.SystrayShell
         private const int MaxSnapshots = 38; // 0-9, a-z, ` and final one for undo
 
         private bool pauseAutoRestore = false;
-        private bool toggleIcon = false;
+        public bool toggleIcon = false;
 
         private int skipUpgradeCounter = 0;
         private bool pauseUpgradeCounter = false;
