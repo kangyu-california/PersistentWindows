@@ -951,7 +951,7 @@ namespace PersistentWindows.Common
                                 else
                                 {
                                     restoringFromMem = true;
-                                    StartRestoreTimer(milliSecond: UserForcedRestoreLatency > 0 ? UserForcedRestoreLatency : RestoreLatency);
+                                    StartRestoreTimer();
                                 }
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
@@ -2671,6 +2671,11 @@ namespace PersistentWindows.Common
 
         public void StartRestoreTimer(int milliSecond = RestoreLatency)
         {
+            if (UserForcedRestoreLatency > RestoreLatency)
+            {
+                if (!restoringFromDB && !restoringSnapshot)
+                    milliSecond = UserForcedCaptureLatency;
+            }
             restoreTimer.Change(milliSecond, Timeout.Infinite);
         }
 
