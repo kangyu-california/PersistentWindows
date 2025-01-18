@@ -1930,12 +1930,7 @@ namespace PersistentWindows.Common
                 }
 
                 windowProcessName.Remove(hwnd);
-
-                bool found = windowTitle.Remove(hwnd);
-                if (sessionActive && found)
-                {
-                    StartCaptureTimer(); //update z-order
-                }
+                windowTitle.Remove(hwnd);
 
                 return;
             }
