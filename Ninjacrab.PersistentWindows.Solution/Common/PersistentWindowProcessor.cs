@@ -3205,10 +3205,9 @@ namespace PersistentWindows.Common
                 {
                     Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
 
-                    if (restoringFromMem)
+                    if (restoringSnapshot)
                     {
                         //the window did not exist when snapshot was taken
-                        /*
                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                             0, 0, 0, 0,
                             0
@@ -3216,7 +3215,6 @@ namespace PersistentWindows.Common
                             | SetWindowPosFlags.IgnoreMove
                             | SetWindowPosFlags.IgnoreResize
                         );
-                        */
 
                         return false;
                     }
