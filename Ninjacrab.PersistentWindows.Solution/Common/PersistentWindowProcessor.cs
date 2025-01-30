@@ -1403,7 +1403,8 @@ namespace PersistentWindows.Common
                     monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
                     deadApps[display_key].Remove(kid);
 
-                    r = monitorApplications[display_key][hwnd].Last<ApplicationDisplayMetrics>();
+                    if (display_key == curDisplayKey)
+                        r = monitorApplications[display_key][hwnd].Last<ApplicationDisplayMetrics>();
 
                     //replace prev zorder reference in deadApps as well
                     foreach (var kd in deadApps[display_key].Keys)
