@@ -56,7 +56,6 @@ namespace PersistentWindows.Common
         public bool captureFloatingWindow = true;
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
-        private HashSet<IntPtr> noRecordWindows = new HashSet<IntPtr>();
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private static IntPtr vacantDeskWindow = IntPtr.Zero;
         private uint fakeHwnd = 1; //for resolving handle value conflict of live and dead window
@@ -718,7 +717,6 @@ namespace PersistentWindows.Common
                 int restorePass = restoreTimes;
 
                 unResponsiveWindows.Clear();
-                noRecordWindows.Clear();
 
                 bool wasRestoringFromDB = restoringFromDB;
                 restoringFromDB = false;
@@ -3203,7 +3201,6 @@ namespace PersistentWindows.Common
                 if (prevIndex < 0)
                 {
                     Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
-                    noRecordWindows.Add(hwnd);
 
                     if (restoringFromMem)
                     {
@@ -4326,7 +4323,6 @@ namespace PersistentWindows.Common
             if (batchZorderFix)
             {
                 HashSet<IntPtr> risky_windows = unResponsiveWindows;
-                risky_windows.IntersectWith(noRecordWindows);
                 if (risky_windows.Count == 0)
                 try
                 {
