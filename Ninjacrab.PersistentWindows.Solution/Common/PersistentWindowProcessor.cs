@@ -128,6 +128,7 @@ namespace PersistentWindows.Common
         private Object dbLock = new object();
         private bool restoreHalted = false;
         public int haltRestore = 3000; //milliseconds to wait to finish current halted restore and restart next one
+        private const int immediateFinishRestore = 20;
         private HashSet<IntPtr> restoredWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> topmostWindowsFixed = new HashSet<IntPtr>();
         public bool fastRestore = true;
@@ -892,8 +893,6 @@ namespace PersistentWindows.Common
                             WriteDataDump();
                             Log.Event("Display session changed, dump history in xml");
                         }
-
-                        curDisplayKey = "invalid_display";
                     }
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -967,11 +966,11 @@ namespace PersistentWindows.Common
                                 else
                                     Log.Event($"re-enter full-screen gaming mode");
 
-                                StartRestoreFinishedTimer(0);
+                                StartRestoreFinishedTimer(immediateFinishRestore);
                             }
                             else
                             {
-                                StartRestoreFinishedTimer(0);
+                                StartRestoreFinishedTimer(immediateFinishRestore);
                             }
                         }
                     }
