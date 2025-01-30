@@ -3205,6 +3205,7 @@ namespace PersistentWindows.Common
                     if (restoringFromMem)
                     {
                         //the window did not exist when snapshot was taken
+                        /*
                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                             0, 0, 0, 0,
                             0
@@ -3212,6 +3213,7 @@ namespace PersistentWindows.Common
                             | SetWindowPosFlags.IgnoreMove
                             | SetWindowPosFlags.IgnoreResize
                         );
+                        */
 
                         return false;
                     }
