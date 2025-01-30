@@ -1390,6 +1390,9 @@ namespace PersistentWindows.Common
                     if (!monitorApplications.ContainsKey(display_key))
                         monitorApplications[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
 
+                    monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
+                    deadApps[display_key].Remove(kid);
+
                     //replace prev zorder reference of dead_hwnd with hwnd in monitorApplication
                     foreach (var hw in monitorApplications[display_key].Keys)
                     {
@@ -1399,9 +1402,6 @@ namespace PersistentWindows.Common
                                 monitorApplications[display_key][hw][i].PrevZorderWindow = hwnd;
                         }
                     }
-
-                    monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
-                    deadApps[display_key].Remove(kid);
 
                     if (display_key == curDisplayKey)
                         r = monitorApplications[display_key][hwnd].Last<ApplicationDisplayMetrics>();
