@@ -2021,7 +2021,7 @@ namespace PersistentWindows.Common
                                         continue;
 
                                     if (monitorApplications[curDisplayKey].ContainsKey(h))
-                                        return;
+                                        continue;
 
                                     DateTime now = DateTime.Now;
 
