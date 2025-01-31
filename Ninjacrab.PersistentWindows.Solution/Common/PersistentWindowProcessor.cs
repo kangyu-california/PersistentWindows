@@ -1999,6 +1999,9 @@ namespace PersistentWindows.Common
                                     // ignore non-window object (caret etc)
                                     return;
 
+                                if (restoringFromDB)
+                                    return;
+
                                 if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                                     return;
 
@@ -2022,7 +2025,6 @@ namespace PersistentWindows.Common
 
                                     DateTime now = DateTime.Now;
 
-                                    //restore windows of the same process name
                                     ApplicationDisplayMetrics curDisplayMetrics;
                                     ApplicationDisplayMetrics prevDisplayMetrics;
                                     //try to inherit from killed window database
