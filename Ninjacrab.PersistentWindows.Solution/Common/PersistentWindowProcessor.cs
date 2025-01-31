@@ -1164,7 +1164,8 @@ namespace PersistentWindows.Common
                     RECT screen = display.Position;
                     RECT intersect = new RECT();
                     if (User32.IntersectRect(out intersect, ref screenPosition, ref screen))
-                        isFullScreen = intersect.Equals(screen); //fully covers at least one screen
+                        if (intersect.Equals(screen)) //fully covers at least one screen
+                            isFullScreen = true;
                 }
             }
 
