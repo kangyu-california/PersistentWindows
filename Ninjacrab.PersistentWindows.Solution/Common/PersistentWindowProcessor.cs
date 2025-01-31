@@ -565,36 +565,6 @@ namespace PersistentWindows.Common
                 }
             }
 
-            if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
-                return;
-
-            if (!windowProcessName.ContainsKey(hwnd))
-                return;
-            string proc_name = windowProcessName[hwnd];
-            if (!fullScreenGamingProcesses.Contains(proc_name))
-            {
-                var appWindows = CaptureWindowsOfInterest();
-                DateTime now = DateTime.Now;
-                foreach (var h in appWindows)
-                {
-                    //restore windows of the same process name
-                    if (!windowProcessName.ContainsKey(h))
-                        continue;
-                    if (proc_name != windowProcessName[h])
-                        continue;
-
-                    ApplicationDisplayMetrics curDisplayMetrics;
-                    ApplicationDisplayMetrics prevDisplayMetrics;
-                    //try to inherit from killed window database
-                    bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
-                }
-
-                if (normalSessions.Contains(curDisplayKey))
-                {
-                    process.PriorityClass = ProcessPriorityClass.High;
-                    StartCaptureTimer(UserMoveLatency / 4);
-                }
-            }
         }
 
         public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
@@ -855,9 +825,9 @@ namespace PersistentWindows.Common
                 0,
                 (uint)User32Events.WINEVENT_OUTOFCONTEXT));
 
-            // capture window close
+            // capture window create/close
             this.winEventHooks.Add(User32.SetWinEventHook(
-                User32Events.EVENT_OBJECT_DESTROY,
+                User32Events.EVENT_OBJECT_CREATE,
                 User32Events.EVENT_OBJECT_DESTROY,
                 IntPtr.Zero,
                 winEventsCaptureDelegate,
@@ -1831,19 +1801,10 @@ namespace PersistentWindows.Common
             {
                 switch (eventType)
                 {
-                    case User32Events.EVENT_SYSTEM_MENUSTART:
-                    case User32Events.EVENT_SYSTEM_MENUEND:
-                        if (idObject == 0 || idObject == -1)
-                        {
-                            //TODO:
-                            //context sensitive menu
-                        }
-                        break;
                     case User32Events.EVENT_SYSTEM_MINIMIZEEND:
                     case User32Events.EVENT_SYSTEM_MINIMIZESTART:
                     case User32Events.EVENT_SYSTEM_MOVESIZEEND:
-                        // only care about child windows that are moved by user
-                        //normalSessions.Add(curDisplayKey);
+                        // child windows are not captured by default unless moved by user
                         allUserMoveWindows.Add(hwnd);
                         break;
 
@@ -1853,7 +1814,6 @@ namespace PersistentWindows.Common
 
                     default:
                         break;
-                        //return;
                 }
             }
 
@@ -2033,6 +1993,44 @@ namespace PersistentWindows.Common
                 {
                     switch (eventType)
                     {
+                        case User32Events.EVENT_OBJECT_CREATE:
+                            {
+                                if (idObject != 0)
+                                    // ignore non-window object (caret etc)
+                                    return;
+
+                                if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
+                                    return;
+
+                                if (!windowProcessName.ContainsKey(hwnd))
+                                    return;
+                                string proc_name = windowProcessName[hwnd];
+                                if (fullScreenGamingProcesses.Contains(proc_name))
+                                    return;
+
+                                var appWindows = CaptureWindowsOfInterest();
+                                foreach (var h in appWindows)
+                                {
+                                    //restore windows of the same process name
+                                    if (!windowProcessName.ContainsKey(h))
+                                        continue;
+                                    if (proc_name != windowProcessName[h])
+                                        continue;
+
+                                    if (monitorApplications[curDisplayKey].ContainsKey(h))
+                                        return;
+
+                                    DateTime now = DateTime.Now;
+
+                                    //restore windows of the same process name
+                                    ApplicationDisplayMetrics curDisplayMetrics;
+                                    ApplicationDisplayMetrics prevDisplayMetrics;
+                                    //try to inherit from killed window database
+                                    bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
+                                }
+                            }
+                            break;
+
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
                             {
                                 var cur_vdi = VirtualDesktop.GetWindowDesktopId(hwnd);
