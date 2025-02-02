@@ -567,6 +567,28 @@ namespace PersistentWindows.Common
 
         }
 
+        public void RestoreSnapshotCmd(int id)
+        {
+            string productName = System.Windows.Forms.Application.ProductName;
+            appDataFolder = redirectAppDataFolder ? "." :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
+#if DEBUG
+            //avoid db path conflict with release version
+            //appDataFolder = ".";
+            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
+            ReadDataDumpSafe();
+            curDisplayKey = GetDisplayKey();
+            CaptureNewDisplayConfig(curDisplayKey);
+
+            //RestoreSnapshot(id);
+            restoringSnapshot = true;
+            snapshotId = id;
+            restoringFromMem = true;
+            RestoreApplicationsOnCurrentDisplays(curDisplayKey, IntPtr.Zero, DateTime.Now);
+        }
+
         public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
         {
             process = Process.GetCurrentProcess();
@@ -2971,7 +2993,8 @@ namespace PersistentWindows.Common
                         //vacantDeskWindow = User32.FindWindowEx(vacantDeskWindow, IntPtr.Zero, "SHELLDLL_DefView", "");
                         //vacantDeskWindow = User32.FindWindowEx(vacantDeskWindow, IntPtr.Zero, "SysListView32", "FolderView");
                         //show icon on taskbar
-                        hideRestoreTip();
+                        if (hideRestoreTip != null)
+                            hideRestoreTip();
                     }
                     continue;
                 }

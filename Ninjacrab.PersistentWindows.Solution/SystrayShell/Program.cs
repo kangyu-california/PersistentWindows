@@ -82,6 +82,7 @@ if not errorlevel 1 goto wait_to_finish";
             bool auto_upgrade = false;
             bool legacy_icon = false;
             bool waiting_taskbar = false;
+            int restore_snapshot = -1;
 
             foreach (var arg in args)
             {
@@ -135,6 +136,11 @@ if not errorlevel 1 goto wait_to_finish";
                 else if (hotkey == 1)
                 {
                     hotkey = arg[0];
+                    continue;
+                }
+                else if (restore_snapshot != -1)
+                {
+                    restore_snapshot = SnapshotCharToId(arg[0]);
                     continue;
                 }
 
@@ -287,7 +293,16 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-dump_window_pos_at_exit=0":
                         pwp.dumpDataWhenExit = false;
                         break;
+                    case "-restore_snapshot":
+                        restore_snapshot = 0;
+                        break;
                 }
+            }
+
+            if (restore_snapshot >= 0)
+            {
+                pwp.RestoreSnapshotCmd(restore_snapshot);
+                return;
             }
 
             string productName = System.Windows.Forms.Application.ProductName;
