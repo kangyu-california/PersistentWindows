@@ -3164,7 +3164,7 @@ namespace PersistentWindows.Common
                     else
                         Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
 
-                    if (autoRestoreNewWindowToLastCapture)
+                    if (initialized && autoRestoreNewWindowToLastCapture)
                         restore_last = true;
                 }
 
