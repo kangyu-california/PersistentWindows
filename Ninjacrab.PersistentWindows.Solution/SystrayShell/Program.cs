@@ -290,7 +290,7 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-auto_upgrade=1":
                         auto_upgrade = true;
                         break;
-                    case "-dump_window_pos=0":
+                    case "-dump_window_position_history=0":
                         pwp.dumpHistoryData = false;
                         break;
                     case "-restore_snapshot":
