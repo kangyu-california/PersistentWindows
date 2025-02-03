@@ -147,7 +147,7 @@ namespace PersistentWindows.Common
             "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX"
         };
 
-        public bool dumpDataWhenExit = true;
+        public bool dumpHistoryData = true;
         private string windowPosDataFile = "window_pos.xml"; //for PW restart without PC reboot
         private string snapshotTimeFile = "snapshot_time.xml";
         private string debugWindowDump = "debug_window.xml";
@@ -332,7 +332,7 @@ namespace PersistentWindows.Common
         {
             try
             {
-                if (dumpDataWhenExit)
+                if (dumpHistoryData)
                     WriteDataDumpCore(dump_dead_window);
             }
             catch (Exception e)
@@ -370,7 +370,7 @@ namespace PersistentWindows.Common
         {
             try
             {
-                if (dumpDataWhenExit)
+                if (dumpHistoryData)
                     ReadDataDump();
             }
             catch (Exception e)
