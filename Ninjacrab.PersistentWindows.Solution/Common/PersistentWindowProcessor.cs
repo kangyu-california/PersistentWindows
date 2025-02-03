@@ -1173,6 +1173,10 @@ namespace PersistentWindows.Common
             bool isFullScreen = false;
             if ((style & (long)WindowStyleFlags.MAXIMIZEBOX) == 0L)
             {
+                // mstsc in full-screen mode may report inaccurate size such as 3858 x 2207 on 4k monitor
+                if (windowProcessName.ContainsKey(hwnd) && windowProcessName[hwnd] == "mstsc")
+                    return true;
+
                 RECT screenPosition = new RECT();
                 User32.GetWindowRect(hwnd, ref screenPosition);
 
