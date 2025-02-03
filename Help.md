@@ -8,7 +8,7 @@
   | -splash=0       | No splash window at PersistentWindows startup
   | -legacy_icon    | Switch to the original icon ![pwIcon2small](https://github.com/user-attachments/assets/4827f67a-2ce1-4a83-86da-b4bfa6835026)
   | -silent         | No splash window, no balloon tip hint, no event logging
-  | -capture_floating_window | capture floating child window and dialog window position as well
+  | -capture_floating_window=0 | Disable capture floating child window and dialog window position
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for the processes *notepad.exe* and *foo*
   | -foreground_background_dual_position=0 | Turn off dual position switching
