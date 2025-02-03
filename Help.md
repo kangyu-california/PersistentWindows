@@ -24,6 +24,8 @@
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen windows
   | -fix_unminimized_window=0 | Turn off auto restore of unminimized windows. Use this switch to avoid undesirable window shifting during window activation, which comes with Event id 9999 : "restore minimized window ...." in event viewer.
   |-auto_restore_new_display_session_from_db=0| Disable window restore from DB upon PC startup or switching display for the first time
+  |-auto_restore_existing_window_to_last_capture=0 | Turn off auto restore upon PW start
+  |-auto_restore_new_window_to_last_capture=0 | Turn off auto restore new window to last killed position
   | ‑auto_restore_missing_windows=1 | When restoring from disk, restore missing windows without prompting the user
   | ‑auto_restore_missing_windows=2 | At startup, automatically restore missing windows from disk. The user will be prompted before restoring each missing window
   | ‑auto_restore_missing_windows=3 | At startup, automatically restore missing windows from disk without prompting the user
