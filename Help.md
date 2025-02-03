@@ -31,8 +31,7 @@
   | -check_upgrade=0 | Disable the PersistentWindows upgrade check
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
   | -dump_window_position_history=0 | Disable window position history dump
-  | -restore_snapshot "0" | restore snapshot 0 and exit. The range of snapshot id is [0-9a-z], as well as "~" or "`", the last two special ids represent the last auto restore.
-
+  | -restore_snapshot "0" | restore snapshot 0 and exit. The range of snapshot id is [0-9a-z], as well as "~" or "`", the last two special ids represent the last auto restore. Note the window z-order can not be fully retored using this method, due to lack of capability to do multi-pass restore.
 ---
 
 ### Shortcuts to capture/restore snapshots
