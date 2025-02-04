@@ -767,6 +767,8 @@ namespace PersistentWindows.Common
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
 
+                    WriteDataDump();
+
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
@@ -882,8 +884,7 @@ namespace PersistentWindows.Common
                             if (!fullScreenGamingConfig.Contains(display_key))
                                 UndoCapture(lastDisplayChangeTime);
 
-                            WriteDataDump();
-                            Log.Event("Display session changed, dump history in xml");
+                            Log.Event("Display session changed");
                         }
                     }
                 };
