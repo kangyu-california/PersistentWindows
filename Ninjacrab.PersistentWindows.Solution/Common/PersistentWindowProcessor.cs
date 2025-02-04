@@ -1203,15 +1203,22 @@ namespace PersistentWindows.Common
             if (use_cache && windowTitle.ContainsKey(hwnd))
                 return windowTitle[hwnd];
 
-            var length = User32.GetWindowTextLength(hwnd);
-            if (length > 0)
+            try
             {
-                length++;
-                var title = new StringBuilder(length);
-                User32.GetWindowText(hwnd, title, length);
-                var t = title.ToString();
-                t = t.Trim();
-                return t;
+                var length = User32.GetWindowTextLength(hwnd);
+                if (length > 0)
+                {
+                    length++;
+                    var title = new StringBuilder(length);
+                    User32.GetWindowText(hwnd, title, length);
+                    var t = title.ToString();
+                    t = t.Trim();
+                    return t;
+                }
+            }
+            catch (Exception e)
+            {
+
             }
 
             //return hwnd.ToString("X8");
