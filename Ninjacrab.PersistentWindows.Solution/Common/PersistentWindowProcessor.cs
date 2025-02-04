@@ -1216,7 +1216,7 @@ namespace PersistentWindows.Common
                     return t;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
 
             }
