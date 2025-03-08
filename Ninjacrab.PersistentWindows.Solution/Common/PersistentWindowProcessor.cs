@@ -472,8 +472,7 @@ namespace PersistentWindows.Common
             // delay capture by a few seconds should be fine.
 
             if (monitorApplications.ContainsKey(curDisplayKey)
-                && (monitorApplications[curDisplayKey].ContainsKey(hwnd)
-                    || FindMatchingKilledWindow(hwnd) != IntPtr.Zero))
+                && monitorApplications[curDisplayKey].ContainsKey(hwnd))
             {
                 //capture with slight delay inperceivable by user, required for full screen mode recovery
                 userMove = true;
