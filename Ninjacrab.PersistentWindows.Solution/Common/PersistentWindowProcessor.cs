@@ -2040,30 +2040,11 @@ namespace PersistentWindows.Common
                                 if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                                     return;
 
-                                if (!windowProcessName.ContainsKey(hwnd))
-                                    return;
-                                string proc_name = windowProcessName[hwnd];
-                                if (fullScreenGamingProcesses.Contains(proc_name))
-                                    return;
-
-                                var appWindows = CaptureWindowsOfInterest();
-                                foreach (var h in appWindows)
+                                //try to inherit from killed window database
+                                if (FindMatchingKilledWindow(hwnd) != IntPtr.Zero)
                                 {
-                                    //restore windows of the same process name
-                                    if (!windowProcessName.ContainsKey(h))
-                                        continue;
-                                    if (proc_name != windowProcessName[h])
-                                        continue;
-
-                                    if (monitorApplications[curDisplayKey].ContainsKey(h))
-                                        continue;
-
-                                    DateTime now = DateTime.Now;
-
-                                    ApplicationDisplayMetrics curDisplayMetrics;
-                                    ApplicationDisplayMetrics prevDisplayMetrics;
-                                    //try to inherit from killed window database
-                                    bool isMoved = IsWindowMoved(curDisplayKey, h, 0, now, out curDisplayMetrics, out prevDisplayMetrics);
+                                    userMove = true;
+                                    StartCaptureTimer(UserMoveLatency / 2);
                                 }
                             }
                             break;
