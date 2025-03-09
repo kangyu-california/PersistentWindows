@@ -1944,15 +1944,15 @@ namespace PersistentWindows.Common
                 return;
             }
 
+            if (!CaptureProcessName(hwnd))
+                return;
+
             if (ignoreProcess.Count > 0)
             {
                 string processName = windowProcessName[hwnd];
                 if (ignoreProcess.Contains(processName))
                     return;
             }
-
-            if (!CaptureProcessName(hwnd))
-                return;
 
 #if DEBUG
             if (title.Contains("Microsoft Visual Studio")
