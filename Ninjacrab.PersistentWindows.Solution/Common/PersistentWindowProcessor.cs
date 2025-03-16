@@ -2099,6 +2099,9 @@ namespace PersistentWindows.Common
                                     if (fullScreenGamingWindow != IntPtr.Zero)
                                         return;
 
+                                    if (User32.IsZoomed(hwnd))
+                                        userMove = true;
+
                                     if (foreGroundWindow == hwnd)
                                     {
                                         StartCaptureTimer(UserMoveLatency);
