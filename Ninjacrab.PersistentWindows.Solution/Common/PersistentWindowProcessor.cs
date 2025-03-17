@@ -3153,7 +3153,10 @@ namespace PersistentWindows.Common
                     prevDisplayMetrics = InheritKilledWindow(hwnd, realHwnd, kid);
                     if (hwnd != kid)
                     {
-                        Log.Error($"Inherit position data from killed window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+                        if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
+                            Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title}");
+                        else
+                            Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title}");
                         ResolveWindowHandleCollision(hwnd);
                     }
                     else
