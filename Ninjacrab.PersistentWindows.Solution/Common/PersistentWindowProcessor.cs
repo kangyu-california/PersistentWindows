@@ -1458,7 +1458,6 @@ namespace PersistentWindows.Common
 
             if (!string.IsNullOrEmpty(className))
             {
-                IntPtr dflt_kid = IntPtr.Zero;
                 int title_match_cnt = 0;
                 IntPtr title_match_hid = IntPtr.Zero;
                 IntPtr pos_match_hid = IntPtr.Zero;
@@ -1494,8 +1493,6 @@ namespace PersistentWindows.Common
                     }
                     else if (rect.Equals(r))
                         pos_match_hid = kid;
-                    else if (dflt_kid == IntPtr.Zero)
-                        dflt_kid = kid;
                 }
 
                 if (title_match_cnt == 1)
@@ -1503,9 +1500,6 @@ namespace PersistentWindows.Common
 
                 if (pos_match_hid != IntPtr.Zero)
                     return pos_match_hid;
-
-                if (dflt_kid != IntPtr.Zero)
-                    return dflt_kid;
             }
 
             return IntPtr.Zero;
