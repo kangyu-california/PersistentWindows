@@ -260,8 +260,8 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-redraw_desktop":
                         redraw_desktop = true;
                         break;
-                    case "-auto_restore_existing_window_to_last_capture=0":
-                        auto_restore_last_capture_at_startup = false;
+                    case "-auto_restore_existing_window_to_last_capture=1":
+                        auto_restore_last_capture_at_startup = true;
                         break;
                     case "-auto_restore_new_window_to_last_capture=1":
                         pwp.autoRestoreNewWindowToLastCapture = true;
