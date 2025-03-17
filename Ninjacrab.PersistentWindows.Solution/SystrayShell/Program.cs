@@ -76,7 +76,7 @@ if not errorlevel 1 goto wait_to_finish";
             bool enhanced_offscreen_fix = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
-            bool auto_restore_last_capture_at_startup = true;
+            bool auto_restore_last_capture_at_startup = false;
             bool launch_once_per_process_id = true;
             bool check_upgrade = true;
             bool auto_upgrade = false;
@@ -263,8 +263,8 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-auto_restore_existing_window_to_last_capture=0":
                         auto_restore_last_capture_at_startup = false;
                         break;
-                    case "-auto_restore_new_window_to_last_capture=0":
-                        pwp.autoRestoreNewWindowToLastCapture = false;
+                    case "-auto_restore_new_window_to_last_capture=1":
+                        pwp.autoRestoreNewWindowToLastCapture = true;
                         break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":

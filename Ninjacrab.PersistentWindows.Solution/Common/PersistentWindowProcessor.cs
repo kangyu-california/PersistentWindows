@@ -120,7 +120,7 @@ namespace PersistentWindows.Common
         public bool fixUnminimizedWindow = true;
         public bool autoRestoreMissingWindows = false;
         public bool autoRestoreLiveWindowsFromDb = true; //for new display session, autorestore live windows using data from db (without resurrecting dead one)
-        public bool autoRestoreNewWindowToLastCapture = true;
+        public bool autoRestoreNewWindowToLastCapture = false;
         public bool launchOncePerProcessId = true;
         private int restoreTimes = 0; //multiple passes need to fully restore
         private Object restoreLock = new object();
