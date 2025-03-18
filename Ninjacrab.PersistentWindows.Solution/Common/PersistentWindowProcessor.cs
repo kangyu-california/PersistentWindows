@@ -1396,7 +1396,17 @@ namespace PersistentWindows.Common
                     if (!monitorApplications.ContainsKey(display_key))
                         monitorApplications[display_key] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
 
+                    List<ApplicationDisplayMetrics> app_list = null;
+                    if (monitorApplications[display_key].ContainsKey(hwnd))
+                    {
+                        app_list = monitorApplications[display_key][hwnd];
+                        monitorApplications[display_key].Remove(hwnd);
+                    }
                     monitorApplications[display_key][hwnd] = deadApps[display_key][kid];
+                    if (app_list != null)
+                    {
+                        monitorApplications[display_key][hwnd].AddRange(app_list);
+                    }
                     deadApps[display_key].Remove(kid);
 
                     //replace prev zorder reference of dead_hwnd with hwnd in monitorApplication
@@ -3041,6 +3051,33 @@ namespace PersistentWindows.Common
             return true;
         }
 
+        private bool TryInheritWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid, ApplicationDisplayMetrics curDisplayMetrics)
+        {
+            if (kid == IntPtr.Zero)
+            {
+                ResolveWindowHandleCollision(hwnd);
+            }
+            else
+            {
+                var prevDisplayMetrics = InheritKilledWindow(hwnd, realHwnd, kid);
+                if (hwnd != kid)
+                {
+                    if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
+                        Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title}");
+                    else
+                        Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title}");
+                    ResolveWindowHandleCollision(hwnd);
+                }
+                else
+                    Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+
+                if (initialized && autoRestoreNewWindowToLastCapture)
+                    return true;
+            }
+
+            return false;
+
+        }
         private bool IsWindowMoved(string displayKey, IntPtr hwnd, User32Events eventType, DateTime time,
             out ApplicationDisplayMetrics curDisplayMetrics, out ApplicationDisplayMetrics prevDisplayMetrics)
         {
@@ -3137,28 +3174,7 @@ namespace PersistentWindows.Common
                     return false;
 
                 IntPtr kid = FindMatchingKilledWindow(hwnd);
-                bool restore_last = false;
-                if (kid == IntPtr.Zero)
-                {
-                    ResolveWindowHandleCollision(hwnd);
-                }
-                else
-                {
-                    prevDisplayMetrics = InheritKilledWindow(hwnd, realHwnd, kid);
-                    if (hwnd != kid)
-                    {
-                        if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
-                            Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title}");
-                        else
-                            Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title}");
-                        ResolveWindowHandleCollision(hwnd);
-                    }
-                    else
-                        Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
-
-                    if (initialized && autoRestoreNewWindowToLastCapture)
-                        restore_last = true;
-                }
+                bool restore_last = TryInheritWindow(hwnd, realHwnd, kid, curDisplayMetrics);
 
                 //newly created window or new display setting
                 curDisplayMetrics.WindowId = (uint)realHwnd;
