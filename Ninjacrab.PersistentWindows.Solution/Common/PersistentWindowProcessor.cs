@@ -2120,6 +2120,12 @@ namespace PersistentWindows.Common
                             break;
 
                         case User32Events.EVENT_SYSTEM_MOVESIZESTART:
+                            if (freezeCapture)
+                            {
+                                Log.Event($"recognize {curDisplayKey} as user session");
+                                freezeCapture = false; //unlock unknown display session as normal
+                            }
+
                             if ((User32.GetKeyState(0x11) & 0x8000) != 0 //ctrl key pressed
                                 && (User32.GetKeyState(0x10) & 0x8000) != 0) //shift key pressed
                             {
@@ -2132,6 +2138,12 @@ namespace PersistentWindows.Common
                             lastUnminimizeTime = DateTime.Now;
                             lastUnminimizeWindow = hwnd;
                             tidyTabWindows.Remove(hwnd); //no longer hidden by tidytab
+
+                            if (freezeCapture)
+                            {
+                                Log.Event($"recognize {curDisplayKey} as user session");
+                                freezeCapture = false; //unlock unknown display session as normal
+                            }
 
                             if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                             {
@@ -2160,6 +2172,12 @@ namespace PersistentWindows.Common
 
                             if (enableMinimizeToTray)
                                 MinimizeToTray.Create(hwnd);
+
+                            if (freezeCapture)
+                            {
+                                Log.Event($"recognize {curDisplayKey} as user session");
+                                freezeCapture = false; //unlock unknown display session as normal
+                            }
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
