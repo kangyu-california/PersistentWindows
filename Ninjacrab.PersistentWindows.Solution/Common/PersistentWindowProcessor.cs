@@ -2173,11 +2173,13 @@ namespace PersistentWindows.Common
                             if (enableMinimizeToTray)
                                 MinimizeToTray.Create(hwnd);
 
+                            /*
                             if (freezeCapture)
                             {
                                 Log.Event($"recognize {curDisplayKey} as user session");
                                 freezeCapture = false; //unlock unknown display session as normal
                             }
+                            */
 
                             goto case User32Events.EVENT_SYSTEM_MOVESIZEEND;
                         case User32Events.EVENT_SYSTEM_MOVESIZEEND:
