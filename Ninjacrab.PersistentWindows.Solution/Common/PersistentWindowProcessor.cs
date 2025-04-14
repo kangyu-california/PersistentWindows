@@ -2216,13 +2216,36 @@ namespace PersistentWindows.Common
         {
             while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
-                // limit length of capture history
+                // limit length of snapshot capture history
+                ulong acc_flags = 0;
+                for (int i = monitorApplications[displayKey][hwnd].Count - 1; i >= 0; --i)
+                {
+                    ulong snapshot_flags = monitorApplications[displayKey][hwnd][i].SnapShotFlags;
+                    if (snapshot_flags != 0)
+                    {
+                        if ((snapshot_flags | acc_flags) == acc_flags)
+                        {
+                            Log.Event($"trim redundant snapshot record for {windowTitle[hwnd]}");
+                            monitorApplications[displayKey][hwnd].RemoveAt(i);
+                            break;
+                        }
+                        acc_flags |= snapshot_flags;
+                    }
+                }
+            }
+
+            while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
+            {
+                // limit length of non-snapshot capture history
                 for (int i = 0; i < monitorApplications[displayKey][hwnd].Count; ++i)
                 {
-                    if (monitorApplications[displayKey][hwnd][i].SnapShotFlags != 0)
-                        continue; //preserve snapshot record
+                    ulong snapshot_flags = monitorApplications[displayKey][hwnd][i].SnapShotFlags;
+                    if (snapshot_flags != 0)
+                        continue;
+
+                    Log.Event($"trim regular record for {windowTitle[hwnd]}");
                     monitorApplications[displayKey][hwnd].RemoveAt(i);
-                    break; //remove one record at one time
+                    break; //remove one record in each iteration
                 }
             }
         }
