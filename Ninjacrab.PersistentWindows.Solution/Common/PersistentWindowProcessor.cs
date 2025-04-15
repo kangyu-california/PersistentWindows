@@ -2214,7 +2214,7 @@ namespace PersistentWindows.Common
 
         private void TrimQueue(string displayKey, IntPtr hwnd)
         {
-            while (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
+            if (monitorApplications[displayKey][hwnd].Count > MaxHistoryQueueLength)
             {
                 // limit length of snapshot capture history
                 ulong acc_flags = 0;
@@ -2227,7 +2227,6 @@ namespace PersistentWindows.Common
                         {
                             Log.Event($"trim redundant snapshot record for {windowTitle[hwnd]}");
                             monitorApplications[displayKey][hwnd].RemoveAt(i);
-                            break;
                         }
                         acc_flags |= snapshot_flags;
                     }
