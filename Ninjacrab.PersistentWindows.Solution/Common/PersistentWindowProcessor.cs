@@ -107,7 +107,7 @@ namespace PersistentWindows.Common
         public bool restoringFromDB = false; // manual restore from DB
         public bool autoInitialRestoreFromDB = false;
         public bool restoringSnapshot = false; // implies restoringFromMem
-        private bool restoringFullScreenWindow = false;
+        private Object restoringFullScreenWindow = new object();
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 5; // bit i represent restore method for pass i
@@ -1690,6 +1690,7 @@ namespace PersistentWindows.Common
 
                         //restore fullscreen window only applies if screen resolution has changed since minimize/normalize
                         if (prevDisplayMetrics.CaptureTime < lastDisplayChangeTime)
+                            lock(restoringFullScreenWindow)
                             RestoreFullScreenWindow(hwnd, target_rect);
                         return;
                     }
@@ -3565,11 +3566,6 @@ namespace PersistentWindows.Common
                 */
             }
 
-            if (restoringFullScreenWindow)
-                return;
-
-            restoringFullScreenWindow = true;
-
             bool wrong_screen = false;
             RECT cur_rect = new RECT();
             User32.GetWindowRect(hwnd, ref cur_rect);
@@ -3603,8 +3599,6 @@ namespace PersistentWindows.Common
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
 
             Thread.Sleep(3 * double_clck_interval);
-
-            restoringFullScreenWindow = false;
 
             style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             if ((style & (long)WindowStyleFlags.CAPTION) == 0L)
@@ -4376,6 +4370,7 @@ namespace PersistentWindows.Common
                     if (restore_fullscreen)
                     {
                         if (restoreTimes > 0 && sWindow == null) //#246, let other windows restore first
+                        lock(restoringFullScreenWindow)
                         RestoreFullScreenWindow(hWnd, rect);
                     }
                     else if (restoreTimes >= MinRestoreTimes - 1)
