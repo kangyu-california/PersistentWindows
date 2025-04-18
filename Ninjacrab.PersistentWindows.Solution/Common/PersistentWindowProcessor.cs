@@ -2242,7 +2242,7 @@ namespace PersistentWindows.Common
                     if (snapshot_flags != 0)
                         continue;
 
-                    Log.Event($"trim regular record for {windowTitle[hwnd]}");
+                    Log.Trace($"trim regular record for {windowTitle[hwnd]}");
                     monitorApplications[displayKey][hwnd].RemoveAt(i);
                     break; //remove one record in each iteration
                 }
