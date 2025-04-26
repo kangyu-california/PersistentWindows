@@ -2696,7 +2696,18 @@ namespace PersistentWindows.Common
 
                 if (new_window)
                 {
-                    monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
+                    IntPtr kid = FindMatchingKilledWindow(hWnd);
+                    bool restore_last = TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
+                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB && IsResizableWindow(hWnd))
+                    {
+                        Log.Trace($"restore {windowTitle[hWnd]} to last captured position");
+                        restoringFromMem = true;
+                        RestoreApplicationsOnCurrentDisplays(displayKey, hWnd, prevDisplayMetrics.CaptureTime);
+                        restoringFromMem = false;
+                    }
+
+                    if (kid == IntPtr.Zero)
+                        monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
                 }
                 else
                 {
@@ -3239,9 +3250,6 @@ namespace PersistentWindows.Common
                 if (noRestoreWindows.Contains(hwnd))
                     return false;
 
-                IntPtr kid = FindMatchingKilledWindow(hwnd);
-                bool restore_last = TryInheritWindow(hwnd, realHwnd, kid, curDisplayMetrics);
-
                 //newly created window or new display setting
                 curDisplayMetrics.WindowId = (uint)realHwnd;
 
@@ -3263,18 +3271,7 @@ namespace PersistentWindows.Common
                 if (curDisplayMetrics.IsMinimized && prevDisplayMetrics != null && prevDisplayMetrics.IsMinimized)
                     moved = false;
                 else
-                {
                     moved = true;
-
-                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB && IsResizableWindow(hwnd))
-                    {
-                        Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
-                        restoringFromMem = true;
-                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
-                        restoringFromMem = false;
-                        return false;
-                    }
-                }
             }
             else if (!monitorApplications[displayKey].ContainsKey(hwnd))
             {
