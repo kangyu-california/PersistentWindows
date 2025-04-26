@@ -1470,7 +1470,11 @@ namespace PersistentWindows.Common
             {
                 int title_match_cnt = 0;
                 IntPtr title_match_hid = IntPtr.Zero;
+                int pos_match_cnt = 0;
                 IntPtr pos_match_hid = IntPtr.Zero;
+                int similar_pos_cnt = 0;
+                int diff_size = 1000;
+                IntPtr similar_pos_hid = IntPtr.Zero;
 
                 var deadAppPos = deadApps[curDisplayKey];
                 lock(captureLock)
@@ -1501,15 +1505,32 @@ namespace PersistentWindows.Common
                             title_match_hid = kid;
                         ++title_match_cnt;
                     }
-                    else if (rect.Equals(r))
+
+                    if (rect.Equals(r))
+                    {
+                        pos_match_cnt++;
                         pos_match_hid = kid;
+                    }
+
+                    if (r.Diff(rect) < diff_size)
+                    {
+                        diff_size = r.Diff(rect);
+                        similar_pos_cnt++;
+                        similar_pos_hid = kid;
+                    }
                 }
 
                 if (title_match_cnt == 1)
                     return title_match_hid;
 
-                if (pos_match_hid != IntPtr.Zero)
+                if (pos_match_cnt == 1)
                     return pos_match_hid;
+
+                if (similar_pos_cnt == 1 || diff_size < 200)
+                {
+                    Log.Event($"found similar match with pos diff of {diff_size}");
+                    return similar_pos_hid;
+                }
             }
 
             return IntPtr.Zero;
@@ -2044,12 +2065,14 @@ namespace PersistentWindows.Common
                                 if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                                     return;
 
+                                /*
                                 //try to inherit from killed window database
                                 if (FindMatchingKilledWindow(hwnd) != IntPtr.Zero)
                                 {
-                                    userMove = true;
-                                    StartCaptureTimer(UserMoveLatency / 2);
                                 }
+                                */
+                                userMove = true;
+                                StartCaptureTimer(UserMoveLatency * 4);
                             }
                             break;
 

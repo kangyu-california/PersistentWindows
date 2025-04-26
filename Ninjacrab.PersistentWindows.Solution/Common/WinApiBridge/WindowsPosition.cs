@@ -61,5 +61,10 @@ namespace PersistentWindows.Common.WinApiBridge
         {
             return string.Format("({0}, {1}), {2} x {3}", Left, Top, Width, Height);
         }
+
+        public int Diff(RECT r)
+        {
+            return Math.Abs(Left - r.Left) + Math.Abs(Right - r.Right) + Math.Abs(Top - r.Top) + Math.Abs(Bottom - r.Bottom);
+        }
     }
 }
