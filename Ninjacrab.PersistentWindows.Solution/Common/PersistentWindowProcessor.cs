@@ -2683,6 +2683,10 @@ namespace PersistentWindows.Common
 
                 if (new_window)
                 {
+                    //if (windowProcessName[hWnd] == "mstsc" && curDisplayMetrics.IsMinimized && curDisplayMetrics.IsInvisible && !curDisplayMetrics.IsFullScreen)
+                    if (curDisplayMetrics.IsMinimized && curDisplayMetrics.IsInvisible && !curDisplayMetrics.IsFullScreen)
+                        return false; //postpone capture till window is visible
+
                     IntPtr kid = FindMatchingKilledWindow(hWnd);
                     bool restore_last = TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
                     if (restore_last && prevDisplayMetrics != null && !restoringFromDB && IsResizableWindow(hWnd))
