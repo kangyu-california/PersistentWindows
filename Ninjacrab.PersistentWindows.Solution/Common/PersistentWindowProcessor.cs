@@ -1858,6 +1858,9 @@ namespace PersistentWindows.Common
             if (!initialized)
                 return;
 
+            if (hwnd == IntPtr.Zero)
+                return;
+
             {
                 switch (eventType)
                 {
@@ -2674,22 +2677,6 @@ namespace PersistentWindows.Common
             ApplicationDisplayMetrics prevDisplayMetrics;
             if (IsWindowMoved(displayKey, hWnd, eventType, now, out curDisplayMetrics, out prevDisplayMetrics))
             {
-                if (debugWindows.Contains(hWnd))
-                {
-                    string log = string.Format("Captured {0,-8} at {1} '{2}' fullscreen:{3} minimized:{4}",
-                        curDisplayMetrics,
-                        curDisplayMetrics.ScreenPosition.ToString(),
-                        curDisplayMetrics.Title,
-                        curDisplayMetrics.IsFullScreen,
-                        curDisplayMetrics.IsMinimized
-                        );
-                    Log.Event(log);
-
-                    string log2 = string.Format("    WindowPlacement.NormalPosition at {0}",
-                        curDisplayMetrics.WindowPlacement.NormalPosition.ToString());
-                    Log.Event(log2);
-                }
-
                 bool new_window = !monitorApplications[displayKey].ContainsKey(hWnd);
                 if (eventType != 0 || new_window)
                     curDisplayMetrics.IsValid = true;
@@ -2712,6 +2699,24 @@ namespace PersistentWindows.Common
                 else
                 {
                     TrimQueue(displayKey, hWnd);
+                }
+
+                if (debugWindows.Contains(hWnd))
+                {
+                    string log = string.Format("Captured {0} '{1}' fullscreen:{2} minimized:{3} visible:{4} at {5} {6, -8}",
+                        curDisplayMetrics.HWnd.ToString("X"),
+                        curDisplayMetrics.Title,
+                        curDisplayMetrics.IsFullScreen,
+                        curDisplayMetrics.IsMinimized,
+                        !curDisplayMetrics.IsInvisible,
+                        curDisplayMetrics.ScreenPosition.ToString(),
+                        curDisplayMetrics
+                        );
+                    Log.Event(log);
+
+                    string log2 = string.Format("    WindowPlacement.NormalPosition at {0}",
+                        curDisplayMetrics.WindowPlacement.NormalPosition.ToString());
+                    Log.Event(log2);
                 }
 
                 monitorApplications[displayKey][hWnd].Add(curDisplayMetrics);
@@ -3140,13 +3145,13 @@ namespace PersistentWindows.Common
                 if (hwnd != kid)
                 {
                     if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
-                        Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
+                        Log.Error($"{hwnd.ToString("X")} Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
                     else
-                        Log.Error($"Inherit position data from killed window {prevDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
+                        Log.Error($"{hwnd.ToString("X")} Inherit position data from killed window {prevDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
                     ResolveWindowHandleCollision(hwnd);
                 }
                 else
-                    Log.Error($"Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
+                    Log.Error($"{hwnd.ToString("X")} Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
 
                 if (initialized && autoRestoreNewWindowToLastCapture)
                     return true;
