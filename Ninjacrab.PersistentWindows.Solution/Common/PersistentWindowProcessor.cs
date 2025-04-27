@@ -1861,6 +1861,10 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero)
                 return;
 
+            if (idObject != 0)
+                // ignore non-window object (caret etc)
+                return;
+
             {
                 switch (eventType)
                 {
@@ -1882,12 +1886,6 @@ namespace PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
-                if (idObject != 0)
-                {
-                    // ignore non-window object (caret etc)
-                    return;
-                }
-
                 noRestoreWindows.Remove(hwnd);
                 debugWindows.Remove(hwnd);
                 if (fullScreenGamingWindows.Contains(hwnd))
