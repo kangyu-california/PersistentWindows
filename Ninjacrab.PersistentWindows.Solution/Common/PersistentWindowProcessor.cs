@@ -2706,14 +2706,7 @@ namespace PersistentWindows.Common
                         return false; //postpone capture till window is visible
 
                     IntPtr kid = FindMatchingKilledWindow(hWnd);
-                    bool restore_last = TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
-                    if (restore_last && prevDisplayMetrics != null && !restoringFromDB && IsResizableWindow(hWnd))
-                    {
-                        Log.Trace($"restore {windowTitle[hWnd]} to last captured position");
-                        restoringFromMem = true;
-                        RestoreApplicationsOnCurrentDisplays(displayKey, hWnd, prevDisplayMetrics.CaptureTime);
-                        restoringFromMem = false;
-                    }
+                    TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
 
                     if (kid == IntPtr.Zero)
                         monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
@@ -3176,7 +3169,16 @@ namespace PersistentWindows.Common
                     Log.Error($"{hwnd.ToString("X")} Inherit position data from existing window 0x{kid.ToString("X")} for {curDisplayMetrics.Title}");
 
                 if (initialized && autoRestoreNewWindowToLastCapture)
-                    return true;
+                {
+                    if (!restoringFromDB && IsResizableWindow(hwnd))
+                    {
+                        Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
+                        restoringFromMem = true;
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
+                        restoringFromMem = false;
+                    }
+                }
+                return true;
             }
 
             return false;
