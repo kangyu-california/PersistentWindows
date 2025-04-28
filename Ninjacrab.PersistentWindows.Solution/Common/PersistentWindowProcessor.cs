@@ -1082,6 +1082,9 @@ namespace PersistentWindows.Common
                 }
                 else if (db_exist && autoRestoreLiveWindowsFromDb)
                 {
+                    var ticks = Kernel32.GetTickCount64();
+                    if (ticks > 600000) //system up 5min
+                        return true;
                     Log.Event("auto restore from db");
                     restoringFromDB = true;
                     autoInitialRestoreFromDB = true;

@@ -624,6 +624,9 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool CloseHandle(IntPtr hHandle);
 
+        [DllImport("kernel32")]
+        public static extern UInt64 GetTickCount64();
+
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(
             ProcessAccessFlags processAccess,
