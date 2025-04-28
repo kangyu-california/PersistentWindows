@@ -270,8 +270,8 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-auto_restore_existing_window_to_last_capture=1":
                         auto_restore_last_capture_at_startup = true;
                         break;
-                    case "-auto_restore_new_window_to_last_capture=1":
-                        pwp.autoRestoreNewWindowToLastCapture = true;
+                    case "-auto_restore_new_window_to_last_capture=0":
+                        pwp.autoRestoreNewWindowToLastCapture = false;
                         break;
                     case "-pos_match_threshold":
                         set_pos_match_threshold = true;
