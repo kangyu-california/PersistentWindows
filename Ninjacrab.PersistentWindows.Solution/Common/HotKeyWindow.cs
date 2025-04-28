@@ -907,7 +907,10 @@ namespace PersistentWindows.Common
                     else if (hCursor == Cursors.IBeam.Handle)
                     {
                         Visible = false;
-                        StartAliveTimer(11, 1000);
+                        if (Math.Abs(cursorPos.X - lastCursorPos.X) < 3 && Math.Abs(cursorPos.Y - lastCursorPos.Y) < 3)
+                            StartAliveTimer(11, 2000);
+                        else
+                            StartAliveTimer(11, 1000);
                         return;
                     }
                     else if (hCursor == Cursors.Cross.Handle || handCursor)
