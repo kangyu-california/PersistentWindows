@@ -1071,7 +1071,7 @@ namespace PersistentWindows.Common
                 }
 
                 var ticks = Kernel32.GetTickCount64();
-                if (ticks > 600000) //system up 5min
+                if (ticks > 300000) //system up 5min
                     return true;
 
                 if (db_exist && auto_restore_from_db)
