@@ -37,6 +37,7 @@ namespace PersistentWindows.Common
         private static POINT lastCursorPos;
         private POINT lastWheelCursorPos;
         private bool handCursor = false;
+        private bool ibeamCursor = false;
         private int titleHeight;
         private Color dfltBackColor;
         private bool promptZkey = true;
@@ -869,6 +870,7 @@ namespace PersistentWindows.Common
                 }
                 else if (Math.Abs(cursorPos.X - lastCursorPos.X) > 3 || Math.Abs(cursorPos.Y - lastCursorPos.Y) > 3)
                 {
+                    ibeamCursor = false;
                     //mouse moving, continue monitor
                     totalWaitSecondsForWhiteColor = 0;
                 }
@@ -906,15 +908,14 @@ namespace PersistentWindows.Common
                     }
                     else if (hCursor == Cursors.IBeam.Handle)
                     {
+                        ibeamCursor = true;
                         Visible = false;
-                        if (Math.Abs(cursorPos.X - lastCursorPos.X) < 3 && Math.Abs(cursorPos.Y - lastCursorPos.Y) < 3)
-                            StartAliveTimer(11, 2000);
-                        else
-                            StartAliveTimer(11, 1000);
+                        StartAliveTimer(11, 1000);
                         return;
                     }
                     else if (hCursor == Cursors.Cross.Handle || handCursor)
                     {
+                        ibeamCursor = false;
                         StartAliveTimer(7);
                         return;
                     }
@@ -949,6 +950,14 @@ namespace PersistentWindows.Common
                         regain_focus = false;
                     }
 
+                    if (ibeamCursor && hCursor == Cursors.Default.Handle)
+                        //&& Math.Abs(cursorPos.X - lastCursorPos.X) < 3 && Math.Abs(cursorPos.Y - lastCursorPos.Y) < 3)
+                    {
+                        ibeamCursor = false;
+                        StartAliveTimer(11, 1000);
+                        return;
+                    }
+
                     // let tiny hotkey window follow cursor position
                     ResetHotKeyVirtualDesktop();
                     ResetHotkeyWindowPos();
@@ -971,6 +980,7 @@ namespace PersistentWindows.Common
                     // hand cursor shape
                     if (!handCursor)
                     {
+                        ibeamCursor = false;
                         handCursor = true;
                         Left -= 10;
                     }
