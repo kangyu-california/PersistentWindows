@@ -64,7 +64,8 @@ namespace PersistentWindows.Common.WinApiBridge
 
         public int Diff(RECT r)
         {
-            return Math.Abs(Left - r.Left) + Math.Abs(Right - r.Right) + Math.Abs(Top - r.Top) + Math.Abs(Bottom - r.Bottom);
+            int diff = Math.Abs(Left - r.Left) + Math.Abs(Right - r.Right) + Math.Abs(Top - r.Top) + Math.Abs(Bottom - r.Bottom);
+            return diff / 4;
         }
     }
 }

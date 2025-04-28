@@ -74,6 +74,7 @@ if not errorlevel 1 goto wait_to_finish";
             bool offscreen_fix = true;
             bool fix_unminimized_window = true;
             bool enhanced_offscreen_fix = false;
+            bool set_pos_match_threshold = false;
             bool auto_restore_missing_windows = false;
             bool auto_restore_from_db_at_startup = false;
             bool auto_restore_last_capture_at_startup = false;
@@ -141,6 +142,12 @@ if not errorlevel 1 goto wait_to_finish";
                 else if (restore_snapshot != -1)
                 {
                     restore_snapshot = SnapshotCharToId(arg[0]);
+                    continue;
+                }
+                else if (set_pos_match_threshold)
+                {
+                    set_pos_match_threshold = false;
+                    pwp.MaxDiffPos = int.Parse(arg);
                     continue;
                 }
 
@@ -265,6 +272,9 @@ if not errorlevel 1 goto wait_to_finish";
                         break;
                     case "-auto_restore_new_window_to_last_capture=1":
                         pwp.autoRestoreNewWindowToLastCapture = true;
+                        break;
+                    case "-pos_match_threshold":
+                        set_pos_match_threshold = true;
                         break;
                     case "-auto_restore_missing_windows":
                     case "-auto_restore_missing_windows=1":

@@ -43,7 +43,7 @@ namespace PersistentWindows.Common
 
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
         private const int MinClassNamePrefix = 8; //allow partial class name matching during inheritance
-        private const int MaxDiffPos = 1000; //allow matching to window of different position
+        public int MaxDiffPos = 40; //allow matching window of slightly different position
 
         private bool initialized = false;
 
@@ -1521,8 +1521,7 @@ namespace PersistentWindows.Common
 
                     if (title.Equals(appPos.Title))
                     {
-                        if (title_match_cnt == 0)
-                            title_match_hid = kid;
+                        title_match_hid = kid;
                         ++title_match_cnt;
                     }
 
@@ -1543,14 +1542,46 @@ namespace PersistentWindows.Common
                 if (pos_match_cnt == 1)
                     return pos_match_hid;
 
-                if (similar_pos_cnt == 1 || diff_size < MaxDiffPos)
+                if (diff_size <= MaxDiffPos)
                 {
-                    Log.Event($"found similar match with pos diff of {diff_size}");
+                    Log.Event($"matching window with position diff of {diff_size}");
                     return similar_pos_hid;
                 }
 
+                /*
                 if (title_match_cnt == 1)
+                {
+                    Log.Event($"matching window with same title");
                     return title_match_hid;
+                }
+                */
+                if (!monitorApplications.ContainsKey(curDisplayKey))
+                    return IntPtr.Zero;
+
+                int proc_name_match_cnt = 0;
+                int class_name_match_cnt = 0;
+                foreach(var h in monitorApplications[curDisplayKey].Keys)
+                {
+                    foreach (var dm in monitorApplications[curDisplayKey][h])
+                    {
+                        if (dm.ProcessName == procName)
+                            proc_name_match_cnt++;
+                        if (dm.ClassName == className)
+                            class_name_match_cnt++;
+                        break;
+                    }
+                }
+
+                //force match if hwnd is the first live window of the app
+                if (proc_name_match_cnt == 0)
+                    return similar_pos_hid;
+
+                if (proc_name_match_cnt == 1 && class_name_match_cnt == 0)
+                    return similar_pos_hid;
+
+                //force match if hwnd-like window has multiple instantiations but has only one top-level matching candidate
+                if (similar_pos_cnt == 1 && class_name_match_cnt > 0)
+                    return similar_pos_hid;
             }
 
             return IntPtr.Zero;
