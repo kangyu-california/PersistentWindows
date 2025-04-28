@@ -1070,6 +1070,10 @@ namespace PersistentWindows.Common
                     normalSessions.Add(item);
                 }
 
+                var ticks = Kernel32.GetTickCount64();
+                if (ticks > 600000) //system up 5min
+                    return true;
+
                 if (db_exist && auto_restore_from_db)
                 {
                     restoringFromDB = true;
@@ -1082,9 +1086,6 @@ namespace PersistentWindows.Common
                 }
                 else if (db_exist && autoRestoreLiveWindowsFromDb)
                 {
-                    var ticks = Kernel32.GetTickCount64();
-                    if (ticks > 600000) //system up 5min
-                        return true;
                     Log.Event("auto restore from db");
                     restoringFromDB = true;
                     autoInitialRestoreFromDB = true;
