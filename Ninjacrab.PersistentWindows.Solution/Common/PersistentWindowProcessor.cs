@@ -42,6 +42,8 @@ namespace PersistentWindows.Common
         private const int MaxHistoryQueueLength = 41; // ideally bigger than MaxSnapshots + 2
 
         private const int PauseRestoreTaskbar = 3500; //cursor idle time before dragging taskbar
+        private const int MinClassNamePrefix = 8; //allow partial class name matching during inheritance
+        private const int MaxDiffPos = 1000; //allow matching to window of different position
 
         private bool initialized = false;
 
@@ -1437,6 +1439,18 @@ namespace PersistentWindows.Common
             return r;
         }
 
+        int LenCommonPrefix(string a, string b)
+        {
+            int len = Math.Min(a.Length, b.Length);
+            int r;
+            for (r = 0; r < len; ++r)
+            {
+                if (a[r] != b[r])
+                    break;
+            }
+            return r;
+        }
+
         private IntPtr FindMatchingKilledWindow(IntPtr hwnd)
         {
             if (!deadApps.ContainsKey(curDisplayKey))
@@ -1473,7 +1487,7 @@ namespace PersistentWindows.Common
                 int pos_match_cnt = 0;
                 IntPtr pos_match_hid = IntPtr.Zero;
                 int similar_pos_cnt = 0;
-                int diff_size = 1000;
+                int diff_size = int.MaxValue;
                 IntPtr similar_pos_hid = IntPtr.Zero;
 
                 var deadAppPos = deadApps[curDisplayKey];
@@ -1482,10 +1496,16 @@ namespace PersistentWindows.Common
                 {
                     var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
 
-                    if (!className.Equals(appPos.ClassName))
-                        continue;
                     if (!procName.Equals(appPos.ProcessName))
                         continue;
+
+                    if (!className.Equals(appPos.ClassName))
+                    {
+                        if (className.Length != appPos.ClassName.Length)
+                            continue;
+                        if (LenCommonPrefix(className, appPos.ClassName) < MinClassNamePrefix)
+                            continue;
+                    }
 
                     if (IsMinimized(hwnd) != appPos.IsMinimized)
                         continue;
@@ -1526,7 +1546,7 @@ namespace PersistentWindows.Common
                 if (pos_match_cnt == 1)
                     return pos_match_hid;
 
-                if (similar_pos_cnt == 1 || diff_size < 200)
+                if (similar_pos_cnt == 1 || diff_size < MaxDiffPos)
                 {
                     Log.Event($"found similar match with pos diff of {diff_size}");
                     return similar_pos_hid;
