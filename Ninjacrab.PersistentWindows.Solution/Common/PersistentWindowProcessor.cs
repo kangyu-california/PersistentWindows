@@ -1540,9 +1540,6 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (title_match_cnt == 1)
-                    return title_match_hid;
-
                 if (pos_match_cnt == 1)
                     return pos_match_hid;
 
@@ -1551,6 +1548,9 @@ namespace PersistentWindows.Common
                     Log.Event($"found similar match with pos diff of {diff_size}");
                     return similar_pos_hid;
                 }
+
+                if (title_match_cnt == 1)
+                    return title_match_hid;
             }
 
             return IntPtr.Zero;
