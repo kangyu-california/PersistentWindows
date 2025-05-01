@@ -2134,7 +2134,7 @@ namespace PersistentWindows.Common
                                     return;
 
                                 userMove = true;
-                                StartCaptureTimer(UserMoveLatency / 2);
+                                StartCaptureTimer(UserMoveLatency / 4);
                             }
                             break;
 
