@@ -1486,8 +1486,6 @@ namespace PersistentWindows.Common
 
             if (!string.IsNullOrEmpty(className))
             {
-                int title_match_cnt = 0;
-                IntPtr title_match_hid = IntPtr.Zero;
                 int pos_match_cnt = 0;
                 IntPtr pos_match_hid = IntPtr.Zero;
                 int similar_pos_cnt = 0;
@@ -1521,7 +1519,6 @@ namespace PersistentWindows.Common
                             continue;
                     }
 
-
                     if (IsMinimized(hwnd) != appPos.IsMinimized)
                         continue;
                     if (User32.IsWindowVisible(hwnd) == appPos.IsInvisible)
@@ -1533,12 +1530,6 @@ namespace PersistentWindows.Common
                     // find exact match first
                     if (rect.Equals(r) && title.Equals(appPos.Title))
                         return kid;
-
-                    if (title.Equals(appPos.Title))
-                    {
-                        title_match_hid = kid;
-                        ++title_match_cnt;
-                    }
 
                     if (rect.Equals(r))
                     {
@@ -1569,13 +1560,9 @@ namespace PersistentWindows.Common
                     return similar_pos_hid;
                 }
 
-                /*
-                if (title_match_cnt == 1)
-                {
-                    Log.Event($"matching window with same title");
-                    return title_match_hid;
-                }
-                */
+                if (!IsResizableWindow(hwnd))
+                    return similar_pos_hid;
+
                 if (!monitorApplications.ContainsKey(curDisplayKey))
                     return IntPtr.Zero;
 
@@ -1586,9 +1573,9 @@ namespace PersistentWindows.Common
                 {
                     foreach (var dm in monitorApplications[curDisplayKey][h])
                     {
-                        if (IsMinimized(h) != dm.IsMinimized)
+                        if (style != dm.Style && dm.Style != 0)
                             continue;
-                        if (User32.IsWindowVisible(h) == dm.IsInvisible)
+                        if (ext_style != dm.ExtStyle && dm.ExtStyle != 0)
                             continue;
                         if (dm.ProcessName == procName)
                         {
@@ -2141,24 +2128,14 @@ namespace PersistentWindows.Common
                     {
                         case User32Events.EVENT_OBJECT_CREATE:
                             {
-                                if (idObject != 0)
-                                    // ignore non-window object (caret etc)
-                                    return;
-
                                 if (restoringFromDB)
                                     return;
 
                                 if (freezeCapture || !monitorApplications.ContainsKey(curDisplayKey))
                                     return;
 
-                                /*
-                                //try to inherit from killed window database
-                                if (FindMatchingKilledWindow(hwnd) != IntPtr.Zero)
-                                {
-                                }
-                                */
                                 userMove = true;
-                                StartCaptureTimer(UserMoveLatency * 4);
+                                StartCaptureTimer(UserMoveLatency / 2);
                             }
                             break;
 
@@ -3241,6 +3218,8 @@ namespace PersistentWindows.Common
                         restoringFromMem = true;
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
                         restoringFromMem = false;
+                        userMove = true;
+                        StartCaptureTimer(UserMoveLatency / 2);
                     }
                 }
                 return true;
