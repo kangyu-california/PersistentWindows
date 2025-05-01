@@ -26,6 +26,8 @@ namespace PersistentWindows.Common.Models
         public bool IsFullScreen { get; set; }
         public bool IsMinimized { get; set; }
         public bool IsInvisible { get; set; }
+        public long Style { get; set; }
+        public long ExtStyle { get; set; }
 
         // for restore window position to display session end time
         public DateTime CaptureTime { get; set; }

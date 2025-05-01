@@ -1496,6 +1496,9 @@ namespace PersistentWindows.Common
                 DateTime last_killed_time = new DateTime(0);
                 IntPtr last_killed_hid = IntPtr.Zero;
 
+                long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
+                long ext_style = User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE);
+
                 var deadAppPos = deadApps[curDisplayKey];
                 lock(captureLock)
                 foreach (var kid in deadAppPos.Keys)
@@ -1505,6 +1508,11 @@ namespace PersistentWindows.Common
                     if (!procName.Equals(appPos.ProcessName))
                         continue;
 
+                    if (appPos.Style != 0 && style != appPos.Style)
+                        continue;
+                    if (appPos.ExtStyle != 0 && ext_style != appPos.ExtStyle)
+                        continue;
+
                     if (!className.Equals(appPos.ClassName))
                     {
                         if (className.Length != appPos.ClassName.Length)
@@ -1512,6 +1520,7 @@ namespace PersistentWindows.Common
                         if (LenCommonPrefix(className, appPos.ClassName) < MinClassNamePrefix)
                             continue;
                     }
+
 
                     if (IsMinimized(hwnd) != appPos.IsMinimized)
                         continue;
@@ -3318,6 +3327,9 @@ namespace PersistentWindows.Common
                 WindowPlacement = windowPlacement,
                 NeedUpdateWindowPlacement = false,
                 ScreenPosition = screenPosition,
+
+                Style = User32.GetWindowLong(hwnd, User32.GWL_STYLE),
+                ExtStyle = User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE),
 
                 IsTopMost = IsWindowTopMost(hwnd),
                 NeedClearTopMost = false,
