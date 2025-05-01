@@ -1493,6 +1493,8 @@ namespace PersistentWindows.Common
                 int similar_pos_cnt = 0;
                 int diff_size = int.MaxValue;
                 IntPtr similar_pos_hid = IntPtr.Zero;
+                DateTime last_killed_time = new DateTime(0);
+                IntPtr last_killed_hid = IntPtr.Zero;
 
                 var deadAppPos = deadApps[curDisplayKey];
                 lock(captureLock)
@@ -1541,6 +1543,12 @@ namespace PersistentWindows.Common
                         similar_pos_cnt++;
                         similar_pos_hid = kid;
                     }
+
+                    if (appPos.CaptureTime > last_killed_time)
+                    {
+                        last_killed_time = appPos.CaptureTime;
+                        last_killed_hid = kid;
+                    }
                 }
 
                 if (pos_match_cnt == 1)
@@ -1564,6 +1572,7 @@ namespace PersistentWindows.Common
 
                 int proc_name_match_cnt = 0;
                 int class_name_match_cnt = 0;
+                int class_name_mismatch_cnt = 0;
                 foreach(var h in monitorApplications[curDisplayKey].Keys)
                 {
                     foreach (var dm in monitorApplications[curDisplayKey][h])
@@ -1577,21 +1586,27 @@ namespace PersistentWindows.Common
                             proc_name_match_cnt++;
                             if (dm.ClassName == className)
                                 class_name_match_cnt++;
+                            else
+                                class_name_mismatch_cnt++;
                         }
                         break;
                     }
                 }
 
-                //force match if hwnd is the first live window of the app
+                //force match last killed pos if hwnd is the first live window of the app
                 if (proc_name_match_cnt == 0)
-                    return similar_pos_hid;
+                    return last_killed_hid;
 
+                //force match most closest pos if hwnd is the first sub window of the app
                 if (proc_name_match_cnt == 1 && class_name_match_cnt == 0)
                     return similar_pos_hid;
 
                 //force match if hwnd-like window has multiple instantiations but has only one top-level matching candidate
                 if (similar_pos_cnt == 1 && class_name_match_cnt > 0)
                     return similar_pos_hid;
+
+                if (class_name_match_cnt > 0 && class_name_mismatch_cnt == 0)
+                    return last_killed_hid;
             }
 
             return IntPtr.Zero;
