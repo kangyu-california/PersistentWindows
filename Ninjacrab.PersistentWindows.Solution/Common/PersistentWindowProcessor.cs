@@ -1984,7 +1984,9 @@ namespace PersistentWindows.Common
                         }
 
                         // for matching new window with killed one
-                        monitorApplications[display_config][hwnd].Last().ProcessName = windowProcessName[hwnd];
+                        var dm = monitorApplications[display_config][hwnd].Last();
+                        if (dm.SnapShotFlags == 0)
+                            dm.CaptureTime = DateTime.Now; //for inheritence in LIFO stile
 
                         deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
