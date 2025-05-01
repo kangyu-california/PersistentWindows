@@ -1560,9 +1560,6 @@ namespace PersistentWindows.Common
                     return similar_pos_hid;
                 }
 
-                if (!IsResizableWindow(hwnd))
-                    return similar_pos_hid;
-
                 if (!monitorApplications.ContainsKey(curDisplayKey))
                     return IntPtr.Zero;
 
