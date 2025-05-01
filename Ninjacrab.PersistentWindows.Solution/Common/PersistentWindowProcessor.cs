@@ -106,6 +106,7 @@ namespace PersistentWindows.Common
         private Timer restoreTimer;
         private Timer restoreFinishedTimer;
         public bool restoringFromMem = false; // automatic restore from memory or snapshot
+        private bool restoreSingleWindow = false;
         public bool restoringFromDB = false; // manual restore from DB
         public bool autoInitialRestoreFromDB = false;
         public bool restoringSnapshot = false; // implies restoringFromMem
@@ -2113,7 +2114,7 @@ namespace PersistentWindows.Common
 
                     if (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE)
                     {
-                        if ((remoteSession || restoreTimes >= MinRestoreTimes) && !restoringSnapshot)
+                        if (((remoteSession && !restoreSingleWindow) || restoreTimes >= MinRestoreTimes) && !restoringSnapshot)
                         {
                             // restore is not finished as long as window location keeps changing
                             CancelRestoreFinishedTimer();
@@ -3214,8 +3215,10 @@ namespace PersistentWindows.Common
                     if (!restoringFromDB && IsResizableWindow(hwnd))
                     {
                         Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
+                        restoreSingleWindow = true;
                         restoringFromMem = true;
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
+                        restoreSingleWindow = false;
                         restoringFromMem = false;
                         userMove = true;
                         StartCaptureTimer(UserMoveLatency / 2);
