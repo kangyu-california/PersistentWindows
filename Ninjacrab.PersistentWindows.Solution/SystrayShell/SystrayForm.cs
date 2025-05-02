@@ -252,7 +252,16 @@ namespace PersistentWindows.SystrayShell
 
                 if (!upgradeDownloaded.ContainsKey(latestVersion))
                 {
-                    Process.Start(Program.ProjectUrl + "/releases");
+                    string url = Program.ProjectUrl + "/releases";
+                    var os_version = Environment.OSVersion;
+                    if (os_version.Version.Major < 10)
+                        Process.Start(url);
+                    else if (os_version.Version.Build < 22000)
+                        Process.Start(url);
+                    /* windows 11
+                    else
+                        Process.Start(new ProcessStartInfo(url));
+                    */
 
                     var src_file = $"{Program.ProjectUrl}/releases/download/{latestVersion}/{System.Windows.Forms.Application.ProductName}{latestVersion}.zip";
                     var dst_file = $"{Program.AppdataFolder}/upgrade.zip";
