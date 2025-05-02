@@ -1571,10 +1571,11 @@ namespace PersistentWindows.Common
                 {
                     foreach (var dm in monitorApplications[curDisplayKey][h])
                     {
-                        if (style != dm.Style && dm.Style != 0)
+                        if (IsMinimized(hwnd) != dm.IsMinimized)
                             continue;
-                        if (ext_style != dm.ExtStyle && dm.ExtStyle != 0)
+                        if (User32.IsWindowVisible(hwnd) == dm.IsInvisible)
                             continue;
+
                         if (dm.ProcessName == procName)
                         {
                             proc_name_match_cnt++;
