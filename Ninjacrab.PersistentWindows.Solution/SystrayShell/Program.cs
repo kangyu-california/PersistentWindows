@@ -48,6 +48,15 @@ if not errorlevel 1 goto wait_to_finish";
         [STAThread]
         static void Main(string[] args)
         {
+            var process = Process.GetCurrentProcess();
+            var process_priority = process.PriorityClass;
+            process.PriorityClass = ProcessPriorityClass.High;
+            var timer = new System.Threading.Timer(state =>
+            {
+                process.PriorityClass = process_priority;
+            });
+            timer.Change(10000, System.Threading.Timeout.Infinite);
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
