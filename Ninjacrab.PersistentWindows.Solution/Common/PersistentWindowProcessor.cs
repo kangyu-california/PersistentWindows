@@ -769,8 +769,6 @@ namespace PersistentWindows.Common
                     Log.Event("Restore finished in pass {0} with {1} windows recovered for display setting {2}", restorePass, numWindowRestored, curDisplayKey);
                     sessionActive = true;
 
-                    WriteDataDump();
-
                     if (!wasRestoringSnapshot && !wasRestoringFromDB)
                     {
                         if (!snapshotTakenTime.ContainsKey(curDisplayKey))
@@ -865,6 +863,7 @@ namespace PersistentWindows.Common
                 (s, e) =>
                 {
                     process.PriorityClass = ProcessPriorityClass.High;
+                    EndDisplaySession();
                     WriteDataDump();
                     Log.Event("Session ending");
                 };
@@ -873,6 +872,9 @@ namespace PersistentWindows.Common
             this.displaySettingsChangingHandler =
                 (s, e) =>
                 {
+                    if (fastRestore)
+                        process.PriorityClass = ProcessPriorityClass.High;
+
                     if (!freezeCapture)
                     {
                         lastDisplayChangeTime = DateTime.Now;
@@ -895,9 +897,6 @@ namespace PersistentWindows.Common
             this.displaySettingsChangedHandler =
                 (s, e) =>
                 {
-                    if (fastRestore)
-                        process.PriorityClass = ProcessPriorityClass.High;
-
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
 
