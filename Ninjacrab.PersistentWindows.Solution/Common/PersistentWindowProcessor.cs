@@ -161,7 +161,7 @@ namespace PersistentWindows.Common
 
         private static Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
         private Process process;
-        private ProcessPriorityClass processPriority;
+        public ProcessPriorityClass processPriority;
 
         private string appDataFolder;
         public bool redirectAppDataFolder = false;
@@ -594,8 +594,6 @@ namespace PersistentWindows.Common
         public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
         {
             process = Process.GetCurrentProcess();
-            processPriority = process.PriorityClass;
-
             string productName = System.Windows.Forms.Application.ProductName;
             appDataFolder = redirectAppDataFolder ? "." :
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);

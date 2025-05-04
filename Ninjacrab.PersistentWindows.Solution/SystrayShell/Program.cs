@@ -48,15 +48,6 @@ if not errorlevel 1 goto wait_to_finish";
         [STAThread]
         static void Main(string[] args)
         {
-            var process = Process.GetCurrentProcess();
-            var process_priority = process.PriorityClass;
-            process.PriorityClass = ProcessPriorityClass.High;
-            var timer = new System.Threading.Timer(state =>
-            {
-                process.PriorityClass = process_priority;
-            });
-            timer.Change(10000, System.Threading.Timeout.Infinite);
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -64,6 +55,15 @@ if not errorlevel 1 goto wait_to_finish";
             Log.Event($" {Application.ProductVersion}; OS version: {Environment.OSVersion.VersionString}; .NET version: {Environment.Version}");
 
             pwp = new PersistentWindowProcessor();
+
+            var process = Process.GetCurrentProcess();
+            pwp.processPriority = process.PriorityClass;
+            process.PriorityClass = ProcessPriorityClass.High;
+            var timer = new System.Threading.Timer(state =>
+            {
+                process.PriorityClass = pwp.processPriority;
+            });
+            timer.Change(10000, System.Threading.Timeout.Infinite);
 
             bool splash = true;
             int delay_restart = 0;
