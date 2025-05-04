@@ -484,7 +484,7 @@ namespace PersistentWindows.Common
             else if (fullScreenGamingWindow == IntPtr.Zero)
             {
                 //create window event may be delayed
-                if (hwnd != IntPtr.Zero)
+                if (hwnd != IntPtr.Zero && !noRestoreWindows.Contains(hwnd))
                     CaptureWindow(hwnd, 0, DateTime.Now, curDisplayKey);
 
                 StartCaptureTimer();
