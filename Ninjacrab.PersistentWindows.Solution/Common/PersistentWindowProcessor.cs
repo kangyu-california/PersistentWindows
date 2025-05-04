@@ -3698,6 +3698,7 @@ namespace PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
 
+            /*
             Thread.Sleep(3 * double_clck_interval);
 
             style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
@@ -3722,6 +3723,7 @@ namespace PersistentWindows.Common
             }
 
             Log.Error("fail to restore full screen window {0}", GetWindowTitle(hwnd));
+            */
         }
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
