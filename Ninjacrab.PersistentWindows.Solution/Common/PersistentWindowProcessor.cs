@@ -34,7 +34,7 @@ namespace PersistentWindows.Common
         public int UserForcedRestoreLatency = 0;
         private const int CaptureLatency = 3000; // delay in milliseconds from window OS move to capture
         private const int UserMoveLatency = 1000; // delay in milliseconds from user move/minimize/unminimize/maximize to capture, must < CaptureLatency
-        private const int ForegroundTimerLatency = UserMoveLatency / 5;
+        private const int ForegroundTimerLatency = UserMoveLatency / 4;
         private const int MaxUserMoves = 4; // max user window moves per capture cycle
         private const int MinWindowOsMoveEvents = 12; // threshold of window move events initiated by OS per capture cycle
         private const int MaxSnapshots = 38; // 0-9, a-z, ` (for redo last auto restore) and final one for undo last snapshot restore
@@ -483,6 +483,10 @@ namespace PersistentWindows.Common
             }
             else if (fullScreenGamingWindow == IntPtr.Zero)
             {
+                //create window event may be delayed
+                if (hwnd != IntPtr.Zero)
+                    CaptureWindow(hwnd, 0, DateTime.Now, curDisplayKey);
+
                 StartCaptureTimer();
 
                 //speed up initial capture
