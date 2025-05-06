@@ -522,12 +522,12 @@ namespace PersistentWindows.Common
                 if (!ctrl_key_pressed && !alt_key_pressed)
                 {
                     //restore window to previous background position
-                    SwitchForeBackground(hwnd, secondBackGround:shift_key_pressed);
+                    SwitchForeBackground(hwnd);
                 }
                 else if (ctrl_key_pressed && !alt_key_pressed)
                 {
                     //restore to previous background zorder with current size/pos
-                    SwitchForeBackground(hwnd, strict_dps_check: false, updateBackgroundPos: true, secondBackGround:shift_key_pressed);
+                    SwitchForeBackground(hwnd, strict_dps_check: false, updateBackgroundPos: true);
                 }
                 else if (!ctrl_key_pressed && alt_key_pressed && !shift_key_pressed)
                 {
@@ -2613,7 +2613,7 @@ namespace PersistentWindows.Common
             Log.Event("Bring foreground window {0} to bottom", GetWindowTitle(hwnd));
         }
 
-        public void SwitchForeBackground(IntPtr hwnd, bool strict_dps_check = true, bool toForeground=false, bool updateBackgroundPos=false, bool secondBackGround = false)
+        public void SwitchForeBackground(IntPtr hwnd, bool strict_dps_check = true, bool toForeground=false, bool updateBackgroundPos=false)
         {
             if (hwnd == IntPtr.Zero || IsTaskBar(hwnd))
                 return;
@@ -2638,8 +2638,6 @@ namespace PersistentWindows.Common
             if (toForeground && IsTaskBar(front_hwnd))
                 return; //already foreground
 
-            IntPtr firstBackgroundWindow = IntPtr.Zero;
-
             for (; prevIndex >= 0; --prevIndex)
             {
                 var metrics = monitorApplications[curDisplayKey][hwnd][prevIndex];
@@ -2657,7 +2655,7 @@ namespace PersistentWindows.Common
                 }
 
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
-                if (prevZwnd != front_hwnd && (prevZwnd == IntPtr.Zero || prevZwnd != firstBackgroundWindow))
+                if (prevZwnd != front_hwnd)
                 {
                     if (toForeground)
                     {
@@ -2666,12 +2664,6 @@ namespace PersistentWindows.Common
                     }
                     else
                     {
-                        if (secondBackGround)
-                        {
-                            firstBackgroundWindow = prevZwnd;
-                            secondBackGround = false;
-                            continue;
-                        }
                         if (IsTaskBar(front_hwnd) && IsTaskBar(prevZwnd))
                             return; //#266, ignore taskbar (as prev-zwindow) change due to window maximize
 
