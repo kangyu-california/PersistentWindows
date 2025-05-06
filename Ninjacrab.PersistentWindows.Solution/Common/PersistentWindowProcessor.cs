@@ -2648,6 +2648,14 @@ namespace PersistentWindows.Common
                     continue;
                 }
 
+                if (!toForeground)
+                {
+                    RECT screenPosition = new RECT();
+                    User32.GetWindowRect(hwnd, ref screenPosition);
+                    if (screenPosition.Equals(metrics.ScreenPosition))
+                        continue;
+                }
+
                 IntPtr prevZwnd = metrics.PrevZorderWindow;
                 if (prevZwnd != front_hwnd && (prevZwnd == IntPtr.Zero || prevZwnd != firstBackgroundWindow))
                 {
