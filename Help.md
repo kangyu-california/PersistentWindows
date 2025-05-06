@@ -60,7 +60,6 @@
 
   * Dual Position Switching functionality:
     * Click the desktop window to bring the foreground window to its previous background position and Z-order.
-    * Shift + Click the desktop window to bring the foreground window to its *second* last background position. This is useful if the previous background position is mis-captured due to invoking start menu or other popups.
     * Ctrl + Click the desktop window to bring the foreground window to its previous Z-order while keeping the current location and size.
 
   * To cancel Dual Position Switching:
