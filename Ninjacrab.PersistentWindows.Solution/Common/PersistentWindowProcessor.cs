@@ -1503,7 +1503,9 @@ namespace PersistentWindows.Common
                 lock(captureLock)
                 foreach (var kid in deadAppPos.Keys)
                 {
-                    var appPos = deadAppPos[kid].Last<ApplicationDisplayMetrics>();
+                    var appPos = deadAppPos[kid].LastOrDefault<ApplicationDisplayMetrics>();
+                    if (appPos == null)
+                        continue;
 
                     if (!procName.Equals(appPos.ProcessName))
                         continue;
