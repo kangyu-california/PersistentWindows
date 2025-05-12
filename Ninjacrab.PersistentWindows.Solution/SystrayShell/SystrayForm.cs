@@ -7,6 +7,7 @@ using System.Timers;
 using System.IO;
 using System.IO.Compression;
 using System.Drawing;
+using System.Reflection;
 
 using PersistentWindows.Common.Diagnostics;
 using PersistentWindows.Common.WinApiBridge;
@@ -21,6 +22,7 @@ namespace PersistentWindows.SystrayShell
         public bool toggleIcon = false;
 
         private int skipUpgradeCounter = 0;
+        private bool initialCheckUpgrade = true;
         private bool pauseUpgradeCounter = false;
 
         public bool autoUpgrade = false;
@@ -196,6 +198,31 @@ namespace PersistentWindows.SystrayShell
                 {
                     if (skipUpgradeCounter == 0)
                     {
+                        if (initialCheckUpgrade)
+                        {
+                            initialCheckUpgrade = false;
+                            var dst_dir = Path.Combine($"{Program.AppdataFolder}", "upgrade");
+                            var upgrade_exe = Path.Combine(dst_dir, $"{Application.ProductName}.exe");
+                            if (Directory.Exists(dst_dir) && File.Exists(upgrade_exe))
+                            {
+                                var version = AssemblyName.GetAssemblyName(upgrade_exe).Version;
+                                string[] latest = version.ToString().Split('.');
+                                int latest_major = Int32.Parse(latest[0]);
+                                int latest_minor = Int32.Parse(latest[1]);
+
+                                string[] current = Application.ProductVersion.Split('.');
+                                int current_major = Int32.Parse(current[0]);
+                                int current_minor = Int32.Parse(current[1]);
+
+                                if (latest_major > current_major ||
+                                    latest_major == current_major && latest_minor > current_minor)
+                                {
+                                    //upgrade version already downloaded, skip the initial notice to give user more time to make decision
+                                    skipUpgradeCounter++;
+                                    return;
+                                }
+                            }
+                        }
                         CheckUpgradeSafe();
                     }
 
