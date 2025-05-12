@@ -1939,6 +1939,10 @@ namespace PersistentWindows.Common
                 // ignore non-window object (caret etc)
                 return;
 
+            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
+            bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
+
             {
                 switch (eventType)
                 {
@@ -1993,7 +1997,8 @@ namespace PersistentWindows.Common
                         if (dm.SnapShotFlags == 0)
                             dm.CaptureTime = DateTime.Now; //for inheritence in LIFO stile
 
-                        deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
+                        if (!ctrl_key_pressed)
+                            deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
                         windowTitle.Remove(hwnd);
@@ -2067,9 +2072,6 @@ namespace PersistentWindows.Common
 #endif
 
             // suppress capture for taskbar operation
-            bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
-            bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
-            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
             if (ctrl_key_pressed && alt_key_pressed)
                 return;
 
