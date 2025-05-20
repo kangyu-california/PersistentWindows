@@ -1973,7 +1973,7 @@ namespace PersistentWindows.Common
                 }
                 if (hwnd == fullScreenGamingWindow)
                     fullScreenGamingWindow = IntPtr.Zero;
-                dualPosSwitchWindows.Remove(hwnd);
+                //dualPosSwitchWindows.Remove(hwnd);
 
                 bool found_history = false;
                 lock(captureLock)
@@ -3211,6 +3211,13 @@ namespace PersistentWindows.Common
                         Log.Error($"{hwnd.ToString("X")} Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
                     else
                         Log.Error($"{hwnd.ToString("X")} Inherit position data from killed window {prevDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
+
+                    if (dualPosSwitchWindows.Contains(kid))
+                    {
+                        dualPosSwitchWindows.Remove(kid);
+                        dualPosSwitchWindows.Add(hwnd);
+                    }
+
                     ResolveWindowHandleCollision(hwnd);
                 }
                 else
