@@ -2016,7 +2016,6 @@ namespace PersistentWindows.Common
                                 {
                                     tm = t;
                                     oldest_window = kid;
-                                    break;
                                 }
                             }
                             deadApps[display_config].Remove(oldest_window);
