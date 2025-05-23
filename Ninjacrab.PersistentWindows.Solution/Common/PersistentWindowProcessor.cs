@@ -1973,7 +1973,6 @@ namespace PersistentWindows.Common
                 }
                 if (hwnd == fullScreenGamingWindow)
                     fullScreenGamingWindow = IntPtr.Zero;
-                //dualPosSwitchWindows.Remove(hwnd);
 
                 bool found_history = false;
                 lock(captureLock)
@@ -1997,7 +1996,9 @@ namespace PersistentWindows.Common
                         if (dm.SnapShotFlags == 0)
                             dm.CaptureTime = DateTime.Now; //for inheritence in LIFO stile
 
-                        if (!ctrl_key_pressed)
+                        if (ctrl_key_pressed)
+                            dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
+                        else
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
