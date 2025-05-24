@@ -1462,6 +1462,9 @@ namespace PersistentWindows.Common
             if (!deadApps.ContainsKey(curDisplayKey))
                 return IntPtr.Zero;
 
+            if (!IsResizableWindow(hwnd))
+                return IntPtr.Zero;
+
             string className = GetWindowClassName(hwnd);
             if (string.IsNullOrEmpty(className))
                 return IntPtr.Zero;
@@ -1998,7 +2001,7 @@ namespace PersistentWindows.Common
 
                         if (ctrl_key_pressed)
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
-                        else
+                        else if (IsResizableWindow(hwnd))
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
@@ -3225,7 +3228,7 @@ namespace PersistentWindows.Common
 
                 if (initialized && autoRestoreNewWindowToLastCapture)
                 {
-                    if (!restoringFromDB && IsResizableWindow(hwnd))
+                    if (!restoringFromDB)
                     {
                         Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
                         restoreSingleWindow = true;
