@@ -1998,7 +1998,7 @@ namespace PersistentWindows.Common
 
                         if (ctrl_key_pressed)
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
-                        else if (monitorApplications[display_config][hwnd].Last().IsResizable)
+                        else if (dm.IsResizable)
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
@@ -2753,14 +2753,15 @@ namespace PersistentWindows.Common
                     if (curDisplayMetrics.IsMinimized && curDisplayMetrics.IsInvisible && !curDisplayMetrics.IsFullScreen)
                         return false; //postpone capture till window is visible
 
+                    IntPtr kid = IntPtr.Zero;
                     if (curDisplayMetrics.IsResizable)
                     {
-                        IntPtr kid = FindMatchingKilledWindow(hWnd);
+                        kid = FindMatchingKilledWindow(hWnd);
                         TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
-
-                        if (kid == IntPtr.Zero)
-                            monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
                     }
+
+                    if (kid == IntPtr.Zero)
+                        monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
                 }
                 else
                 {
