@@ -1462,9 +1462,6 @@ namespace PersistentWindows.Common
             if (!deadApps.ContainsKey(curDisplayKey))
                 return IntPtr.Zero;
 
-            if (!IsResizableWindow(hwnd))
-                return IntPtr.Zero;
-
             string className = GetWindowClassName(hwnd);
             if (string.IsNullOrEmpty(className))
                 return IntPtr.Zero;
@@ -2001,7 +1998,7 @@ namespace PersistentWindows.Common
 
                         if (ctrl_key_pressed)
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
-                        else if (IsResizableWindow(hwnd))
+                        else if (monitorApplications[display_config][hwnd].Last().IsResizable)
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
@@ -2756,11 +2753,14 @@ namespace PersistentWindows.Common
                     if (curDisplayMetrics.IsMinimized && curDisplayMetrics.IsInvisible && !curDisplayMetrics.IsFullScreen)
                         return false; //postpone capture till window is visible
 
-                    IntPtr kid = FindMatchingKilledWindow(hWnd);
-                    TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
+                    if (curDisplayMetrics.IsResizable)
+                    {
+                        IntPtr kid = FindMatchingKilledWindow(hWnd);
+                        TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
 
-                    if (kid == IntPtr.Zero)
-                        monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
+                        if (kid == IntPtr.Zero)
+                            monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
+                    }
                 }
                 else
                 {
@@ -3318,6 +3318,7 @@ namespace PersistentWindows.Common
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
                 IsMinimized = isMinimized,
+                IsResizable = IsResizableWindow(hwnd),
                 IsInvisible = !User32.IsWindowVisible(hwnd),
 
                 CaptureTime = time,

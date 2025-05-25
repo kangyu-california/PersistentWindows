@@ -26,6 +26,7 @@ namespace PersistentWindows.Common.Models
         public bool IsFullScreen { get; set; }
         public bool IsMinimized { get; set; }
         public bool IsInvisible { get; set; }
+        public bool IsResizable { get; set; }
         public long Style { get; set; }
         public long ExtStyle { get; set; }
 
