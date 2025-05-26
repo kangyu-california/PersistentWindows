@@ -1914,10 +1914,13 @@ namespace PersistentWindows.Common
                 || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
-        private static bool IsResizableWindow(IntPtr hwnd)
+        private bool IsResizableWindow(IntPtr hwnd)
         {
             if (IsTaskBar(hwnd))
-                return false;
+                return true;
+
+            if (IsFullScreen(hwnd))
+                return true;
 
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             return (style & (long)WindowStyleFlags.THICKFRAME) != 0L;
