@@ -287,6 +287,36 @@ namespace PersistentWindows.Common
             }
         }
 
+        private void TrimDeadRecord(string display_config)
+        {
+            //limit deadApp size, keep dead window record for 30 days
+            DateTime oldest_allowed = DateTime.Now - TimeSpan.FromDays(30);
+            bool found_old_record = deadApps[display_config].Count > 0;
+            while (found_old_record)
+            {
+                found_old_record = false;
+
+                var keys = deadApps[display_config].Keys;
+                DateTime tm = DateTime.Now;
+                IntPtr oldest_window = IntPtr.Zero;
+                foreach (var kid in keys)
+                {
+                    DateTime t = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
+                    if (t < tm)
+                    {
+                        tm = t;
+                        oldest_window = kid;
+                    }
+                }
+
+                if (tm < oldest_allowed || deadApps[display_config].Count > 1024)
+                {
+                    found_old_record = true;
+                    deadApps[display_config].Remove(oldest_window);
+                }
+            }
+        }
+
         private void WriteDataDumpCore(bool dump_dead_window)
         {
             DataContractSerializer dcs = new DataContractSerializer(typeof(Dictionary<string, Dictionary<IntPtr, List<ApplicationDisplayMetrics>>>));
@@ -309,6 +339,9 @@ namespace PersistentWindows.Common
                     {
                         if (!allApps.ContainsKey(display_key))
                             continue;
+
+                        TrimDeadRecord(display_key);
+
                         foreach (var hwnd in deadApps[display_key].Keys)
                         {
                             if (allApps[display_key].ContainsKey(hwnd))
@@ -2004,23 +2037,7 @@ namespace PersistentWindows.Common
                         windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
                         windowTitle.Remove(hwnd);
 
-                        //limit deadApp size
-                        while (deadApps[display_config].Count > 1024)
-                        {
-                            var keys = deadApps[display_config].Keys;
-                            DateTime tm = DateTime.Now;
-                            IntPtr oldest_window = IntPtr.Zero;
-                            foreach (var kid in keys)
-                            {
-                                DateTime t = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
-                                if (t < tm)
-                                {
-                                    tm = t;
-                                    oldest_window = kid;
-                                }
-                            }
-                            deadApps[display_config].Remove(oldest_window);
-                        }
+                        TrimDeadRecord(display_config);
                     }
 
                     monitorApplications[display_config].Remove(hwnd);
