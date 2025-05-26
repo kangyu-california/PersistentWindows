@@ -3695,8 +3695,14 @@ namespace PersistentWindows.Common
 
             if (wrong_screen)
             {
-                User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
-                Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
+                Thread.Sleep(3 * double_clck_interval);
+                User32.GetWindowRect(hwnd, ref cur_rect);
+                if (!User32.IntersectRect(out intersect, ref cur_rect, ref target_rect)
+                    || IsWrongMonitor(hwnd, target_rect))
+                {
+                    User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
+                    Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
+                }
             }
 
             RECT screenPosition = new RECT();
@@ -3714,7 +3720,6 @@ namespace PersistentWindows.Common
                 0, 0, 0, UIntPtr.Zero);
             Log.Error("restore full screen window {0}", GetWindowTitle(hwnd));
 
-            /*
             Thread.Sleep(3 * double_clck_interval);
 
             style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
@@ -3723,6 +3728,9 @@ namespace PersistentWindows.Common
                 return;
             }
 
+            Log.Error("fail to restore full screen window {0}", GetWindowTitle(hwnd));
+
+            /*
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(double_clck_interval);
