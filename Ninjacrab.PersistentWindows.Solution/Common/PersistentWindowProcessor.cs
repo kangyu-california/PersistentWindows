@@ -301,6 +301,13 @@ namespace PersistentWindows.Common
                 IntPtr oldest_window = IntPtr.Zero;
                 foreach (var kid in keys)
                 {
+                    if (deadApps[display_config][kid].LastOrDefault<ApplicationDisplayMetrics>() == null)
+                    {
+                        tm = oldest_allowed - TimeSpan.FromDays(1);
+                        oldest_window = kid;
+                        break;
+                    }
+
                     DateTime t = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
                     if (t < tm)
                     {
