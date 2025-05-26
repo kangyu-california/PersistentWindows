@@ -301,14 +301,15 @@ namespace PersistentWindows.Common
                 IntPtr oldest_window = IntPtr.Zero;
                 foreach (var kid in keys)
                 {
-                    if (deadApps[display_config][kid].LastOrDefault<ApplicationDisplayMetrics>() == null)
+                    var dm = deadApps[display_config][kid].LastOrDefault<ApplicationDisplayMetrics>();
+                    if (dm == null)
                     {
                         tm = oldest_allowed - TimeSpan.FromDays(1);
                         oldest_window = kid;
                         break;
                     }
 
-                    DateTime t = deadApps[display_config][kid].Last<ApplicationDisplayMetrics>().CaptureTime;
+                    DateTime t = dm.CaptureTime;
                     if (t < tm)
                     {
                         tm = t;
@@ -319,6 +320,10 @@ namespace PersistentWindows.Common
                 if (tm < oldest_allowed || deadApps[display_config].Count > 1024)
                 {
                     found_old_record = true;
+
+                    var dm = deadApps[display_config][oldest_window].LastOrDefault<ApplicationDisplayMetrics>();
+                    if (dm != null)
+                        Log.Error($"remove old record {dm.Title}");
                     deadApps[display_config].Remove(oldest_window);
                 }
             }
