@@ -1914,13 +1914,13 @@ namespace PersistentWindows.Common
                 || (style & (long)WindowStyleFlags.SYSMENU) != 0L;
         }
 
-        private bool IsResizableWindow(IntPtr hwnd)
+        private bool IsResizableWindow(IntPtr hwnd, bool relaxed_check)
         {
             if (IsTaskBar(hwnd))
-                return true;
+                return relaxed_check;
 
             if (IsFullScreen(hwnd))
-                return true;
+                return relaxed_check;
 
             long style = User32.GetWindowLong(hwnd, User32.GWL_STYLE);
             return (style & (long)WindowStyleFlags.THICKFRAME) != 0L;
@@ -3351,7 +3351,7 @@ namespace PersistentWindows.Common
                 //full screen app such as mstsc may not have maximize box
                 IsFullScreen = isFullScreen,
                 IsMinimized = isMinimized,
-                IsResizable = IsResizableWindow(hwnd),
+                IsResizable = IsResizableWindow(hwnd, relaxed_check:true),
                 IsInvisible = !User32.IsWindowVisible(hwnd),
 
                 CaptureTime = time,
@@ -3784,7 +3784,7 @@ namespace PersistentWindows.Common
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
         {
-            if (!IsResizableWindow(hwnd))
+            if (!IsResizableWindow(hwnd, relaxed_check:false))
                 return;
 
             List<Display> displays = GetDisplays();
@@ -4451,7 +4451,7 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                bool resizable = IsResizableWindow(hWnd);
+                bool resizable = IsResizableWindow(hWnd, relaxed_check:false);
                 if (curDisplayMetrics.NeedUpdateWindowPlacement)
                 {
                     // recover NormalPosition (the workspace position prior to snap)
