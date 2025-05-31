@@ -944,6 +944,7 @@ namespace PersistentWindows.Common
             this.displaySettingsChangedHandler =
                 (s, e) =>
                 {
+                    lastDisplayChangeTime = DateTime.Now;
                     string displayKey = GetDisplayKey();
                     Log.Event("Display settings changed {0}", displayKey);
 
@@ -2021,6 +2022,17 @@ namespace PersistentWindows.Common
                 }
                 if (hwnd == fullScreenGamingWindow)
                     fullScreenGamingWindow = IntPtr.Zero;
+
+                if (exitFullScreenGaming || hwnd == fullScreenGamingWindow || windowProcessName.ContainsKey(hwnd) && fullScreenGamingProcesses.Contains(windowProcessName[hwnd]))
+                {
+                    Log.Event("Exit full-screen gaming");
+                    DateTime t = DateTime.Now;
+                    if (t - lastDisplayChangeTime > TimeSpan.FromSeconds(10))
+                    {
+                        Log.Event("Exit full-screen gaming without display changed event");
+                        StartRestoreTimer();
+                    }
+                }
 
                 bool found_history = false;
                 lock(captureLock)
