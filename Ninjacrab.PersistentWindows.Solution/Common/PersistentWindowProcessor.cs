@@ -2242,6 +2242,11 @@ namespace PersistentWindows.Common
 
                                     if (User32.IsZoomed(hwnd))
                                         userMove = true;
+                                    else if (monitorApplications.ContainsKey(curDisplayKey) && !monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                                    {
+                                        if (IsTopLevelWindow(hwnd) && !noRestoreWindows.Contains(hwnd))
+                                            userMove = true; //window create event not received
+                                    }
 
                                     if (foreGroundWindow == hwnd)
                                     {
