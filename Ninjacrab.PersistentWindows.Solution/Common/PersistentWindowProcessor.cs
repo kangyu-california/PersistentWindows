@@ -2935,8 +2935,11 @@ namespace PersistentWindows.Common
 
                 if (saveToDB || (userMovePrev && !manualNormalSession))
                 {
-                    normalSessions.Add(curDisplayKey);
-                    Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
+                    if (!normalSessions.Contains(curDisplayKey))
+                    {
+                        normalSessions.Add(curDisplayKey);
+                        Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
+                    }
                     CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB: saveToDB); //implies auto delayed capture
                 }
             }
