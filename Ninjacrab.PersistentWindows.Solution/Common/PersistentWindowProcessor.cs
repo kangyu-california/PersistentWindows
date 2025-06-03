@@ -2014,7 +2014,11 @@ namespace PersistentWindows.Common
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
                 noRestoreWindows.Remove(hwnd);
-                debugWindows.Remove(hwnd);
+                if (debugWindows.Contains(hwnd))
+                {
+                    Log.Event($"kill window {windowTitle[hwnd]}");
+                    debugWindows.Remove(hwnd);
+                }
                 if (fullScreenGamingWindows.Contains(hwnd))
                 {
                     fullScreenGamingWindows.Remove(hwnd);
