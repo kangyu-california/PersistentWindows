@@ -3744,24 +3744,22 @@ namespace PersistentWindows.Common
                 */
             }
 
-            bool wrong_screen = false;
-            RECT cur_rect = new RECT();
-            User32.GetWindowRect(hwnd, ref cur_rect);
-            RECT intersect = new RECT();
-            if (!User32.IntersectRect(out intersect, ref cur_rect, ref target_rect))
-                wrong_screen = true;
-
-            // #140, need extra check for wrong screen
-            if (IsWrongMonitor(hwnd, target_rect))
-                wrong_screen = true;
-
-            if (wrong_screen)
+            if (target_rect.Left > -25600 && target_rect.Top > -25600)
             {
-                Thread.Sleep(3 * double_clck_interval);
+                bool wrong_screen = false;
+                RECT cur_rect = new RECT();
                 User32.GetWindowRect(hwnd, ref cur_rect);
-                if (!User32.IntersectRect(out intersect, ref cur_rect, ref target_rect)
-                    || IsWrongMonitor(hwnd, target_rect))
+                RECT intersect = new RECT();
+                if (!User32.IntersectRect(out intersect, ref cur_rect, ref target_rect))
+                    wrong_screen = true;
+
+                // #140, need extra check for wrong screen
+                if (IsWrongMonitor(hwnd, target_rect))
+                    wrong_screen = true;
+
+                if (wrong_screen)
                 {
+                    Log.Error($"target full-screen {target_rect}");
                     User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                     Log.Error("fix wrong screen for {0}", GetWindowTitle(hwnd));
                 }
@@ -3792,7 +3790,6 @@ namespace PersistentWindows.Common
 
             Log.Error("fail to restore full screen window {0}", GetWindowTitle(hwnd));
 
-            /*
             User32.mouse_event(MouseAction.MOUSEEVENTF_LEFTDOWN | MouseAction.MOUSEEVENTF_LEFTUP,
                 0, 0, 0, UIntPtr.Zero);
             Thread.Sleep(double_clck_interval);
@@ -3809,7 +3806,6 @@ namespace PersistentWindows.Common
             }
 
             Log.Error("fail to restore full screen window {0}", GetWindowTitle(hwnd));
-            */
         }
 
         private void RestoreSnapWindow(IntPtr hwnd, RECT target_pos)
