@@ -1569,6 +1569,10 @@ namespace PersistentWindows.Common
                             continue;
                     }
 
+                    //strict title match for java program
+                    if (className == "SunAwtFrame" && !title.Equals(appPos.Title))
+                        continue;
+
                     if (IsMinimized(hwnd) != appPos.IsMinimized)
                         continue;
                     if (User32.IsWindowVisible(hwnd) == appPos.IsInvisible)
@@ -3267,7 +3271,7 @@ namespace PersistentWindows.Common
             else
             {
                 var prevDisplayMetrics = InheritKilledWindow(hwnd, realHwnd, kid);
-                if (hwnd != kid)
+                if (hwnd != kid && prevDisplayMetrics != null)
                 {
                     if (prevDisplayMetrics.Title != curDisplayMetrics.Title)
                         Log.Error($"{hwnd.ToString("X")} Inherit position data from killed window {prevDisplayMetrics.Title} with different title {curDisplayMetrics.Title} {prevDisplayMetrics.HWnd.ToString("X")}");
