@@ -1984,7 +1984,7 @@ namespace PersistentWindows.Common
             if (hwnd == IntPtr.Zero)
                 return;
 
-            if (idObject != 0)
+            if (eventType != User32Events.EVENT_OBJECT_CREATE && idObject != 0)
                 // ignore non-window object (caret etc)
                 return;
 
@@ -2246,11 +2246,13 @@ namespace PersistentWindows.Common
 
                                     if (User32.IsZoomed(hwnd))
                                         userMove = true;
+                                    /*
                                     else if (monitorApplications.ContainsKey(curDisplayKey) && !monitorApplications[curDisplayKey].ContainsKey(hwnd))
                                     {
                                         if (IsTopLevelWindow(hwnd) && !noRestoreWindows.Contains(hwnd))
                                             userMove = true; //window create event not received
                                     }
+                                    */
 
                                     if (foreGroundWindow == hwnd)
                                     {
