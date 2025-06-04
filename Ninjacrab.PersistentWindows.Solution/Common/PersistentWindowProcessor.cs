@@ -2033,7 +2033,6 @@ namespace PersistentWindows.Common
 
                 if (exitFullScreenGaming || hwnd == fullScreenGamingWindow || windowProcessName.ContainsKey(hwnd) && fullScreenGamingProcesses.Contains(windowProcessName[hwnd]))
                 {
-                    Log.Event("Exit full-screen gaming");
                     DateTime t = DateTime.Now;
                     if (t - lastDisplayChangeTime > TimeSpan.FromSeconds(10))
                     {
