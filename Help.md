@@ -66,15 +66,15 @@
     * move or resize the window (without pressing the Ctrl key).
   * To bring a background DPS window to foreground *without* restoring to the previous foreground position:
     * press any of Ctrl/Shift/Alt key when activating the window
-* To restore a new window to its last closing position:
-  * Ctrl + Click the PersistentWindows icon
-* To put the foreground window to the center of main monitor
+* To move (invisible or off-screen) foreground window to the center of main monitor
   * Shift + Click the PersistentWindows icon
 * To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by the Windows OS, which, however, does not work for windows inside a remote desktop window):
   * Alt + Click the desktop window to bring foreground window to bottom Z-order.
   * Ctrl + Alt + Click the PersistentWindows icon to bring *maximized* foreground window to bottom Z-order.
 * To hide a window to the notification area in the taskbar:
   * Ctrl + Click the minimize button
+* To close a window and permanently forget it's position history
+  * Ctrl + Close the window
 * To enable/disable auto restore for non-toplevel windows (such as a child or dialog window):
   * To include a child/dialog window for auto capture/restore, move the window once using the mouse
   * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
