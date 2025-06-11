@@ -113,7 +113,7 @@ namespace PersistentWindows.Common
         private Object restoringFullScreenWindow = new object();
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 5; // bit i represent restore method for pass i
+        public int fixZorderMethod = 33; // bit i represent restore method for pass i
         public int fixTaskBar = 1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
