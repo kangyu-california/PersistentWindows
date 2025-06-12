@@ -113,7 +113,8 @@ namespace PersistentWindows.Common
         private Object restoringFullScreenWindow = new object();
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 33; // bit i represent restore method for pass i
+        public int fixZorderMethod = 41; // bit i represent restore method for pass i
+        private int batchZorderPasses = 0;
         public int fixTaskBar = 1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
@@ -758,6 +759,8 @@ namespace PersistentWindows.Common
             {
                 int numWindowRestored = restoredWindows.Count;
                 int restorePass = restoreTimes;
+
+                batchZorderPasses = 0;
 
                 unResponsiveWindows.Clear();
 
@@ -2753,20 +2756,22 @@ namespace PersistentWindows.Common
 
         private int RestoreZorder(IntPtr hWnd, IntPtr prev)
         {
+            /*
             if (prev == IntPtr.Zero)
             {
                 Log.Trace("avoid restore to top most for window {0}", GetWindowTitle(hWnd));
                 return 0; // issue 21, avoiding restore to top z-order
             }
+            */
 
-            if (!User32.IsWindow(prev))
+            if (prev != IntPtr.Zero && !User32.IsWindow(prev))
             {
                 return 0;
             }
 
             bool ok = User32.SetWindowPos(
                 hWnd,
-                prev,
+                prev == IntPtr.Zero ? IntPtr.Zero - 2 : prev,
                 0, //rect.Left,
                 0, //rect.Top,
                 0, //rect.Width,
@@ -3455,10 +3460,10 @@ namespace PersistentWindows.Common
 
                 if (prevIndex < 0)
                 {
-                    Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
-
-                    if (restoringSnapshot)
+                    if (restoringSnapshot && restoreTimes == 0)
                     {
+                        Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
+
                         //the window did not exist when snapshot was taken
                         User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
                             0, 0, 0, 0,
@@ -4577,6 +4582,8 @@ namespace PersistentWindows.Common
 
             if (batchZorderFix)
             {
+                ++batchZorderPasses;
+
                 HashSet<IntPtr> risky_windows = unResponsiveWindows;
                 if (risky_windows.Count == 0)
                 try
@@ -4603,8 +4610,10 @@ namespace PersistentWindows.Common
 
                         // get previous value
                         bool isMoved = IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
-                        if (restoringSnapshot && !isMoved && restoreTimes < 1)
+                        /*
+                        if (restoringSnapshot && !isMoved && batchZorderPasses == 1)
                             continue; //do partial batch restore first
+                        */
                         if (prevDisplayMetrics == null)
                             continue;
 
