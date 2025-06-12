@@ -114,7 +114,6 @@ namespace PersistentWindows.Common
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
         public int fixZorderMethod = 10; // bit i represent restore method for pass i
-        private int batchZorderPasses = 0;
         public int fixTaskBar = 1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
@@ -759,8 +758,6 @@ namespace PersistentWindows.Common
             {
                 int numWindowRestored = restoredWindows.Count;
                 int restorePass = restoreTimes;
-
-                batchZorderPasses = 0;
 
                 unResponsiveWindows.Clear();
 
@@ -4582,8 +4579,6 @@ namespace PersistentWindows.Common
 
             if (batchZorderFix)
             {
-                ++batchZorderPasses;
-
                 HashSet<IntPtr> risky_windows = unResponsiveWindows;
                 if (risky_windows.Count == 0)
                 try
@@ -4609,17 +4604,14 @@ namespace PersistentWindows.Common
                         ApplicationDisplayMetrics prevDisplayMetrics;
 
                         // get previous value
-                        bool isMoved = IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
-                        /*
-                        if (restoringSnapshot && !isMoved && batchZorderPasses == 1)
-                            continue; //do partial batch restore first
-                        */
+                        IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
                         if (prevDisplayMetrics == null)
                             continue;
-
                         IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
                         if (hWnd == prevZwnd)
                             prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
+                        else if (hWnd == IntPtr.Zero)
+                            prevZwnd = IntPtr.Zero - 2; //notopmost 
 
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevZwnd,
                             0, 0, 0, 0,
