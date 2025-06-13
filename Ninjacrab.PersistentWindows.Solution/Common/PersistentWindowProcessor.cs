@@ -113,7 +113,7 @@ namespace PersistentWindows.Common
         private Object restoringFullScreenWindow = new object();
         public bool showDesktop = false; // show desktop when display changes
         public int fixZorder = 1; // 1 means restore z-order only for snapshot; 2 means restore z-order for all; 0 means no z-order restore at all
-        public int fixZorderMethod = 10; // bit i represent restore method for pass i
+        public int fixZorderMethod = 5; // bit i represent restore method for pass i
         public int fixTaskBar = 1;
         public bool pauseAutoRestore = false;
         public bool promptSessionRestore = false;
@@ -3456,24 +3456,7 @@ namespace PersistentWindows.Common
                 }
 
                 if (prevIndex < 0)
-                {
-                    if (restoringSnapshot && restoreTimes == 0)
-                    {
-                        Log.Error("no previous record found for window {0}", GetWindowTitle(hwnd));
-
-                        //the window did not exist when snapshot was taken
-                        User32.SetWindowPos(hwnd, new IntPtr(1), //bottom
-                            0, 0, 0, 0,
-                            0
-                            | SetWindowPosFlags.DoNotActivate
-                            | SetWindowPosFlags.IgnoreMove
-                            | SetWindowPosFlags.IgnoreResize
-                        );
-
-                        return false;
-                    }
-                    return !restoringFromMem;
-                }
+                    return true;
 
                 //update title even if window is not moved
                 prevDisplayMetrics = monitorApplications[displayKey][hwnd][prevIndex];
@@ -4327,7 +4310,11 @@ namespace PersistentWindows.Common
                 if (!IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics))
                     continue;
                 if (prevDisplayMetrics == null)
+                {
+                    if (restoringSnapshot && restoreTimes == 0 && windowProcessName.ContainsKey(hWnd))
+                        Log.Error("no previous record found for window {0} {1}", GetWindowTitle(hWnd), windowProcessName[hWnd]);
                     continue;
+                }
 
                 if (User32.IsHungAppWindow(hWnd) && !IsTaskBar(hWnd))
                 {
@@ -4605,13 +4592,17 @@ namespace PersistentWindows.Common
 
                         // get previous value
                         IsWindowMoved(displayKey, hWnd, 0, lastCaptureTime, out curDisplayMetrics, out prevDisplayMetrics);
+                        IntPtr prevZwnd;
                         if (prevDisplayMetrics == null)
-                            continue;
-                        IntPtr prevZwnd = prevDisplayMetrics.PrevZorderWindow;
-                        if (hWnd == prevZwnd)
-                            prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
-                        else if (hWnd == IntPtr.Zero)
-                            prevZwnd = IntPtr.Zero - 2; //notopmost 
+                            prevZwnd = new IntPtr(1); //place at bottom
+                        else
+                        {
+                            prevZwnd = prevDisplayMetrics.PrevZorderWindow;
+                            if (hWnd == prevZwnd)
+                                prevZwnd = new IntPtr(1); //place at bottom to avoid dead loop
+                            else if (hWnd == IntPtr.Zero)
+                                prevZwnd = IntPtr.Zero - 2; //notopmost 
+                        }
 
                         hWinPosInfo = User32.DeferWindowPos(hWinPosInfo, hWnd, prevZwnd,
                             0, 0, 0, 0,
