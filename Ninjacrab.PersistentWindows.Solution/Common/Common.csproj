@@ -94,6 +94,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DbKeySelect.resx">
+      <DependentUpon>DbKeySelect.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="LaunchProcess.resx">
       <DependentUpon>LaunchProcess.cs</DependentUpon>
     </EmbeddedResource>
