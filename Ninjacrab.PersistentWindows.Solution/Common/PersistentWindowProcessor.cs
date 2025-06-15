@@ -922,6 +922,7 @@ namespace PersistentWindows.Common
                     if (fastRestore)
                         process.PriorityClass = ProcessPriorityClass.High;
 
+                    string display_key = GetDisplayKey();
                     if (!freezeCapture)
                     {
                         lastDisplayChangeTime = DateTime.Now;
@@ -931,13 +932,11 @@ namespace PersistentWindows.Common
                         if (normalSessions.Contains(curDisplayKey))
                         {
                             // rewind disqualified capture time
-                            string display_key = GetDisplayKey();
                             if (!fullScreenGamingConfig.Contains(display_key))
                                 UndoCapture(lastDisplayChangeTime);
-
-                            Log.Event("Display session changed");
                         }
                     }
+                    Log.Event("Display setting changing {0}", display_key);
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
 
@@ -945,24 +944,24 @@ namespace PersistentWindows.Common
                 (s, e) =>
                 {
                     lastDisplayChangeTime = DateTime.Now;
-                    string displayKey = GetDisplayKey();
-                    Log.Event("Display settings changed {0}", displayKey);
+                    string display_key = GetDisplayKey();
+                    Log.Event("Display setting changed {0}", display_key);
 
                     {
                         EndDisplaySession();
 
                         if (sessionLocked)
                         {
-                            curDisplayKey = displayKey;
+                            curDisplayKey = display_key;
                             //wait for session unlock to start restore
                         }
                         else if (restoringFromMem)
                         {
-                            if (!displayKey.Equals(curDisplayKey))
+                            if (!display_key.Equals(curDisplayKey))
                             {
                                 restoreHalted = true;
-                                Log.Event("Restore halted due to new display setting change {0}", displayKey);
-                                CleanupDisplayRegKey(displayKey);
+                                Log.Event("Restore halted due to new display setting change {0}", display_key);
+                                CleanupDisplayRegKey(display_key);
                             }
                         }
                         else
@@ -973,16 +972,16 @@ namespace PersistentWindows.Common
                             // change display on the fly
                             Shell32.QUERY_USER_NOTIFICATION_STATE pquns;
                             int error = Shell32.SHQueryUserNotificationState(out pquns);
-                            if (normalSessions.Contains(displayKey))
+                            if (normalSessions.Contains(display_key))
                             {
-                                curDisplayKey = displayKey;
+                                curDisplayKey = display_key;
                                 if (promptSessionRestore)
                                 {
                                     PromptSessionRestore();
                                 }
-                                if (autoRestoreLiveWindowsFromDb && !monitorApplications.ContainsKey(displayKey))
+                                if (autoRestoreLiveWindowsFromDb && !monitorApplications.ContainsKey(display_key))
                                 {
-                                    CaptureApplicationsOnCurrentDisplays(displayKey, immediateCapture: true);
+                                    CaptureApplicationsOnCurrentDisplays(display_key, immediateCapture: true);
                                     Log.Event("auto restore from db");
                                     restoringFromDB = true;
                                     autoInitialRestoreFromDB = true;
@@ -999,11 +998,11 @@ namespace PersistentWindows.Common
                             {
                                 fullScreenGamingWindow = foreGroundWindow;
                                 fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
-                                fullScreenGamingConfig.Add(displayKey);
+                                fullScreenGamingConfig.Add(display_key);
                                 if (IsNewWindow(foreGroundWindow))
                                 {
                                     fullScreenGamingWindows.Add(fullScreenGamingWindow);
-                                    Log.Event($"enter full-screen gaming mode {displayKey} {GetWindowTitle(foreGroundWindow)}");
+                                    Log.Event($"enter full-screen gaming mode {display_key} {GetWindowTitle(foreGroundWindow)}");
                                 }
                                 else
                                     Log.Event($"re-enter full-screen gaming mode");
