@@ -431,7 +431,7 @@ namespace PersistentWindows.SystrayShell
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     //openFileDialog.InitialDirectory = "c:\\";
-                    openFileDialog.Filter = "*.ico, *.png, *.jpg, *.bmp, *.gif|*.ico;*.png;*.jpg;*.bmp;*.gif| *.ico | *.ico | *.png | *.png";
+                    openFileDialog.Filter = "*.ico, *.png, *.jpg, *.bmp, *.gif | *.ico;*.png;*.jpg;*.bmp;*.gif | *.ico | *.ico";
                     openFileDialog.FilterIndex = 1;
                     openFileDialog.RestoreDirectory = true;
 
