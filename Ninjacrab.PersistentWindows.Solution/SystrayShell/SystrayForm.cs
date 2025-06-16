@@ -431,7 +431,7 @@ namespace PersistentWindows.SystrayShell
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     //openFileDialog.InitialDirectory = "c:\\";
-                    openFileDialog.Filter = "*.ico, *.png|*.ico;*.png| *.ico | *.ico | *.png | *.png";
+                    openFileDialog.Filter = "*.ico, *.png, *.jpg, *.bmp, *.gif|*.ico;*.png;*.jpg;*.bmp;*.gif| *.ico | *.ico | *.png | *.png";
                     openFileDialog.FilterIndex = 1;
                     openFileDialog.RestoreDirectory = true;
 
@@ -441,7 +441,7 @@ namespace PersistentWindows.SystrayShell
                         string filePath = openFileDialog.FileName;
                         if (String.IsNullOrEmpty(filePath))
                             return;
-                        if (filePath.EndsWith(".png"))
+                        if (!filePath.EndsWith(".ico"))
                         {
                             var bitmap = new Bitmap(filePath); // or get it from resource
                             notifyIconMain.Icon = Icon.FromHandle(bitmap.GetHicon());
