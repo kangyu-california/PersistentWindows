@@ -441,13 +441,13 @@ namespace PersistentWindows.SystrayShell
                         string filePath = openFileDialog.FileName;
                         if (String.IsNullOrEmpty(filePath))
                             return;
-                        if (!filePath.EndsWith(".ico"))
+                        if (filePath.EndsWith(".ico"))
+                            notifyIconMain.Icon = new Icon(filePath);
+                        else
                         {
                             var bitmap = new Bitmap(filePath); // or get it from resource
                             notifyIconMain.Icon = Icon.FromHandle(bitmap.GetHicon());
                         }
-                        else
-                            notifyIconMain.Icon = new Icon(filePath);
                         toggleIcon = !toggleIcon;
                         toggleIconMenuItem.Text = "Disable customized icon";
                     }
