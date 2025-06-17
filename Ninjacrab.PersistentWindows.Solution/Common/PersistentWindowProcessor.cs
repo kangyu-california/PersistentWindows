@@ -2102,16 +2102,6 @@ namespace PersistentWindows.Common
                 return;
             }
 
-            if (!CaptureProcessName(hwnd))
-                return;
-
-            if (ignoreProcess.Count > 0)
-            {
-                string processName = windowProcessName[hwnd];
-                if (ignoreProcess.Contains(processName))
-                    return;
-            }
-
 #if DEBUG
             if (title.Contains("Microsoft Visual Studio")
                 && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
@@ -3352,6 +3342,16 @@ namespace PersistentWindows.Common
             uint threadId = User32.GetWindowThreadProcessId(realHwnd, out processId);
             if (!CaptureProcessName(realHwnd))
                 return false;
+
+            if (hwnd != realHwnd && !CaptureProcessName(hwnd))
+                return false;
+
+            if (ignoreProcess.Count > 0)
+            {
+                string processName = windowProcessName[hwnd];
+                if (ignoreProcess.Contains(processName))
+                    return false;
+            }
 
             if (debugProcess.Count > 0)
             {
