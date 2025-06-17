@@ -2510,7 +2510,7 @@ namespace PersistentWindows.Common
                 return IntPtr.Zero;
 
             if (IsMinimized(hWnd))
-                return IntPtr.Zero;
+                return IntPtr.Zero + 1; //to bottom
 
             if (!monitorApplications.ContainsKey(curDisplayKey))
                 return IntPtr.Zero;
@@ -2519,7 +2519,7 @@ namespace PersistentWindows.Common
             User32.GetWindowRect(hWnd, ref rect);
 
             IntPtr result = hWnd;
-            IntPtr fail_safe_result = IntPtr.Zero;
+            IntPtr fail_safe_result = IntPtr.Zero; //nontopmost
 
             do
             {
