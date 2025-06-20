@@ -3285,9 +3285,11 @@ namespace PersistentWindows.Common
 
                 if (initialized && autoRestoreNewWindowToLastCapture)
                 {
-                    if (!restoringFromDB)
+                    if (!restoringFromDB && prevDisplayMetrics != null)
                     {
+                        if (windowTitle.ContainsKey(hwnd))
                         Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
+
                         restoreSingleWindow = true;
                         restoringFromMem = true;
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
