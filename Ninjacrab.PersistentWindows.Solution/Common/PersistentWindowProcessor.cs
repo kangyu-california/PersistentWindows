@@ -2778,6 +2778,19 @@ namespace PersistentWindows.Common
 
         private bool CaptureWindow(IntPtr hWnd, User32Events eventType, DateTime now, string displayKey)
         {
+            try
+            {
+                return CaptureWindowCore(hWnd, eventType, now, displayKey);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+            return false;
+        }
+
+        private bool CaptureWindowCore(IntPtr hWnd, User32Events eventType, DateTime now, string displayKey)
+        {
             bool ret = false;
 
             if (!displayKey.Equals(curDisplayKey))
@@ -3124,17 +3137,8 @@ namespace PersistentWindows.Common
 
                 foreach (var hwnd in appWindows)
                 {
-                    try
-                    {
                         if (CaptureWindow(hwnd, 0, now, displayKey))
-                        {
                             movedWindows++;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex.ToString());
-                    }
                 }
 
                 if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
