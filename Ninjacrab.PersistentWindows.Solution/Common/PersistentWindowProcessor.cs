@@ -2039,6 +2039,7 @@ namespace PersistentWindows.Common
                 if (hwnd == fullScreenGamingWindow)
                     fullScreenGamingWindow = IntPtr.Zero;
 
+                /*
                 if (exitFullScreenGaming || hwnd == fullScreenGamingWindow || windowProcessName.ContainsKey(hwnd) && fullScreenGamingProcesses.Contains(windowProcessName[hwnd]))
                 {
                     DateTime t = DateTime.Now;
@@ -2048,6 +2049,7 @@ namespace PersistentWindows.Common
                         StartRestoreTimer();
                     }
                 }
+                */
 
                 bool found_history = false;
                 lock(captureLock)
