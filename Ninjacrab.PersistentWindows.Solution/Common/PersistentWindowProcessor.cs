@@ -78,6 +78,7 @@ namespace PersistentWindows.Common
         private Timer captureTimer;
         private bool captureTimerStarted = false;
         private string curDisplayKey; // current display config name
+        private string prevDisplayKey;
         public string dbDisplayKey = null;
         private static Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
@@ -937,6 +938,7 @@ namespace PersistentWindows.Common
                                 UndoCapture(lastDisplayChangeTime);
                         }
 
+                        prevDisplayKey = curDisplayKey;
                         curDisplayKey = display_key;
                         StartRestoreTimer(milliSecond:3000);
                     }
@@ -1001,6 +1003,7 @@ namespace PersistentWindows.Common
                             }
                             else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
+                                curDisplayKey = prevDisplayKey;
                                 fullScreenGamingWindow = foreGroundWindow;
                                 fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
                                 fullScreenGamingConfig.Add(display_key);
@@ -1016,6 +1019,7 @@ namespace PersistentWindows.Common
                             }
                             else
                             {
+                                curDisplayKey = prevDisplayKey;
                                 StartRestoreFinishedTimer(immediateFinishRestore);
                             }
                         }
