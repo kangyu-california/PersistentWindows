@@ -922,6 +922,7 @@ namespace PersistentWindows.Common
                     if (fastRestore)
                         process.PriorityClass = ProcessPriorityClass.High;
 
+                    CancelRestoreTimer();
                     string display_key = GetDisplayKey();
                     if (!freezeCapture)
                     {
@@ -935,6 +936,9 @@ namespace PersistentWindows.Common
                             if (!fullScreenGamingConfig.Contains(display_key))
                                 UndoCapture(lastDisplayChangeTime);
                         }
+
+                        curDisplayKey = display_key;
+                        StartRestoreTimer(milliSecond:3000);
                     }
                     Log.Event("Display setting changing {0}", display_key);
                 };
@@ -944,6 +948,7 @@ namespace PersistentWindows.Common
                 (s, e) =>
                 {
                     lastDisplayChangeTime = DateTime.Now;
+                    CancelRestoreTimer();
                     string display_key = GetDisplayKey();
                     Log.Event("Display setting changed {0}", display_key);
 
