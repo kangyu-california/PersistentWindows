@@ -937,11 +937,12 @@ namespace PersistentWindows.Common
                             if (!fullScreenGamingConfig.Contains(display_key))
                                 UndoCapture(lastDisplayChangeTime);
                         }
-
-                        prevDisplayKey = curDisplayKey;
-                        curDisplayKey = display_key;
-                        StartRestoreTimer(milliSecond:3000);
                     }
+
+                    prevDisplayKey = curDisplayKey;
+                    curDisplayKey = display_key;
+                    restoringFromMem = true;
+                    StartRestoreTimer(milliSecond:3000);
                     Log.Event("Display setting changing {0}", display_key);
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -961,15 +962,6 @@ namespace PersistentWindows.Common
                         {
                             curDisplayKey = display_key;
                             //wait for session unlock to start restore
-                        }
-                        else if (restoringFromMem)
-                        {
-                            if (!display_key.Equals(curDisplayKey))
-                            {
-                                restoreHalted = true;
-                                Log.Event("Restore halted due to new display setting change {0}", display_key);
-                                CleanupDisplayRegKey(display_key);
-                            }
                         }
                         else
                         {
