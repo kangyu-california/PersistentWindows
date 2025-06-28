@@ -939,10 +939,13 @@ namespace PersistentWindows.Common
                         }
                     }
 
-                    prevDisplayKey = curDisplayKey;
-                    curDisplayKey = display_key;
-                    restoringFromMem = true;
-                    StartRestoreTimer(milliSecond:3000);
+                    if (normalSessions.Contains(display_key))
+                    {
+                        prevDisplayKey = curDisplayKey;
+                        curDisplayKey = display_key;
+                        restoringFromMem = true;
+                        StartRestoreTimer(milliSecond: 3000);
+                    }
                     Log.Event("Display setting changing {0}", display_key);
                 };
             SystemEvents.DisplaySettingsChanging += this.displaySettingsChangingHandler;
@@ -1011,6 +1014,7 @@ namespace PersistentWindows.Common
                             }
                             else
                             {
+                                restoreHalted = true;
                                 curDisplayKey = prevDisplayKey;
                                 StartRestoreFinishedTimer(immediateFinishRestore);
                             }
