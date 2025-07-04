@@ -988,17 +988,17 @@ namespace PersistentWindows.Common
                                     restoringFromDB = true;
                                     autoInitialRestoreFromDB = true;
                                     dbDisplayKey = curDisplayKey;
-                                    StartRestoreTimer();
                                 }
                                 else
                                 {
                                     restoringFromMem = true;
-                                    StartRestoreTimer();
                                 }
+                                StartRestoreTimer();
+                                return;
                             }
-                            else if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
+
+                            if (error == 0 && pquns.HasFlag(Shell32.QUERY_USER_NOTIFICATION_STATE.QUNS_RUNNING_D3D_FULL_SCREEN))
                             {
-                                curDisplayKey = prevDisplayKey;
                                 fullScreenGamingWindow = foreGroundWindow;
                                 fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
                                 fullScreenGamingConfig.Add(display_key);
@@ -1009,15 +1009,11 @@ namespace PersistentWindows.Common
                                 }
                                 else
                                     Log.Event($"re-enter full-screen gaming mode");
+                            }
 
-                                StartRestoreFinishedTimer(immediateFinishRestore);
-                            }
-                            else
-                            {
-                                restoreHalted = true;
-                                curDisplayKey = prevDisplayKey;
-                                StartRestoreFinishedTimer(immediateFinishRestore);
-                            }
+                            restoreHalted = true;
+                            curDisplayKey = prevDisplayKey;
+                            StartRestoreFinishedTimer(immediateFinishRestore);
                         }
                     }
                 };
