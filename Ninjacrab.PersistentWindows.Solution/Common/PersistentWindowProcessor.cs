@@ -530,7 +530,7 @@ namespace PersistentWindows.Common
             else if (fullScreenGamingWindow == IntPtr.Zero)
             {
                 //create window event may be delayed
-                if (hwnd != IntPtr.Zero && !noRestoreWindows.Contains(hwnd))
+                if (hwnd != IntPtr.Zero && !noRestoreWindows.Contains(hwnd) && normalSessions.Contains(curDisplayKey))
                     CaptureWindow(hwnd, 0, DateTime.Now, curDisplayKey);
 
                 StartCaptureTimer();
@@ -3157,7 +3157,7 @@ namespace PersistentWindows.Common
                 }
                 else if (displayKey.Equals(curDisplayKey))
                 {
-                    if (!initialized || movedWindows > 0)
+                    if (!initialized || (movedWindows > 0 && normalSessions.Contains(curDisplayKey)))
                     {
                         // confirmed user moves
                         RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
