@@ -2846,7 +2846,7 @@ namespace PersistentWindows.Common
                         TryInheritWindow(hWnd, curDisplayMetrics.HWnd, kid, curDisplayMetrics);
                     }
 
-                    if (kid == IntPtr.Zero || !monitorApplications[displayKey].ContainsKey(hWnd))
+                    if (!monitorApplications[displayKey].ContainsKey(hWnd))
                         monitorApplications[displayKey].Add(hWnd, new List<ApplicationDisplayMetrics>());
                 }
                 else
