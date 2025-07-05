@@ -159,6 +159,8 @@ namespace PersistentWindows.Common
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
         private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
+        private HashSet<string> noinheritProcess = new HashSet<string>();
+        private HashSet<IntPtr> noinheritWindows = new HashSet<IntPtr>();
 
         private static Dictionary<IntPtr, string> windowProcessName = new Dictionary<IntPtr, string>();
         private Process process;
@@ -1187,6 +1189,18 @@ namespace PersistentWindows.Common
             }
         }
 
+        public void SetNoinheritProcess(string no_inherit_process)
+        {
+            string[] ps = no_inherit_process.Split(';');
+            foreach (var p in ps)
+            {
+                var s = p;
+                if (s.EndsWith(".exe"))
+                    s = s.Substring(0, s.Length - 4);
+                noinheritProcess.Add(s);
+            }
+        }
+
         private void PromptSessionRestore()
         {
             if (pauseAutoRestore)
@@ -1505,6 +1519,9 @@ namespace PersistentWindows.Common
 
         private IntPtr FindMatchingKilledWindow(IntPtr hwnd)
         {
+            if (noinheritWindows.Contains(hwnd))
+                return IntPtr.Zero;
+
             if (!deadApps.ContainsKey(curDisplayKey))
                 return IntPtr.Zero;
 
@@ -2022,6 +2039,10 @@ namespace PersistentWindows.Common
                 {
                     Log.Event($"kill window {windowTitle[hwnd]}");
                     debugWindows.Remove(hwnd);
+                }
+                if (noinheritWindows.Contains(hwnd))
+                {
+                    noinheritWindows.Remove(hwnd);
                 }
                 if (fullScreenGamingWindows.Contains(hwnd))
                 {
@@ -3370,6 +3391,18 @@ namespace PersistentWindows.Common
                     if (debugProcess.Contains(processName))
                     {
                         debugWindows.Add(hwnd);
+                    }
+                }
+            }
+
+            if (noinheritProcess.Count > 0)
+            {
+                if (windowProcessName.ContainsKey(hwnd))
+                {
+                    string processName = windowProcessName[hwnd];
+                    if (noinheritProcess.Contains(processName))
+                    {
+                        noinheritWindows.Add(hwnd);
                     }
                 }
             }

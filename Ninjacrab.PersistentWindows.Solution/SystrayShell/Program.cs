@@ -75,6 +75,7 @@ if not errorlevel 1 goto wait_to_finish";
             int delay_auto_restore = 0;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
             string ignore_process = "";
+            string no_inherit_process = "";
             int debug_process = 0;
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
@@ -141,6 +142,12 @@ if not errorlevel 1 goto wait_to_finish";
                 {
                     ignore_process = "";
                     pwp.SetIgnoreProcess(arg);
+                    continue;
+                }
+                else if (no_inherit_process.Length > 0)
+                {
+                    no_inherit_process = "";
+                    pwp.SetNoinheritProcess(arg);
                     continue;
                 }
                 else if (hotkey == 1)
@@ -210,6 +217,9 @@ if not errorlevel 1 goto wait_to_finish";
                         break;
                     case "-ignore_process":
                         ignore_process = "_foo_";
+                        break;
+                    case "-no_inherit_process":
+                        no_inherit_process = "_foo_";
                         break;
                     case "-debug_process":
                         debug_process = 1;
