@@ -1519,6 +1519,9 @@ namespace PersistentWindows.Common
 
         private IntPtr FindMatchingKilledWindow(IntPtr hwnd)
         {
+            if (freezeCapture || restoreHalted)
+                return IntPtr.Zero;
+
             if (noinheritWindows.Contains(hwnd))
                 return IntPtr.Zero;
 
