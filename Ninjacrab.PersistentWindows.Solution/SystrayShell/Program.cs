@@ -94,6 +94,8 @@ if not errorlevel 1 goto wait_to_finish";
             bool legacy_icon = false;
             bool waiting_taskbar = false;
             int restore_snapshot = -1;
+            bool restore_from_disk = false;
+            string restore_disk = "";
 
             foreach (var arg in args)
             {
@@ -325,12 +327,26 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-restore_snapshot":
                         restore_snapshot = 0;
                         break;
+                    case "-restore_disk_capture":
+                        restore_from_disk = true;
+                        if (arg != args[args.Length - 1])
+                            restore_disk = args[args.Length - 1];
+                        break;
                 }
+
+                if (restore_from_disk)
+                    break;
             }
 
             if (restore_snapshot >= 0)
             {
                 pwp.RestoreSnapshotCmd(restore_snapshot);
+                return;
+            }
+
+            if (restore_from_disk)
+            {
+                pwp.RestoreFromDiskCmd(restore_disk);
                 return;
             }
 
