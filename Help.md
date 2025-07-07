@@ -9,8 +9,9 @@
   | -legacy_icon    | Switch to the original icon ![pwIcon2small](https://github.com/user-attachments/assets/4827f67a-2ce1-4a83-86da-b4bfa6835026)
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -capture_floating_window=0 | Disable capture floating child window and dialog window position
-  | -ignore_process "notepad.exe;foo" | Avoid restoring windows for the processes notepad.exe and foo
-  | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for the processes *notepad.exe* and *foo*
+  | -ignore_process "notepad.exe;foo" | Avoid restoring windows for notepad.exe and foo processes
+  | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for notepad.exe and foo processes
+  | -no_inherit_process "notepad.exe;foo" | Disable auto restore new window for notepad and foo processes
   | -foreground_background_dual_position=0 | Turn off dual position switching
   | -webpage_commander_window=0 | Unregister Alt+W hotkey and turn off the webpage commander feature
   | -hotkey "Q" | register Alt + Q as the hotkey to (de)activate webpage commander window, default hotkey is "W" (Alt + W)
@@ -35,6 +36,7 @@
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
   | -dump_window_position_history=0 | Disable window position history dump
   | -restore_snapshot "0" | restore snapshot 0 and exit. The range of snapshot id is [0-9a-z], as well as "~" or "`", the last two special ids represent the last auto restore. Note the window z-order can not be fully retored using this method, due to lack of capability to do multi-pass restore.
+  | -restore_disk_capture ["name_of_capture"] | restore windows from (named) capture on hard drive, if "name_of_capture" is omitted, the default anonymous disk capture is assumed.
 ---
 
 ### Shortcuts to capture/restore snapshots
