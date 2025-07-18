@@ -95,7 +95,6 @@ namespace PersistentWindows.Common
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
         private HashSet<string> fullScreenGamingProcesses = new HashSet<string>();
-        private HashSet<string> fullScreenGamingConfig = new HashSet<string>();
         private IntPtr fullScreenGamingWindow = IntPtr.Zero;
         private bool exitFullScreenGaming = false;
         private POINT initCursorPos;
@@ -958,8 +957,7 @@ namespace PersistentWindows.Common
                         if (normalSessions.Contains(curDisplayKey))
                         {
                             // rewind disqualified capture time
-                            if (!fullScreenGamingConfig.Contains(display_key))
-                                UndoCapture(lastDisplayChangeTime);
+                            UndoCapture(lastDisplayChangeTime);
                         }
                     }
 
@@ -1025,7 +1023,6 @@ namespace PersistentWindows.Common
                             {
                                 fullScreenGamingWindow = foreGroundWindow;
                                 fullScreenGamingProcesses.Add(windowProcessName[fullScreenGamingWindow]);
-                                fullScreenGamingConfig.Add(display_key);
                                 if (IsNewWindow(foreGroundWindow))
                                 {
                                     fullScreenGamingWindows.Add(fullScreenGamingWindow);
