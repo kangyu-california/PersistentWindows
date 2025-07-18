@@ -2008,6 +2008,7 @@ namespace PersistentWindows.Common
             try
 #endif
             {
+                lock(captureLock)
                 WinEventProcCore(hWinEventHook, eventType, hwnd, idObject, idChild, dwEventThread, dwmsEventTime);
             }
 #if DEBUG
@@ -2087,7 +2088,6 @@ namespace PersistentWindows.Common
                 */
 
                 bool found_history = false;
-                lock(captureLock)
                 foreach (var display_config in monitorApplications.Keys)
                 {
                     if (!monitorApplications[display_config].ContainsKey(hwnd))
@@ -3258,6 +3258,7 @@ namespace PersistentWindows.Common
                 result.Add(hwnd);
             }
 
+            lock(captureLock)
             foreach (var hwnd in allUserMoveWindows)
             {
                 if (noRestoreWindows.Contains(hwnd))
