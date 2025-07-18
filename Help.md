@@ -19,7 +19,7 @@
   | -prompt_session_restore | Ask the user before restoring the window layout upon resuming the last session. This may help reduce the total restore time for remote desktop sessions on slow internet connections.
   | -delay_restart 5 | Restart PersistentWindows in 5 seconds. This option should only be used in case normal start of PersistentWindows fails.
   | -delay_auto_capture 1.0 | Adjust the lag between window move event and auto-capture to 1.0 second, the default lag is 3~4 seconds.
-  | *-delay_auto_restore 2.5* | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second). This is in case the restore is incomplete or the monitor fails to go to sleep due to the restore starting too early.
+  | *-delay_auto_restore 2.5* | Adjust the lag between monitor on/off event and auto-restore to 2.5 seconds (the default lag is 1 second). This option helps to work around conflict of window restore between Win11 and PW, or the monitor fails to go to sleep due to the restore starting too early.
   | -redraw_desktop | Redraw the whole desktop after a restore, in case some window workarea is not refreshed
   | -fix_zorder=1   | Preserve the window Z-order for automatic restores. The Z-order of a window indicates the window's position in a stack of overlapping windows.
   | -fix_offscreen_window=0 | Turn off auto correction of off-screen windows
@@ -36,7 +36,7 @@
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
   | -dump_window_position_history=0 | Disable window position history dump
   | -restore_snapshot "0" | restore snapshot 0 and exit. The range of snapshot id is [0-9a-z], as well as "~" or "`", the last two special ids represent the last auto restore. Note the window z-order can not be fully retored using this method, due to the lack of capability to do multi-pass restore.
-  | -restore_disk_capture ["name_of_capture"] | restore windows from (named) capture on hard drive. If "name_of_capture" is omitted, the default anonymous disk capture is assumed. Note that a second restore using the same command line is needed to restore newly launched windows in the first restore.
+  | -restore_disk_capture ["name_of_capture"] | restore windows from (named) capture on hard drive and exit. If "name_of_capture" is omitted, the default anonymous disk capture is assumed. Note that a second restore using the same command line is needed to restore newly launched windows in the first restore.
 ---
 
 ### Shortcuts to capture/restore snapshots
