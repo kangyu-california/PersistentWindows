@@ -429,20 +429,6 @@ namespace PersistentWindows.Common
             }
         }
 
-        private void CleanupDisplayRegKey(string key)
-        {
-            if (key.Contains("__"))
-                return; //multi-monitor config
-            try
-            {
-                CleanupDisplayRegKeyCore(key);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.ToString());
-            }
-        }
-
         private bool IsRdpWindow(IntPtr hwnd)
         {
             bool r = false;
@@ -457,27 +443,6 @@ namespace PersistentWindows.Common
             }
 
             return r;
-        }
-
-        private void CleanupDisplayRegKeyCore(string key)
-        {
-            RegistryKey top = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Control\GraphicsDrivers\Configuration", true);
-            string[] configs = top.GetSubKeyNames();
-            foreach (var config_name in configs)
-            {
-                RegistryKey config = top.OpenSubKey(config_name);
-                string[] displays = config.GetSubKeyNames();
-                if (displays.Length > 1)
-                    continue;
-                RegistryKey display = config.OpenSubKey(displays[0]);
-                int width = (int)display.GetValue("PrimSurfSize.cx");
-                int height = (int)display.GetValue("PrimSurfSize.cy");
-                string pat = $"{width}x{height}";
-                if (!key.Contains(pat))
-                    continue;
-                Log.Error($"remove display config {config_name} from registry corresponding to {key}");
-                top.DeleteSubKeyTree(config_name);
-            }
         }
 
         private bool SnapshotExists(string displayKey)
