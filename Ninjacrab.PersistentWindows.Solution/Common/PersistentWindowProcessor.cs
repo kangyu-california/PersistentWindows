@@ -77,6 +77,8 @@ namespace PersistentWindows.Common
         // capture control
         private Timer captureTimer;
         private bool captureTimerStarted = false;
+        private Timer killTimer;
+        private bool killTimerStarted = false;
         private string curDisplayKey; // current display config name
         private string prevDisplayKey;
         public string dbDisplayKey = null;
@@ -709,6 +711,11 @@ namespace PersistentWindows.Common
 
             foregroundTimer = new Timer(foregroundTimerCallback);
 
+            killTimer = new Timer(state =>
+            {
+                killTimerStarted = false;
+            });
+
             captureTimer = new Timer(state =>
             {
                 process.PriorityClass = processPriority;
@@ -726,6 +733,15 @@ namespace PersistentWindows.Common
 
                 if (freezeCapture)
                     return;
+
+                POINT cursor_pos;
+                User32.GetCursorPos(out cursor_pos);
+                if (cursor_pos.Equals(initCursorPos) && killTimerStarted)
+                {
+                    Log.Event("avoid capture during reboot");
+                    return;
+                }
+
                 /*
                 if (foreGroundWindow != IntPtr.Zero && fullScreenGamingWindow == foreGroundWindow)
                 {
@@ -2022,6 +2038,11 @@ namespace PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
+                //suppress capture within 8 seconds when kill window during reboot
+                User32.GetCursorPos(out initCursorPos);
+                killTimerStarted = true;
+                killTimer.Change(8000, Timeout.Infinite);
+
                 noRestoreWindows.Remove(hwnd);
                 if (debugWindows.Contains(hwnd))
                 {
