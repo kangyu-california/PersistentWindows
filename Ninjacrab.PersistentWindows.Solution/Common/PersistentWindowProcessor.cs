@@ -738,7 +738,7 @@ namespace PersistentWindows.Common
                 User32.GetCursorPos(out cursor_pos);
                 if (cursor_pos.Equals(initCursorPos) && killTimerStarted)
                 {
-                    Log.Event("avoid capture during reboot");
+                    Log.Info("avoid capture during reboot");
                     return;
                 }
 
@@ -2040,8 +2040,11 @@ namespace PersistentWindows.Common
             {
                 //suppress capture within 8 seconds when kill window during reboot
                 User32.GetCursorPos(out initCursorPos);
-                killTimerStarted = true;
-                killTimer.Change(8000, Timeout.Infinite);
+                if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
+                {
+                    killTimerStarted = true;
+                    killTimer.Change(8000, Timeout.Infinite);
+                }
 
                 noRestoreWindows.Remove(hwnd);
                 if (debugWindows.Contains(hwnd))
