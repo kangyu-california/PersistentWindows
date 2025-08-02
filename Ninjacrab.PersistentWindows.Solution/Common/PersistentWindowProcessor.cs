@@ -3500,7 +3500,7 @@ namespace PersistentWindows.Common
                         var metrics = monitorApplications[displayKey][hwnd][prevIndex];
                         if (!metrics.IsValid)
                         {
-                            Log.Error("invalid capture data {0}", GetWindowTitle(hwnd));
+                            monitorApplications[displayKey][hwnd].RemoveAt(prevIndex);
                             continue;
                         }
                         if (metrics.CaptureTime <= time)
