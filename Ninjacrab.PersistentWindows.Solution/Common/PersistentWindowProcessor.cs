@@ -313,6 +313,23 @@ namespace PersistentWindows.Common
                         break;
                     }
 
+                    bool important = false;
+                    foreach (var x in deadApps[display_config][kid])
+                    {
+                        if (x.SnapShotFlags != 0)
+                        {
+                            important = true; //window in snapshot is frequently used
+                            break;
+                        }
+                    }
+
+                    if (important)
+                    {
+                        tm = DateTime.Now;
+                        oldest_window = IntPtr.Zero;
+                        continue;
+                    }
+
                     DateTime t = dm.CaptureTime;
                     if (t < tm)
                     {
