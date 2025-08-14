@@ -324,11 +324,7 @@ namespace PersistentWindows.Common
                     }
 
                     if (important)
-                    {
-                        tm = DateTime.Now;
-                        oldest_window = IntPtr.Zero;
                         continue;
-                    }
 
                     DateTime t = dm.CaptureTime;
                     if (t < tm)
