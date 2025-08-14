@@ -2095,7 +2095,7 @@ namespace PersistentWindows.Common
                         // for matching new window with killed one
                         var dm = monitorApplications[display_config][hwnd].Last();
                         if (dm.SnapShotFlags == 0)
-                            dm.CaptureTime = DateTime.Now; //for inheritence in LIFO stile
+                            dm.CaptureTime = DateTime.Now; //for inheritence in LIFO style
 
                         if (ctrl_key_pressed)
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
