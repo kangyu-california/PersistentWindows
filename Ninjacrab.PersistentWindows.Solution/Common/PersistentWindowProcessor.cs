@@ -2051,12 +2051,20 @@ namespace PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
-                //suppress capture within 8 seconds when kill window during reboot
-                User32.GetCursorPos(out initCursorPos);
                 if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 {
-                    killTimerStarted = true;
-                    killTimer.Change(8000, Timeout.Infinite);
+                    //suppress capture within 8 seconds when kill window during reboot
+                    var adm = monitorApplications[curDisplayKey][hwnd].Last();
+                    RECT windowPos = new RECT();
+                    windowPos = adm.ScreenPosition;
+                    POINT curCursorPos;
+                    User32.GetCursorPos(out curCursorPos);
+                    if (!User32.PtInRect(ref windowPos, curCursorPos))
+                    {
+                        killTimerStarted = true;
+                        initCursorPos = curCursorPos;
+                        killTimer.Change(8000, Timeout.Infinite);
+                    }
                 }
 
                 noRestoreWindows.Remove(hwnd);
