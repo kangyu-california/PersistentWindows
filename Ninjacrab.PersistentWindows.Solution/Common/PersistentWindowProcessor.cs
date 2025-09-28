@@ -2117,6 +2117,15 @@ namespace PersistentWindows.Common
 
                         // for matching new window with killed one
                         var dm = monitorApplications[display_config][hwnd].Last();
+                        DateTime t = DateTime.Now;
+                        if (t - dm.CaptureTime < TimeSpan.FromMilliseconds(500))
+                        {
+                            Log.Error("discard capture when closing window {0}", windowTitle[hwnd]);
+                            monitorApplications[display_config][hwnd].Remove(dm);
+                            if (monitorApplications[display_config][hwnd].Count > 0)
+                                dm = monitorApplications[display_config][hwnd].Last();
+                        }
+
                         if (dm.SnapShotFlags == 0)
                             dm.CaptureTime = DateTime.Now; //for inheritence in LIFO style
 
