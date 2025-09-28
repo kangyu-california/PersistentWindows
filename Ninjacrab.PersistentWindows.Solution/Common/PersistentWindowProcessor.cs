@@ -2303,6 +2303,16 @@ namespace PersistentWindows.Common
                                             userMove = true; //window create event not received
                                     }
                                     */
+                                    else
+                                    {
+                                        bool left_win_key_pressed = (User32.GetKeyState(0x5b) & 0x8000) != 0;
+                                        bool right_win_key_pressed = (User32.GetKeyState(0x5c) & 0x8000) != 0;
+                                        if (left_win_key_pressed || right_win_key_pressed)
+                                        {
+                                            //snap window
+                                            userMove = true;
+                                        }
+                                    }
 
                                     if (foreGroundWindow == hwnd)
                                     {
