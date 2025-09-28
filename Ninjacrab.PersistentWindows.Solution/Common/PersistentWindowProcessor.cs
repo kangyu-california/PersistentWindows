@@ -747,9 +747,7 @@ namespace PersistentWindows.Common
                 if (freezeCapture)
                     return;
 
-                POINT cursor_pos;
-                User32.GetCursorPos(out cursor_pos);
-                if (cursor_pos.Equals(initCursorPos) && killTimerStarted)
+                if (killTimerStarted)
                 {
                     Log.Info("avoid capture during reboot");
                     return;
@@ -2053,7 +2051,7 @@ namespace PersistentWindows.Common
             {
                 if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
                 {
-                    //suppress capture within 8 seconds when kill window during reboot
+                    //suppress capture window get killed during reboot
                     var adm = monitorApplications[curDisplayKey][hwnd].Last();
                     RECT windowPos = new RECT();
                     windowPos = adm.ScreenPosition;
@@ -2061,8 +2059,12 @@ namespace PersistentWindows.Common
                     User32.GetCursorPos(out curCursorPos);
                     if (!User32.PtInRect(ref windowPos, curCursorPos))
                     {
-                        killTimerStarted = true;
-                        initCursorPos = curCursorPos;
+                        if (!killTimerStarted)
+                        {
+                            //possible reboot
+                            killTimerStarted = true;
+                            initCursorPos = curCursorPos;
+                        }
                         killTimer.Change(8000, Timeout.Infinite);
                     }
                 }
