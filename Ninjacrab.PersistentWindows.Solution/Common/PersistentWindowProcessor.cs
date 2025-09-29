@@ -77,8 +77,6 @@ namespace PersistentWindows.Common
         // capture control
         private Timer captureTimer;
         private bool captureTimerStarted = false;
-        private Timer killTimer;
-        private bool killTimerStarted = false;
         private string curDisplayKey; // current display config name
         private string prevDisplayKey;
         public string dbDisplayKey = null;
@@ -724,11 +722,6 @@ namespace PersistentWindows.Common
 
             foregroundTimer = new Timer(foregroundTimerCallback);
 
-            killTimer = new Timer(state =>
-            {
-                killTimerStarted = false;
-            });
-
             captureTimer = new Timer(state =>
             {
                 process.PriorityClass = processPriority;
@@ -746,12 +739,6 @@ namespace PersistentWindows.Common
 
                 if (freezeCapture)
                     return;
-
-                if (killTimerStarted)
-                {
-                    Log.Info("avoid capture during reboot");
-                    return;
-                }
 
                 /*
                 if (foreGroundWindow != IntPtr.Zero && fullScreenGamingWindow == foreGroundWindow)
@@ -2049,26 +2036,6 @@ namespace PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
-                if (monitorApplications.ContainsKey(curDisplayKey) && monitorApplications[curDisplayKey].ContainsKey(hwnd))
-                {
-                    //suppress capture window get killed during reboot
-                    var adm = monitorApplications[curDisplayKey][hwnd].Last();
-                    RECT windowPos = new RECT();
-                    windowPos = adm.ScreenPosition;
-                    POINT curCursorPos;
-                    User32.GetCursorPos(out curCursorPos);
-                    if (!User32.PtInRect(ref windowPos, curCursorPos))
-                    {
-                        if (!killTimerStarted)
-                        {
-                            //possible reboot
-                            killTimerStarted = true;
-                            initCursorPos = curCursorPos;
-                        }
-                        killTimer.Change(8000, Timeout.Infinite);
-                    }
-                }
-
                 noRestoreWindows.Remove(hwnd);
                 if (debugWindows.Contains(hwnd))
                 {
