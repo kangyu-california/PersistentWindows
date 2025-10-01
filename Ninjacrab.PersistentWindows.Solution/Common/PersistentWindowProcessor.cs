@@ -2064,6 +2064,7 @@ namespace PersistentWindows.Common
                     if (monitorApplications[display_config][hwnd].Count > 0)
                     {
                         found_history = true;
+                        real_hwnd = (IntPtr)monitorApplications[display_config][hwnd].Last().WindowId;
 
                         // save window size of closed app to restore off-screen window later
                         if (!deadApps.ContainsKey(display_config))
@@ -2089,8 +2090,6 @@ namespace PersistentWindows.Common
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
                         else if (dm.IsResizable)
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
-
-                        real_hwnd = (IntPtr)monitorApplications[display_config][hwnd].Last().WindowId;
 
                         TrimDeadRecord(display_config);
                     }
