@@ -2065,12 +2065,6 @@ namespace PersistentWindows.Common
                     {
                         found_history = true;
 
-                        // save window size of closed app to restore off-screen window later
-                        if (!deadApps.ContainsKey(display_config))
-                        {
-                            deadApps[display_config] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
-                        }
-
                         // for matching new window with killed one
                         var dm = monitorApplications[display_config][hwnd].Last();
                         real_hwnd = (IntPtr)dm.WindowId;
@@ -2089,7 +2083,15 @@ namespace PersistentWindows.Common
                         if (ctrl_key_pressed)
                             dualPosSwitchWindows.Remove(hwnd); //permanently remove memory
                         else if (dm.IsResizable)
+                        {
+                            // save window size of closed app to restore off-screen window later
+                            if (!deadApps.ContainsKey(display_config))
+                            {
+                                deadApps[display_config] = new Dictionary<IntPtr, List<ApplicationDisplayMetrics>>();
+                            }
+
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
+                        }
 
                         TrimDeadRecord(display_config);
                     }
