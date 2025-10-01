@@ -2054,18 +2054,6 @@ namespace PersistentWindows.Common
                 if (hwnd == fullScreenGamingWindow)
                     fullScreenGamingWindow = IntPtr.Zero;
 
-                /*
-                if (exitFullScreenGaming || hwnd == fullScreenGamingWindow || windowProcessName.ContainsKey(hwnd) && fullScreenGamingProcesses.Contains(windowProcessName[hwnd]))
-                {
-                    DateTime t = DateTime.Now;
-                    if (t - lastDisplayChangeTime > TimeSpan.FromSeconds(10))
-                    {
-                        Log.Event("Exit full-screen gaming without display changed event");
-                        StartRestoreTimer();
-                    }
-                }
-                */
-
                 bool found_history = false;
                 foreach (var display_config in monitorApplications.Keys)
                 {
@@ -2124,9 +2112,7 @@ namespace PersistentWindows.Common
 
             /* need invisible window event to detect session cut-off
             if (!User32.IsWindowVisible(hwnd))
-            {
                 return;
-            }
             */
 
             // auto track taskbar
