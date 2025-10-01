@@ -2055,6 +2055,7 @@ namespace PersistentWindows.Common
                     fullScreenGamingWindow = IntPtr.Zero;
 
                 bool found_history = false;
+                IntPtr real_hwnd = IntPtr.Zero;
                 foreach (var display_config in monitorApplications.Keys)
                 {
                     if (!monitorApplications[display_config].ContainsKey(hwnd))
@@ -2089,8 +2090,7 @@ namespace PersistentWindows.Common
                         else if (dm.IsResizable)
                             deadApps[display_config][hwnd] = monitorApplications[display_config][hwnd];
 
-                        windowTitle.Remove((IntPtr)monitorApplications[display_config][hwnd].Last().WindowId);
-                        windowTitle.Remove(hwnd);
+                        real_hwnd = (IntPtr)monitorApplications[display_config][hwnd].Last().WindowId;
 
                         TrimDeadRecord(display_config);
                     }
@@ -2105,6 +2105,7 @@ namespace PersistentWindows.Common
 
                 windowProcessName.Remove(hwnd);
                 windowTitle.Remove(hwnd);
+                windowTitle.Remove(real_hwnd);
 
                 return;
             }
