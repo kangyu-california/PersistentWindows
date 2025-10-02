@@ -1673,6 +1673,9 @@ namespace PersistentWindows.Common
 
                 if (class_name_match_cnt > 0 && class_name_mismatch_cnt == 0)
                     return last_killed_hid;
+
+                if (procName == "explorer")
+                    return last_killed_hid;
             }
 
             return IntPtr.Zero;
