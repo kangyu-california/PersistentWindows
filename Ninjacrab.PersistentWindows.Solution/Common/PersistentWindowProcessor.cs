@@ -1591,6 +1591,10 @@ namespace PersistentWindows.Common
                     if (className == "SunAwtFrame" && !title.Equals(appPos.Title))
                         continue;
 
+                    //strict title match for MMC program to distinguish event viewer and task scheduler
+                    if (className == "MMCMainFrame" && !title.Equals(appPos.Title))
+                        continue;
+
                     if (IsMinimized(hwnd) != appPos.IsMinimized)
                         continue;
                     if (User32.IsWindowVisible(hwnd) == appPos.IsInvisible)
