@@ -3404,7 +3404,7 @@ namespace PersistentWindows.Common
                 if (windowProcessName.ContainsKey(hwnd))
                 {
                     string processName = windowProcessName[hwnd];
-                    if (debugProcess.Contains(processName))
+                    if (debugProcess.Contains(processName) || debugProcess.Contains("*"))
                     {
                         debugWindows.Add(hwnd);
                     }
