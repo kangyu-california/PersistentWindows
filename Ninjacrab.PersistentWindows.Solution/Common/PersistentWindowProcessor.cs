@@ -291,6 +291,9 @@ namespace PersistentWindows.Common
 
         private void TrimDeadRecord(string display_config)
         {
+            if (!deadApps.ContainsKey(display_config))
+                return;
+
             //limit deadApp size, keep dead window record for 30 days
             DateTime oldest_allowed = DateTime.Now - TimeSpan.FromDays(30);
             bool found_old_record = deadApps[display_config].Count > 0;
