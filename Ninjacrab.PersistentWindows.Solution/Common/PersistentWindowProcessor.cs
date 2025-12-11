@@ -488,6 +488,18 @@ namespace PersistentWindows.Common
 
         private void foregroundTimerCallback(object state)
         {
+            try
+            {
+                foregroundTimerCallbackCore();
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+        }
+
+        private void foregroundTimerCallbackCore()
+        {
             IntPtr hwnd = foreGroundWindow;
 
             // Occasionaly OS might bring a window to foreground upon sleep
