@@ -291,6 +291,18 @@ namespace PersistentWindows.Common
 
         private void TrimDeadRecord(string display_config)
         {
+            try
+            {
+                TrimDeadRecordCore(display_config);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+        }
+
+        private void TrimDeadRecordCore(string display_config)
+        {
             if (!deadApps.ContainsKey(display_config))
                 return;
 
@@ -337,12 +349,12 @@ namespace PersistentWindows.Common
 
                 if (tm < oldest_allowed || deadApps[display_config].Count > 1024)
                 {
-                    found_old_record = true;
-
                     var dm = deadApps[display_config][oldest_window].LastOrDefault<ApplicationDisplayMetrics>();
                     if (dm != null)
                         Log.Error($"remove old record {dm.Title}");
                     deadApps[display_config].Remove(oldest_window);
+
+                    found_old_record = deadApps[display_config].Count > 0;
                 }
             }
         }
