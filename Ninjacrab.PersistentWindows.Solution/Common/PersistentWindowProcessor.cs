@@ -1544,6 +1544,21 @@ namespace PersistentWindows.Common
 
         private IntPtr FindMatchingKilledWindow(IntPtr hwnd)
         {
+            IntPtr r = IntPtr.Zero;
+            try
+            {
+                r = FindMatchingKilledWindowCore(hwnd);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
+            return r;
+        }
+
+        private IntPtr FindMatchingKilledWindowCore(IntPtr hwnd)
+        {
             if (freezeCapture || restoreHalted)
                 return IntPtr.Zero;
 
