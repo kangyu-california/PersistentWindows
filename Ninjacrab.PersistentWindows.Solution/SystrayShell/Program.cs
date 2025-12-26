@@ -332,6 +332,9 @@ if not errorlevel 1 goto wait_to_finish";
                         if (arg != args[args.Length - 1])
                             restore_disk = args[args.Length - 1];
                         break;
+                    case "-swap_window_pos_when_alt_activate=0":
+                        pwp.enableSwapWindow = false;
+                        break;
                 }
 
                 if (restore_from_disk)

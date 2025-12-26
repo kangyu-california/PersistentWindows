@@ -92,7 +92,8 @@ namespace PersistentWindows.Common
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private IntPtr foreGroundWindow;
         private IntPtr prevForeGroundWindow;
-        bool swapWindow = false;
+        public bool enableSwapWindow = true;
+        private bool swapWindow = false;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
@@ -1485,6 +1486,9 @@ namespace PersistentWindows.Common
         //swap window position
         private bool SwapWindow(IntPtr hwnd, IntPtr h2)
         {
+            if (!enableSwapWindow)
+                return false;
+
             try
             {
                 if (windowProcessName[hwnd] != windowProcessName[h2])
