@@ -13,6 +13,7 @@
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for notepad.exe and foo processes
   | -no_inherit_process "notepad.exe;foo" | Disable auto restore new window for notepad and foo processes
   | -foreground_background_dual_position=0 | Turn off dual position switching
+  | -swap_window_pos_when_alt_activate=0 | Turn off background window pos swapping with foreground window when Alt+Click the background window
   | -webpage_commander_window=0 | Unregister Alt+W hotkey and turn off the webpage commander feature
   | -hotkey "Q" | register Alt + Q as the hotkey to (de)activate webpage commander window, default hotkey is "W" (Alt + W)
   | -ctrl_minimize_to_tray=0 | Turn off ctrl minimize window to notification tray
@@ -68,6 +69,8 @@
     * move or resize the window (without pressing the Ctrl key).
   * To bring a background DPS window to foreground *without* restoring to the previous foreground position:
     * press any of Ctrl/Shift/Alt key when activating the window
+* To swap the position of the foreground window with a background window
+  * Alt + Click the background window
 * To move (invisible or off-screen) foreground window to the center of main monitor
   * Shift + Click the PersistentWindows icon
 * To put the foreground window behind all other windows (similar to the Alt+Esc shortcut provided by the Windows OS, which, however, does not work for windows inside a remote desktop window):
