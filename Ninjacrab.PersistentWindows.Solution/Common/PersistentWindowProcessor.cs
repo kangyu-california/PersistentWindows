@@ -91,6 +91,8 @@ namespace PersistentWindows.Common
         private DateTime lastUnminimizeTime = DateTime.Now;
         private IntPtr lastUnminimizeWindow = IntPtr.Zero;
         private IntPtr foreGroundWindow;
+        private IntPtr prevForeGroundWindow;
+        bool swapWindow = false;
         private IntPtr realForeGroundWindow = IntPtr.Zero;
         public Dictionary<uint, string> processCmd = new Dictionary<uint, string>();
         private HashSet<IntPtr> fullScreenGamingWindows = new HashSet<IntPtr>();
@@ -611,7 +613,21 @@ namespace PersistentWindows.Common
                     }
                 }
 
-                if (!alt_key_pressed)
+                if (alt_key_pressed)
+                {
+                    if (swapWindow)
+                    {
+                        swapWindow = false;
+
+                        restoringFromMem = true;
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, DateTime.Now);
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, prevForeGroundWindow, DateTime.Now);
+                        restoringFromMem = false;
+
+                        Log.Event("swapped window position");
+                    }
+                }
+                else
                 {
                     /*
                     if (pendingMoveEvents.Count > 1)
@@ -1466,6 +1482,47 @@ namespace PersistentWindows.Common
             }
         }
 
+        //swap window position
+        private void SwapWindow(IntPtr hwnd, IntPtr h2)
+        {
+            foreach (var display_key in monitorApplications.Keys)
+            {
+                List<ApplicationDisplayMetrics> app_list = null;
+                if (monitorApplications[display_key].ContainsKey(hwnd))
+                {
+                    app_list = monitorApplications[display_key][hwnd];
+                }
+
+                List<ApplicationDisplayMetrics> app_list2 = null;
+                if (monitorApplications[display_key].ContainsKey(h2))
+                {
+                    app_list2 = monitorApplications[display_key][h2];
+                }
+
+                if (app_list == null)
+                    monitorApplications[display_key].Remove(h2);
+                else
+                    monitorApplications[display_key][h2] = app_list;
+
+                if (app_list2 == null)
+                    monitorApplications[display_key].Remove(hwnd);
+                else
+                    monitorApplications[display_key][hwnd] = app_list2;
+
+                //replace prev zorder reference of dead_hwnd with hwnd in monitorApplication
+                foreach (var hw in monitorApplications[display_key].Keys)
+                {
+                    for (int i = 0; i < monitorApplications[display_key][hw].Count; i++)
+                    {
+                        if (monitorApplications[display_key][hw][i].PrevZorderWindow == hwnd)
+                            monitorApplications[display_key][hw][i].PrevZorderWindow = h2;
+                        else if (monitorApplications[display_key][hw][i].PrevZorderWindow == h2)
+                            monitorApplications[display_key][hw][i].PrevZorderWindow = hwnd;
+                    }
+                }
+            }
+        }
+
         private ApplicationDisplayMetrics InheritKilledWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid)
         {
             ApplicationDisplayMetrics r = null;
@@ -2279,7 +2336,15 @@ namespace PersistentWindows.Common
 
                                     realForeGroundWindow = hwnd;
                                     if (hwnd != vacantDeskWindow)
+                                    {
+                                        if (hwnd != foreGroundWindow && alt_key_pressed && !shift_key_pressed && !ctrl_key_pressed)
+                                        {
+                                            prevForeGroundWindow = foreGroundWindow;
+                                            SwapWindow(hwnd, foreGroundWindow);
+                                            swapWindow = true;
+                                        }
                                         foreGroundWindow = hwnd;
+                                    }
 
                                     foregroundTimer.Change(ForegroundTimerLatency, Timeout.Infinite);
                                 }
