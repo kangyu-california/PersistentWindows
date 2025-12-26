@@ -620,8 +620,8 @@ namespace PersistentWindows.Common
                         swapWindow = false;
 
                         restoringFromMem = true;
-                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, DateTime.Now);
                         RestoreApplicationsOnCurrentDisplays(curDisplayKey, prevForeGroundWindow, DateTime.Now);
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, DateTime.Now);
                         restoringFromMem = false;
 
                         Log.Event("swapped window position");
@@ -1483,8 +1483,22 @@ namespace PersistentWindows.Common
         }
 
         //swap window position
-        private void SwapWindow(IntPtr hwnd, IntPtr h2)
+        private bool SwapWindow(IntPtr hwnd, IntPtr h2)
         {
+            try
+            {
+                if (windowProcessName[hwnd] != windowProcessName[h2])
+                    return false;
+
+                string t = windowTitle[h2];
+                windowTitle[h2] = windowTitle[hwnd];
+                windowTitle[hwnd] = t;
+            }
+            catch (Exception e)
+            {
+                Log.Error(e.ToString());
+            }
+
             foreach (var display_key in monitorApplications.Keys)
             {
                 List<ApplicationDisplayMetrics> app_list = null;
@@ -1521,6 +1535,8 @@ namespace PersistentWindows.Common
                     }
                 }
             }
+
+            return true;
         }
 
         private ApplicationDisplayMetrics InheritKilledWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid)
@@ -2339,9 +2355,11 @@ namespace PersistentWindows.Common
                                     {
                                         if (hwnd != foreGroundWindow && alt_key_pressed && !shift_key_pressed && !ctrl_key_pressed && leftButtonClicks > 0)
                                         {
-                                            prevForeGroundWindow = foreGroundWindow;
-                                            SwapWindow(hwnd, foreGroundWindow);
-                                            swapWindow = true;
+                                            if (SwapWindow(hwnd, foreGroundWindow))
+                                            {
+                                                prevForeGroundWindow = foreGroundWindow;
+                                                swapWindow = true;
+                                            }
                                         }
                                         foreGroundWindow = hwnd;
                                     }
