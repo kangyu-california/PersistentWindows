@@ -2337,7 +2337,7 @@ namespace PersistentWindows.Common
                                     realForeGroundWindow = hwnd;
                                     if (hwnd != vacantDeskWindow)
                                     {
-                                        if (hwnd != foreGroundWindow && alt_key_pressed && !shift_key_pressed && !ctrl_key_pressed)
+                                        if (hwnd != foreGroundWindow && alt_key_pressed && !shift_key_pressed && !ctrl_key_pressed && leftButtonClicks > 0)
                                         {
                                             prevForeGroundWindow = foreGroundWindow;
                                             SwapWindow(hwnd, foreGroundWindow);
