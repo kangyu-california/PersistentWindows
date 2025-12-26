@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("PersistentWindows")]
-[assembly: AssemblyCopyright("Copyright © 2014 - 2025, PersistentWindows")]
+[assembly: AssemblyCopyright("Copyright © 2014 - 2026, PersistentWindows")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("5.71.*")]
+[assembly: AssemblyVersion("5.72.*")]
 
