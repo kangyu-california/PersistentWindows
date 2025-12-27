@@ -619,10 +619,10 @@ namespace PersistentWindows.Common
                     if (swapWindow)
                     {
                         swapWindow = false;
-
+                        DateTime t = DateTime.Now - TimeSpan.FromSeconds(1);
                         restoringFromMem = true;
-                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, prevForeGroundWindow, DateTime.Now);
-                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, DateTime.Now);
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, prevForeGroundWindow, t);
+                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, t);
                         restoringFromMem = false;
 
                         Log.Event("swapped window position");
