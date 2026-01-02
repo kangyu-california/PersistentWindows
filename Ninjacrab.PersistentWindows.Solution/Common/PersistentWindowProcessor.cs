@@ -1494,6 +1494,17 @@ namespace PersistentWindows.Common
                 if (windowProcessName[hwnd] != windowProcessName[h2])
                     return false;
 
+                string className = GetWindowClassName(hwnd);
+                if (string.IsNullOrEmpty(className))
+                    return false;
+
+                string className2 = GetWindowClassName(h2);
+                if (string.IsNullOrEmpty(className2))
+                    return false;
+
+                if (!className.Equals(className2))
+                    return false;
+
                 string t = windowTitle[h2];
                 windowTitle[h2] = windowTitle[hwnd];
                 windowTitle[hwnd] = t;
