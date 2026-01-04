@@ -335,6 +335,12 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-swap_window_pos_when_alt_activate=0":
                         pwp.enableSwapWindow = false;
                         break;
+                    case "-basic_features":
+                        //pwp.enableDualPosSwitch = false;
+                        pwp.enableSwapWindow = false;
+                        pwp.autoRestoreNewWindowToLastCapture = false;
+                        hotkey_window = false;
+                        break;
                 }
 
                 if (restore_from_disk)
