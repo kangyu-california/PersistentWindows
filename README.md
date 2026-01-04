@@ -35,13 +35,15 @@ this tool and not have to worry about re-arranging when all is back to normal.
 ### To set up PersistentWindows to automatically start at user login:
 This can be done by creating a task in **Task Scheduler**, or by adding a shortcut to the **Startup Folder** (shell:startup).
 
-Choose **one** of the three options:
+Choose **one** of the three methods:
 
-**Task Scheduler (Windows 10/11)**
+**Method 1. Task Scheduler (Windows 10/11)**
+* (Optional) Edit the second line of auto_start_pw_aux.ps1 to customize the command options passed to PersistentWindows.exe, for example you may append the following option to disable advanced features.
+    \+ " -basic_features".
 * Run *auto_start_pw.bat* file (preferably as administrator) to create a task in the Task Scheduler.
         <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
 
-**Task Scheduler (Windows 7/10/11)**
+**Method 2. Task Scheduler (Windows 7/10/11)**
 * Create a pw.bat file in the installation folder with following content
 ```
   start "" /B "%~dp0PersistentWindows.exe" -splash=0
@@ -52,7 +54,7 @@ schtasks /create /sc onlogon /tn "StartPersistentWindows" /f /tr "'%~dp0pw.bat'"
 REM Override High DPI Scaling
 REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" /v "%~dp0PersistentWindows.exe" /t REG_SZ /d "~ HIGHDPIAWARE" /f
 ``` 
-**Startup Folder (Windows 7/10/11)**
+**Method 3. Startup Folder (Windows 7/10/11)**
 * Create a shortcut in the startup folder:
   * `Win + R`, type `shell:startup`
   * Create a shortcut to *PersistentWindows.exe* and place it in the Startup folder
@@ -68,6 +70,9 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 
   >  Note: It is possible for set shortcuts to be run as administrator, through the shortcut properties menu. However, this doesn’t work when opening the shortcut through the Startup folder, which is why we use this workaround with the .vb script
 
+## Uninstall
+  1. run uninstall.bat as admin
+  2. remove the directory containing PersistentWindows.exe
 
 ## Usage Instructions
 - Run `PersistentWindows.exe` (preferably as administrator). Note that this app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
@@ -97,7 +102,7 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 - PersistentWindows periodically checks the github repository for software version upgrades. This can be disabled in the options menu.
   
 ## Known Issues
--  PersistentWindows may malfunction on fractionally scaled display (such as 125%, 150% etc), it is strongly suggested to override the high DPI scaling property of PersistentWindows.exe to "Application" via Properties->Compatibility->Change high DPI settings dialog from explorer, user needs to capture windows to disk immediately after relaunching PW w/ the new DPI setting.
+-  If PersistentWindows is not invoked by auto-start task, it may malfunction on fractionally scaled display (such as 125%, 150% etc), it is strongly suggested to override the high DPI scaling property of PersistentWindows.exe to "Application" via Properties->Compatibility->Change high DPI settings dialog from explorer, user needs to capture windows to disk immediately after relaunching PW w/ the new DPI setting.
 ![image](https://github.com/kangyu-california/PersistentWindows/assets/59128756/d410aa87-4552-42da-b7a4-e9d7ab1947b1)
 - PersistentWindows can get stuck in a "busy" state (with a red icon in the System Tray) during a restore if one of the windows becomes unresponsive. You may find out the culprit window in Task Manager using "Analyze wait chain". The unresponsive app might need an immediate hot-upgrade, or need to be killed to let PersistentWindows proceed
 
