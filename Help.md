@@ -4,6 +4,7 @@
 ### Command Line Options
   | Command line option | Meaning |
   | --- | --- |
+  | -basic_features | disable controversial features such as webpage commander, instant restore new window pos, swap window pos by alt-activation and future feature enhancements
   | -gui=0 | Do not display the PersistentWindows icon on the System Tray. Effectively runs PersistentWindows as a service
   | -splash=0       | No splash window at PersistentWindows startup
   | -legacy_icon    | Switch to the original icon ![pwIcon2small](https://github.com/user-attachments/assets/4827f67a-2ce1-4a83-86da-b4bfa6835026)
