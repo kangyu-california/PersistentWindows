@@ -1561,7 +1561,6 @@ namespace PersistentWindows.Common
             uint pid;
             User32.GetWindowThreadProcessId(realHwnd, out pid);
 
-            lock(captureLock)
             foreach (var display_key in deadApps.Keys)
             {
                 if (deadApps[display_key].ContainsKey(kid))
@@ -1694,7 +1693,6 @@ namespace PersistentWindows.Common
                 long ext_style = User32.GetWindowLong(hwnd, User32.GWL_EXSTYLE);
 
                 var deadAppPos = deadApps[curDisplayKey];
-                lock(captureLock)
                 foreach (var kid in deadAppPos.Keys)
                 {
                     var appPos = deadAppPos[kid].LastOrDefault<ApplicationDisplayMetrics>();
@@ -2959,6 +2957,7 @@ namespace PersistentWindows.Common
         {
             try
             {
+                lock(captureLock)
                 return CaptureWindowCore(hWnd, eventType, now, displayKey);
             }
             catch (Exception e)
@@ -3391,7 +3390,6 @@ namespace PersistentWindows.Common
                 result.Add(hwnd);
             }
 
-            lock(captureLock)
             foreach (var hwnd in allUserMoveWindows)
             {
                 if (noRestoreWindows.Contains(hwnd))
