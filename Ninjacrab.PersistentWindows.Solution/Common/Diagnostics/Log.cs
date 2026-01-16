@@ -8,11 +8,27 @@ namespace PersistentWindows.Common.Diagnostics
     {
         static EventLog eventLog;
         public static bool silent = false;
+        static bool registered = false;
         public static void Init()
         {
-            eventLog = new EventLog("Application");
-            //eventLog.Source = System.Windows.Forms.Application.ProductName;
-            eventLog.Source = "Application";
+            eventLog = new EventLog();
+            string app_name = System.Windows.Forms.Application.ProductName;
+            try
+            {
+                if (!EventLog.SourceExists(app_name))
+                {
+                    // CreateEventSource requires administrative privileges
+                    EventLog.CreateEventSource(app_name, "Application");
+                    Console.WriteLine($"Created Event Source '{app_name}'. Please restart the application for changes to take full effect.");
+                    // Note: If you create a new source for a custom log, you might need to restart the computer for changes to take full effect in the Event Viewer.
+                }
+                registered = true;
+                eventLog.Source = app_name;
+            }
+            catch (Exception ex)
+            {
+                eventLog.Source = "Application";
+            }
         }
 
         public static void Exit()
@@ -65,8 +81,13 @@ namespace PersistentWindows.Common.Diagnostics
 #if DEBUG
             Console.Write(message);
 #endif
-            message = message.Substring(message.IndexOf("::") + 3);
-            eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9999, 0);
+            if (!registered)
+            {
+                message = message.Substring(message.IndexOf("::") + 3);
+                eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9999, 0);
+            }
+            else
+                eventLog.WriteEntry(message, EventLogEntryType.Information, 9999, 0);
         }
 
         public static void Event(string format, params object[] args)
@@ -78,8 +99,13 @@ namespace PersistentWindows.Common.Diagnostics
 #if DEBUG
             Console.Write(message);
 #endif
-            message = message.Substring(message.IndexOf("::") + 3);
-            eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9990, 0);
+            if (!registered)
+            {
+                message = message.Substring(message.IndexOf("::") + 3);
+                eventLog.WriteEntry(System.Windows.Forms.Application.ProductName + ": " + message, EventLogEntryType.Information, 9990, 0);
+            }
+            else
+                eventLog.WriteEntry(message, EventLogEntryType.Information, 9990, 0);
         }
 
         /// <summary>
@@ -96,8 +122,12 @@ namespace PersistentWindows.Common.Diagnostics
             }
 
             bool arg_null = args.Length == 0;
+            if (!registered)
             return arg_null ? $"{DateTime.Now} :: " + format + "\n":
                 $"{DateTime.Now} :: " + string.Format(format, args) + "\n";
+
+            return arg_null ? format + "\n":
+                string.Format(format, args) + "\n";
         }
 
     }
