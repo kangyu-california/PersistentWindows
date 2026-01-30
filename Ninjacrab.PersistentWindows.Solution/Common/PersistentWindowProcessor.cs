@@ -2370,10 +2370,10 @@ namespace PersistentWindows.Common
                                         {
                                             if (SwapWindow(hwnd, foreGroundWindow))
                                             {
-                                                prevForeGroundWindow = foreGroundWindow;
                                                 swapWindow = true;
                                             }
                                         }
+                                        prevForeGroundWindow = foreGroundWindow;
                                         foreGroundWindow = hwnd;
                                     }
 

@@ -25,7 +25,7 @@ namespace PersistentWindows.Common.Diagnostics
                 registered = true;
                 eventLog.Source = app_name;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 eventLog.Source = "Application";
             }
