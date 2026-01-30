@@ -215,6 +215,7 @@ if not errorlevel 1 goto wait_to_finish";
                         pwp.rejectScaleFactorChange = false;
                         break;
                     case "-redirect_appdata":
+                    case "-portable_mode":
                         redirect_appdata = true;
                         break;
                     case "-ignore_process":
