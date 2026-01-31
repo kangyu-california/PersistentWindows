@@ -1491,19 +1491,23 @@ namespace PersistentWindows.Common
 
             try
             {
-                if (windowProcessName[hwnd] != windowProcessName[h2])
-                    return false;
+                if (windowProcessName[hwnd] == windowProcessName[h2])
+                {
+                    string className = GetWindowClassName(hwnd);
+                    if (string.IsNullOrEmpty(className))
+                        return false;
 
-                string className = GetWindowClassName(hwnd);
-                if (string.IsNullOrEmpty(className))
-                    return false;
+                    string className2 = GetWindowClassName(h2);
+                    if (string.IsNullOrEmpty(className2))
+                        return false;
 
-                string className2 = GetWindowClassName(h2);
-                if (string.IsNullOrEmpty(className2))
+                    if (!className.Equals(className2))
+                        return false;
+                }
+                else if (IsBrowserWindow(hwnd) != IsBrowserWindow(h2))
+                {
                     return false;
-
-                if (!className.Equals(className2))
-                    return false;
+                }
 
                 string t = windowTitle[h2];
                 windowTitle[h2] = windowTitle[hwnd];
