@@ -2825,6 +2825,30 @@ namespace PersistentWindows.Common
             return IntPtr.Zero;
         }
 
+        public static IntPtr GetBackgroundWindow(IntPtr fgWnd)
+        {
+            for (IntPtr hwnd = fgWnd; true;) 
+            {
+                hwnd = User32.GetWindow(hwnd, 2);
+                if (hwnd == IntPtr.Zero)
+                    break;
+
+                if (!IsTopLevelWindow(hwnd))
+                    continue;
+
+                if (IsTaskBar(hwnd))
+                    continue;
+
+                if (IsMinimized(hwnd))
+                    continue;
+
+                //if (GetWindowClassName(hwnd).Equals(GetWindowClassName(fgWnd)))
+                if (IsBrowserWindow(hwnd))
+                    return hwnd;
+            }
+            return IntPtr.Zero;
+        }
+
         public void FgWindowToBottom()
         {
             IntPtr hwnd = GetForegroundWindow();
@@ -2917,7 +2941,7 @@ namespace PersistentWindows.Common
             }
         }
 
-        private int RestoreZorder(IntPtr hWnd, IntPtr prev)
+        public static int RestoreZorder(IntPtr hWnd, IntPtr prev)
         {
             /*
             if (prev == IntPtr.Zero)

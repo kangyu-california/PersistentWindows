@@ -402,11 +402,23 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Oemtilde)
             {
+                /*
                 //switch background color
                 if (BackColor == dfltBackColor)
                     BackColor = Color.White;
                 else
                     BackColor = dfltBackColor;
+                */
+                Visible = false;
+                //fgwnd = GetForegroundWindow();
+                IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
+                if (bgWnd != IntPtr.Zero)
+                {
+                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
+                    User32.SetForegroundWindow(bgWnd);
+                }
+
+                //switch first background same app window to topz
             }
             else if (e.KeyCode == Keys.Tab)
             {
