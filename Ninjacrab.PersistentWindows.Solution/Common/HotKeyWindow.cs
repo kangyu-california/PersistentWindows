@@ -409,16 +409,11 @@ namespace PersistentWindows.Common
                 else
                     BackColor = dfltBackColor;
                 */
-                Visible = false;
-                //fgwnd = GetForegroundWindow();
-                IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
-                if (bgWnd != IntPtr.Zero)
-                {
-                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
-                    User32.SetForegroundWindow(bgWnd);
-                }
 
-                //switch first background same app window to topz
+                //goto previous window
+                Visible = false;
+                SendKeys.Send("%{TAB}");
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.Tab)
             {
@@ -493,11 +488,14 @@ namespace PersistentWindows.Common
                 //toggle zoom (tiny) mode
                 //ToggleWindowSize();
 
-                //goto previous window
+                //switch first background same app window to topz
                 Visible = false;
-                SendKeys.Send("%{TAB}");
-                //Visible = true;
-                return_focus_to_hotkey_window = false;
+                IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
+                if (bgWnd != IntPtr.Zero)
+                {
+                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
+                    User32.SetForegroundWindow(bgWnd);
+                }
             }
             else if (e.KeyCode == Keys.X || e.KeyCode == Keys.Divide)
             {
