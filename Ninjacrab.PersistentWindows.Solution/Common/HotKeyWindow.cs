@@ -479,7 +479,13 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Z)
             {
                 //toggle zoom (tiny) mode
-                ToggleWindowSize();
+                //ToggleWindowSize();
+
+                //goto previous window
+                Visible = false;
+                SendKeys.Send("%{TAB}");
+                //Visible = true;
+                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.X || e.KeyCode == Keys.Divide)
             {
