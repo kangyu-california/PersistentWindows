@@ -410,9 +410,17 @@ namespace PersistentWindows.Common
                     BackColor = dfltBackColor;
                 */
 
-                //goto previous window
+                //goto the second background web browser window
                 Visible = false;
-                SendKeys.Send("%{TAB}");
+                //SendKeys.Send("%{TAB}");
+                IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
+                if (bgWnd != IntPtr.Zero)
+                    bgWnd = PersistentWindowProcessor.GetBackgroundWindow(bgWnd);
+                if (bgWnd != IntPtr.Zero)
+                {
+                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
+                    User32.SetForegroundWindow(bgWnd);
+                }
                 return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.Tab)
@@ -488,7 +496,7 @@ namespace PersistentWindows.Common
                 //toggle zoom (tiny) mode
                 //ToggleWindowSize();
 
-                //switch first background same app window to topz
+                //switch first background web browser app window to topz
                 Visible = false;
                 IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
                 if (bgWnd != IntPtr.Zero)
