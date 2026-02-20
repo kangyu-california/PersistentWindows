@@ -1904,17 +1904,17 @@ namespace PersistentWindows.Common
         //return true if action is taken
         private void ActivateWindow(IntPtr hwnd)
         {
-            if (restoringFromMem)
-                return;
-
-            if (IsBrowserWindow(hwnd))
+            if (!restoringFromMem)
             {
-                IntPtr topHwnd = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
-                if (hwnd == topHwnd)
-                    HotKeyWindow.BrowserActivate(topHwnd);
+                if (IsBrowserWindow(hwnd))
+                {
+                    IntPtr topHwnd = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
+                    if (hwnd == topHwnd)
+                        HotKeyWindow.BrowserActivate(topHwnd);
+                }
+                else
+                    HotKeyWindow.BrowserActivate(hwnd);
             }
-            else
-               HotKeyWindow.BrowserActivate(hwnd);
 
             try
             {
