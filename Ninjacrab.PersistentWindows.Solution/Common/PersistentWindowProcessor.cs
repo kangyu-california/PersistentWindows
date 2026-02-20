@@ -2832,7 +2832,7 @@ namespace PersistentWindows.Common
             return IntPtr.Zero;
         }
 
-        public static IntPtr GetBackgroundWindow(IntPtr fgWnd)
+        public static IntPtr GetBackgroundWindow(IntPtr fgWnd, bool require_web_browser = true)
         {
             for (IntPtr hwnd = fgWnd; true;) 
             {
@@ -2850,7 +2850,7 @@ namespace PersistentWindows.Common
                     continue;
 
                 //if (GetWindowClassName(hwnd).Equals(GetWindowClassName(fgWnd)))
-                if (IsBrowserWindow(hwnd))
+                if (require_web_browser && IsBrowserWindow(hwnd))
                     return hwnd;
             }
             return IntPtr.Zero;
