@@ -3576,6 +3576,18 @@ namespace PersistentWindows.Common
             if (hwnd != realHwnd && !CaptureProcessName(hwnd))
                 return false;
 
+            if (debugProcess.Count > 0)
+            {
+                if (windowProcessName.ContainsKey(hwnd))
+                {
+                    string processName = windowProcessName[hwnd];
+                    if (debugProcess.Contains(processName) || debugProcess.Contains("*"))
+                    {
+                        debugWindows.Add(hwnd);
+                    }
+                }
+            }
+
             if (ignoreProcess.Count > 0)
             {
                 string processName = windowProcessName[hwnd];
@@ -3593,18 +3605,6 @@ namespace PersistentWindows.Common
                 {
                     noRestoreWindows.Add(hwnd);
                     return false;
-                }
-            }
-
-            if (debugProcess.Count > 0)
-            {
-                if (windowProcessName.ContainsKey(hwnd))
-                {
-                    string processName = windowProcessName[hwnd];
-                    if (debugProcess.Contains(processName) || debugProcess.Contains("*"))
-                    {
-                        debugWindows.Add(hwnd);
-                    }
                 }
             }
 
