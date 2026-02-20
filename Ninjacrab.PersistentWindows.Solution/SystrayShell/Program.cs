@@ -375,9 +375,12 @@ if not errorlevel 1 goto wait_to_finish";
                     productName);
             string iconFolder = appDataFolder;
 #if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+            if (redirect_appdata.Length == 0)
+            {
+                //avoid db path conflict with release version
+                //appDataFolder = ".";
+                appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+            }
 #endif
             AppdataFolder = appDataFolder;
 
