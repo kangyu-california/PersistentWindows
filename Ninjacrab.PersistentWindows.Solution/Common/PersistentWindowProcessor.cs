@@ -169,8 +169,7 @@ namespace PersistentWindows.Common
         private Process process;
         public ProcessPriorityClass processPriority;
 
-        private string appDataFolder;
-        public bool redirectAppDataFolder = false;
+        public string appDataFolder = "";
 
         // session control
         private bool sessionLocked = false; //requires password to unlock
@@ -645,15 +644,6 @@ namespace PersistentWindows.Common
 
         public void RestoreSnapshotCmd(int id)
         {
-            string productName = System.Windows.Forms.Application.ProductName;
-            appDataFolder = redirectAppDataFolder ? "." :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
-#if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-
             ReadDataDumpSafe();
             curDisplayKey = GetDisplayKey();
             CaptureNewDisplayConfig(curDisplayKey);
@@ -664,17 +654,9 @@ namespace PersistentWindows.Common
             restoringFromMem = true;
             RestoreApplicationsOnCurrentDisplays(curDisplayKey, IntPtr.Zero, DateTime.Now);
         }
+
         public void CaptureSnapshotCmd(int id)
         {
-            string productName = System.Windows.Forms.Application.ProductName;
-            appDataFolder = redirectAppDataFolder ? "." :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
-#if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-
             curDisplayKey = GetDisplayKey();
             ReadDataDumpSafe();
             TakeSnapshot(id);
@@ -683,14 +665,6 @@ namespace PersistentWindows.Common
         public void RestoreFromDiskCmd(string db_capture_name)
         {
             string productName = System.Windows.Forms.Application.ProductName;
-            appDataFolder = redirectAppDataFolder ? "." :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
-#if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-
             curDisplayKey = GetDisplayKey();
             CaptureNewDisplayConfig(curDisplayKey);
 
@@ -706,14 +680,6 @@ namespace PersistentWindows.Common
         {
             process = Process.GetCurrentProcess();
             string productName = System.Windows.Forms.Application.ProductName;
-            appDataFolder = redirectAppDataFolder ? "." :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
-
-#if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
-#endif
 
             try
             {

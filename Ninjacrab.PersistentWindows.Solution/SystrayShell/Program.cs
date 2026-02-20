@@ -70,7 +70,7 @@ if not errorlevel 1 goto wait_to_finish";
             int relaunch_delay = 0;
             int delay_manual_capture = 0;
             int delay_auto_capture = 0;
-            bool redirect_appdata = false; // use "." instead of appdata/local/PersistentWindows to store db file
+            string redirect_appdata = ""; // use "." instead of appdata/local/PersistentWindows to store db file
             bool prompt_session_restore = false;
             int delay_auto_restore = 0;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
@@ -228,8 +228,10 @@ if not errorlevel 1 goto wait_to_finish";
                         pwp.rejectScaleFactorChange = false;
                         break;
                     case "-redirect_appdata":
+                        redirect_appdata = ".";
+                        break;
                     case "-portable_mode":
-                        redirect_appdata = true;
+                        redirect_appdata = "user_data";
                         break;
                     case "-ignore_process":
                         ignore_process = "_foo_";
@@ -367,6 +369,21 @@ if not errorlevel 1 goto wait_to_finish";
                     break;
             }
 
+            string productName = System.Windows.Forms.Application.ProductName;
+            string appDataFolder = redirect_appdata.Length > 0 ? redirect_appdata :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    productName);
+            string iconFolder = appDataFolder;
+#if DEBUG
+            //avoid db path conflict with release version
+            //appDataFolder = ".";
+            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+            AppdataFolder = appDataFolder;
+
+            if (!Directory.Exists(appDataFolder))
+                Directory.CreateDirectory(appDataFolder);
+
             if (restore_snapshot >= 0)
             {
                 pwp.RestoreSnapshotCmd(restore_snapshot);
@@ -384,21 +401,6 @@ if not errorlevel 1 goto wait_to_finish";
                 pwp.RestoreFromDiskCmd(restore_disk);
                 return;
             }
-
-            string productName = System.Windows.Forms.Application.ProductName;
-            string appDataFolder = redirect_appdata ? "." :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                    productName);
-            string iconFolder = appDataFolder;
-#if DEBUG
-            //avoid db path conflict with release version
-            //appDataFolder = ".";
-            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
-#endif
-            AppdataFolder = appDataFolder;
-
-            if (!Directory.Exists(appDataFolder))
-                Directory.CreateDirectory(appDataFolder);
 
             DisableWebpageCommander = Path.Combine(AppdataFolder, "disable_webpage_commander");
             DisableUpgradeNotice = Path.Combine(AppdataFolder, "disable_upgrade_notice");
@@ -490,7 +492,7 @@ if not errorlevel 1 goto wait_to_finish";
             pwp.changeIconText = ChangeIconText;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
-            pwp.redirectAppDataFolder = redirect_appdata;
+            pwp.appDataFolder = appDataFolder;
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
             pwp.enableOffScreenFix = offscreen_fix;
             pwp.fixUnminimizedWindow = fix_unminimized_window;
