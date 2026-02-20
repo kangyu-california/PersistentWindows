@@ -417,8 +417,8 @@ namespace PersistentWindows.Common
                     bgWnd = PersistentWindowProcessor.GetBackgroundWindow(bgWnd);
                 if (bgWnd != IntPtr.Zero)
                 {
-                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                     User32.SetForegroundWindow(bgWnd);
+                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                 }
                 return_focus_to_hotkey_window = false;
             }
@@ -500,8 +500,8 @@ namespace PersistentWindows.Common
                 IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
                 if (bgWnd != IntPtr.Zero)
                 {
-                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                     User32.SetForegroundWindow(bgWnd);
+                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                 }
             }
             else if (e.KeyCode == Keys.X || e.KeyCode == Keys.Divide)
