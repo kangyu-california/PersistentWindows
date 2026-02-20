@@ -664,6 +664,21 @@ namespace PersistentWindows.Common
             restoringFromMem = true;
             RestoreApplicationsOnCurrentDisplays(curDisplayKey, IntPtr.Zero, DateTime.Now);
         }
+        public void CaptureSnapshotCmd(int id)
+        {
+            string productName = System.Windows.Forms.Application.ProductName;
+            appDataFolder = redirectAppDataFolder ? "." :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), productName);
+#if DEBUG
+            //avoid db path conflict with release version
+            //appDataFolder = ".";
+            appDataFolder = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
+            curDisplayKey = GetDisplayKey();
+            ReadDataDumpSafe();
+            TakeSnapshot(id);
+        }
 
         public void RestoreFromDiskCmd(string db_capture_name)
         {
