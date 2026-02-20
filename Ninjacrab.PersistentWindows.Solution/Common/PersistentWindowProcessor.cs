@@ -158,6 +158,7 @@ namespace PersistentWindows.Common
         private string snapshotTimeFile = "snapshot_time.xml";
         private string debugWindowDump = "debug_window.xml";
 
+        private HashSet<string> careProcess = new HashSet<string>();
         private HashSet<string> ignoreProcess = new HashSet<string>();
         private HashSet<string> debugProcess = new HashSet<string>();
         private HashSet<IntPtr> debugWindows = new HashSet<IntPtr>();
@@ -1216,6 +1217,17 @@ namespace PersistentWindows.Common
                 if (s.EndsWith(".exe"))
                     s = s.Substring(0, s.Length - 4);
                 ignoreProcess.Add(s);
+            }
+        }
+        public void SetCareProcess(string care_process)
+        {
+            string[] ps = care_process.Split(';');
+            foreach (var p in ps)
+            {
+                var s = p;
+                if (s.EndsWith(".exe"))
+                    s = s.Substring(0, s.Length - 4);
+                careProcess.Add(s);
             }
         }
 
@@ -3568,7 +3580,20 @@ namespace PersistentWindows.Common
             {
                 string processName = windowProcessName[hwnd];
                 if (ignoreProcess.Contains(processName))
+                {
+                    noRestoreWindows.Add(hwnd);
                     return false;
+                }
+            }
+
+            if (careProcess.Count > 0)
+            {
+                string processName = windowProcessName[hwnd];
+                if (!careProcess.Contains(processName))
+                {
+                    noRestoreWindows.Add(hwnd);
+                    return false;
+                }
             }
 
             if (debugProcess.Count > 0)
@@ -3645,15 +3670,6 @@ namespace PersistentWindows.Common
                 {
                     windowTitle[hwnd] = curDisplayMetrics.Title;
                     windowTitle[realHwnd] = curDisplayMetrics.Title;
-                }
-
-                if (ignoreProcess.Count > 0)
-                {
-                    if (ignoreProcess.Contains(curDisplayMetrics.ProcessName))
-                    {
-                        noRestoreWindows.Add(hwnd);
-                        return false;
-                    }
                 }
 
                 if (curDisplayMetrics.IsMinimized && prevDisplayMetrics != null && prevDisplayMetrics.IsMinimized)
