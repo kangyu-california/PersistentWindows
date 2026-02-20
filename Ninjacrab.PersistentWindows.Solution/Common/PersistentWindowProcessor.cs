@@ -2852,6 +2852,9 @@ namespace PersistentWindows.Common
                 //if (GetWindowClassName(hwnd).Equals(GetWindowClassName(fgWnd)))
                 if (require_web_browser && IsBrowserWindow(hwnd))
                     return hwnd;
+
+                if (!require_web_browser)
+                    return hwnd;
             }
             return IntPtr.Zero;
         }
