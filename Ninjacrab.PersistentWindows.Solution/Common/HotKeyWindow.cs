@@ -1076,6 +1076,7 @@ namespace PersistentWindows.Common
             }
         }
 
+        /*
         private void buttonPrevTab_Click(object sender, EventArgs e)
         {
             IntPtr fgwnd = GetForegroundWindow();
@@ -1148,6 +1149,7 @@ namespace PersistentWindows.Common
             SendKeys.Send("{END}");
             User32.SetForegroundWindow(Handle);
         }
+        */
 
         public static IntPtr GetForegroundWindow(bool strict = false)
         {

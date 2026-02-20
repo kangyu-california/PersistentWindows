@@ -29,6 +29,8 @@ namespace PersistentWindows.Common
         /// </summary>
         private void InitializeComponent()
         {
+            this.SuspendLayout();
+            /*
             this.buttonPrevTab = new System.Windows.Forms.Button();
             this.buttonNextTab = new System.Windows.Forms.Button();
             this.buttonCloseTab = new System.Windows.Forms.Button();
@@ -37,7 +39,6 @@ namespace PersistentWindows.Common
             this.buttonEnd = new System.Windows.Forms.Button();
             this.buttonPrevUrl = new System.Windows.Forms.Button();
             this.buttonNextUrl = new System.Windows.Forms.Button();
-            this.SuspendLayout();
             // 
             // buttonPrevTab
             // 
@@ -134,12 +135,15 @@ namespace PersistentWindows.Common
             this.buttonNextUrl.Text = "Next Url";
             this.buttonNextUrl.UseVisualStyleBackColor = false;
             this.buttonNextUrl.Click += new System.EventHandler(this.buttonNextUrl_Click);
+            */
+
             // 
             // HotKeyWindow
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
             this.ClientSize = new System.Drawing.Size(328, 190);
+            /*
             this.Controls.Add(this.buttonNextUrl);
             this.Controls.Add(this.buttonPrevUrl);
             this.Controls.Add(this.buttonEnd);
@@ -148,6 +152,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.buttonCloseTab);
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
+            */
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.KeyPreview = true;
             this.MaximizeBox = false;
@@ -156,11 +161,11 @@ namespace PersistentWindows.Common
             this.ShowInTaskbar = false;
             this.TopMost = true;
             this.ResumeLayout(false);
-
         }
 
         #endregion
 
+        /*
         private System.Windows.Forms.Button buttonPrevTab;
         private System.Windows.Forms.Button buttonNextTab;
         private System.Windows.Forms.Button buttonCloseTab;
@@ -169,5 +174,6 @@ namespace PersistentWindows.Common
         private System.Windows.Forms.Button buttonEnd;
         private System.Windows.Forms.Button buttonPrevUrl;
         private System.Windows.Forms.Button buttonNextUrl;
+        */
     }
 }
