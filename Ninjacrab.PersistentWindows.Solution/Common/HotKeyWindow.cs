@@ -208,14 +208,12 @@ namespace PersistentWindows.Common
                 ShowInTaskbar = true;
                 Width = 8;
                 Height = 8;
-                TopMost = true;
             }
             else if (ShowInTaskbar && click_times == 2)
             {
                 ShowInTaskbar = false;
                 Width = 8;
                 Height = 8;
-                TopMost = true;
             }
 
             ++click_times;

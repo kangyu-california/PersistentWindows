@@ -150,7 +150,7 @@ namespace PersistentWindows.Common
 
         private static HashSet<string> browserProcessNames = new HashSet<string>()
         {
-            "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX"
+            "chrome", "firefox", "msedge", "vivaldi", "opera", "brave", "360ChromeX", "PersistentWindows"
         };
 
         public bool dumpHistoryData = true;
@@ -2817,6 +2817,11 @@ namespace PersistentWindows.Common
 
                 if (IsMinimized(hwnd))
                     continue;
+
+                /*
+                if (hwnd == HotKeyWindow.commanderWnd)
+                    continue;
+                */
 
                 if (User32.IsWindow(hwnd))
                     return hwnd;
