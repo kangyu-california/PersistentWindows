@@ -89,7 +89,7 @@ namespace PersistentWindows.Common
 
             if (tiny)
             {
-                FormBorderStyle = FormBorderStyle.None;
+                FormBorderStyle = FormBorderStyle.FixedToolWindow;
                 ControlBox = false;
                 Width = 8;
                 Height = 8;
@@ -199,6 +199,15 @@ namespace PersistentWindows.Common
         private void FormMouseClick(object sender, MouseEventArgs e)
         {
             bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
+
+            /* this disturbs consequent hot key invokation
+            if (ShowInTaskbar)
+            {
+                ShowInTaskbar = false;
+                Width = 8;
+                Height = 8;
+            }
+            */
 
             if (alt_key_pressed)
                 Left -= 10;

@@ -140,9 +140,9 @@ namespace PersistentWindows.Common
             // 
             // HotKeyWindow
             // 
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
+            //this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Inherit;
             this.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.ClientSize = new System.Drawing.Size(328, 190);
+            this.ClientSize = new System.Drawing.Size(8, 8);
             /*
             this.Controls.Add(this.buttonNextUrl);
             this.Controls.Add(this.buttonPrevUrl);
@@ -153,7 +153,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.buttonNextTab);
             this.Controls.Add(this.buttonPrevTab);
             */
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "HotKeyWindow";
