@@ -44,6 +44,8 @@ namespace PersistentWindows.Common
         private bool defocused = false;
         private int totalWaitSecondsForWhiteColor = 0;
 
+        private static int click_times = 0;
+
         public HotKeyWindow(uint hkey)
         {
             tiny = false;
@@ -200,14 +202,23 @@ namespace PersistentWindows.Common
         {
             bool alt_key_pressed = (User32.GetKeyState(0x12) & 0x8000) != 0;
 
-            /* this disturbs consequent hot key invokation
-            if (ShowInTaskbar)
+            if (!ShowInTaskbar && click_times == 0)
+            {
+                //hint first time user that the webpage commander window belongs to PW
+                ShowInTaskbar = true;
+                Width = 8;
+                Height = 8;
+                TopMost = true;
+            }
+            else if (ShowInTaskbar && click_times == 2)
             {
                 ShowInTaskbar = false;
                 Width = 8;
                 Height = 8;
+                TopMost = true;
             }
-            */
+
+            ++click_times;
 
             if (alt_key_pressed)
                 Left -= 10;
