@@ -2818,10 +2818,8 @@ namespace PersistentWindows.Common
                 if (IsMinimized(hwnd))
                     continue;
 
-                /*
                 if (hwnd == HotKeyWindow.commanderWnd)
                     continue;
-                */
 
                 if (User32.IsWindow(hwnd))
                     return hwnd;
