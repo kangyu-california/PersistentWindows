@@ -12,6 +12,7 @@
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -capture_floating_window=0 | Disable capture floating child window and dialog window position
   | -ignore_process "notepad.exe;foo" | Avoid restoring windows for notepad.exe and foo processes
+  | -care_process "notepad.exe;foo" | Only restore windows for notepad.exe and foo processes
   | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for notepad.exe and foo processes
   | -no_inherit_process "notepad.exe;foo" | Disable auto restore new window for notepad and foo processes
   | -foreground_background_dual_position=0 | Turn off dual position switching
