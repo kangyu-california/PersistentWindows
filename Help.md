@@ -39,7 +39,9 @@
   | -auto_upgrade=1 | Upgrade PersistentWindows automatically without user interaction
   | -dump_window_position_history=0 | Disable window position history dump
   | -restore_snapshot "0" | restore snapshot 0 and exit. The range of snapshot id is [0-9a-z], as well as "~" or "`", the last two special ids represent the last auto restore. Note the window z-order can not be fully retored using this method, due to the lack of capability to do multi-pass restore.
-  | -restore_disk_capture ["name_of_capture"] | restore windows from (named) capture on hard drive and exit. If "name_of_capture" is omitted, the default anonymous disk capture is assumed. Note that a second restore using the same command line is needed to restore newly launched windows in the first restore.
+  | -capture_snapshot "0" | capture snapshot 0 and exit
+  | -restore_from_disk ["name_of_capture"] | restore windows from (named) capture on hard drive and exit. If "name_of_capture" is omitted, the default anonymous disk capture is assumed. Note that a second restore using the same command line is needed to restore newly launched windows in the first restore.
+  | -capture_to_disk ["name_of_capture"] | capture windows to (named) capture on hard drive and exit.
 ---
 
 ### Shortcuts to capture/restore snapshots

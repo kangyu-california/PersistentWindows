@@ -96,8 +96,8 @@ if not errorlevel 1 goto wait_to_finish";
             bool waiting_taskbar = false;
             int restore_snapshot = -1;
             int capture_snapshot = -1;
-            bool restore_from_disk = false;
             string restore_disk = "";
+            string capture_disk = "";
 
             foreach (var arg in args)
             {
@@ -173,6 +173,16 @@ if not errorlevel 1 goto wait_to_finish";
                 else if (capture_snapshot != -1)
                 {
                     capture_snapshot = SnapshotCharToId(arg[0]);
+                    continue;
+                }
+                else if (restore_disk.Length > 0)
+                {
+                    restore_disk = arg;
+                    continue;
+                }
+                else if (capture_disk.Length > 0)
+                {
+                    capture_disk = arg;
                     continue;
                 }
                 else if (set_pos_match_threshold)
@@ -350,9 +360,11 @@ if not errorlevel 1 goto wait_to_finish";
                         capture_snapshot = 0;
                         break;
                     case "-restore_disk_capture":
-                        restore_from_disk = true;
-                        if (arg != args[args.Length - 1])
-                            restore_disk = args[args.Length - 1];
+                    case "-restore_from_disk":
+                        restore_disk = "foo";
+                        break;
+                    case "-capture_to_disk":
+                        capture_disk = "foo";
                         break;
                     case "-swap_window_pos_when_alt_activate=0":
                         pwp.enableSwapWindow = false;
@@ -364,9 +376,6 @@ if not errorlevel 1 goto wait_to_finish";
                         hotkey_window = false;
                         break;
                 }
-
-                if (restore_from_disk)
-                    break;
             }
 
             string productName = System.Windows.Forms.Application.ProductName;
@@ -399,9 +408,16 @@ if not errorlevel 1 goto wait_to_finish";
                 return;
             }
 
-            if (restore_from_disk)
+            if (restore_disk.Length > 0)
             {
                 pwp.RestoreFromDiskCmd(restore_disk);
+                return;
+            }
+
+            if (capture_disk.Length > 0)
+            {
+                GetProcessInfo();
+                pwp.CaptureToDiskCmd(capture_disk);
                 return;
             }
 

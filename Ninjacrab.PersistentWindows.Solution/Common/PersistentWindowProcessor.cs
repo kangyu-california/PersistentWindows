@@ -676,6 +676,19 @@ namespace PersistentWindows.Common
             RestoreApplicationsOnCurrentDisplays(curDisplayKey, IntPtr.Zero, DateTime.Now);
         }
 
+        public void CaptureToDiskCmd(string db_capture_name)
+        {
+            string productName = System.Windows.Forms.Application.ProductName;
+            curDisplayKey = GetDisplayKey();
+            CaptureNewDisplayConfig(curDisplayKey);
+
+            var db_version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            persistDbName = $@"{appDataFolder}/{productName}.{db_version}.db";
+
+            dbDisplayKey = curDisplayKey + db_capture_name;
+            BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
+        }
+
         public bool Start(bool auto_restore_from_db, bool auto_restore_last_capture_at_startup)
         {
             process = Process.GetCurrentProcess();
