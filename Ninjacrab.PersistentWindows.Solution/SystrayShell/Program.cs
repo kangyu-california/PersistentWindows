@@ -392,6 +392,7 @@ if not errorlevel 1 goto wait_to_finish";
             }
 #endif
             AppdataFolder = appDataFolder;
+            pwp.appDataFolder = appDataFolder;
 
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
@@ -511,7 +512,6 @@ if not errorlevel 1 goto wait_to_finish";
             pwp.changeIconText = ChangeIconText;
             pwp.showDesktop = show_desktop;
             pwp.redrawDesktop = redraw_desktop;
-            pwp.appDataFolder = appDataFolder;
             pwp.enhancedOffScreenFix = enhanced_offscreen_fix;
             pwp.enableOffScreenFix = offscreen_fix;
             pwp.fixUnminimizedWindow = fix_unminimized_window;
