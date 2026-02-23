@@ -119,8 +119,8 @@
   | L | Right | scroll right
   | Space (or left click in the commander window) | PgDn | page down
   | P (or right click in the commander window) | PgUp | page up
-  | Z | | Zoom in/out the commander window
-  | ~ | | toggle the color of commander window
+  | Z | | Bring the next backgournd web browser window to foreground
+  | ~ | | Bring the second background web browser window to foreground
   | Alt + click commander window || send the mouse click to the underlying browser window
 
 ### Other features
