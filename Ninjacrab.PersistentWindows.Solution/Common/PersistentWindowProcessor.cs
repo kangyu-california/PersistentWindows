@@ -1208,7 +1208,7 @@ namespace PersistentWindows.Common
             foreach (var p in ps)
             {
                 var s = p;
-                if (s.EndsWith(".exe"))
+                if (s.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                     s = s.Substring(0, s.Length - 4);
                 ignoreProcess.Add(s);
             }
@@ -1219,7 +1219,7 @@ namespace PersistentWindows.Common
             foreach (var p in ps)
             {
                 var s = p;
-                if (s.EndsWith(".exe"))
+                if (s.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                     s = s.Substring(0, s.Length - 4);
                 careProcess.Add(s);
             }
@@ -1231,7 +1231,7 @@ namespace PersistentWindows.Common
             foreach (var p in ps)
             {
                 var s = p;
-                if (s.EndsWith(".exe"))
+                if (s.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                     s = s.Substring(0, s.Length - 4);
                 debugProcess.Add(s);
             }
@@ -1243,7 +1243,7 @@ namespace PersistentWindows.Common
             foreach (var p in ps)
             {
                 var s = p;
-                if (s.EndsWith(".exe"))
+                if (s.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
                     s = s.Substring(0, s.Length - 4);
                 noinheritProcess.Add(s);
             }
