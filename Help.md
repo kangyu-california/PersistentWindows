@@ -11,10 +11,10 @@
   | -legacy_icon    | Switch to the original icon ![pwIcon2small](https://github.com/user-attachments/assets/4827f67a-2ce1-4a83-86da-b4bfa6835026)
   | -silent         | No splash window, no balloon tip hint, no event logging
   | -capture_floating_window=0 | Disable capture floating child window and dialog window position
-  | -ignore_process "notepad.exe;foo" | Avoid restoring windows for notepad.exe and foo processes
-  | -care_process "notepad.exe;foo" | Only restore windows for notepad.exe and foo processes
-  | -debug_process "notepad.exe;foo" | Print the window positioning event logs in Event Viewer for notepad.exe and foo processes
-  | -no_inherit_process "notepad.exe;foo" | Disable auto restore new window for notepad and foo processes
+  | -ignore_process "notepad.exe;EXCEL" | Avoid restoring windows for notepad.exe and EXCEL.EXE processes
+  | -care_process "notepad.exe;EXCEL" | Only restore windows for notepad.exe and EXCEL.EXE processes
+  | -debug_process "notepad.exe;EXCEL" | Print the window positioning event logs in Event Viewer for notepad.exe and EXCEL.EXE processes. To debug all process, specify wildcard value "*"
+  | -no_inherit_process "notepad.exe;EXCEL" | Disable auto restore new window for notepad and EXCEL processes
   | -foreground_background_dual_position=0 | Turn off dual position switching
   | -swap_window_pos_when_alt_activate=0 | Turn off background window pos swapping with foreground window when Alt+Click the background window
   | -webpage_commander_window=0 | Unregister Alt+W hotkey and turn off the webpage commander feature
