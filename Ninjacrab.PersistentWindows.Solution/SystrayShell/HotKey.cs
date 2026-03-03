@@ -37,6 +37,9 @@ namespace PersistentWindows.SystrayShell
             {
                 if (messageLoop.IsAlive)
                     messageLoop.Abort();
+
+                //hkwin.Dispose();
+                HotKeyWindow.commanderWnd = IntPtr.Zero;
             }
             catch (Exception ex)
             {

@@ -3193,6 +3193,9 @@ namespace PersistentWindows.Common
 
         private void EndDisplaySession()
         {
+            if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
+                User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
+
             CancelCaptureTimer();
             ResetState();
         }
