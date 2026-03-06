@@ -76,7 +76,7 @@ namespace PersistentWindows.Common
 
         // capture control
         private Timer captureTimer;
-        private bool captureTimerStarted = false;
+        private int captureTimerStarted = 0;
         private string curDisplayKey; // current display config name
         private string prevDisplayKey;
         public string dbDisplayKey = null;
@@ -765,7 +765,7 @@ namespace PersistentWindows.Common
             {
                 process.PriorityClass = processPriority;
 
-                captureTimerStarted = false;
+                captureTimerStarted = 0;
 
                 userMovePrev = userMove;
                 userMove = false;
@@ -3092,10 +3092,16 @@ namespace PersistentWindows.Common
 
         private void StartCaptureTimer(int milliSeconds = CaptureLatency)
         {
-            // ignore defer timer request to capture user move ASAP
-            if (captureTimerStarted && milliSeconds > UserMoveLatency)
+            ++captureTimerStarted;
+            if (captureTimerStarted > 128)
+            {
+                Console.Write("Ignore high frequency capture request due to massive window events");
                 return;
-            captureTimerStarted = true;
+            }
+
+            // ignore defer timer request to capture user move ASAP
+            if (captureTimerStarted > 0 && milliSeconds > UserMoveLatency)
+                return;
 
             if (UserForcedCaptureLatency > 0)
             {
@@ -3112,7 +3118,7 @@ namespace PersistentWindows.Common
             userMove = false;
             userMovePrev = false;
 
-            captureTimerStarted = false;
+            captureTimerStarted = 0;
 
             // restart capture timer
             captureTimer.Change(Timeout.Infinite, Timeout.Infinite);
