@@ -3129,7 +3129,7 @@ namespace PersistentWindows.Common
             if (UserForcedRestoreLatency > RestoreLatency)
             {
                 if (!restoringFromDB && !restoringSnapshot)
-                    milliSecond = UserForcedCaptureLatency;
+                    milliSecond = UserForcedRestoreLatency;
             }
             restoreTimer.Change(milliSecond, Timeout.Infinite);
         }
