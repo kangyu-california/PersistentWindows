@@ -2617,15 +2617,18 @@ namespace PersistentWindows.Common
             {
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
 
-                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                lock (captureLock)
                 {
-                    int count = monitorApplications[curDisplayKey][hwnd].Count;
-                    if (count > 0)
+                    foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                     {
-                        for (var i = 0; i < count - 1; ++i)
-                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1ul << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1ul << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
+                        int count = monitorApplications[curDisplayKey][hwnd].Count;
+                        if (count > 0)
+                        {
+                            for (var i = 0; i < count - 1; ++i)
+                                monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1ul << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1ul << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
+                        }
                     }
                 }
 
