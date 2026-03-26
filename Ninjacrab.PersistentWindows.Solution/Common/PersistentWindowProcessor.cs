@@ -3096,6 +3096,8 @@ namespace PersistentWindows.Common
             if (captureTimerStarted > 128)
             {
                 Console.Write("Ignore high frequency capture request due to massive window events");
+                captureTimerStarted = 0;
+                captureTimer.Change(CaptureLatency * 4, Timeout.Infinite);
                 return;
             }
 
