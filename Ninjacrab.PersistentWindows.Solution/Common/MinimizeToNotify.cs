@@ -148,7 +148,7 @@ namespace PersistentWindows.Common.Minimize2Tray
                 User32.SetForegroundWindow(_hwnd);
 
                 _systemTrayIcon.MouseClick -= SystemTrayIconClick;
-                //_systemTrayIcon.Dispose();
+                _systemTrayIcon.Dispose();
             }
         }
 

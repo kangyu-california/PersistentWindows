@@ -445,8 +445,12 @@ namespace PersistentWindows.SystrayShell
                             notifyIconMain.Icon = new Icon(filePath);
                         else
                         {
-                            var bitmap = new Bitmap(filePath); // or get it from resource
-                            notifyIconMain.Icon = Icon.FromHandle(bitmap.GetHicon());
+                            using (var bitmap = new Bitmap(filePath))
+                            {
+                                IntPtr hIcon = bitmap.GetHicon();
+                                notifyIconMain.Icon = Icon.FromHandle(hIcon).Clone() as Icon;
+                                User32.DestroyIcon(hIcon);
+                            }
                         }
                         toggleIcon = !toggleIcon;
                         toggleIconMenuItem.Text = "Disable customized icon";
