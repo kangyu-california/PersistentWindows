@@ -4377,7 +4377,7 @@ namespace PersistentWindows.Common
                 else if (snapshotTakenTime.ContainsKey(curDisplayKey)
                         && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
                 {
-                    lastCaptureTime = snapshotTakenTime[displayKey][MaxSnapshots];
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey][MaxSnapshots];
                 }
             }
 
