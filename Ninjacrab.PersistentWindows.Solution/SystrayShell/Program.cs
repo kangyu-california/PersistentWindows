@@ -671,6 +671,7 @@ if not errorlevel 1 goto wait_to_finish";
         static System.Threading.Timer snapshot_timer; 
         static public void CaptureSnapshot(int id, bool prompt = true, bool delayCapture = false)
         {
+            snapshot_timer?.Dispose();
             snapshot_timer = new System.Threading.Timer(state =>
             {
                 if (!pwp.TakeSnapshot(id))
@@ -772,6 +773,7 @@ if not errorlevel 1 goto wait_to_finish";
         static System.Threading.Timer capture_to_hdd_timer;
         static public void CaptureToDisk()
         {
+            capture_to_hdd_timer?.Dispose();
             capture_to_hdd_timer = new System.Threading.Timer(state =>
             {
                 GetProcessInfo();
