@@ -60,16 +60,8 @@ namespace PersistentWindows.Common.Models
 
         public override string ToString()
         {
-            //return string.Format("{0}.{1} {2}", ProcessId, HWnd.ToString("X8"), ProcessName);
-            //return string.Format("process:{0:x4} hwnd:{1:x6} {2}", ProcessId, HWnd.ToInt64(), ProcessName);
-            DataContractSerializer dcs = new DataContractSerializer(typeof(ApplicationDisplayMetrics));
-            StringBuilder sb = new StringBuilder();
-            using (XmlWriter xw = XmlWriter.Create(sb))
-            {
-                dcs.WriteObject(xw, this);
-            }
-            string xml = sb.ToString();
-            return xml;
+            return string.Format("process:{0} ({1}) hwnd:0x{2:X} '{3}' pos:{4}",
+                ProcessName, ProcessId, HWnd.ToInt64(), Title, ScreenPosition);
         }
     }
 }
