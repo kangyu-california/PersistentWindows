@@ -2,7 +2,7 @@
 
 namespace PersistentWindows.Common.WinApiBridge
 {
-    //[StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct WindowPlacement
     {
         /// <summary>
