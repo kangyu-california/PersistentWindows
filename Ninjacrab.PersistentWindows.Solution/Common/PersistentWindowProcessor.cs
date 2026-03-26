@@ -3557,7 +3557,7 @@ namespace PersistentWindows.Common
                 isTaskBar = true;
             }
 
-            WindowPlacement windowPlacement = new WindowPlacement();
+            WindowPlacement windowPlacement = WindowPlacement.Default;
             User32.GetWindowPlacement(hwnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
