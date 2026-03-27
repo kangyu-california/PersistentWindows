@@ -187,7 +187,7 @@ namespace PersistentWindows.Common
         public delegate void CallBack();
         public delegate void CallBackBool(bool en = true);
 
-        public void RestoreAllMinimized()
+        public void RestoreAllParked()
         {
             if (!monitorApplications.ContainsKey(curDisplayKey))
                 return;

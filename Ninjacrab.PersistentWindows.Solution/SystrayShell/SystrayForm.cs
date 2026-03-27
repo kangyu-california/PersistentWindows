@@ -496,9 +496,9 @@ namespace PersistentWindows.SystrayShell
             base.SetVisibleCore(false);
         }
 
-        private void RestoreAllMinimizedClickHandler(object sender, EventArgs e)
+        private void RestoreAllParkedClickHandler(object sender, EventArgs e)
         {
-            Program.pwp.RestoreAllMinimized();
+            Program.pwp.RestoreAllParked();
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)

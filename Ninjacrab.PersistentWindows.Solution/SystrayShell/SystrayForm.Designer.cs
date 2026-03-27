@@ -19,7 +19,7 @@ namespace PersistentWindows.SystrayShell
 
         private ToolStripMenuItem captureToolStripMenuItem;
         private ToolStripMenuItem restoreToolStripMenuItem;
-        private ToolStripMenuItem restoreAllMinimizedMenuItem;
+        private ToolStripMenuItem restoreAllParkedMenuItem;
         private ToolStripMenuItem captureSnapshotMenuItem;
         private ToolStripMenuItem restoreSnapshotMenuItem;
         private ToolStripMenuItem pauseResumeToolStripMenuItem;
@@ -60,7 +60,7 @@ namespace PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.restoreAllMinimizedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restoreAllParkedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleIconMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.invokeWebCommander = new System.Windows.Forms.ToolStripMenuItem();
@@ -103,7 +103,7 @@ namespace PersistentWindows.SystrayShell
                 */
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
-                this.restoreAllMinimizedMenuItem,
+                this.restoreAllParkedMenuItem,
                 this.menuSeparators[0],
                 this.captureSnapshotMenuItem,
                 this.restoreSnapshotMenuItem,
@@ -132,9 +132,9 @@ namespace PersistentWindows.SystrayShell
 
             // restore all minimized
             //
-            this.restoreAllMinimizedMenuItem.Name = "restoreAllMinimized";
-            this.restoreAllMinimizedMenuItem.Text = "Restore all minimized windows";
-            this.restoreAllMinimizedMenuItem.Click += new System.EventHandler(this.RestoreAllMinimizedClickHandler);
+            this.restoreAllParkedMenuItem.Name = "restoreAllMinimized";
+            this.restoreAllParkedMenuItem.Text = "Restore all parked windows";
+            this.restoreAllParkedMenuItem.Click += new System.EventHandler(this.RestoreAllParkedClickHandler);
 
             // capture snapshot
             //
