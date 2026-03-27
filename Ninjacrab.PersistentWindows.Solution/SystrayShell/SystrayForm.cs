@@ -490,6 +490,11 @@ namespace PersistentWindows.SystrayShell
             Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
         }
 
+        private void RestoreAllMinimizedClickHandler(object sender, EventArgs e)
+        {
+            Program.pwp.RestoreAllMinimized();
+        }
+
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
             bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
