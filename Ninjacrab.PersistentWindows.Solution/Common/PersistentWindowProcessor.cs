@@ -196,17 +196,49 @@ namespace PersistentWindows.Common
             {
                 foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
                 {
+                    if (!User32.IsWindow(hwnd))
+                        continue;
+
                     var list = monitorApplications[curDisplayKey][hwnd];
                     if (list.Count == 0)
                         continue;
 
                     var dm = list[list.Count - 1];
-                    if (dm.IsMinimized && User32.IsWindow(hwnd))
+
+                    // Only act on windows that were previously captured as non-minimized
+                    // (i.e., the user had them visible) but are now stuck
+                    // Skip windows that PW originally captured as invisible — those are
+                    // intentionally hidden (Telegram background, media overlays, etc.)
+                    if (dm.IsInvisible && !dm.IsMinimized)
+                        continue;
+
+                    RECT rect = new RECT();
+                    User32.GetWindowRect(hwnd, ref rect);
+                    bool isParkedOffScreen = rect.Left <= -32000 || rect.Top <= -32000;
+                    bool isIconic = User32.IsIconic(hwnd);
+
+                    // Only restore windows that are actually stuck:
+                    // 1. Truly iconic (minimized to taskbar)
+                    // 2. Parked at (-32000,-32000) but not iconic (Brave-style stuck state)
+                    // 3. PW thinks it's minimized but it was previously visible
+                    if (isIconic || isParkedOffScreen || (dm.IsMinimized && !dm.IsInvisible))
                     {
                         dm.IsMinimized = false;
-                        dm.IsInvisible = false;
+
                         User32.ShowWindow(hwnd, (int)ShowWindowCommands.Restore);
-                        Log.Error("Force unminimize window {0}", GetWindowTitle(hwnd));
+
+                        // If still parked off-screen, use saved position or fallback
+                        User32.GetWindowRect(hwnd, ref rect);
+                        if (rect.Left <= -32000 || rect.Top <= -32000)
+                        {
+                            RECT saved = dm.ScreenPosition;
+                            if (saved.Left > -32000 && saved.Top > -32000 && saved.Width > 0 && saved.Height > 0)
+                                User32.MoveWindow(hwnd, saved.Left, saved.Top, saved.Width, saved.Height, true);
+                            else
+                                User32.MoveWindow(hwnd, 100, 100, 800, 600, true);
+                        }
+
+                        Log.Error("Force restore window {0} {1}", dm.ProcessName, GetWindowTitle(hwnd));
                     }
                 }
             }
