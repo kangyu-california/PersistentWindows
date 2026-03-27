@@ -490,6 +490,12 @@ namespace PersistentWindows.SystrayShell
             Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
         }
 
+        protected override void SetVisibleCore(bool value)
+        {
+            // Never allow the form to become visible — it's a systray-only app
+            base.SetVisibleCore(false);
+        }
+
         private void RestoreAllMinimizedClickHandler(object sender, EventArgs e)
         {
             Program.pwp.RestoreAllMinimized();

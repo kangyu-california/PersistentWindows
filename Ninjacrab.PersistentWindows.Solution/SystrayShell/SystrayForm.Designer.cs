@@ -193,6 +193,8 @@ namespace PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(284, 261);
             */
             this.Name = "SystrayForm";
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 
