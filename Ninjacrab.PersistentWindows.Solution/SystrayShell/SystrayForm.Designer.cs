@@ -19,6 +19,7 @@ namespace PersistentWindows.SystrayShell
 
         private ToolStripMenuItem captureToolStripMenuItem;
         private ToolStripMenuItem restoreToolStripMenuItem;
+        private ToolStripMenuItem restoreAllParkedMenuItem;
         private ToolStripMenuItem captureSnapshotMenuItem;
         private ToolStripMenuItem restoreSnapshotMenuItem;
         private ToolStripMenuItem pauseResumeToolStripMenuItem;
@@ -59,6 +60,7 @@ namespace PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.captureSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreSnapshotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restoreAllParkedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pauseResumeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleIconMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.invokeWebCommander = new System.Windows.Forms.ToolStripMenuItem();
@@ -101,6 +103,7 @@ namespace PersistentWindows.SystrayShell
                 */
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
+                this.restoreAllParkedMenuItem,
                 this.menuSeparators[0],
                 this.captureSnapshotMenuItem,
                 this.restoreSnapshotMenuItem,
@@ -127,8 +130,14 @@ namespace PersistentWindows.SystrayShell
             this.restoreToolStripMenuItem.Text = "Restore windows from disk";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowFromDisk);
 
+            // restore all minimized
+            //
+            this.restoreAllParkedMenuItem.Name = "restoreAllMinimized";
+            this.restoreAllParkedMenuItem.Text = "Restore all parked windows";
+            this.restoreAllParkedMenuItem.Click += new System.EventHandler(this.RestoreAllParkedClickHandler);
+
             // capture snapshot
-            // 
+            //
             this.captureSnapshotMenuItem.Name = "capture snapshot";
             this.captureSnapshotMenuItem.Text = "Capture snapshot";
             this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshot);
@@ -184,6 +193,8 @@ namespace PersistentWindows.SystrayShell
             this.ClientSize = new System.Drawing.Size(284, 261);
             */
             this.Name = "SystrayForm";
+            this.ShowInTaskbar = false;
+            this.WindowState = FormWindowState.Minimized;
             this.contextMenuStripSysTray.ResumeLayout(false);
             this.ResumeLayout(false);
 

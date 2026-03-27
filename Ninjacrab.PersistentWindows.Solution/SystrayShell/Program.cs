@@ -443,8 +443,12 @@ if not errorlevel 1 goto wait_to_finish";
                 string png_path = Path.Combine(iconFolder, "pwIcon.png");
                 if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(png_path);
-                    IdleIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                    using (var bitmap = new System.Drawing.Bitmap(png_path))
+                    {
+                        IntPtr hIcon = bitmap.GetHicon();
+                        IdleIcon = System.Drawing.Icon.FromHandle(hIcon).Clone() as System.Drawing.Icon;
+                        User32.DestroyIcon(hIcon);
+                    }
                 }
                 else if (File.Exists(ico_path))
                 {
@@ -455,8 +459,12 @@ if not errorlevel 1 goto wait_to_finish";
                 png_path = Path.Combine(iconFolder, "pwIconBusy.png");
                 if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(png_path);
-                    BusyIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                    using (var bitmap = new System.Drawing.Bitmap(png_path))
+                    {
+                        IntPtr hIcon = bitmap.GetHicon();
+                        BusyIcon = System.Drawing.Icon.FromHandle(hIcon).Clone() as System.Drawing.Icon;
+                        User32.DestroyIcon(hIcon);
+                    }
                 }
                 else if (File.Exists(ico_path))
                 {
@@ -467,8 +475,12 @@ if not errorlevel 1 goto wait_to_finish";
                 png_path = Path.Combine(iconFolder, "pwIconUpdate.png");
                 if (File.Exists(png_path))
                 {
-                    var bitmap = new System.Drawing.Bitmap(png_path);
-                    UpdateIcon = System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                    using (var bitmap = new System.Drawing.Bitmap(png_path))
+                    {
+                        IntPtr hIcon = bitmap.GetHicon();
+                        UpdateIcon = System.Drawing.Icon.FromHandle(hIcon).Clone() as System.Drawing.Icon;
+                        User32.DestroyIcon(hIcon);
+                    }
                 }
                 else if (File.Exists(ico_path))
                 {
@@ -659,6 +671,7 @@ if not errorlevel 1 goto wait_to_finish";
         static System.Threading.Timer snapshot_timer; 
         static public void CaptureSnapshot(int id, bool prompt = true, bool delayCapture = false)
         {
+            snapshot_timer?.Dispose();
             snapshot_timer = new System.Threading.Timer(state =>
             {
                 if (!pwp.TakeSnapshot(id))
@@ -760,6 +773,7 @@ if not errorlevel 1 goto wait_to_finish";
         static System.Threading.Timer capture_to_hdd_timer;
         static public void CaptureToDisk()
         {
+            capture_to_hdd_timer?.Dispose();
             capture_to_hdd_timer = new System.Threading.Timer(state =>
             {
                 GetProcessInfo();

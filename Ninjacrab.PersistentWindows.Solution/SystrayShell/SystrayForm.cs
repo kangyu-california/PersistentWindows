@@ -445,8 +445,12 @@ namespace PersistentWindows.SystrayShell
                             notifyIconMain.Icon = new Icon(filePath);
                         else
                         {
-                            var bitmap = new Bitmap(filePath); // or get it from resource
-                            notifyIconMain.Icon = Icon.FromHandle(bitmap.GetHicon());
+                            using (var bitmap = new Bitmap(filePath))
+                            {
+                                IntPtr hIcon = bitmap.GetHicon();
+                                notifyIconMain.Icon = Icon.FromHandle(hIcon).Clone() as Icon;
+                                User32.DestroyIcon(hIcon);
+                            }
                         }
                         toggleIcon = !toggleIcon;
                         toggleIconMenuItem.Text = "Disable customized icon";
@@ -484,6 +488,17 @@ namespace PersistentWindows.SystrayShell
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)
         {
             Process.Start(Program.ProjectUrl + "/blob/master/Help.md");
+        }
+
+        protected override void SetVisibleCore(bool value)
+        {
+            // Never allow the form to become visible — it's a systray-only app
+            base.SetVisibleCore(false);
+        }
+
+        private void RestoreAllParkedClickHandler(object sender, EventArgs e)
+        {
+            Program.pwp.RestoreAllParked();
         }
 
         private void ExitToolStripMenuItemClickHandler(object sender, EventArgs e)

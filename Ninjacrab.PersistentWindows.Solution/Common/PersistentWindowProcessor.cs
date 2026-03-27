@@ -187,6 +187,66 @@ namespace PersistentWindows.Common
         public delegate void CallBack();
         public delegate void CallBackBool(bool en = true);
 
+        public void RestoreAllParked()
+        {
+            if (!monitorApplications.ContainsKey(curDisplayKey))
+                return;
+
+            lock(captureLock)
+            {
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
+                {
+                    if (!User32.IsWindow(hwnd))
+                        continue;
+
+                    var list = monitorApplications[curDisplayKey][hwnd];
+                    if (list.Count == 0)
+                        continue;
+
+                    var dm = list[list.Count - 1];
+
+                    // Only act on windows that were previously captured as non-minimized
+                    // (i.e., the user had them visible) but are now stuck
+                    // Skip windows that PW originally captured as invisible — those are
+                    // intentionally hidden (Telegram background, media overlays, etc.)
+                    if (dm.IsInvisible && !dm.IsMinimized)
+                        continue;
+
+                    RECT rect = new RECT();
+                    User32.GetWindowRect(hwnd, ref rect);
+                    bool isParkedOffScreen = rect.Left <= -32000 || rect.Top <= -32000;
+                    bool isIconic = User32.IsIconic(hwnd);
+
+                    // Only restore windows that are actually stuck:
+                    // 1. Truly iconic (minimized to taskbar)
+                    // 2. Parked at (-32000,-32000) but not iconic (Brave-style stuck state)
+                    // 3. PW thinks it's minimized but it was previously visible
+                    if (isIconic || isParkedOffScreen || (dm.IsMinimized && !dm.IsInvisible))
+                    {
+                        dm.IsMinimized = false;
+
+                        User32.ShowWindow(hwnd, (int)ShowWindowCommands.Restore);
+
+                        // If still parked off-screen, use saved position or fallback
+                        User32.GetWindowRect(hwnd, ref rect);
+                        if (rect.Left <= -32000 || rect.Top <= -32000)
+                        {
+                            RECT saved = dm.ScreenPosition;
+                            if (saved.Left > -32000 && saved.Top > -32000 && saved.Width > 0 && saved.Height > 0)
+                                User32.MoveWindow(hwnd, saved.Left, saved.Top, saved.Width, saved.Height, true);
+                            else
+                                User32.MoveWindow(hwnd, 100, 100, 800, 600, true);
+                        }
+
+                        Log.Error("Force restore window {0} {1}", dm.ProcessName, GetWindowTitle(hwnd));
+                    }
+                }
+            }
+
+            StartCaptureTimer();
+        }
+
+
         public CallBack showRestoreTip;
         public CallBackBool hideRestoreTip;
 
@@ -2617,15 +2677,18 @@ namespace PersistentWindows.Common
             {
                 CaptureApplicationsOnCurrentDisplays(curDisplayKey, immediateCapture: true);
 
-                foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
+                lock (captureLock)
                 {
-                    int count = monitorApplications[curDisplayKey][hwnd].Count;
-                    if (count > 0)
+                    foreach (var hwnd in monitorApplications[curDisplayKey].Keys)
                     {
-                        for (var i = 0; i < count - 1; ++i)
-                            monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1ul << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1ul << snapshotId);
-                        monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
+                        int count = monitorApplications[curDisplayKey][hwnd].Count;
+                        if (count > 0)
+                        {
+                            for (var i = 0; i < count - 1; ++i)
+                                monitorApplications[curDisplayKey][hwnd][i].SnapShotFlags &= ~(1ul << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][count - 1].SnapShotFlags |= (1ul << snapshotId);
+                            monitorApplications[curDisplayKey][hwnd][count - 1].IsValid = true;
+                        }
                     }
                 }
 
@@ -3096,6 +3159,8 @@ namespace PersistentWindows.Common
             if (captureTimerStarted > 128)
             {
                 Console.Write("Ignore high frequency capture request due to massive window events");
+                captureTimerStarted = 0;
+                captureTimer.Change(CaptureLatency * 4, Timeout.Infinite);
                 return;
             }
 
@@ -3129,7 +3194,7 @@ namespace PersistentWindows.Common
             if (UserForcedRestoreLatency > RestoreLatency)
             {
                 if (!restoringFromDB && !restoringSnapshot)
-                    milliSecond = UserForcedCaptureLatency;
+                    milliSecond = UserForcedRestoreLatency;
             }
             restoreTimer.Change(milliSecond, Timeout.Infinite);
         }
@@ -3557,7 +3622,7 @@ namespace PersistentWindows.Common
                 isTaskBar = true;
             }
 
-            WindowPlacement windowPlacement = new WindowPlacement();
+            WindowPlacement windowPlacement = WindowPlacement.Default;
             User32.GetWindowPlacement(hwnd, ref windowPlacement);
 
             // compensate for GetWindowPlacement() failure to get real coordinate of snapped window
@@ -3730,6 +3795,13 @@ namespace PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
+                    if (restoringFromMem)
+                    {
+                        // OS transiently minimized this window during display change;
+                        // reject capture so we keep the pre-minimize state and restore properly
+                        return false;
+                    }
+
                     //minimize start
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
@@ -4377,7 +4449,7 @@ namespace PersistentWindows.Common
                 else if (snapshotTakenTime.ContainsKey(curDisplayKey)
                         && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
                 {
-                    lastCaptureTime = snapshotTakenTime[displayKey][MaxSnapshots];
+                    lastCaptureTime = snapshotTakenTime[curDisplayKey][MaxSnapshots];
                 }
             }
 
@@ -4792,7 +4864,7 @@ namespace PersistentWindows.Common
 
                     if (restore_fullscreen)
                     {
-                        if (restoreTimes > 0 && sWindow == null) //#246, let other windows restore first
+                        if (restoreTimes > 0 && sWindow == IntPtr.Zero) //#246, let other windows restore first
                         lock(restoringFullScreenWindow)
                         RestoreFullScreenWindow(hWnd, rect);
                     }

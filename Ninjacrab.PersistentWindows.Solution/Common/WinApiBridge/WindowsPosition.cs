@@ -32,6 +32,18 @@ namespace PersistentWindows.Common.WinApiBridge
         {
             return string.Format($"({X}, {Y})");
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is POINT)) return false;
+            POINT other = (POINT)obj;
+            return X == other.X && Y == other.Y;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked { return (X * 397) ^ Y; }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -66,6 +78,25 @@ namespace PersistentWindows.Common.WinApiBridge
         {
             int diff = Math.Abs(Left - r.Left) + Math.Abs(Right - r.Right) + Math.Abs(Top - r.Top) + Math.Abs(Bottom - r.Bottom);
             return diff / 4;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is RECT)) return false;
+            RECT other = (RECT)obj;
+            return Left == other.Left && Top == other.Top && Right == other.Right && Bottom == other.Bottom;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hash = Left;
+                hash = (hash * 397) ^ Top;
+                hash = (hash * 397) ^ Right;
+                hash = (hash * 397) ^ Bottom;
+                return hash;
+            }
         }
     }
 }

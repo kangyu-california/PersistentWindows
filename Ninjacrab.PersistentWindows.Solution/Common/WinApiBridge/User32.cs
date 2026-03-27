@@ -611,6 +611,8 @@ namespace PersistentWindows.Common.WinApiBridge
             WinKey = 8
         }
 
+        [DllImport("user32.dll")]
+        public static extern bool DestroyIcon(IntPtr hIcon);
     }
 
     public class Kernel32
