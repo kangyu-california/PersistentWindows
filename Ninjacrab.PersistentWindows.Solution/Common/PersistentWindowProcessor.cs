@@ -187,6 +187,34 @@ namespace PersistentWindows.Common
         public delegate void CallBack();
         public delegate void CallBackBool(bool en = true);
 
+        public void RestoreAllMinimized()
+        {
+            if (!monitorApplications.ContainsKey(curDisplayKey))
+                return;
+
+            lock(captureLock)
+            {
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
+                {
+                    var list = monitorApplications[curDisplayKey][hwnd];
+                    if (list.Count == 0)
+                        continue;
+
+                    var dm = list[list.Count - 1];
+                    if (dm.IsMinimized && User32.IsWindow(hwnd))
+                    {
+                        dm.IsMinimized = false;
+                        dm.IsInvisible = false;
+                        User32.ShowWindow(hwnd, (int)ShowWindowCommands.Restore);
+                        Log.Error("Force unminimize window {0}", GetWindowTitle(hwnd));
+                    }
+                }
+            }
+
+            StartCaptureTimer();
+        }
+
+
         public CallBack showRestoreTip;
         public CallBackBool hideRestoreTip;
 
@@ -3735,6 +3763,13 @@ namespace PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
+                    if (restoringFromMem)
+                    {
+                        // OS transiently minimized this window during display change;
+                        // reject capture so we keep the pre-minimize state and restore properly
+                        return false;
+                    }
+
                     //minimize start
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
