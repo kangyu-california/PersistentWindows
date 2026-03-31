@@ -3792,18 +3792,19 @@ namespace PersistentWindows.Common
                 }
                 else if (curDisplayMetrics.IsMinimized && !prevDisplayMetrics.IsMinimized)
                 {
-                    if (restoringFromMem)
-                    {
-                        // OS transiently minimized this window during display change;
-                        // reject capture so we keep the pre-minimize state and restore properly
-                        return false;
-                    }
-
                     //minimize start
                     curDisplayMetrics.WindowPlacement = prevDisplayMetrics.WindowPlacement;
                     curDisplayMetrics.ScreenPosition = prevDisplayMetrics.ScreenPosition;
 
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
+
+                    if (restoringFromMem)
+                    {
+                        // OS transiently minimized this window during display change;
+                        // keep the pre-minimize position but don't mark as minimized,
+                        // so restore will move it back to the correct monitor
+                        curDisplayMetrics.IsMinimized = false;
+                    }
 
                     if (prevDisplayMetrics.IsFullScreen)
                         curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
