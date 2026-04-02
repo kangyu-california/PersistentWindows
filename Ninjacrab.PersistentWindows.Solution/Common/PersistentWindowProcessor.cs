@@ -2191,16 +2191,29 @@ namespace PersistentWindows.Common
 
         }
 
+        private volatile bool inWinEventProc = false;
+
         private void WinEventProc(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
+            // WinEvent callbacks can re-enter on STA threads during COM message pumping
+            // while waiting on captureLock. Skip re-entrant calls to prevent stack growth
+            // and CPU spinning from cascading lock contention.
+            if (inWinEventProc)
+                return;
+
             try
             {
+                inWinEventProc = true;
                 lock(captureLock)
                 WinEventProcCore(hWinEventHook, eventType, hwnd, idObject, idChild, dwEventThread, dwmsEventTime);
             }
             catch (Exception ex)
             {
                 Log.Error(ex.ToString());
+            }
+            finally
+            {
+                inWinEventProc = false;
             }
         }
 
