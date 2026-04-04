@@ -3590,16 +3590,24 @@ namespace PersistentWindows.Common
                 {
                     if (!restoringFromDB && prevDisplayMetrics != null)
                     {
-                        if (windowTitle.ContainsKey(hwnd))
-                        Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
+                        // Don't restore to an off-screen position from a killed window
+                        if (IsRectOffScreen(prevDisplayMetrics.ScreenPosition))
+                        {
+                            Log.Error($"skip inherit off-screen position for {GetWindowTitle(hwnd)}");
+                        }
+                        else
+                        {
+                            if (windowTitle.ContainsKey(hwnd))
+                            Log.Trace($"restore {windowTitle[hwnd]} to last captured position");
 
-                        restoreSingleWindow = true;
-                        restoringFromMem = true;
-                        RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
-                        restoreSingleWindow = false;
-                        restoringFromMem = false;
-                        userMove = true;
-                        StartCaptureTimer(UserMoveLatency / 2);
+                            restoreSingleWindow = true;
+                            restoringFromMem = true;
+                            RestoreApplicationsOnCurrentDisplays(curDisplayKey, hwnd, prevDisplayMetrics.CaptureTime);
+                            restoreSingleWindow = false;
+                            restoringFromMem = false;
+                            userMove = true;
+                            StartCaptureTimer(UserMoveLatency / 2);
+                        }
                     }
                 }
                 return true;
