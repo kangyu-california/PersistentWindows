@@ -203,6 +203,9 @@ namespace PersistentWindows.Common
                     if (list.Count == 0)
                         continue;
 
+                    if (MinimizeToTray.Destroy(hwnd))
+                        continue;
+
                     var dm = list[list.Count - 1];
 
                     // Skip windows that PW originally captured as invisible — those are

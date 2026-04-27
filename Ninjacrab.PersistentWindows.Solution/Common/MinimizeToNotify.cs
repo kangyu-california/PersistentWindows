@@ -12,7 +12,7 @@ namespace PersistentWindows.Common.Minimize2Tray
 {
     public class MinimizeToTray : IDisposable
     {
-        private static HashSet<IntPtr> _trayWindows = new HashSet<IntPtr>();
+        private static Dictionary<IntPtr, MinimizeToTray> _trayWindows = new Dictionary<IntPtr, MinimizeToTray>();
         private NotifyIcon _systemTrayIcon = null;
         private IntPtr _hwnd;
         private string _window_txt;
@@ -20,7 +20,7 @@ namespace PersistentWindows.Common.Minimize2Tray
 
         static public void Create(IntPtr hwnd)
         {
-            if (_trayWindows.Contains(hwnd))
+            if (_trayWindows.ContainsKey(hwnd))
                 return;
 
             // clear ctrl state
@@ -29,8 +29,16 @@ namespace PersistentWindows.Common.Minimize2Tray
             if (!ctrl_key_pressed)
                 return;
 
-            _trayWindows.Add(hwnd);
-            new MinimizeToTray(hwnd);
+            _trayWindows[hwnd] = new MinimizeToTray(hwnd);
+        }
+
+        static public bool Destroy(IntPtr hwnd)
+        {
+            if (!_trayWindows.ContainsKey(hwnd))
+                return false;
+
+            _trayWindows[hwnd].Dispose();
+            return true;
         }
 
         public MinimizeToTray(IntPtr hwnd)
