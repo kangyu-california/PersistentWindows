@@ -103,18 +103,19 @@ namespace PersistentWindows.SystrayShell
                 */
                 this.captureToolStripMenuItem,
                 this.restoreToolStripMenuItem,
-                this.restoreAllParkedMenuItem,
                 this.menuSeparators[0],
                 this.captureSnapshotMenuItem,
                 this.restoreSnapshotMenuItem,
                 this.menuSeparators[1],
+                this.restoreAllParkedMenuItem,
+                this.menuSeparators[2],
                 this.pauseResumeToolStripMenuItem,
                 this.toggleIconMenuItem,
                 this.invokeWebCommander,
-                this.menuSeparators[2],
+                this.menuSeparators[3],
                 this.upgradeNoticeMenuItem,
                 this.aboutToolStripMenuItem,
-                this.menuSeparators[3],
+                this.menuSeparators[4],
                 this.exitToolStripMenuItem});
             this.contextMenuStripSysTray.Name = "contextMenuStripSysTray";
 
@@ -133,7 +134,7 @@ namespace PersistentWindows.SystrayShell
             // restore all minimized
             //
             this.restoreAllParkedMenuItem.Name = "restoreAllMinimized";
-            this.restoreAllParkedMenuItem.Text = "Restore all parked windows";
+            this.restoreAllParkedMenuItem.Text = "Restore all minimized windows";
             this.restoreAllParkedMenuItem.Click += new System.EventHandler(this.RestoreAllParkedClickHandler);
 
             // capture snapshot
