@@ -187,66 +187,6 @@ namespace PersistentWindows.Common
         public delegate void CallBack();
         public delegate void CallBackBool(bool en = true);
 
-        public void RestoreAllParked()
-        {
-            if (!monitorApplications.ContainsKey(curDisplayKey))
-                return;
-
-            lock(captureLock)
-            {
-                foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
-                {
-                    if (!User32.IsWindow(hwnd))
-                        continue;
-
-                    var list = monitorApplications[curDisplayKey][hwnd];
-                    if (list.Count == 0)
-                        continue;
-
-                    if (MinimizeToTray.Destroy(hwnd))
-                        continue;
-
-                    var dm = list[list.Count - 1];
-
-                    // Skip windows that PW originally captured as invisible — those are
-                    // intentionally hidden (Telegram background, media overlays, etc.)
-                    if (dm.IsInvisible && !dm.IsMinimized)
-                        continue;
-
-                    RECT rect = new RECT();
-                    User32.GetWindowRect(hwnd, ref rect);
-                    bool isIconic = User32.IsIconic(hwnd);
-                    bool isOffScreen = IsRectOffScreen(rect);
-
-                    // Restore windows that are stuck:
-                    // 1. Truly iconic (minimized to taskbar)
-                    // 2. Off-screen (parked at -32000 or any other off-screen position)
-                    // 3. PW thinks it's minimized but it was previously visible
-                    if (isIconic || isOffScreen || (dm.IsMinimized && !dm.IsInvisible))
-                    {
-                        dm.IsMinimized = false;
-
-                        User32.ShowWindow(hwnd, (int)ShowWindowCommands.Restore);
-
-                        // If still off-screen after Restore, move on-screen
-                        User32.GetWindowRect(hwnd, ref rect);
-                        if (IsRectOffScreen(rect))
-                        {
-                            RECT saved = dm.ScreenPosition;
-                            if (!IsRectOffScreen(saved) && saved.Width > 0 && saved.Height > 0)
-                                User32.MoveWindow(hwnd, saved.Left, saved.Top, saved.Width, saved.Height, true);
-                            else
-                                User32.MoveWindow(hwnd, 100, 100, rect.Width > 0 ? rect.Width : 800, rect.Height > 0 ? rect.Height : 600, true);
-                        }
-
-                        Log.Error("Force restore window {0} {1}", dm.ProcessName, GetWindowTitle(hwnd));
-                    }
-                }
-            }
-
-            StartCaptureTimer();
-        }
-
 
         public CallBack showRestoreTip;
         public CallBackBool hideRestoreTip;
@@ -5317,6 +5257,66 @@ namespace PersistentWindows.Common
             }
 
             return path;
+        }
+
+        public void RestoreAllParked()
+        {
+            if (!monitorApplications.ContainsKey(curDisplayKey))
+                return;
+
+            lock(captureLock)
+            {
+                foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
+                {
+                    if (!User32.IsWindow(hwnd))
+                        continue;
+
+                    var list = monitorApplications[curDisplayKey][hwnd];
+                    if (list.Count == 0)
+                        continue;
+
+                    if (MinimizeToTray.Destroy(hwnd))
+                        continue;
+
+                    var dm = list[list.Count - 1];
+
+                    // Skip windows that PW originally captured as invisible — those are
+                    // intentionally hidden (Telegram background, media overlays, etc.)
+                    if (dm.IsInvisible && !dm.IsMinimized)
+                        continue;
+
+                    RECT rect = new RECT();
+                    User32.GetWindowRect(hwnd, ref rect);
+                    bool isIconic = User32.IsIconic(hwnd);
+                    bool isOffScreen = IsRectOffScreen(rect);
+
+                    // Restore windows that are stuck:
+                    // 1. Truly iconic (minimized to taskbar)
+                    // 2. Off-screen (parked at -32000 or any other off-screen position)
+                    // 3. PW thinks it's minimized but it was previously visible
+                    if (isIconic || isOffScreen || (dm.IsMinimized && !dm.IsInvisible))
+                    {
+                        dm.IsMinimized = false;
+
+                        User32.ShowWindow(hwnd, (int)ShowWindowCommands.Restore);
+
+                        // If still off-screen after Restore, move on-screen
+                        User32.GetWindowRect(hwnd, ref rect);
+                        if (IsRectOffScreen(rect))
+                        {
+                            RECT saved = dm.ScreenPosition;
+                            if (!IsRectOffScreen(saved) && saved.Width > 0 && saved.Height > 0)
+                                User32.MoveWindow(hwnd, saved.Left, saved.Top, saved.Width, saved.Height, true);
+                            else
+                                User32.MoveWindow(hwnd, 100, 100, rect.Width > 0 ? rect.Width : 800, rect.Height > 0 ? rect.Height : 600, true);
+                        }
+
+                        Log.Error("Force restore window {0} {1}", dm.ProcessName, GetWindowTitle(hwnd));
+                    }
+                }
+            }
+
+            StartCaptureTimer();
         }
 
         private void TestSetWindowPos()
