@@ -58,6 +58,12 @@ namespace PersistentWindows.Common
         public bool captureFloatingWindow = true;
         private HashSet<IntPtr> allUserMoveWindows = new HashSet<IntPtr>();
         private HashSet<IntPtr> unResponsiveWindows = new HashSet<IntPtr>();
+        // windows that timed out on a sync command this restore cycle (skip same-cycle retries, retry once more in restoreFinishedTimer with longer timeout)
+        private HashSet<IntPtr> slowResponseWindows = new HashSet<IntPtr>();
+        private Dictionary<IntPtr, List<Tuple<int, int>>> deferredCommands = new Dictionary<IntPtr, List<Tuple<int, int>>>();
+        private const int SyncCommandTimeoutMs = 200;
+        private const int SyncCommandTaskbarTimeoutMs = 500;
+        private const int SyncCommandRetryTimeoutMs = 1500;
         private static IntPtr desktopWindow = User32.GetDesktopWindow();
         private static IntPtr vacantDeskWindow = IntPtr.Zero;
         private uint fakeHwnd = 1; //for resolving handle value conflict of live and dead window
@@ -801,6 +807,10 @@ namespace PersistentWindows.Common
             {
                 int numWindowRestored = restoredWindows.Count;
                 int restorePass = restoreTimes;
+
+                // one final retry for sync commands that timed out during the multi-pass restore (longer timeout, single attempt)
+                RetryDeferredCommands();
+                slowResponseWindows.Clear();
 
                 unResponsiveWindows.Clear();
 
@@ -3881,6 +3891,10 @@ namespace PersistentWindows.Common
                     iconBusy = true;
                     showRestoreTip();
                 }
+
+                // start of a new restore cycle: clear deferred-command state from any previously aborted cycle
+                slowResponseWindows.Clear();
+                deferredCommands.Clear();
             }
 
             try
@@ -4104,10 +4118,75 @@ namespace PersistentWindows.Common
 
         private void HideWindow(IntPtr hWnd)
         {
-            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, null);
+            TrySendSyncCommand(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE);
             uint style = (uint)User32.GetWindowLong(hWnd, User32.GWL_STYLE);
             style &= ~(uint)WindowStyleFlags.VISIBLE;
             User32.SetWindowLong(hWnd, User32.GWL_STYLE, style);
+        }
+
+        // Sends a sync command with a short timeout so a slow target (e.g. Brave during GPU resume from monitor standby)
+        // cannot block the restore loop indefinitely. On timeout, the window is added to slowResponseWindows so subsequent
+        // passes skip the same call, and the command is queued for one final retry with a longer timeout in
+        // restoreFinishedTimer (preserves issue #276 intent: actions on slow-but-responsive windows still happen).
+        private bool TrySendSyncCommand(IntPtr hWnd, int msg, int wParam, int timeoutMs = SyncCommandTimeoutMs, bool deferOnTimeout = true)
+        {
+            if (slowResponseWindows.Contains(hWnd))
+            {
+                if (deferOnTimeout)
+                    EnqueueDeferredCommand(hWnd, msg, wParam);
+                return false;
+            }
+
+            uint result;
+            int rc = User32.SendMessageTimeout(hWnd, msg, (uint)wParam, 0,
+                User32.SMTO_ABORTIFHUNG | User32.SMTO_NORMAL, timeoutMs, out result);
+
+            if (rc == 0)
+            {
+                slowResponseWindows.Add(hWnd);
+                if (deferOnTimeout)
+                {
+                    EnqueueDeferredCommand(hWnd, msg, wParam);
+                    Log.Error("slow window {0:X4} '{1}', deferring cmd 0x{2:X}/0x{3:X}", hWnd.ToInt64(), GetWindowTitle(hWnd), msg, wParam);
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private void EnqueueDeferredCommand(IntPtr hWnd, int msg, int wParam)
+        {
+            if (!deferredCommands.ContainsKey(hWnd))
+                deferredCommands[hWnd] = new List<Tuple<int, int>>();
+            var key = Tuple.Create(msg, wParam);
+            if (!deferredCommands[hWnd].Contains(key))
+                deferredCommands[hWnd].Add(key);
+        }
+
+        private void RetryDeferredCommands()
+        {
+            if (deferredCommands.Count == 0)
+                return;
+
+            Log.Event("Slow-retry: {0} window(s) had deferred sync commands", deferredCommands.Count);
+
+            foreach (var kvp in deferredCommands)
+            {
+                var hWnd = kvp.Key;
+                if (!User32.IsWindow(hWnd))
+                    continue;
+
+                foreach (var cmd in kvp.Value)
+                {
+                    uint result;
+                    int rc = User32.SendMessageTimeout(hWnd, cmd.Item1, (uint)cmd.Item2, 0,
+                        User32.SMTO_ABORTIFHUNG | User32.SMTO_NORMAL, SyncCommandRetryTimeoutMs, out result);
+                    if (rc == 0)
+                        Log.Error("Slow-retry timeout for '{0}' cmd 0x{1:X}/0x{2:X}", GetWindowTitle(hWnd), cmd.Item1, cmd.Item2);
+                }
+            }
+
+            deferredCommands.Clear();
         }
 
         private void CenterCursor()
@@ -4661,7 +4740,8 @@ namespace PersistentWindows.Common
                     int taskbarMovable = (int)Registry.GetValue(@"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "TaskbarSizeMove", 1);
                     if (taskbarMovable == 0)
                     {
-                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
+                        // taskbar is hosted by Explorer; use a slightly longer timeout but no deferred retry (toggling lock twice via deferred queue is unsafe)
+                        TrySendSyncCommand(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, SyncCommandTaskbarTimeoutMs, deferOnTimeout: false);
                     }
 
                     bool changed_edge = MoveTaskBar(hWnd, rect);
@@ -4671,7 +4751,7 @@ namespace PersistentWindows.Common
                         restoredWindows.Add(hWnd);
                     if (taskbarMovable == 0)
                     {
-                        User32.SendMessage(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, null);
+                        TrySendSyncCommand(hWnd, User32.WM_COMMAND, User32.SC_TOGGLE_TASKBAR_LOCK, SyncCommandTaskbarTimeoutMs, deferOnTimeout: false);
                     }
 
                     continue;
@@ -4698,12 +4778,13 @@ namespace PersistentWindows.Common
                         bool action_taken = false;
                         if (!IsMinimized(hWnd))
                         {
-                            User32.SendMessage(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE, null);
-                            action_taken = true;
+                            // sync command with timeout + deferred retry; cannot block the loop on a slow target (e.g. Brave during GPU resume)
+                            if (TrySendSyncCommand(hWnd, User32.WM_SYSCOMMAND, User32.SC_MINIMIZE))
+                                action_taken = true;
                         }
 
-                        // second try
-                        if (!IsMinimized(hWnd))
+                        // second try - skip if window is known-slow this cycle (ShowWindow can also block on hung target)
+                        if (!IsMinimized(hWnd) && !slowResponseWindows.Contains(hWnd))
                         {
                             action_taken = true;
                             User32.ShowWindow(hWnd, (int)ShowWindowCommands.ShowMinNoActive);
