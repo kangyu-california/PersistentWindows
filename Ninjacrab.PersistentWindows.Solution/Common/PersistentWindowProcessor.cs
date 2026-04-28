@@ -4793,16 +4793,8 @@ namespace PersistentWindows.Common
                         }
                     }
 
-                    if (need_move_window && resizable
-                        && (prevDisplayMetrics.IsMinimized
-                            || windowPlacement.ShowCmd == ShowWindowCommands.Maximize
-                            || prevDisplayMetrics.IsFullScreen))
+                    if (need_move_window && resizable)
                     {
-                        // Only call SetWindowPlacement for minimized/maximized/fullscreen windows
-                        // where it's needed to restore the correct state or target monitor.
-                        // For normal windows, MoveWindow with ScreenPosition handles positioning
-                        // correctly using absolute coordinates, whereas SetWindowPlacement uses
-                        // workspace-relative NormalPosition which can land on the wrong monitor.
                         success &= User32.SetWindowPlacement(hWnd, ref windowPlacement);
                     }
                 }
@@ -4813,7 +4805,12 @@ namespace PersistentWindows.Common
                     if (need_move_window)
                     {
                         if (resizable)
+                        {
+                            RECT cur_rect = new RECT();
+                            User32.GetWindowRect(hWnd, ref cur_rect);
+                            if (!cur_rect.Equals(rect))
                             success &= User32.MoveWindow(hWnd, rect.Left, rect.Top, rect.Width, rect.Height, true);
+                        }
                         else
                         {
                             Log.Error($"keep window size for floating window {GetWindowTitle(hWnd)}");
