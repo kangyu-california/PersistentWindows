@@ -3760,6 +3760,7 @@ namespace PersistentWindows.Common
 
                     curDisplayMetrics.NeedUpdateWindowPlacement = true;
 
+                    /* I dont think faking minimized status is the right fix
                     if (restoringFromMem)
                     {
                         // OS transiently minimized this window during display change;
@@ -3767,6 +3768,7 @@ namespace PersistentWindows.Common
                         // so restore will move it back to the correct monitor
                         curDisplayMetrics.IsMinimized = false;
                     }
+                    */
 
                     if (prevDisplayMetrics.IsFullScreen)
                         curDisplayMetrics.IsFullScreen = true; // flag that current state is minimized from full screen mode
