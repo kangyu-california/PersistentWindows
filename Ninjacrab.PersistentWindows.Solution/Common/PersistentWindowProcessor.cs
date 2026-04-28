@@ -4133,8 +4133,10 @@ namespace PersistentWindows.Common
             if (slowResponseWindows.Contains(hWnd))
             {
                 if (deferOnTimeout)
+                {
                     EnqueueDeferredCommand(hWnd, msg, wParam);
-                return false;
+                    return false;
+                }
             }
 
             uint result;
@@ -4143,7 +4145,8 @@ namespace PersistentWindows.Common
 
             if (rc == 0)
             {
-                slowResponseWindows.Add(hWnd);
+                if (!slowResponseWindows.Contains(hWnd))
+                    slowResponseWindows.Add(hWnd);
                 if (deferOnTimeout)
                 {
                     EnqueueDeferredCommand(hWnd, msg, wParam);
