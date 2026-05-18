@@ -229,6 +229,10 @@ namespace PersistentWindows.Common.WinApiBridge
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
+        // Reads window title from win32k.sys cached state — no WM_GETTEXT sent, never blocks on target's UI thread.
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "InternalGetWindowText")]
+        public static extern int InternalGetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
         [DllImport("user32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool GetWindowPlacement(IntPtr hWnd, ref WindowPlacement lpwndpl);

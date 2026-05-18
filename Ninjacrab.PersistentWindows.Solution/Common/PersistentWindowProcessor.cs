@@ -1377,26 +1377,27 @@ namespace PersistentWindows.Common
             if (use_cache && windowTitle.ContainsKey(hwnd))
                 return windowTitle[hwnd];
 
+            string result = "";
             try
             {
-                var length = User32.GetWindowTextLength(hwnd);
-                if (length > 0)
-                {
-                    length++;
-                    var title = new StringBuilder(length);
-                    User32.GetWindowText(hwnd, title, length);
-                    var t = title.ToString();
-                    t = t.Trim();
-                    return t;
-                }
+                // InternalGetWindowText reads from win32k cache — never blocks on target's UI thread,
+                // unlike GetWindowText which sends WM_GETTEXT cross-process.
+                const int bufSize = 512;
+                var title = new StringBuilder(bufSize);
+                int chars = User32.InternalGetWindowText(hwnd, title, bufSize);
+                if (chars > 0)
+                    result = title.ToString().Trim();
             }
             catch (Exception)
             {
-
             }
 
-            //return hwnd.ToString("X8");
-            return "";
+            // populate cache even for empty results so repeated WinEvents on the same hwnd
+            // do not re-query (this dictionary is cleared in EVENT_OBJECT_DESTROY)
+            if (use_cache)
+                windowTitle[hwnd] = result;
+
+            return result;
         }
 
         private static bool IsMinimized(IntPtr hwnd)
@@ -2425,9 +2426,15 @@ namespace PersistentWindows.Common
 
                         case User32Events.EVENT_SYSTEM_FOREGROUND:
                             {
-                                var cur_vdi = VirtualDesktop.GetWindowDesktopId(hwnd);
-                                if (cur_vdi != Guid.Empty)
-                                    curVirtualDesktop = cur_vdi;
+                                // VirtualDesktop.GetWindowDesktopId is a COM call that can stall during Alt+Tab cycling.
+                                // During alt-held cycling the active virtual desktop cannot change, so skip the probe;
+                                // the foregroundTimer (fires after alt release) will catch any real desktop change.
+                                if (!alt_key_pressed)
+                                {
+                                    var cur_vdi = VirtualDesktop.GetWindowDesktopId(hwnd);
+                                    if (cur_vdi != Guid.Empty)
+                                        curVirtualDesktop = cur_vdi;
+                                }
 
                                 if (restoringFromDB)
                                 {
