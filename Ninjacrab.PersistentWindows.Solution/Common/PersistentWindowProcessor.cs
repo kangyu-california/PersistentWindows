@@ -3631,6 +3631,15 @@ namespace PersistentWindows.Common
 
             bool isMinimized = IsMinimized(hwnd);
 
+            // For minimized windows, GetWindowRect returns the off-screen parking position
+            // (typically -32000,-32000). Recording that as ScreenPosition pollutes history:
+            // ActivateWindow later rejects the restore with "no qualified position data to
+            // restore minimized window" because target_rect.Left <= -25600. Substitute the
+            // WindowPlacement.NormalPosition (the rect the window would be restored to),
+            // which is on-screen and meaningful for downstream restore logic.
+            if (isMinimized && windowPlacement.NormalPosition.Left > -25600)
+                screenPosition = windowPlacement.NormalPosition;
+
             IntPtr realHwnd = hwnd;
             string className = GetWindowClassName(hwnd);
             if (className.Equals("ApplicationFrameWindow"))
