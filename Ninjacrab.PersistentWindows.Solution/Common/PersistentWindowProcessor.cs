@@ -2169,6 +2169,25 @@ namespace PersistentWindows.Common
             }
         }
 
+        // Transient shell UI windows (Alt+Tab switcher, Task View, Win10/11 XAML switcher overlay)
+        // appear briefly on every Alt+Tab and get destroyed within ~500ms. PW must never track them:
+        // capturing them takes captureLock and pollutes monitorApplications; their destroy event then
+        // re-acquires the lock and writes a "discard capture" entry to the Windows event log.
+        private static bool IsTransientShellWindow(IntPtr hwnd)
+        {
+            try
+            {
+                string cls = GetWindowClassName(hwnd);
+                return cls == "Task Switching"
+                    || cls == "MultitaskingViewFrame"
+                    || cls == "XamlExplorerHostIslandWindow";
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private void WinEventProcCore(IntPtr hWinEventHook, User32Events eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             if (!initialized)
@@ -2179,6 +2198,11 @@ namespace PersistentWindows.Common
 
             if (eventType != User32Events.EVENT_OBJECT_CREATE && idObject != 0)
                 // ignore non-window object (caret etc)
+                return;
+
+            // Skip Alt+Tab switcher / Task View overlays for all events except DESTROY.
+            // DESTROY is allowed through so any state recorded before this filter existed can self-clean.
+            if (eventType != User32Events.EVENT_OBJECT_DESTROY && IsTransientShellWindow(hwnd))
                 return;
 
             bool ctrl_key_pressed = (User32.GetKeyState(0x11) & 0x8000) != 0;
