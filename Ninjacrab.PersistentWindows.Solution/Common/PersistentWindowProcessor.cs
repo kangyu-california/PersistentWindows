@@ -2062,7 +2062,16 @@ namespace PersistentWindows.Common
                                         Log.Error("pre-restore minimized max window \"{0}\"", GetWindowTitle(hwnd));
                                     }
                                     User32.SetWindowPlacement(hwnd, ref placement);
-                                    User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
+                                    // SetWindowPlacement with NormalPosition usually positions the window correctly
+                                    // already. MoveWindow exists to override Windows' snap-state handling on unminimize,
+                                    // but it is a second synchronous round-trip that costs hundreds of ms on heavy UI-thread
+                                    // targets (UWP apps like Netflix, browsers re-establishing GPU compositors after a
+                                    // display change). Skip it when the rect is already at target — only call MoveWindow
+                                    // when SetWindowPlacement didn't produce the desired geometry.
+                                    RECT actualRect = new RECT();
+                                    User32.GetWindowRect(hwnd, ref actualRect);
+                                    if (!actualRect.Equals(target_rect))
+                                        User32.MoveWindow(hwnd, target_rect.Left, target_rect.Top, target_rect.Width, target_rect.Height, true);
                                     Log.Error("restore minimized window \"{0}\"", GetWindowTitle(hwnd));
                                     return;
                                 }
