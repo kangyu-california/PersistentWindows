@@ -3335,6 +3335,17 @@ namespace PersistentWindows.Common
 
         private void UndoCapture(DateTime ref_time)
         {
+            // The most recent capture is preserved when it was triggered by user activity
+            // (e.g. user-initiated minimize via the minimize button, alt+space+n, or a
+            // taskbar interaction). userMovePrev reflects the userMove flag at the moment
+            // that capture cycle started — true means the capture was kicked off by a
+            // WinEvent on a window already tracked by PW, which is the user-intent signal.
+            // Without this guard, minimizing a window a second or two before pressing
+            // Win+L would have the minimize rolled back on session unlock and the window
+            // would come up un-minimized.
+            if (userMovePrev)
+                return;
+
             // rewind disqualified capture time
             if (snapshotTakenTime.ContainsKey(curDisplayKey) && snapshotTakenTime[curDisplayKey].ContainsKey(MaxSnapshots))
             {
