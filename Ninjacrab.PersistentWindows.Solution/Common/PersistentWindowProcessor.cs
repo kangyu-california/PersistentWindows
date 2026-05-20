@@ -2162,6 +2162,20 @@ namespace PersistentWindows.Common
             if (inWinEventProc)
                 return;
 
+            // Fast pre-lock filters: these checks don't touch any shared state, so they can
+            // run without holding captureLock. Skipping the lock here matters during a batch
+            // restore (which holds captureLock for seconds): WinEvents for the Alt+Tab
+            // switcher and Task View overlays would otherwise queue behind the restore,
+            // delaying Explorer's responses and making the switcher appear ~1s late when
+            // Alt+Tab is pressed mid-restore.
+            if (hwnd == IntPtr.Zero)
+                return;
+            if (eventType != User32Events.EVENT_OBJECT_CREATE && idObject != 0)
+                // non-window object (caret etc) — ignore
+                return;
+            if (eventType != User32Events.EVENT_OBJECT_DESTROY && IsTransientShellWindow(hwnd))
+                return;
+
             try
             {
                 inWinEventProc = true;
