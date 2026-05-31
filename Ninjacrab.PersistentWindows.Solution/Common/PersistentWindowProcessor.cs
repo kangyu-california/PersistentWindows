@@ -1345,10 +1345,12 @@ namespace PersistentWindows.Common
             {
             }
 
+            /* populate too early would prevent capture
             // populate cache even for empty results so repeated WinEvents on the same hwnd
             // do not re-query (this dictionary is cleared in EVENT_OBJECT_DESTROY)
             if (use_cache)
                 windowTitle[hwnd] = result;
+            */
 
             return result;
         }
