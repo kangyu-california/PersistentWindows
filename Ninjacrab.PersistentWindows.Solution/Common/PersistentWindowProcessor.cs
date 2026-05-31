@@ -87,6 +87,7 @@ namespace PersistentWindows.Common
         private string prevDisplayKey;
         public string dbDisplayKey = null;
         private static Dictionary<IntPtr, string> windowTitle = new Dictionary<IntPtr, string>(); // for matching running window with DB record
+        private static Dictionary<IntPtr, string> windowTitleFast = new Dictionary<IntPtr, string>(); // for matching running window with DB record
         private Queue<IntPtr> pendingMoveEvents = new Queue<IntPtr>(); // queue of window with possible position change for capture
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         public bool manualNormalSession = false; //user need to manually take snapshot or save/restore from db to flag normal session
@@ -1325,10 +1326,13 @@ namespace PersistentWindows.Common
             return isFullScreen;
         }
 
-        private static string GetWindowTitle(IntPtr hwnd, bool use_cache = true)
+        private static string GetWindowTitle(IntPtr hwnd, bool use_cache = true, bool use_fast_cache = false)
         {
             if (use_cache && windowTitle.ContainsKey(hwnd))
                 return windowTitle[hwnd];
+
+            if (use_fast_cache && windowTitleFast.ContainsKey(hwnd))
+                return windowTitleFast[hwnd];
 
             string result = "";
             try
@@ -1345,12 +1349,9 @@ namespace PersistentWindows.Common
             {
             }
 
-            /* populate too early would prevent capture
             // populate cache even for empty results so repeated WinEvents on the same hwnd
             // do not re-query (this dictionary is cleared in EVENT_OBJECT_DESTROY)
-            if (use_cache)
-                windowTitle[hwnd] = result;
-            */
+            windowTitleFast[hwnd] = result;
 
             return result;
         }
@@ -2326,6 +2327,8 @@ namespace PersistentWindows.Common
                 windowProcessName.Remove(hwnd);
                 windowTitle.Remove(hwnd);
                 windowTitle.Remove(real_hwnd);
+                windowTitleFast.Remove(hwnd);
+                windowTitleFast.Remove(real_hwnd);
 
                 return;
             }
@@ -2337,7 +2340,7 @@ namespace PersistentWindows.Common
             */
 
             // auto track taskbar
-            var title = GetWindowTitle(hwnd);
+            var title = GetWindowTitle(hwnd, use_fast_cache:true);
             if (string.IsNullOrEmpty(title) && !IsTaskBar(hwnd))
             {
                 return;
