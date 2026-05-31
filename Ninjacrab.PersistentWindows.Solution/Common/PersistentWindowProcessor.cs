@@ -92,7 +92,6 @@ namespace PersistentWindows.Common
         private HashSet<string> normalSessions = new HashSet<string>(); //normal user sessions, for differentiating full screen game session or other transient session
         public bool manualNormalSession = false; //user need to manually take snapshot or save/restore from db to flag normal session
         private bool userMove = false; //received window event due to user move
-        private bool userMovePrev = false; //prev value of userMove
         private HashSet<IntPtr> tidyTabWindows = new HashSet<IntPtr>(); //tabbed windows bundled by tidytab
         private DateTime lastKillTime = DateTime.Now;
         private DateTime lastUnminimizeTime = DateTime.Now;
@@ -774,9 +773,6 @@ namespace PersistentWindows.Common
                 process.PriorityClass = processPriority;
 
                 captureTimerStarted = 0;
-
-                userMovePrev = userMove;
-                userMove = false;
 
                 if (!sessionActive)
                     return;
@@ -2347,9 +2343,7 @@ namespace PersistentWindows.Common
             }
 
 #if DEBUG
-            if (title.Contains("Microsoft Visual Studio")
-                && (eventType == User32Events.EVENT_OBJECT_LOCATIONCHANGE
-                    || eventType == User32Events.EVENT_SYSTEM_FOREGROUND))
+            if (title.Contains("Microsoft Visual Studio"))
             {
                 return;
             }
@@ -2418,6 +2412,9 @@ namespace PersistentWindows.Common
                     {
                         case User32Events.EVENT_OBJECT_CREATE:
                             {
+                                if (idObject != 0)
+                                    return;
+
                                 if (restoringFromDB)
                                     return;
 
@@ -3185,7 +3182,7 @@ namespace PersistentWindows.Common
             }
 
             // ignore defer timer request to capture user move ASAP
-            if (captureTimerStarted > 0 && milliSeconds > UserMoveLatency)
+            if (userMove && captureTimerStarted > 1 && milliSeconds > UserMoveLatency)
                 return;
 
             if (UserForcedCaptureLatency > 0)
@@ -3201,7 +3198,6 @@ namespace PersistentWindows.Common
         private void CancelCaptureTimer()
         {
             userMove = false;
-            userMovePrev = false;
 
             captureTimerStarted = 0;
 
@@ -3258,12 +3254,12 @@ namespace PersistentWindows.Common
                     return;
                 }
 
-                if (saveToDB || (userMovePrev && !manualNormalSession))
+                if (saveToDB || (userMove && !manualNormalSession))
                 {
                     if (!normalSessions.Contains(curDisplayKey))
                     {
                         normalSessions.Add(curDisplayKey);
-                        Log.Trace("normal session {0} due to user move", curDisplayKey, userMovePrev);
+                        Log.Trace("normal session {0} due to user move", curDisplayKey, userMove);
                     }
                     CaptureApplicationsOnCurrentDisplays(displayKey, saveToDB: saveToDB); //implies auto delayed capture
                 }
@@ -3348,7 +3344,7 @@ namespace PersistentWindows.Common
             // Without this guard, minimizing a window a second or two before pressing
             // Win+L would have the minimize rolled back on session unlock and the window
             // would come up un-minimized.
-            if (userMovePrev)
+            if (userMove)
                 return;
 
             // rewind disqualified capture time
@@ -3448,7 +3444,7 @@ namespace PersistentWindows.Common
                 }
             }
             else if (initialized && (time_from_last_kill_window.TotalMilliseconds < 200
-                || (!userMovePrev && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)))
+                || (!userMove && !immediateCapture && pendingEventCnt > MinWindowOsMoveEvents)))
             {
                 // too many pending window moves, they are probably initiated by OS instead of user,
                 // defer capture
@@ -3467,7 +3463,7 @@ namespace PersistentWindows.Common
                             movedWindows++;
                 }
 
-                if (!userMovePrev && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
+                if (!userMove && !immediateCapture && pendingEventCnt > 0 && movedWindows > MaxUserMoves)
                 {
                     // whether these are user moves is still doubtful
                     // defer acknowledge of user action by one more cycle
@@ -3480,6 +3476,7 @@ namespace PersistentWindows.Common
                     {
                         // confirmed user moves
                         RecordLastUserActionTime(time: DateTime.Now, displayKey: displayKey);
+                        userMove = false;
                         Log.Trace("{0} windows captured\n", movedWindows);
                     }
                 }
