@@ -2287,10 +2287,12 @@ namespace PersistentWindows.Common
                         DateTime t = DateTime.Now;
                         if (t - dm.CaptureTime < TimeSpan.FromMilliseconds(500))
                         {
-                            Log.Error("discard capture when closing window {0}", windowTitle[hwnd]);
-                            monitorApplications[display_config][hwnd].Remove(dm);
-                            if (monitorApplications[display_config][hwnd].Count > 0)
+                            if (dm.SnapShotFlags == 0 && monitorApplications[display_config][hwnd].Count > 1)
+                            {
+                                Log.Error("discard capture when closing window {0}", windowTitle[hwnd]);
+                                monitorApplications[display_config][hwnd].Remove(dm);
                                 dm = monitorApplications[display_config][hwnd].Last();
+                            }
                         }
 
                         if (dm.SnapShotFlags == 0)
