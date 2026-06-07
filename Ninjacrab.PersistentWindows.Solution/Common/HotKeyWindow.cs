@@ -81,6 +81,7 @@ namespace PersistentWindows.Common
             mouseScrollDelayTimer.Enabled = false;
 
             commanderWnd = Handle;
+            TopMost = true;
         }
 
         private void ToggleWindowSize()

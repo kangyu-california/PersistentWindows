@@ -2820,10 +2820,16 @@ namespace PersistentWindows.Common
             return result;
         }
 
-        public bool IsWindowTopMost(IntPtr hWnd)
+        public static bool IsWindowTopMost(IntPtr hWnd)
         {
             long exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
             return (exStyle & User32.WS_EX_TOPMOST) != 0;
+        }
+
+        public static bool IsWindowTransparent(IntPtr hWnd)
+        {
+            long exStyle = User32.GetWindowLong(hWnd, User32.GWL_EXSTYLE);
+            return (exStyle & User32.WS_EX_LAYERED) != 0;
         }
 
         // restore z-order might incorrectly put some window to topmost
@@ -2896,6 +2902,9 @@ namespace PersistentWindows.Common
             {
                 // only track top level windows - but GetParent() isn't reliable for that check (because it can return owners)
                 if (!IsTopLevelWindow(hwnd))
+                    continue;
+
+                if (IsWindowTopMost(hwnd) && IsWindowTransparent(hwnd))
                     continue;
 
                 if (noRestoreWindows.Contains(hwnd))

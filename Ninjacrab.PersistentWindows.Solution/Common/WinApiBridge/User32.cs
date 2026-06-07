@@ -476,7 +476,9 @@ namespace PersistentWindows.Common.WinApiBridge
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, uint dwNewLong);
 
         public const int GWL_EXSTYLE = -20;
-        public const long WS_EX_TOPMOST = 0x00000008L;
+        public const int WS_EX_TOPMOST = 0x00000008;
+        public const int WS_EX_LAYERED = 0x00080000;
+        public const int WS_EX_TRANSPARENT = 0x00000020;
 
         public const int GWL_STYLE = -16;
         public const long WS_CAPTION = 0x00C00000L;
