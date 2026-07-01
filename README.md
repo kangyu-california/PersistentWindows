@@ -24,6 +24,10 @@ this tool and not have to worry about re-arranging when all is back to normal.
 - For more Features and Commands, take a look at the [Quick Help page](https://www.github.com/kangyu-california/PersistentWindows/blob/master/Help.md)
 
 ## Installation
+Method 1.
+ * run "winget install PersistentWindows" in command window
+
+Method 2.
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
 - Unzip the file into any directory.
 - You can remove the version number from the folder name, because when the program is updated to newer versions, the folder remains the same 
@@ -59,7 +63,7 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
   * `Win + R`, type `shell:startup`
   * Create a shortcut to *PersistentWindows.exe* and place it in the Startup folder
 * For Administrator Privileges:
-  * instead of a shortcut, create a .vb file (you can call it *PersistentWindows as Administrator.vb*) and add this to it:
+  * instead of a shortcut, create a .vbs file (you can call it *PersistentWindows as Administrator.vbs*) and add this to it:
     ```
     Set objShell = CreateObject("Shell.Application")
     objShell.ShellExecute "C:\path\to\PersistentWindows.exe", "", "", "runas", 1
@@ -68,11 +72,11 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 
   <br>
 
-  >  Note: It is possible for set shortcuts to be run as administrator, through the shortcut properties menu. However, this doesn’t work when opening the shortcut through the Startup folder, which is why we use this workaround with the .vb script
+  >  Note: It is possible for set shortcuts to be run as administrator, through the shortcut properties menu. However, this doesn’t work when opening the shortcut through the Startup folder, which is why we use this workaround with the .vbs script
 
 ## Uninstall
-  1. run uninstall.bat as admin
-  2. remove the directory containing PersistentWindows.exe
+  Step 1. run uninstall.bat as admin to delete private appdata folder created by PersistentWindows and remove auto start task
+  Step 2. if installed using winget, run "winget uninstall PersistentWindows", otherwise remove the directory containing PersistentWindows.exe
 
 ## Usage Instructions
 - Run `PersistentWindows.exe` (preferably as administrator). Note that this app has no main window and its icon is hidden in the System Tray area on the taskbar by default.
