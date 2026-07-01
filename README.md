@@ -76,6 +76,7 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 
 ## Uninstall
   Step 1. run uninstall.bat as admin to delete private appdata folder created by PersistentWindows and remove auto start task
+
   Step 2. if installed using winget, run "winget uninstall PersistentWindows", otherwise remove the directory containing PersistentWindows.exe
 
 ## Usage Instructions
