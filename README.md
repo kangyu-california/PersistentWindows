@@ -25,7 +25,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Installation
 Method 1.
- * run "winget install PersistentWindows" in command window
+ * run "winget install PersistentWindows" from command window, and PersistentWindows will appear in the Start menu, the actuall installation path is c:\users\\[user]\AppData\Local\Microsoft\WinGet\Packages\kangyu-california.PersistentWindows....
 
 Method 2.
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
