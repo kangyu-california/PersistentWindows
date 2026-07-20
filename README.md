@@ -25,7 +25,7 @@ this tool and not have to worry about re-arranging when all is back to normal.
 
 ## Installation
 Method 1.
- * run "winget install PersistentWindows" from command window, and PersistentWindows will appear in the Start menu, the actuall installation path is c:\users\\[user]\AppData\Local\Microsoft\WinGet\Packages\kangyu-california.PersistentWindows....
+ * Run "winget install PersistentWindows" from command window, and PersistentWindows will appear in the Start menu, the actual installation path is c:\users\\[user]\AppData\Local\Microsoft\WinGet\Packages\kangyu-california.PersistentWindows....
 
 Method 2.
 - Download the latest PersistentWindows*.zip file from the [Releases](https://github.com/kangyu-california/PersistentWindows/releases) page
@@ -44,7 +44,7 @@ Choose **one** of the three methods:
 **Method 1. Task Scheduler (Windows 10/11)**
 * (Optional) Edit the second line of auto_start_pw_aux.ps1 to customize the command options passed to PersistentWindows.exe, for example you may append the following option to disable advanced features.
     \+ " -basic_features".
-* Run *auto_start_pw.bat* file (preferably as administrator) to create a task in the Task Scheduler.
+* Goto the installation dir, run *auto_start_pw.bat* file (preferably as administrator) to create a task in the Task Schedule
         <img src="https://github.com/kangyu-california/PersistentWindows/assets/59128756/e323086a-8373-4e8a-b439-3c7087550cb0" alt="auto_start_pw as administrator" width="400" />
 
 **Method 2. Task Scheduler (Windows 7/10/11)**
