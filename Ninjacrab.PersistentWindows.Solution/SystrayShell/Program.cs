@@ -890,6 +890,7 @@ if not errorlevel 1 goto wait_to_finish";
             else
             {
                 process.StartInfo.FileName = "powershell.exe";
+                process.StartInfo.CreateNoWindow = true;
                 process.StartInfo.Arguments = "get-ciminstance win32_process | select processid,commandline | format-list";
                 process.OutputDataReceived += new DataReceivedEventHandler(OutputHandler);
             }
