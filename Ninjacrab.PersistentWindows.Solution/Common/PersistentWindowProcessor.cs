@@ -2281,11 +2281,13 @@ namespace PersistentWindows.Common
                     {
                         found_history = true;
 
+                        RemoveInvalidCapture(hwnd);
+
                         // for matching new window with killed one
                         var dm = monitorApplications[display_config][hwnd].Last();
                         real_hwnd = (IntPtr)dm.WindowId;
                         DateTime t = DateTime.Now;
-                        if (t - dm.CaptureTime < TimeSpan.FromMilliseconds(500))
+                        if (t - dm.CaptureTime < TimeSpan.FromMilliseconds(8000))
                         {
                             if (dm.SnapShotFlags == 0 && monitorApplications[display_config][hwnd].Count > 1)
                             {
