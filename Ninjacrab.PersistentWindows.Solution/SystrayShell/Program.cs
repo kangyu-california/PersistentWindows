@@ -780,6 +780,7 @@ if not errorlevel 1 goto wait_to_finish";
                 pwp.BatchCaptureApplicationsOnCurrentDisplays(saveToDB : true);
 
                 capture_to_hdd_timer.Dispose();
+                HideRestoreTip();
             });
 
             //shift key pressed, delay capture
@@ -796,6 +797,7 @@ if not errorlevel 1 goto wait_to_finish";
                 pwp.dbDisplayKey += name;
             }
 
+            ShowRestoreTip();
             capture_to_hdd_timer.Change(delay_capture ? delay_manual_capture : 0, Timeout.Infinite);
         }
 
