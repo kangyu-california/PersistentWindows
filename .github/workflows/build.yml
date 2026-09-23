@@ -1,0 +1,100 @@
+name: Build
+
+on:
+  push:
+    branches: [master, arm64-support]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-anycpu:
+    name: Release AnyCPU
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: >
+          msbuild Ninjacrab.PersistentWindows.Solution/Ninjacrab.PersistentWindows.Solution.sln
+          /t:Restore
+          /p:Configuration=Release
+          /p:Platform="Any CPU"
+          /v:m
+
+      - name: Build
+        run: >
+          msbuild Ninjacrab.PersistentWindows.Solution/Ninjacrab.PersistentWindows.Solution.sln
+          /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform="Any CPU"
+          /v:m
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $out = "PersistentWindows-AnyCPU"
+          New-Item -ItemType Directory -Path $out | Out-Null
+          Copy-Item "Ninjacrab.PersistentWindows.Solution/SystrayShell/bin/Release/*" $out -Force
+          Compress-Archive -Path "$out/*" -DestinationPath "$out.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PersistentWindows-AnyCPU
+          path: PersistentWindows-AnyCPU.zip
+
+  build-arm64:
+    name: Release ARM64 (native)
+    runs-on: windows-11-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild (ARM64)
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: arm64
+
+      - name: Restore
+        run: >
+          msbuild Ninjacrab.PersistentWindows.Solution/Ninjacrab.PersistentWindows.Solution.sln
+          /t:Restore
+          /p:Configuration=Release
+          /p:Platform="Any CPU"
+          /v:m
+
+      - name: Build native ARM64
+        run: >
+          msbuild Ninjacrab.PersistentWindows.Solution/Ninjacrab.PersistentWindows.Solution.sln
+          /t:Rebuild
+          /p:Configuration=Release
+          /p:Platform="Any CPU"
+          /p:PlatformTarget=ARM64
+          /p:Prefer32Bit=false
+          /v:m
+
+      - name: Verify ARM64 PE and package
+        shell: pwsh
+        run: |
+          $exe = "Ninjacrab.PersistentWindows.Solution/SystrayShell/bin/Release/PersistentWindows.exe"
+          $bytes = [System.IO.File]::ReadAllBytes($exe)
+          $pe = [BitConverter]::ToInt32($bytes, 0x3C)
+          $machine = [BitConverter]::ToUInt16($bytes, $pe + 4)
+          if ($machine -ne 0xAA64) {
+            throw ("Expected ARM64 PE (0xAA64), got 0x{0:X4}" -f $machine)
+          }
+          Write-Host "PersistentWindows.exe PE machine: ARM64 (0xAA64)"
+
+          $out = "PersistentWindows-ARM64"
+          New-Item -ItemType Directory -Path $out | Out-Null
+          Copy-Item "Ninjacrab.PersistentWindows.Solution/SystrayShell/bin/Release/*" $out -Force
+          Compress-Archive -Path "$out/*" -DestinationPath "$out.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PersistentWindows-ARM64
+          path: PersistentWindows-ARM64.zip

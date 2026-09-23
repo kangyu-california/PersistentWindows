@@ -34,6 +34,13 @@ Method 2.
 > Note: the program can be run from any directory, but the program saves its data in 
 > *C:\Users\\[User]\AppData\Local\PersistentWindows*
 
+### Windows on ARM
+This project targets .NET Framework 4.8.1, which runs natively on Windows 11 ARM64. CI also publishes a native `PlatformTarget=ARM64` build artifact from the `windows-11-arm` GitHub Actions runner. To build locally on an ARM64 PC:
+
+```
+msbuild Ninjacrab.PersistentWindows.Solution\Ninjacrab.PersistentWindows.Solution.sln /t:Restore,Rebuild /p:Configuration=Release /p:Platform="Any CPU" /p:PlatformTarget=ARM64 /p:Prefer32Bit=false
+```
+
 **For PersistentWindows to be able to restore windows with elevated privileges (for tools like Task Manager or Event Viewer), it needs to be run with Administrator privileges.**
 
 ### To set up PersistentWindows to automatically start at user login:
