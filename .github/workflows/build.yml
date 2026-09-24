@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [master, arm64-support]
+    branches: [master, win11, arm64-support, arm64-support-win11]
   pull_request:
   workflow_dispatch:
 
