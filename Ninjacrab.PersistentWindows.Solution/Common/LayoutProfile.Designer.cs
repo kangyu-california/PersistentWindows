@@ -52,7 +52,7 @@ namespace PersistentWindows.Common
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(413, 25);
             this.label1.TabIndex = 9;
-            this.label1.Text = "Enter one digit or a letter to name the snapshot";
+            this.label1.Text = Lang.T("Enter one digit or a letter to name the snapshot", "输入一个数字或字母作为快照名称");
             // 
             // LayoutProfile
             // 
@@ -66,7 +66,7 @@ namespace PersistentWindows.Common
             this.Name = "LayoutProfile";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Enter the name of snapshot";
+            this.Text = Lang.T("Enter the name of snapshot", "请输入快照名称");
             this.Load += new System.EventHandler(this.LayoutProfile_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

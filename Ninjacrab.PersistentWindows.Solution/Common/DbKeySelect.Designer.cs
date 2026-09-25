@@ -56,7 +56,7 @@ namespace PersistentWindows.Common
             this.Ok.Name = "Ok";
             this.Ok.Size = new System.Drawing.Size(105, 36);
             this.Ok.TabIndex = 1;
-            this.Ok.Text = "OK";
+            this.Ok.Text = Lang.T("OK", "确定");
             this.Ok.UseVisualStyleBackColor = true;
             this.Ok.Click += new System.EventHandler(this.Ok_Click);
             // 
@@ -75,10 +75,10 @@ namespace PersistentWindows.Common
             this.Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.Cancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.Cancel.Location = new System.Drawing.Point(683, 402);
-            this.Cancel.Name = "Cancel";
+            this.Cancel.Name = Lang.T("Cancel", "取消");
             this.Cancel.Size = new System.Drawing.Size(105, 36);
             this.Cancel.TabIndex = 3;
-            this.Cancel.Text = "Cancel";
+            this.Cancel.Text = Lang.T("Cancel", "取消");
             this.Cancel.UseVisualStyleBackColor = true;
             this.Cancel.Click += new System.EventHandler(this.Cancel_Click);
             // 
@@ -94,7 +94,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.ListLayout);
             this.Name = "DbKeySelect";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Select a desktop layout to restore";
+            this.Text = Lang.T("Select a desktop layout to restore", "请选择要恢复的桌面布局");
             this.ResumeLayout(false);
 
         }

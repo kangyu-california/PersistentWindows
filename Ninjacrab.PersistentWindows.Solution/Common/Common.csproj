@@ -54,6 +54,7 @@
     <Compile Include="HotKeyWindow.Designer.cs">
       <DependentUpon>HotKeyWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Lang.cs" />
     <Compile Include="LaunchProcess.cs">
       <SubType>Form</SubType>
     </Compile>

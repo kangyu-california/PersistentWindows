@@ -397,6 +397,8 @@ if not errorlevel 1 goto wait_to_finish";
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
 
+            Lang.Load(appDataFolder); // read persisted language preference before any UI is built
+
             if (restore_snapshot >= 0)
             {
                 pwp.RestoreSnapshotCmd(restore_snapshot);
@@ -681,7 +683,7 @@ if not errorlevel 1 goto wait_to_finish";
                 {
                     char c = SnapshotIdToChar(id);
                     if (prompt)
-                        systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
+                        systrayForm.notifyIconMain.ShowBalloonTip(5000, Lang.T($"snapshot '{c}' is captured", $"快照 '{c}' 已保存"), Lang.T($"click icon then immediately press key '{c}' to restore the snapshot", $"点击图标后立即按数字键 '{c}' 即可恢复该快照"), ToolTipIcon.Info);
                 }
 
                 EnableRestoreSnapshotMenu(true);

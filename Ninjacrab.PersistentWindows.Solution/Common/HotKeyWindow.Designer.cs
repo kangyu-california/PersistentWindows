@@ -48,7 +48,7 @@ namespace PersistentWindows.Common
             this.buttonPrevTab.Size = new System.Drawing.Size(72, 45);
             this.buttonPrevTab.TabIndex = 0;
             this.buttonPrevTab.TabStop = false;
-            this.buttonPrevTab.Text = "Prev Tab";
+            this.buttonPrevTab.Text = Lang.T("Prev Tab", "上一个标签");
             this.buttonPrevTab.UseVisualStyleBackColor = false;
             this.buttonPrevTab.Click += new System.EventHandler(this.buttonPrevTab_Click);
             // 
@@ -60,7 +60,7 @@ namespace PersistentWindows.Common
             this.buttonNextTab.Size = new System.Drawing.Size(72, 45);
             this.buttonNextTab.TabIndex = 1;
             this.buttonNextTab.TabStop = false;
-            this.buttonNextTab.Text = "Next Tab";
+            this.buttonNextTab.Text = Lang.T("Next Tab", "下一个标签");
             this.buttonNextTab.UseVisualStyleBackColor = false;
             this.buttonNextTab.Click += new System.EventHandler(this.buttonNextTab_Click);
             // 
@@ -72,7 +72,7 @@ namespace PersistentWindows.Common
             this.buttonCloseTab.Size = new System.Drawing.Size(72, 45);
             this.buttonCloseTab.TabIndex = 2;
             this.buttonCloseTab.TabStop = false;
-            this.buttonCloseTab.Text = "Close Tab";
+            this.buttonCloseTab.Text = Lang.T("Close Tab", "关闭标签");
             this.buttonCloseTab.UseVisualStyleBackColor = false;
             this.buttonCloseTab.Click += new System.EventHandler(this.buttonCloseTab_Click);
             // 
@@ -84,7 +84,7 @@ namespace PersistentWindows.Common
             this.buttonNewTab.Size = new System.Drawing.Size(72, 45);
             this.buttonNewTab.TabIndex = 3;
             this.buttonNewTab.TabStop = false;
-            this.buttonNewTab.Text = "New  Tab";
+            this.buttonNewTab.Text = Lang.T("New  Tab", "新建标签");
             this.buttonNewTab.UseVisualStyleBackColor = false;
             this.buttonNewTab.Click += new System.EventHandler(this.buttonNewTab_Click);
             // 
@@ -96,7 +96,7 @@ namespace PersistentWindows.Common
             this.buttonHome.Size = new System.Drawing.Size(73, 35);
             this.buttonHome.TabIndex = 4;
             this.buttonHome.TabStop = false;
-            this.buttonHome.Text = "Home";
+            this.buttonHome.Text = Lang.T("Home", "主页");
             this.buttonHome.UseVisualStyleBackColor = false;
             this.buttonHome.Click += new System.EventHandler(this.buttonHome_Click);
             // 
@@ -108,7 +108,7 @@ namespace PersistentWindows.Common
             this.buttonEnd.Size = new System.Drawing.Size(73, 35);
             this.buttonEnd.TabIndex = 5;
             this.buttonEnd.TabStop = false;
-            this.buttonEnd.Text = "End";
+            this.buttonEnd.Text = Lang.T("End", "末页");
             this.buttonEnd.UseVisualStyleBackColor = false;
             this.buttonEnd.Click += new System.EventHandler(this.buttonEnd_Click);
             // 
@@ -120,7 +120,7 @@ namespace PersistentWindows.Common
             this.buttonPrevUrl.Size = new System.Drawing.Size(72, 45);
             this.buttonPrevUrl.TabIndex = 6;
             this.buttonPrevUrl.TabStop = false;
-            this.buttonPrevUrl.Text = "Prev Url";
+            this.buttonPrevUrl.Text = Lang.T("Prev Url", "上一个网址");
             this.buttonPrevUrl.UseVisualStyleBackColor = false;
             this.buttonPrevUrl.Click += new System.EventHandler(this.buttonPrevUrl_Click);
             // 
@@ -132,7 +132,7 @@ namespace PersistentWindows.Common
             this.buttonNextUrl.Size = new System.Drawing.Size(72, 45);
             this.buttonNextUrl.TabIndex = 7;
             this.buttonNextUrl.TabStop = false;
-            this.buttonNextUrl.Text = "Next Url";
+            this.buttonNextUrl.Text = Lang.T("Next Url", "下一个网址");
             this.buttonNextUrl.UseVisualStyleBackColor = false;
             this.buttonNextUrl.Click += new System.EventHandler(this.buttonNextUrl_Click);
             */

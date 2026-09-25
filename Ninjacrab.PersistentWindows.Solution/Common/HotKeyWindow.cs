@@ -1163,7 +1163,7 @@ namespace PersistentWindows.Common
             {
                 if (promptZkey)
                 {
-                    MessageBox.Show("You may also press Z key to toggle the size of webpage commander window",
+                    MessageBox.Show(Lang.T("You may also press Z key to toggle the size of webpage commander window", "也可以按 Z 键来调整网页控制窗口的大小"),
                         Application.ProductName,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information,

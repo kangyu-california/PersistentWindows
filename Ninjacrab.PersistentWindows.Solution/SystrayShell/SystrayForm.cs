@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using PersistentWindows.Common;
 using System.Windows.Forms;
 using System.Net;
 using System.Timers;
@@ -38,6 +39,11 @@ namespace PersistentWindows.SystrayShell
 
         private System.Timers.Timer clickDelayTimer;
 
+        private ToolStripMenuItem languageMenuItem;
+        private bool upgradeNoticeOn = true;
+        private bool webpageCommanderOn = true;
+        private string upgradeAvailableVersion = null;
+
         private Dictionary<string, bool> upgradeDownloaded = new Dictionary<string, bool>();
 
         public SystrayForm(bool enable_upgrade_notice)
@@ -45,19 +51,26 @@ namespace PersistentWindows.SystrayShell
             InitializeComponent();
 
             if (File.Exists(Program.DisableUpgradeNotice))
-                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+                upgradeNoticeMenuItem.Text = Lang.T("Enable upgrade notice", "启用升级提醒");
             else if (!enable_upgrade_notice)
             {
                 File.Create(Program.DisableUpgradeNotice);
-                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
+                upgradeNoticeMenuItem.Text = Lang.T("Enable upgrade notice", "启用升级提醒");
             }
             else
-                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+                upgradeNoticeMenuItem.Text = Lang.T("Disable upgrade notice", "关闭升级提醒");
 
+            upgradeNoticeOn = !File.Exists(Program.DisableUpgradeNotice);
+            webpageCommanderOn = !File.Exists(Program.DisableWebpageCommander);
             if (File.Exists(Program.DisableWebpageCommander))
             {
-                invokeWebCommander.Text = "Enable webpage commander";
+                invokeWebCommander.Text = Lang.T("Enable webpage commander", "启用网页控制窗口");
             }
+
+            languageMenuItem = new ToolStripMenuItem(Lang.T("Language", "语言 / Language"));
+            languageMenuItem.Click += ToggleLanguage;
+            contextMenuStripSysTray.Items.Insert(contextMenuStripSysTray.Items.IndexOf(aboutToolStripMenuItem), languageMenuItem);
+            ApplyLanguage();
 
             clickDelayTimer = new System.Timers.Timer(1000);
             clickDelayTimer.Elapsed += ClickTimerCallBack;
@@ -188,7 +201,7 @@ namespace PersistentWindows.SystrayShell
             else
                 restoreToolStripMenuItem.Image = Properties.Resources.question;
 
-            if (checkUpgrade && upgradeNoticeMenuItem.Text.Contains("Disable"))
+            if (checkUpgrade && upgradeNoticeOn)
             {
                 if (pauseUpgradeCounter)
                 {
@@ -274,8 +287,9 @@ namespace PersistentWindows.SystrayShell
             if (current_major < latest_major
                 || current_major == latest_major && current_minor < latest_minor)
             {
-                notifyIconMain.ShowBalloonTip(5000, $"{Application.ProductName} {latestVersion} upgrade is available", "The upgrade notice can be disabled in menu", ToolTipIcon.Info);
-                upgradeNoticeMenuItem.Text = $"Upgrade to {latestVersion}";
+                notifyIconMain.ShowBalloonTip(5000, Lang.T($"{Application.ProductName} {latestVersion} upgrade is available", $"{Application.ProductName} {latestVersion} 有新版本可用"), Lang.T("The upgrade notice can be disabled in menu", "可在菜单中关闭升级提醒"), ToolTipIcon.Info);
+                upgradeAvailableVersion = latestVersion;
+                upgradeNoticeMenuItem.Text = Lang.T($"Upgrade to {latestVersion}", $"升级到 {latestVersion}");
 
                 if (!upgradeDownloaded.ContainsKey(latestVersion))
                 {
@@ -382,13 +396,13 @@ namespace PersistentWindows.SystrayShell
             {
                 Program.ResumeAutoRestore();
                 pauseAutoRestore = false;
-                pauseResumeToolStripMenuItem.Text = "Pause auto restore";
+                pauseResumeToolStripMenuItem.Text = Lang.T("Pause auto restore", "暂停自动恢复(&P)");
             }
             else
             {
                 pauseAutoRestore = true;
                 Program.PauseAutoRestore();
-                pauseResumeToolStripMenuItem.Text = "Resume auto restore";
+                pauseResumeToolStripMenuItem.Text = Lang.T("Resume auto restore", "继续自动恢复");
             }
         }
 
@@ -396,10 +410,11 @@ namespace PersistentWindows.SystrayShell
         {
             if ((User32.GetKeyState(0x11) & 0x8000) != 0)
                 HotKeyForm.InvokeFromMenu();
-            else if (this.invokeWebCommander.Text.Contains("Disable"))
+            else if (webpageCommanderOn)
             {
+                webpageCommanderOn = false;
                 File.Create(Program.DisableWebpageCommander);
-                this.invokeWebCommander.Text = "Enable webpage commander";
+                this.invokeWebCommander.Text = Lang.T("Enable webpage commander", "启用网页控制窗口");
                 HotKeyForm.Stop();
             }
             else
@@ -413,7 +428,8 @@ namespace PersistentWindows.SystrayShell
                     Log.Error(ex.ToString());
                 }
 
-                this.invokeWebCommander.Text = "Disable webpage commander";
+                webpageCommanderOn = true;
+                this.invokeWebCommander.Text = Lang.T("Disable webpage commander", "停用网页控制窗口");
                 HotKeyForm.Start(Program.hotkey);
             }
         }
@@ -424,7 +440,7 @@ namespace PersistentWindows.SystrayShell
             {
                 notifyIconMain.Icon = Program.IdleIcon;
                 toggleIcon = !toggleIcon;
-                toggleIconMenuItem.Text = "Try customized icon";
+                toggleIconMenuItem.Text = Lang.T("Try customized icon", "尝试自定义图标");
             }
             else
             {
@@ -453,7 +469,7 @@ namespace PersistentWindows.SystrayShell
                             }
                         }
                         toggleIcon = !toggleIcon;
-                        toggleIconMenuItem.Text = "Disable customized icon";
+                        toggleIconMenuItem.Text = Lang.T("Disable customized icon", "停用自定义图标");
                     }
                 }
             }
@@ -461,13 +477,27 @@ namespace PersistentWindows.SystrayShell
 
         private void PauseResumeUpgradeNotice(Object sender, EventArgs e)
         {
-            if (upgradeNoticeMenuItem.Text.Contains("Upgrade to"))
+            if (upgradeAvailableVersion != null)
             {
                 Upgrade();
             }
-            else if (upgradeNoticeMenuItem.Text.Contains("Enable"))
+            else if (upgradeNoticeOn)
             {
-                upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+                upgradeNoticeOn = false;
+                upgradeNoticeMenuItem.Text = Lang.T("Enable upgrade notice", "启用升级提醒");
+                try
+                {
+                    File.Create(Program.DisableUpgradeNotice);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error(ex.ToString());
+                }
+            }
+            else //upgrade notices are currently off
+            {
+                upgradeNoticeOn = true;
+                upgradeNoticeMenuItem.Text = Lang.T("Disable upgrade notice", "关闭升级提醒");
                 CheckUpgradeSafe();
                 try
                 {
@@ -478,11 +508,39 @@ namespace PersistentWindows.SystrayShell
                     Log.Error(ex.ToString());
                 }
             }
-            else //menu is "Disable upgrade notice"
-            {
-                File.Create(Program.DisableUpgradeNotice);
-                upgradeNoticeMenuItem.Text = "Enable upgrade notice";
-            }
+        }
+
+        private void ToggleLanguage(Object sender, EventArgs e)
+        {
+            Lang.Set(!Lang.Chinese);
+            ApplyLanguage();
+            notifyIconMain.ShowBalloonTip(5000, Lang.T("Language switched", "语言已切换"),
+                Lang.T("The interface language has been applied.", "界面语言已即时生效。"), ToolTipIcon.Info);
+        }
+
+        // re-apply every user-visible text in place, so switching language takes effect immediately
+        private void ApplyLanguage()
+        {
+            languageMenuItem.Text = Lang.T("Language", "语言 / Language");
+            captureToolStripMenuItem.Text = Lang.T("Capture windows to disk", "保存窗口布局(&C)");
+            restoreToolStripMenuItem.Text = Lang.T("Restore windows from disk", "恢复窗口布局(&R)");
+            restoreAllParkedMenuItem.Text = Lang.T("Restore all minimized windows", "展开所有最小化的窗口");
+            captureSnapshotMenuItem.Text = Lang.T("Capture snapshot", "捕捉布局快照(&S)");
+            restoreSnapshotMenuItem.Text = Lang.T("Restore snapshot", "恢复布局快照(&N)");
+            pauseResumeToolStripMenuItem.Text = pauseAutoRestore ?
+                Lang.T("Resume auto restore", "继续自动恢复") : Lang.T("Pause auto restore", "暂停自动恢复(&P)");
+            toggleIconMenuItem.Text = toggleIcon ?
+                Lang.T("Disable customized icon", "停用自定义图标") : Lang.T("Try customized icon", "尝试自定义图标");
+            invokeWebCommander.Text = webpageCommanderOn ?
+                Lang.T("Disable webpage commander", "停用网页控制窗口") : Lang.T("Enable webpage commander", "启用网页控制窗口");
+            if (upgradeAvailableVersion != null)
+                upgradeNoticeMenuItem.Text = Lang.T($"Upgrade to {upgradeAvailableVersion}", $"升级到 {upgradeAvailableVersion}");
+            else
+                upgradeNoticeMenuItem.Text = upgradeNoticeOn ?
+                    Lang.T("Disable upgrade notice", "关闭升级提醒") : Lang.T("Enable upgrade notice", "启用升级提醒");
+            aboutToolStripMenuItem.Text = Lang.T("&Help", "帮助(&H)");
+            exitToolStripMenuItem.Text = Lang.T("&Exit", "退出(&X)");
+            notifyIconMain.BalloonTipText = Lang.T("Please wait while restoring windows", "正在恢复窗口布局，请稍候");
         }
 
         private void AboutToolStripMenuItemClickHandler(object sender, EventArgs e)

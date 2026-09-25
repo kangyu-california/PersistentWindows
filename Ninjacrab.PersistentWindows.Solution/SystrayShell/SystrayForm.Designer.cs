@@ -82,7 +82,7 @@ namespace PersistentWindows.SystrayShell
             this.notifyIconMain.Icon = Program.IdleIcon;
             this.notifyIconMain.Text = $"{Application.ProductName} {Application.ProductVersion}";
             this.notifyIconMain.BalloonTipTitle = "";
-            this.notifyIconMain.BalloonTipText = "Please wait while restoring windows";
+            this.notifyIconMain.BalloonTipText = Lang.T("Please wait while restoring windows", "正在恢复窗口布局，请稍候");
             this.notifyIconMain.BalloonTipIcon = ToolTipIcon.Info;
             if (!Program.Gui)
                 this.notifyIconMain.Visible = false;
@@ -122,49 +122,49 @@ namespace PersistentWindows.SystrayShell
             // capture
             // 
             this.captureToolStripMenuItem.Name = "capture";
-            this.captureToolStripMenuItem.Text = "Capture windows to disk";
+            this.captureToolStripMenuItem.Text = Lang.T("Capture windows to disk", "保存窗口布局(&C)");
             this.captureToolStripMenuItem.Click += new System.EventHandler(this.CaptureWindowToDisk);
 
             // restore
             // 
             this.restoreToolStripMenuItem.Name = "restore";
-            this.restoreToolStripMenuItem.Text = "Restore windows from disk";
+            this.restoreToolStripMenuItem.Text = Lang.T("Restore windows from disk", "恢复窗口布局(&R)");
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.RestoreWindowFromDisk);
 
             // restore all minimized
             //
             this.restoreAllParkedMenuItem.Name = "restoreAllMinimized";
-            this.restoreAllParkedMenuItem.Text = "Restore all minimized windows";
+            this.restoreAllParkedMenuItem.Text = Lang.T("Restore all minimized windows", "展开所有最小化的窗口");
             this.restoreAllParkedMenuItem.Click += new System.EventHandler(this.RestoreAllParkedClickHandler);
 
             // capture snapshot
             //
             this.captureSnapshotMenuItem.Name = "capture snapshot";
-            this.captureSnapshotMenuItem.Text = "Capture snapshot";
+            this.captureSnapshotMenuItem.Text = Lang.T("Capture snapshot", "捕捉布局快照(&S)");
             this.captureSnapshotMenuItem.Click += new System.EventHandler(this.CaptureSnapshot);
 
             // restore
             // 
             this.restoreSnapshotMenuItem.Name = "restore snapshot";
-            this.restoreSnapshotMenuItem.Text = "Restore snapshot";
+            this.restoreSnapshotMenuItem.Text = Lang.T("Restore snapshot", "恢复布局快照(&N)");
             this.restoreSnapshotMenuItem.Click += new System.EventHandler(this.RestoreSnapshot);
             this.restoreSnapshotMenuItem.Enabled = false;
 
             // suspend/resume auto restore
             // 
             this.pauseResumeToolStripMenuItem.Name = "suspend/resume";
-            this.pauseResumeToolStripMenuItem.Text = "Pause auto restore";
+            this.pauseResumeToolStripMenuItem.Text = Lang.T("Pause auto restore", "暂停自动恢复(&P)");
             this.pauseResumeToolStripMenuItem.Click += new System.EventHandler(this.PauseResumeAutoRestore);
 
             // toggle icon 
             // 
             this.toggleIconMenuItem.Name = "toggle icon";
-            this.toggleIconMenuItem.Text = "Try customized icon";
+            this.toggleIconMenuItem.Text = Lang.T("Try customized icon", "尝试自定义图标");
             this.toggleIconMenuItem.Click += new System.EventHandler(this.ToggleIcon);
 
             // web commander
             this.invokeWebCommander.Name = "web commander on/off";
-            this.invokeWebCommander.Text = "Disable webpage commander";
+            this.invokeWebCommander.Text = Lang.T("Disable webpage commander", "停用网页控制窗口");
             this.invokeWebCommander.Click += new System.EventHandler(this.WebCommander);
             if (!Program.hotkey_window)
                 this.invokeWebCommander.Visible = false;
@@ -176,7 +176,7 @@ namespace PersistentWindows.SystrayShell
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItemClickHandler);
 
             // pause/resume upgrade notice
-            //this.upgradeNoticeMenuItem.Text = "Disable upgrade notice";
+            //this.upgradeNoticeMenuItem.Text = Lang.T("Disable upgrade notice", "关闭升级提醒");
             this.upgradeNoticeMenuItem.Click += new System.EventHandler(this.PauseResumeUpgradeNotice);
 
             // 

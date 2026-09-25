@@ -72,7 +72,7 @@ namespace PersistentWindows.SystrayShell
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Recognize All Contributors";
+            this.label2.Text = Lang.T("Recognize All Contributors", "致谢所有贡献者");
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 
