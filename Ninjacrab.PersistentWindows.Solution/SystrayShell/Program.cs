@@ -582,7 +582,7 @@ if not errorlevel 1 goto wait_to_finish";
             string content = WaitPwFinish;
             content += $"\ntimeout /t {delay} /nobreak > NUL";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
-            File.WriteAllText(batFile, content);
+            File.WriteAllText(batFile, content, System.Text.Encoding.Default);
             p.StartInfo.FileName = batFile;
             if (hidden)
             {

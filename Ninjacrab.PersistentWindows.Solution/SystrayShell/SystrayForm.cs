@@ -306,7 +306,7 @@ namespace PersistentWindows.SystrayShell
                         string content = Program.WaitPwFinish;
                         content += $"\ncopy /Y \"{dst_dir}\\*.*\" \"{install_dir}\"";
                         content += "\nstart \"\" /B \"" + Path.Combine(install_dir, Application.ProductName) + ".exe\" " + Program.CmdArgs;
-                        File.WriteAllText(batFile, content);
+                        File.WriteAllText(batFile, content, System.Text.Encoding.Default);
 
                         if (autoUpgrade)
                             Upgrade();
