@@ -70,7 +70,10 @@ if not errorlevel 1 goto wait_to_finish";
             int relaunch_delay = 0;
             int delay_manual_capture = 0;
             int delay_auto_capture = 0;
-            string redirect_appdata = ""; // use "." instead of appdata/local/PersistentWindows to store db file
+            // store all data in a "user_data" folder next to the exe: fully portable,
+            // nothing written to AppData, the whole folder can be moved between machines.
+            // If upgrading from an older version, existing AppData is migrated once.
+            string redirect_appdata = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "user_data");
             bool prompt_session_restore = false;
             int delay_auto_restore = 0;
             int halt_restore = 0; //seconds to wait before trying restore again, due to frequent monitor config changes
@@ -396,6 +399,22 @@ if not errorlevel 1 goto wait_to_finish";
 
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
+
+            // one-time migration: carry over data from the legacy AppData folder so
+            // existing users keep their window layout history after this change
+            try
+            {
+                string legacyFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), Application.ProductName);
+                if (Directory.Exists(legacyFolder) && Directory.GetFiles(legacyFolder).Length > 0 && Directory.GetFiles(appDataFolder).Length == 0)
+                {
+                    foreach (string f in Directory.GetFiles(legacyFolder))
+                        File.Copy(f, Path.Combine(appDataFolder, Path.GetFileName(f)), true);
+                }
+            }
+            catch (Exception)
+            {
+                // migration is best-effort; a fresh portable folder works either way
+            }
 
             Lang.Load(appDataFolder); // read persisted language preference before any UI is built
 
