@@ -4,7 +4,11 @@ $arguments = "-splash=0"
 $executablePath = $PSScriptRoot + "\PersistentWindows.exe"
 
 ## create registry to run PersistentWindows.exe in high dpi aware mode
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name $executablePath -Value "~ HIGHDPIAWARE"
+$regPath = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
+if (-not (Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+Set-ItemProperty -Path $regPath -Name $executablePath -Value "~ HIGHDPIAWARE"
 
 ## rename the task as you like
 $taskName = "StartPersistentWindows" + $env:username
