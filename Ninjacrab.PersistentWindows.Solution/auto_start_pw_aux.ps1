@@ -1,4 +1,4 @@
-## Replace with your desired command arguments
+﻿## Replace with your desired command arguments
 $arguments = "-splash=0"
 
 $executablePath = $PSScriptRoot + "\PersistentWindows.exe"
@@ -37,6 +37,14 @@ $task.Actions[0].Arguments = $arguments
 Set-ScheduledTask -TaskName $taskName -TaskPath $task.TaskPath -Action $task.Actions
 
 ## Set the task to run with highest privileges
-$principal = New-ScheduledTaskPrincipal -UserId $env:username  -RunLevel Highest
+
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isAdmin) {
+    $principal = New-ScheduledTaskPrincipal -UserId $env:username -RunLevel Highest
+} else {
+    $principal = New-ScheduledTaskPrincipal -UserId $env:username
+    Write-Warning "❌ It is recommended to run as Administrator to avoid Access-Is-Denied failure."
+}
+
 $task.Principal = $principal
 Set-ScheduledTask -TaskName $taskName -TaskPath $task.TaskPath -Principal $principal
