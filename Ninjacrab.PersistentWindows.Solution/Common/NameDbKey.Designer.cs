@@ -42,7 +42,7 @@ namespace PersistentWindows.Common
             this.hint.Name = "hint";
             this.hint.Size = new System.Drawing.Size(235, 25);
             this.hint.TabIndex = 0;
-            this.hint.Text = "Enter the name of capture";
+            this.hint.Text = Lang.T("dlg.captureName");
             this.hint.Click += new System.EventHandler(this.hint_Click);
             // 
             // textBox1
@@ -61,7 +61,7 @@ namespace PersistentWindows.Common
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(62, 36);
             this.button1.TabIndex = 2;
-            this.button1.Text = "OK";
+            this.button1.Text = Lang.T("dlg.ok");
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -75,7 +75,7 @@ namespace PersistentWindows.Common
             this.Controls.Add(this.hint);
             this.Name = "NameDbEntry";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Enter the name of capture on disk";
+            this.Text = Lang.T("dlg.captureDiskName");
             this.ResumeLayout(false);
             this.PerformLayout();
 

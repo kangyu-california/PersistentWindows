@@ -710,7 +710,7 @@ namespace PersistentWindows.Common
             {
                 User32.SetThreadDpiAwarenessContextSafe();
 
-                System.Windows.Forms.MessageBox.Show("Another instance is already running.", productName,
+                System.Windows.Forms.MessageBox.Show(Lang.T("msg.alreadyRunning"), productName,
                     System.Windows.Forms.MessageBoxButtons.OK,
                     System.Windows.Forms.MessageBoxIcon.Exclamation,
                     System.Windows.Forms.MessageBoxDefaultButton.Button1,
@@ -1267,7 +1267,7 @@ namespace PersistentWindows.Common
 
             User32.SetThreadDpiAwarenessContextSafe();
 
-            System.Windows.Forms.MessageBox.Show("Proceed to restore windows",
+            System.Windows.Forms.MessageBox.Show(Lang.T("msg.proceedRestore"),
                 System.Windows.Forms.Application.ProductName,
                 System.Windows.Forms.MessageBoxButtons.OK,
                 System.Windows.Forms.MessageBoxIcon.Information,
@@ -5176,7 +5176,7 @@ namespace PersistentWindows.Common
                         runProcessDlg.Icon = icon;
                         if (VirtualDesktop.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
-                            System.Windows.Forms.MessageBox.Show("Switch to another virtual desktop to restore windows",
+                            System.Windows.Forms.MessageBox.Show(Lang.T("msg.switchVirtualDesktop"),
                                 System.Windows.Forms.Application.ProductName,
                                 System.Windows.Forms.MessageBoxButtons.OK,
                                 System.Windows.Forms.MessageBoxIcon.Information,
