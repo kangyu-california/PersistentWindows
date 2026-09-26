@@ -79,7 +79,7 @@ namespace PersistentWindows.SystrayShell
                         string webpage_commander_notification = Path.Combine(Program.AppdataFolder, "webpage_commander_notification");
                         if (File.Exists(webpage_commander_notification))
                         {
-                            Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                            Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, Lang.T("balloon.webCommanderInvoked"), Lang.T("balloon.webCommanderRevoke"), ToolTipIcon.Info);
                         }
                         else
                         {
@@ -95,7 +95,7 @@ namespace PersistentWindows.SystrayShell
                             catch (Exception ex)
                             {
                                 Log.Error(ex.ToString());
-                                Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, "webpage commander is invoked via hotkey", "Press the hotkey (Alt + W) again to revoke", ToolTipIcon.Info);
+                                Program.systrayForm.notifyIconMain.ShowBalloonTip(8000, Lang.T("balloon.webCommanderInvoked"), Lang.T("balloon.webCommanderRevoke"), ToolTipIcon.Info);
                                 Process.Start(Program.ProjectUrl + "/blob/master/webpage_commander.md");
                             }
                         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using PersistentWindows.Common;
 using System.Windows.Forms;
 
 namespace PersistentWindows.SystrayShell
@@ -26,15 +27,7 @@ namespace PersistentWindows.SystrayShell
 
         private void SplashForm_Load(object sender, EventArgs e)
         {
-            this.label1.Text =
-    $@"
-    Persistent Windows
-    Version {Application.ProductVersion}
-                
-    Author:        Min Yong Kim
-    Contributors:  Kang Yu, Sean Aitken
-    ";
-
+            this.label1.Text = Lang.T("splash.info", Application.ProductVersion);
         }
 
         private void label2_Click(object sender, EventArgs e)
