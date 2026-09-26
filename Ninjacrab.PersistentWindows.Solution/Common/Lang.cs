@@ -160,32 +160,6 @@ namespace PersistentWindows.Common
                 "en", "Recognize All Contributors",
                 "zh", "致谢所有贡献者") },
 
-            // webpage commander window
-            { "webcmd.prevTab", Row(
-                "en", "Prev Tab",
-                "zh", "上一个标签") },
-            { "webcmd.nextTab", Row(
-                "en", "Next Tab",
-                "zh", "下一个标签") },
-            { "webcmd.closeTab", Row(
-                "en", "Close Tab",
-                "zh", "关闭标签") },
-            { "webcmd.newTab", Row(
-                "en", "New  Tab",
-                "zh", "新建标签") },
-            { "webcmd.home", Row(
-                "en", "Home",
-                "zh", "主页") },
-            { "webcmd.end", Row(
-                "en", "End",
-                "zh", "末页") },
-            { "webcmd.prevUrl", Row(
-                "en", "Prev Url",
-                "zh", "上一个网址") },
-            { "webcmd.nextUrl", Row(
-                "en", "Next Url",
-                "zh", "下一个网址") },
-
             // dialogs / message boxes with buttons
             { "dlg.ok", Row(
                 "en", "OK",

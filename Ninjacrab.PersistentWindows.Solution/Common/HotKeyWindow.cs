@@ -398,14 +398,6 @@ namespace PersistentWindows.Common
             }
             else if (e.KeyCode == Keys.Oemtilde)
             {
-                /*
-                //switch background color
-                if (BackColor == dfltBackColor)
-                    BackColor = Color.White;
-                else
-                    BackColor = dfltBackColor;
-                */
-
                 //goto the second background web browser window
                 Visible = false;
                 //SendKeys.Send("%{TAB}");
@@ -1072,81 +1064,6 @@ namespace PersistentWindows.Common
                 }
             }
         }
-
-        /*
-        private void buttonPrevTab_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("^+{TAB}");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonNextTab_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("^{TAB}");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonPrevUrl_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("%{LEFT}");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonNextUrl_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("%{RIGHT}");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonCloseTab_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("^w");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonNewTab_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            bool shift_key_pressed = (User32.GetKeyState(0x10) & 0x8000) != 0;
-            if (shift_key_pressed)
-            {
-                SendKeys.Send("^T");
-                User32.SetForegroundWindow(Handle);
-            }
-            else
-            {
-                SendKeys.Send("^t");
-                SendKeys.Send("^l");
-            }
-        }
-
-        private void buttonHome_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("{HOME}");
-            User32.SetForegroundWindow(Handle);
-        }
-
-        private void buttonEnd_Click(object sender, EventArgs e)
-        {
-            IntPtr fgwnd = GetForegroundWindow();
-            User32.SetForegroundWindow(fgwnd);
-            SendKeys.Send("{END}");
-            User32.SetForegroundWindow(Handle);
-        }
-        */
 
         public static IntPtr GetForegroundWindow(bool strict = false)
         {
