@@ -38,8 +38,6 @@ namespace PersistentWindows.Common
         private bool handCursor = false;
         private bool ibeamCursor = false;
         private int titleHeight;
-        private Color dfltBackColor;
-        private bool promptZkey = true;
         private bool clickThrough = false;
         private bool defocused = false;
         private int totalWaitSecondsForWhiteColor = 0;
@@ -55,8 +53,6 @@ namespace PersistentWindows.Common
             origHeight = Height;
 
             titleHeight = this.Height - ClientRectangle.Height;
-
-            dfltBackColor = BackColor;
 
             //KeyDown += new KeyEventHandler(FormKeyDown);
             KeyUp += new KeyEventHandler(FormKeyUp);
@@ -1161,18 +1157,6 @@ namespace PersistentWindows.Common
         {
             if (WindowState == FormWindowState.Minimized)
             {
-                if (promptZkey)
-                {
-                    MessageBox.Show(Lang.T("msg.webCommanderZKey"),
-                        Application.ProductName,
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information,
-                        MessageBoxDefaultButton.Button1,
-                        MessageBoxOptions.DefaultDesktopOnly
-                    );
-                    promptZkey = false;
-                }
-
                 //User32.ShowWindow(handle, (int)ShowWindowCommands.Normal);
                 WindowState = FormWindowState.Normal;
                 ToggleWindowSize();

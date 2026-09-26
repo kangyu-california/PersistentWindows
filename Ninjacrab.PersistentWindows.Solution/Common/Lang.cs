@@ -148,9 +148,6 @@ namespace PersistentWindows.Common
             { "msg.switchVirtualDesktop", Row(
                 "en", "Switch to another virtual desktop to restore windows",
                 "zh", "请切换到其他虚拟桌面后再恢复窗口") },
-            { "msg.webCommanderZKey", Row(
-                "en", "You may also press Z key to toggle the size of webpage commander window",
-                "zh", "也可以按 Z 键来调整网页控制窗口的大小") },
 
             // splash screen
             { "splash.infoLabel", Row(
