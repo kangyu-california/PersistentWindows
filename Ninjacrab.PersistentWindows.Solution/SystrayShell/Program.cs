@@ -392,7 +392,7 @@ if not errorlevel 1 goto wait_to_finish";
             }
 #endif
             AppdataFolder = appDataFolder;
-            pwp.appDataFolder = appDataFolder;
+            PersistentWindowProcessor.appDataFolder = appDataFolder;
 
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);

@@ -175,7 +175,7 @@ namespace PersistentWindows.Common
         private Process process;
         public ProcessPriorityClass processPriority;
 
-        public string appDataFolder = "";
+        public static string appDataFolder = "";
 
         // session control
         private bool sessionLocked = false; //requires password to unlock

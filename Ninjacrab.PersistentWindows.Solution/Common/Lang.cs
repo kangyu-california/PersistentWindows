@@ -70,16 +70,16 @@ namespace PersistentWindows.Common
         /// <summary>load translations + persisted language choice (called once at startup)</summary>
         public static void Load(string dir)
         {
-            LangSelection = Path.Combine(dir, LangSelection);
+            string select_lang = Path.Combine(dir, LangSelection);
             string file = Path.Combine(dir, LangTranslation);
             try
             {
                 if (File.Exists(file))
                     ReadTranslation(file);
 
-                if (File.Exists(LangSelection))
+                if (File.Exists(select_lang))
                 {
-                    string v = File.ReadAllText(LangSelection).Trim();
+                    string v = File.ReadAllText(select_lang).Trim();
                     if (v.Length > 0) CurrentLang = v;
                 }
             }
@@ -152,7 +152,8 @@ namespace PersistentWindows.Common
             CurrentLang = language;
             try
             {
-                File.WriteAllText(LangSelection, CurrentLang);
+                string path = Path.Combine(PersistentWindowProcessor.appDataFolder, LangSelection);
+                File.WriteAllText(path, CurrentLang);
             }
             catch (Exception)
             {
