@@ -196,8 +196,8 @@ namespace PersistentWindows.Common
             Dictionary<string, string> row;
             if (Strings.TryGetValue(key, out row))
             {
-                if (!row.TryGetValue(Current, out text) && !row.TryGetValue("en", out text))
-                    text = key;
+                if (!row.TryGetValue(Current, out text))
+                    row.TryGetValue("en", out text);
             }
             if (args != null && args.Length > 0)
                 text = string.Format(text, args);
