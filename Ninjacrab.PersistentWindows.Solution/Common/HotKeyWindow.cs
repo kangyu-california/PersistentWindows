@@ -349,7 +349,6 @@ namespace PersistentWindows.Common
             else if (e.KeyCode == Keys.Oemtilde)
             {
                 //goto the second background web browser window
-                Visible = false;
                 //SendKeys.Send("%{TAB}");
                 IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
                 if (bgWnd != IntPtr.Zero)
@@ -357,9 +356,13 @@ namespace PersistentWindows.Common
                 if (bgWnd != IntPtr.Zero)
                 {
                     User32.SetForegroundWindow(bgWnd);
-                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
+                    FgSleep(300);
+                    IntPtr new_bg = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
+                    if (new_bg != IntPtr.Zero)
+                        new_bg = PersistentWindowProcessor.GetBackgroundWindow(new_bg);
+                    if (new_bg == bgWnd)
+                        PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                 }
-                return_focus_to_hotkey_window = false;
             }
             else if (e.KeyCode == Keys.Tab)
             {
@@ -425,7 +428,6 @@ namespace PersistentWindows.Common
                 //ToggleWindowSize();
 
                 //switch first background web browser app window to topz
-                //Visible = false;
                 IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
                 if (bgWnd != IntPtr.Zero)
                 {
