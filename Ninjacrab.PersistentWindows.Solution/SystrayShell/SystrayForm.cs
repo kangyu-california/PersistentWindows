@@ -74,7 +74,7 @@ namespace PersistentWindows.SystrayShell
                 var item = new ToolStripMenuItem(Lang.DisplayName(lang))
                 {
                     Tag = lang,
-                    Checked = lang == Lang.Current
+                    Checked = lang == Lang.CurrentLang
                 };
                 item.Click += SelectLanguage;
                 languageMenuItem.DropDownItems.Add(item);
@@ -533,7 +533,7 @@ namespace PersistentWindows.SystrayShell
         {
             languageMenuItem.Text = Lang.T("menu.language");
             foreach (ToolStripMenuItem it in languageMenuItem.DropDownItems)
-                it.Checked = ((string)it.Tag) == Lang.Current;
+                it.Checked = ((string)it.Tag) == Lang.CurrentLang;
             captureToolStripMenuItem.Text = Lang.T("menu.captureDisk");
             restoreToolStripMenuItem.Text = Lang.T("menu.restoreDisk");
             restoreAllParkedMenuItem.Text = Lang.T("menu.restoreMinimized");

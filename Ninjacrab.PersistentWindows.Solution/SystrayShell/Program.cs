@@ -397,7 +397,9 @@ if not errorlevel 1 goto wait_to_finish";
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
 
-            Lang.Load(appDataFolder); // read translations.json + language preference before any UI is built
+            // read translations.json + language preference before any UI is built
+            Lang.Load(AppDomain.CurrentDomain.BaseDirectory);
+            Lang.Load(appDataFolder);
 
             if (restore_snapshot >= 0)
             {

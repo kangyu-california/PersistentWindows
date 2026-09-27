@@ -30,13 +30,13 @@ namespace PersistentWindows.Common
     public static class Lang
     {
         /// <summary>languages the tray toggle cycles through, in order</summary>
-        public static readonly string[] Languages = { "en", "zh" };
+        public static HashSet<string> Languages = new HashSet<string>();
 
         /// <summary>active language name (a key of the entries, e.g. "en" or "zh")</summary>
-        public static string Current = "en";
+        public static string CurrentLang = "en";
 
-        public static string LangFile = null;      // lang.txt: current language
-        public static string StringsFile = null;   // translations.json: all translations
+        public static string LangSelection = "display_language.txt";      // current language
+        public static string LangTranslation = "translations.json";   // translation of menu/message for all languages
 
         /// <summary>small helper: build a named-language entry</summary>
         private static Dictionary<string, string> Row(params string[] nameValuePairs)
@@ -47,146 +47,9 @@ namespace PersistentWindows.Common
             return row;
         }
 
-        /// <summary>factory defaults: used to (re)create translations.json and as fallback</summary>
-        private static readonly Dictionary<string, Dictionary<string, string>> Defaults = new Dictionary<string, Dictionary<string, string>>
-        {
-            // tray menu
-            { "menu.captureDisk", Row(
-                "en", "Capture windows to disk",
-                "zh", "保存窗口布局(&C)") },
-            { "menu.restoreDisk", Row(
-                "en", "Restore windows from disk",
-                "zh", "恢复窗口布局(&R)") },
-            { "menu.restoreMinimized", Row(
-                "en", "Restore all minimized windows",
-                "zh", "展开所有最小化的窗口") },
-            { "menu.captureSnapshot", Row(
-                "en", "Capture snapshot",
-                "zh", "捕捉布局快照(&S)") },
-            { "menu.restoreSnapshot", Row(
-                "en", "Restore snapshot",
-                "zh", "恢复布局快照(&N)") },
-            { "menu.pauseAutoRestore", Row(
-                "en", "Pause auto restore",
-                "zh", "暂停自动恢复(&P)") },
-            { "menu.resumeAutoRestore", Row(
-                "en", "Resume auto restore",
-                "zh", "继续自动恢复") },
-            { "menu.tryCustomIcon", Row(
-                "en", "Try customized icon",
-                "zh", "尝试自定义图标") },
-            { "menu.disableCustomIcon", Row(
-                "en", "Disable customized icon",
-                "zh", "停用自定义图标") },
-            { "menu.enableWebCommander", Row(
-                "en", "Enable webpage commander",
-                "zh", "启用网页控制窗口") },
-            { "menu.disableWebCommander", Row(
-                "en", "Disable webpage commander",
-                "zh", "停用网页控制窗口") },
-            { "menu.enableUpgradeNotice", Row(
-                "en", "Enable upgrade notice",
-                "zh", "启用升级提醒") },
-            { "menu.disableUpgradeNotice", Row(
-                "en", "Disable upgrade notice",
-                "zh", "关闭升级提醒") },
-            { "menu.upgradeTo", Row(
-                "en", "Upgrade to {0}",
-                "zh", "升级到 {0}") },
-            { "menu.language", Row(
-                "en", "Language",
-                "zh", "语言 / Language") },
-            { "lang.name.en", Row(
-                "en", "English",
-                "zh", "English") },
-            { "lang.name.zh", Row(
-                "en", "Chinese (Simplified)",
-                "zh", "简体中文") },
-            { "menu.help", Row(
-                "en", "&Help",
-                "zh", "帮助(&H)") },
-            { "menu.exit", Row(
-                "en", "&Exit",
-                "zh", "退出(&X)") },
-
-            // balloon notifications
-            { "balloon.restoring", Row(
-                "en", "Please wait while restoring windows",
-                "zh", "正在恢复窗口布局，请稍候") },
-            { "balloon.languageSwitched", Row(
-                "en", "Language switched",
-                "zh", "语言已切换") },
-            { "balloon.languageApplied", Row(
-                "en", "The interface language has been applied.",
-                "zh", "界面语言已即时生效。") },
-            { "balloon.upgradeAvailable", Row(
-                "en", "{0} {1} upgrade is available",
-                "zh", "{0} {1} 有新版本可用") },
-            { "balloon.upgradeNoticeHint", Row(
-                "en", "The upgrade notice can be disabled in menu",
-                "zh", "可在菜单中关闭升级提醒") },
-            { "balloon.snapshotCaptured", Row(
-                "en", "snapshot '{0}' is captured",
-                "zh", "快照 '{0}' 已保存") },
-            { "balloon.snapshotRestoreHint", Row(
-                "en", "click icon then immediately press key '{0}' to restore the snapshot",
-                "zh", "点击图标后立即按数字键 '{0}' 即可恢复该快照") },
-            { "balloon.webCommanderInvoked", Row(
-                "en", "webpage commander is invoked via hotkey",
-                "zh", "已通过热键呼出网页控制窗口") },
-            { "balloon.webCommanderRevoke", Row(
-                "en", "Press the hotkey (Alt + W) again to revoke",
-                "zh", "再按一次热键 (Alt + W) 即可收回") },
-
-            // message boxes
-            { "msg.alreadyRunning", Row(
-                "en", "Another instance is already running.",
-                "zh", "程序已经在运行中。") },
-            { "msg.proceedRestore", Row(
-                "en", "Proceed to restore windows",
-                "zh", "即将恢复窗口布局") },
-            { "msg.switchVirtualDesktop", Row(
-                "en", "Switch to another virtual desktop to restore windows",
-                "zh", "请切换到其他虚拟桌面后再恢复窗口") },
-
-            // splash screen
-            { "splash.infoLabel", Row(
-                "en", "info",
-                "zh", "关于") },
-            { "splash.info", Row(
-                "en", "\n    Persistent Windows\n    Version {0}\n                \n    Author:        Min Yong Kim\n    Contributors:  Kang Yu, Sean Aitken\n    ",
-                "zh", "\n    Persistent Windows\n    版本 {0}\n                \n    作者:        Min Yong Kim\n    贡献者:  Kang Yu, Sean Aitken\n    ") },
-            { "splash.contributors", Row(
-                "en", "Recognize All Contributors",
-                "zh", "致谢所有贡献者") },
-
-            // dialogs / message boxes with buttons
-            { "dlg.ok", Row(
-                "en", "OK",
-                "zh", "确定") },
-            { "dlg.cancel", Row(
-                "en", "Cancel",
-                "zh", "取消") },
-            { "dlg.selectLayout", Row(
-                "en", "Select a desktop layout to restore",
-                "zh", "请选择要恢复的桌面布局") },
-            { "dlg.snapshotDigitName", Row(
-                "en", "Enter one digit or a letter to name the snapshot",
-                "zh", "输入一个数字或字母作为快照名称") },
-            { "dlg.snapshotName", Row(
-                "en", "Enter the name of snapshot",
-                "zh", "请输入快照名称") },
-            { "dlg.captureDiskName", Row(
-                "en", "Enter the name of capture on disk",
-                "zh", "请输入磁盘布局存档名称") },
-            { "dlg.captureName", Row(
-                "en", "Enter the name of capture",
-                "zh", "请输入布局存档名称") },
-        };
-
         /// <summary>active table = factory defaults overlaid with translations.json
         /// (the file can override any text and add new languages/keys)</summary>
-        public static Dictionary<string, Dictionary<string, string>> Strings = new Dictionary<string, Dictionary<string, string>>(Defaults);
+        public static Dictionary<string, Dictionary<string, string>> Strings = new Dictionary<string, Dictionary<string, string>>();
 
         /// <summary>look up an entry by key; missing languages fall back to "en";
         /// args fill {0}-style placeholders when given</summary>
@@ -196,7 +59,7 @@ namespace PersistentWindows.Common
             Dictionary<string, string> row;
             if (Strings.TryGetValue(key, out row))
             {
-                if (!row.TryGetValue(Current, out text))
+                if (!row.TryGetValue(CurrentLang, out text))
                     row.TryGetValue("en", out text);
             }
             if (args != null && args.Length > 0)
@@ -205,21 +68,19 @@ namespace PersistentWindows.Common
         }
 
         /// <summary>load translations + persisted language choice (called once at startup)</summary>
-        public static void Load(string appDataFolder)
+        public static void Load(string dir)
         {
-            LangFile = Path.Combine(appDataFolder, "lang.txt");
-            StringsFile = Path.Combine(appDataFolder, "translations.json");
+            LangSelection = Path.Combine(dir, LangSelection);
+            string file = Path.Combine(dir, LangTranslation);
             try
             {
-                if (File.Exists(StringsFile))
-                    ReadStringsFile();
-                else
-                    WriteStringsFile();   // first run: ship the default file
+                if (File.Exists(file))
+                    ReadTranslation(file);
 
-                if (File.Exists(LangFile))
+                if (File.Exists(LangSelection))
                 {
-                    string v = File.ReadAllText(LangFile).Trim();
-                    if (v.Length > 0) Current = v;
+                    string v = File.ReadAllText(LangSelection).Trim();
+                    if (v.Length > 0) CurrentLang = v;
                 }
             }
             catch (Exception)
@@ -228,20 +89,25 @@ namespace PersistentWindows.Common
             }
         }
 
-        private static void ReadStringsFile()
+        private static void ReadTranslation(string file)
         {
-            string json = File.ReadAllText(StringsFile);
+            string json = File.ReadAllText(file);
             var parsed = new JavaScriptSerializer().Deserialize<Dictionary<string, Dictionary<string, string>>>(json);
-            if (parsed == null || parsed.Count == 0)
-            {
-                WriteStringsFile();
-                return;
-            }
             // overlay: parsed entries extend/replace the built-in defaults, so even a
             // partial file never leaves the UI without a string
-            Strings = new Dictionary<string, Dictionary<string, string>>(Defaults);
             foreach (var kv in parsed)
-                Strings[kv.Key] = kv.Value;
+            {
+                //Strings[kv.Key] = kv.Value;
+                foreach (var keyvalue in kv.Value)
+                {
+                    if (!Strings.ContainsKey(kv.Key))
+                        Strings[kv.Key] = new Dictionary<string, string>();
+                    Strings[kv.Key][keyvalue.Key] = keyvalue.Value;
+
+                    if (!Languages.Contains(keyvalue.Key))
+                        Languages.Add(keyvalue.Key);
+                }
+            }
         }
 
         private static void WriteStringsFile()
@@ -249,7 +115,7 @@ namespace PersistentWindows.Common
             var sb = new StringBuilder();
             sb.Append("{\n");
             int i = 0;
-            foreach (var kv in Defaults)
+            foreach (var kv in Strings)
             {
                 sb.Append("  ").Append(Quote(kv.Key)).Append(": {");
                 int j = 0;
@@ -259,11 +125,11 @@ namespace PersistentWindows.Common
                       .Append("    ").Append(Quote(lang.Key)).Append(": ").Append(Quote(lang.Value));
                 }
                 sb.Append("\n  }");
-                if (++i < Defaults.Count) sb.Append(",");
+                if (++i < Strings.Count) sb.Append(",");
                 sb.Append("\n");
             }
             sb.Append("}\n");
-            File.WriteAllText(StringsFile, sb.ToString(), new UTF8Encoding(false));
+            File.WriteAllText(LangTranslation, sb.ToString(), new UTF8Encoding(false));
         }
 
         private static string Quote(string s)
@@ -283,11 +149,10 @@ namespace PersistentWindows.Common
         /// <summary>switch language and persist the choice</summary>
         public static void Set(string language)
         {
-            Current = language;
+            CurrentLang = language;
             try
             {
-                if (LangFile != null)
-                    File.WriteAllText(LangFile, Current);
+                File.WriteAllText(LangSelection, CurrentLang);
             }
             catch (Exception)
             {
