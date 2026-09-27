@@ -425,12 +425,15 @@ namespace PersistentWindows.Common
                 //ToggleWindowSize();
 
                 //switch first background web browser app window to topz
-                Visible = false;
+                //Visible = false;
                 IntPtr bgWnd = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
                 if (bgWnd != IntPtr.Zero)
                 {
                     User32.SetForegroundWindow(bgWnd);
-                    PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
+                    FgSleep(300);
+                    IntPtr new_bg = PersistentWindowProcessor.GetBackgroundWindow(fgwnd);
+                    if (new_bg == bgWnd)
+                        PersistentWindowProcessor.RestoreZorder(fgwnd, bgWnd);
                 }
             }
             else if (e.KeyCode == Keys.X || e.KeyCode == Keys.Divide)
