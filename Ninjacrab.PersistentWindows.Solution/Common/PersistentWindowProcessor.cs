@@ -175,7 +175,7 @@ namespace PersistentWindows.Common
         private Process process;
         public ProcessPriorityClass processPriority;
 
-        public string appDataFolder = "";
+        public static string appDataFolder = "";
 
         // session control
         private bool sessionLocked = false; //requires password to unlock
@@ -710,7 +710,7 @@ namespace PersistentWindows.Common
             {
                 User32.SetThreadDpiAwarenessContextSafe();
 
-                System.Windows.Forms.MessageBox.Show("Another instance is already running.", productName,
+                System.Windows.Forms.MessageBox.Show(Lang.T("msg.alreadyRunning"), productName,
                     System.Windows.Forms.MessageBoxButtons.OK,
                     System.Windows.Forms.MessageBoxIcon.Exclamation,
                     System.Windows.Forms.MessageBoxDefaultButton.Button1,
@@ -1267,7 +1267,7 @@ namespace PersistentWindows.Common
 
             User32.SetThreadDpiAwarenessContextSafe();
 
-            System.Windows.Forms.MessageBox.Show("Proceed to restore windows",
+            System.Windows.Forms.MessageBox.Show(Lang.T("msg.proceedRestore"),
                 System.Windows.Forms.Application.ProductName,
                 System.Windows.Forms.MessageBoxButtons.OK,
                 System.Windows.Forms.MessageBoxIcon.Information,
@@ -5176,7 +5176,7 @@ namespace PersistentWindows.Common
                         runProcessDlg.Icon = icon;
                         if (VirtualDesktop.Enabled() && curDisplayMetrics.Guid != Guid.Empty && curDisplayMetrics.Guid != curVirtualDesktop)
                         {
-                            System.Windows.Forms.MessageBox.Show("Switch to another virtual desktop to restore windows",
+                            System.Windows.Forms.MessageBox.Show(Lang.T("msg.switchVirtualDesktop"),
                                 System.Windows.Forms.Application.ProductName,
                                 System.Windows.Forms.MessageBoxButtons.OK,
                                 System.Windows.Forms.MessageBoxIcon.Information,
@@ -5250,11 +5250,11 @@ namespace PersistentWindows.Common
                                             dir = $"\"{dir}\"";
                                         }
 
-                                        File.WriteAllText(batFile, "start \"\" /B " + dir);
+                                        File.WriteAllText(batFile, "start \"\" /B " + dir, Encoding.Default);
                                     }
                                     else if (dir.Equals("This PC") || dir.Equals("Computer"))
                                     {
-                                        File.WriteAllText(batFile, "explorer /n, /select, %SystemDrive%");
+                                        File.WriteAllText(batFile, "explorer /n, /select, %SystemDrive%", Encoding.Default);
                                     }
                                     else
                                     {
@@ -5282,12 +5282,12 @@ namespace PersistentWindows.Common
                                             dir = $"\"{dir}\"";
                                         }
 
-                                        File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start \"\" " + dir);
+                                        File.WriteAllText(batFile, "cd %userprofile%" + Environment.NewLine + "start \"\" " + dir, Encoding.Default);
                                     }
                                 }
                                 else
                                 {
-                                    File.WriteAllText(batFile, "start \"\" /B " + processPath);
+                                    File.WriteAllText(batFile, "start \"\" /B " + processPath, Encoding.Default);
                                 }
 
                                 Process process = Process.Start("explorer.exe", batFile);

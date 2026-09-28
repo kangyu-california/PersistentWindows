@@ -392,10 +392,14 @@ if not errorlevel 1 goto wait_to_finish";
             }
 #endif
             AppdataFolder = appDataFolder;
-            pwp.appDataFolder = appDataFolder;
+            PersistentWindowProcessor.appDataFolder = appDataFolder;
 
             if (!Directory.Exists(appDataFolder))
                 Directory.CreateDirectory(appDataFolder);
+
+            // read translations.json + language preference before any UI is built
+            Lang.Load(AppDomain.CurrentDomain.BaseDirectory);
+            Lang.Load(appDataFolder);
 
             if (restore_snapshot >= 0)
             {
@@ -582,7 +586,7 @@ if not errorlevel 1 goto wait_to_finish";
             string content = WaitPwFinish;
             content += $"\ntimeout /t {delay} /nobreak > NUL";
             content += "\nstart \"\" /B \"" + Path.Combine(Application.StartupPath, Application.ProductName) + ".exe\" " + "-wait_taskbar " + Program.CmdArgs;
-            File.WriteAllText(batFile, content);
+            File.WriteAllText(batFile, content, System.Text.Encoding.Default);
             p.StartInfo.FileName = batFile;
             if (hidden)
             {
@@ -681,7 +685,7 @@ if not errorlevel 1 goto wait_to_finish";
                 {
                     char c = SnapshotIdToChar(id);
                     if (prompt)
-                        systrayForm.notifyIconMain.ShowBalloonTip(5000, $"snapshot '{c}' is captured", $"click icon then immediately press key '{c}' to restore the snapshot", ToolTipIcon.Info);
+                        systrayForm.notifyIconMain.ShowBalloonTip(5000, Lang.T("balloon.snapshotCaptured", c), Lang.T("balloon.snapshotRestoreHint", c), ToolTipIcon.Info);
                 }
 
                 EnableRestoreSnapshotMenu(true);

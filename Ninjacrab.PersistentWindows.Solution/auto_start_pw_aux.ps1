@@ -1,10 +1,14 @@
-## Replace with your desired command arguments
+﻿## Replace with your desired command arguments
 $arguments = "-splash=0"
 
 $executablePath = $PSScriptRoot + "\PersistentWindows.exe"
 
 ## create registry to run PersistentWindows.exe in high dpi aware mode
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers" -Name $executablePath -Value "~ HIGHDPIAWARE"
+$regPath = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers"
+if (-not (Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+Set-ItemProperty -Path $regPath -Name $executablePath -Value "~ HIGHDPIAWARE"
 
 ## rename the task as you like
 $taskName = "StartPersistentWindows" + $env:username
@@ -33,6 +37,14 @@ $task.Actions[0].Arguments = $arguments
 Set-ScheduledTask -TaskName $taskName -TaskPath $task.TaskPath -Action $task.Actions
 
 ## Set the task to run with highest privileges
-$principal = New-ScheduledTaskPrincipal -UserId $env:username  -RunLevel Highest
+
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isAdmin) {
+    $principal = New-ScheduledTaskPrincipal -UserId $env:username -RunLevel Highest
+} else {
+    $principal = New-ScheduledTaskPrincipal -UserId $env:username
+    Write-Warning "❌ It is recommended to run as Administrator to avoid Access-Is-Denied failure."
+}
+
 $task.Principal = $principal
 Set-ScheduledTask -TaskName $taskName -TaskPath $task.TaskPath -Principal $principal

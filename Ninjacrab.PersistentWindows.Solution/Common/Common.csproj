@@ -37,6 +37,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -48,6 +49,7 @@
       <DependentUpon>DbKeySelect.cs</DependentUpon>
     </Compile>
     <Compile Include="Diagnostics\Log.cs" />
+    <Compile Include="Lang.cs" />
     <Compile Include="HotKeyWindow.cs">
       <SubType>Form</SubType>
     </Compile>

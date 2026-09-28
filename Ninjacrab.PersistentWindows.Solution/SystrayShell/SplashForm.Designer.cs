@@ -1,5 +1,6 @@
 ﻿using System.Windows.Forms;
 
+using PersistentWindows.Common;
 namespace PersistentWindows.SystrayShell
 {
     partial class SplashForm
@@ -72,7 +73,7 @@ namespace PersistentWindows.SystrayShell
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(269, 20);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Recognize All Contributors";
+            this.label2.Text = Lang.T("splash.contributors");
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.label2.Click += new System.EventHandler(this.label2_Click);
             // 

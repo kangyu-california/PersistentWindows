@@ -1,0 +1,166 @@
+{
+  "menu.captureDisk": {
+    "en": "Capture windows to disk",
+    "zh": "保存窗口布局(&C)"
+  },
+  "menu.restoreDisk": {
+    "en": "Restore windows from disk",
+    "zh": "恢复窗口布局(&R)"
+  },
+  "menu.restoreMinimized": {
+    "en": "Restore all minimized windows",
+    "zh": "展开所有最小化的窗口"
+  },
+  "menu.captureSnapshot": {
+    "en": "Capture snapshot",
+    "zh": "捕捉布局快照(&S)"
+  },
+  "menu.restoreSnapshot": {
+    "en": "Restore snapshot",
+    "zh": "恢复布局快照(&N)"
+  },
+  "menu.pauseAutoRestore": {
+    "en": "Pause auto restore",
+    "zh": "暂停自动恢复(&P)"
+  },
+  "menu.resumeAutoRestore": {
+    "en": "Resume auto restore",
+    "zh": "继续自动恢复"
+  },
+  "menu.tryCustomIcon": {
+    "en": "Try customized icon",
+    "zh": "尝试自定义图标"
+  },
+  "menu.disableCustomIcon": {
+    "en": "Disable customized icon",
+    "zh": "停用自定义图标"
+  },
+  "menu.enableWebCommander": {
+    "en": "Enable webpage commander",
+    "zh": "启用网页控制窗口"
+  },
+  "menu.disableWebCommander": {
+    "en": "Disable webpage commander",
+    "zh": "停用网页控制窗口"
+  },
+  "menu.enableUpgradeNotice": {
+    "en": "Enable upgrade notice",
+    "zh": "启用升级提醒"
+  },
+  "menu.disableUpgradeNotice": {
+    "en": "Disable upgrade notice",
+    "zh": "关闭升级提醒"
+  },
+  "menu.upgradeTo": {
+    "en": "Upgrade to {0}",
+    "zh": "升级到 {0}"
+  },
+  "menu.language": {
+    "en": "Language",
+    "zh": "语言 / Language"
+  },
+  "lang.name.en": {
+    "en": "English",
+    "zh": "English"
+  },
+  "lang.name.zh": {
+    "en": "Chinese (Simplified)",
+    "zh": "简体中文"
+  },
+  "menu.help": {
+    "en": "&Help",
+    "zh": "帮助(&H)"
+  },
+  "menu.exit": {
+    "en": "&Exit",
+    "zh": "退出(&X)"
+  },
+  "balloon.restoring": {
+    "en": "Please wait while restoring windows",
+    "zh": "正在恢复窗口布局，请稍候"
+  },
+  "balloon.languageSwitched": {
+    "en": "Language switched",
+    "zh": "语言已切换"
+  },
+  "balloon.languageApplied": {
+    "en": "The interface language has been applied.",
+    "zh": "界面语言已即时生效。"
+  },
+  "balloon.upgradeAvailable": {
+    "en": "{0} {1} upgrade is available",
+    "zh": "{0} {1} 有新版本可用"
+  },
+  "balloon.upgradeNoticeHint": {
+    "en": "The upgrade notice can be disabled in menu",
+    "zh": "可在菜单中关闭升级提醒"
+  },
+  "balloon.snapshotCaptured": {
+    "en": "snapshot '{0}' is captured",
+    "zh": "快照 '{0}' 已保存"
+  },
+  "balloon.snapshotRestoreHint": {
+    "en": "click icon then immediately press key '{0}' to restore the snapshot",
+    "zh": "点击图标后立即按数字键 '{0}' 即可恢复该快照"
+  },
+  "balloon.webCommanderInvoked": {
+    "en": "webpage commander is invoked via hotkey",
+    "zh": "已通过热键呼出网页控制窗口"
+  },
+  "balloon.webCommanderRevoke": {
+    "en": "Press the hotkey (Alt + W) again to revoke",
+    "zh": "再按一次热键 (Alt + W) 即可收回"
+  },
+  "msg.alreadyRunning": {
+    "en": "Another instance is already running.",
+    "zh": "程序已经在运行中。"
+  },
+  "msg.proceedRestore": {
+    "en": "Proceed to restore windows",
+    "zh": "即将恢复窗口布局"
+  },
+  "msg.switchVirtualDesktop": {
+    "en": "Switch to another virtual desktop to restore windows",
+    "zh": "请切换到其他虚拟桌面后再恢复窗口"
+  },
+  "splash.infoLabel": {
+    "en": "info",
+    "zh": "关于"
+  },
+  "splash.info": {
+    "en": "\n    Persistent Windows\n    Version {0}\n                \n    Author:        Min Yong Kim\n    Contributors:  Kang Yu, Sean Aitken\n    ",
+    "zh": "\n    Persistent Windows\n    版本 {0}\n                \n    作者:        Min Yong Kim\n    贡献者:  Kang Yu, Sean Aitken\n    "
+  },
+  "splash.contributors": {
+    "en": "Recognize All Contributors",
+    "zh": "致谢所有贡献者"
+  },
+  "dlg.ok": {
+    "en": "OK",
+    "zh": "确定"
+  },
+  "dlg.cancel": {
+    "en": "Cancel",
+    "zh": "取消"
+  },
+  "dlg.selectLayout": {
+    "en": "Select a desktop layout to restore",
+    "zh": "请选择要恢复的桌面布局"
+  },
+  "dlg.snapshotDigitName": {
+    "en": "Enter one digit or a letter to name the snapshot",
+    "zh": "输入一个数字或字母作为快照名称"
+  },
+  "dlg.snapshotName": {
+    "en": "Enter the name of snapshot",
+    "zh": "请输入快照名称"
+  },
+  "dlg.captureDiskName": {
+    "en": "Enter the name of capture on disk",
+    "zh": "请输入磁盘布局存档名称"
+  },
+  "dlg.captureName": {
+    "en": "Enter the name of capture",
+    "zh": "请输入布局存档名称"
+  }
+}
