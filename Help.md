@@ -124,9 +124,11 @@
   | ~ | | Bring the second background web browser window to foreground
   | Alt + click commander window || send the mouse click to the underlying browser window
 
-### Other features
+### Use customized icons
 * To replace the default app icons with customized one:
   * Rename customized .ico (or .png) file as `pwIcon.ico` (or `pwIcon.png`) and copy it to the PersistentWindows program folder, or alternatively to `C:/Users/<YOUR_ID>/AppData/Local/PersistentWindows/`.
   * Copy another ico/png file to the same directory and rename it to `pwIconBusy.*`. This icon is displayed when PersistentWindows is busy restoring windows.
   * Copy yet another ico/png file to the same directory and rename it to `pwIconUpdate.*`. This icon is displayed when a new PersistentWindows release is available.
 
+### Translate text in menu and message box to new languages
+* Copy translations.json from install dir to C:\Users\[User]\AppData\Local\PersistentWindows, and add new language translations to the copy, then relaunch PersistentWindows.
