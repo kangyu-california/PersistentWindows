@@ -308,7 +308,7 @@ namespace PersistentWindows.SystrayShell
                         Process.Start(new ProcessStartInfo(url));
                     */
 
-                    var src_file = $"{Program.ProjectUrl}/releases/download/{latestVersion}/{System.Windows.Forms.Application.ProductName}{latestVersion}.zip";
+                    var src_file = $"{Program.ProjectUrl}/releases/download/{latestVersion}/{System.Windows.Forms.Application.ProductName}Strip{latestVersion}.zip";
                     var dst_file = $"{Program.AppdataFolder}/upgrade.zip";
                     var dst_dir = Path.Combine($"{Program.AppdataFolder}", "upgrade");
                     var install_dir = Application.StartupPath;
