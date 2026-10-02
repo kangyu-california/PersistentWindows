@@ -30,7 +30,6 @@ namespace PersistentWindows.SystrayShell
 
         private ToolStripMenuItem languageMenuItem;
         private bool upgradeNoticeOn = true;
-        private bool webpageCommanderOn = true;
         private string upgradeAvailableVersion = null;
 
         private int ctrlKeyPressed = 0;
@@ -61,11 +60,6 @@ namespace PersistentWindows.SystrayShell
                 upgradeNoticeMenuItem.Text = Lang.T("menu.disableUpgradeNotice");
 
             upgradeNoticeOn = !File.Exists(Program.DisableUpgradeNotice);
-            webpageCommanderOn = !File.Exists(Program.DisableWebpageCommander);
-            if (File.Exists(Program.DisableWebpageCommander))
-            {
-                invokeWebCommander.Text = Lang.T("menu.enableWebCommander");
-            }
 
             // one sub-menu item per registered language; new languages appear here automatically
             languageMenuItem = new ToolStripMenuItem(Lang.T("menu.language"));
@@ -416,34 +410,6 @@ namespace PersistentWindows.SystrayShell
             }
         }
 
-        private void WebCommander(object sender, EventArgs e)
-        {
-            if ((User32.GetKeyState(0x11) & 0x8000) != 0)
-                HotKeyForm.InvokeFromMenu();
-            else if (webpageCommanderOn)
-            {
-                webpageCommanderOn = false;
-                File.Create(Program.DisableWebpageCommander);
-                this.invokeWebCommander.Text = Lang.T("menu.enableWebCommander");
-                HotKeyForm.Stop();
-            }
-            else
-            {
-                try
-                {
-                    File.Delete(Program.DisableWebpageCommander);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.ToString());
-                }
-
-                webpageCommanderOn = true;
-                this.invokeWebCommander.Text = Lang.T("menu.disableWebCommander");
-                HotKeyForm.Start(Program.hotkey);
-            }
-        }
-
         private void ToggleIcon(object sender, EventArgs e)
         {
             if (toggleIcon)
@@ -543,8 +509,6 @@ namespace PersistentWindows.SystrayShell
                 Lang.T("menu.resumeAutoRestore") : Lang.T("menu.pauseAutoRestore");
             toggleIconMenuItem.Text = toggleIcon ?
                 Lang.T("menu.disableCustomIcon") : Lang.T("menu.tryCustomIcon");
-            invokeWebCommander.Text = webpageCommanderOn ?
-                Lang.T("menu.disableWebCommander") : Lang.T("menu.enableWebCommander");
             if (upgradeAvailableVersion != null)
                 upgradeNoticeMenuItem.Text = Lang.T("menu.upgradeTo", upgradeAvailableVersion);
             else

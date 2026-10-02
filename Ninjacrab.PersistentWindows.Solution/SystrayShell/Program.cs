@@ -21,12 +21,9 @@ namespace PersistentWindows.SystrayShell
         public static System.Drawing.Icon BusyIcon = null;
         public static System.Drawing.Icon UpdateIcon = null;
         public static string AppdataFolder = null;
-        public static string DisableWebpageCommander = null;
         public static string DisableUpgradeNotice = null;
         public static string CmdArgs;
         public static bool Gui = true;
-        public static bool hotkey_window = true;
-        public static uint hotkey = 'W'; //Alt + W
         public static string WaitPwFinish = @":wait_to_finish
 timeout /t 2 /nobreak >nul
 tasklist | find ""PersistentWindows"" >nul
@@ -160,11 +157,6 @@ if not errorlevel 1 goto wait_to_finish";
                     pwp.SetNoinheritProcess(arg);
                     continue;
                 }
-                else if (hotkey == 1)
-                {
-                    hotkey = arg[0];
-                    continue;
-                }
                 else if (restore_snapshot != -1)
                 {
                     restore_snapshot = SnapshotCharToId(arg[0]);
@@ -285,13 +277,6 @@ if not errorlevel 1 goto wait_to_finish";
                     case "-ctrl_minimize_to_tray=0":
                         pwp.enableMinimizeToTray = false;
                         break;
-                    case "-hotkey_window=0":
-                    case "-webpage_commander_window=0":
-                        hotkey_window = false;
-                        break;
-                    case "-hotkey":
-                        hotkey = 1;
-                        break;
                     case "-prompt_session_restore":
                         prompt_session_restore = true;
                         break;
@@ -373,7 +358,6 @@ if not errorlevel 1 goto wait_to_finish";
                         //pwp.enableDualPosSwitch = false;
                         pwp.enableSwapWindow = false;
                         pwp.autoRestoreNewWindowToLastCapture = false;
-                        hotkey_window = false;
                         break;
                 }
             }
@@ -426,7 +410,6 @@ if not errorlevel 1 goto wait_to_finish";
                 return;
             }
 
-            DisableWebpageCommander = Path.Combine(AppdataFolder, "disable_webpage_commander");
             DisableUpgradeNotice = Path.Combine(AppdataFolder, "disable_upgrade_notice");
 
             // default icons
@@ -536,9 +519,6 @@ if not errorlevel 1 goto wait_to_finish";
             pwp.launchOncePerProcessId = launch_once_per_process_id;
             if (ignore_process.Length > 0)
                 pwp.SetIgnoreProcess(ignore_process);
-
-            if (!File.Exists(DisableWebpageCommander) && hotkey_window)
-                HotKeyForm.Start(hotkey);
 
             if (!pwp.Start(auto_restore_from_db_at_startup, auto_restore_last_capture_at_startup))
             {

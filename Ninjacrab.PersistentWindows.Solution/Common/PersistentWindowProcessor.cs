@@ -602,24 +602,6 @@ namespace PersistentWindows.Common
                     return;
 
                 ActivateWindow(hwnd); //window could be active on alt-tab
-                if (IsFullScreen(hwnd) || IsRdpWindow(hwnd))
-                {
-                    if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
-                    {
-                        RECT hkwinPos = new RECT();
-                        User32.GetWindowRect(HotKeyWindow.commanderWnd, ref hkwinPos);
-
-                        RECT fgwinPos = new RECT();
-                        User32.GetWindowRect(hwnd, ref fgwinPos);
-
-                        RECT intersect = new RECT();
-                        bool overlap = User32.IntersectRect(out intersect, ref hkwinPos, ref fgwinPos);
-                        if (overlap)
-                        {
-                            User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
-                        }
-                    }
-                }
 
                 if (alt_key_pressed)
                 {
@@ -1924,18 +1906,6 @@ namespace PersistentWindows.Common
         //return true if action is taken
         private void ActivateWindow(IntPtr hwnd)
         {
-            if (!restoringFromMem)
-            {
-                if (IsBrowserWindow(hwnd))
-                {
-                    IntPtr topHwnd = User32.GetAncestor(hwnd, User32.GetAncestorRoot);
-                    if (hwnd == topHwnd)
-                        HotKeyWindow.BrowserActivate(topHwnd);
-                }
-                else
-                    HotKeyWindow.BrowserActivate(hwnd);
-            }
-
             try
             {
                 bool enable_offscreen_fix = enableOffScreenFix;
@@ -2793,8 +2763,6 @@ namespace PersistentWindows.Common
                     break;
                 if (result == result_prev)
                     break;
-                if (result == HotKeyWindow.commanderWnd)
-                    continue;
 
                 if (monitorApplications[curDisplayKey].ContainsKey(result))
                 {
@@ -2838,9 +2806,6 @@ namespace PersistentWindows.Common
         // workaround by put these windows behind HWND_NOTOPMOST
         private bool FixTopMostWindow(IntPtr hWnd)
         {
-            if (hWnd == HotKeyWindow.commanderWnd)
-                return false;
-
             if (!IsWindowTopMost(hWnd))
                 return false;
 
@@ -2922,9 +2887,6 @@ namespace PersistentWindows.Common
                     continue;
 
                 if (IsMinimized(hwnd))
-                    continue;
-
-                if (hwnd == HotKeyWindow.commanderWnd)
                     continue;
 
                 if (User32.IsWindow(hwnd))
@@ -3293,9 +3255,6 @@ namespace PersistentWindows.Common
 
         private void EndDisplaySession()
         {
-            if (User32.IsWindowVisible(HotKeyWindow.commanderWnd))
-                User32.ShowWindow(HotKeyWindow.commanderWnd, (int)ShowWindowCommands.Hide);
-
             CancelCaptureTimer();
             ResetState();
         }
@@ -3660,9 +3619,6 @@ namespace PersistentWindows.Common
             {
                 return false;
             }
-
-            if (hwnd == HotKeyWindow.commanderWnd)
-                return false;
 
             bool isTaskBar = false;
             if (IsTaskBar(hwnd))
@@ -4864,11 +4820,6 @@ namespace PersistentWindows.Common
                     if (prevDisplayMetrics.IsInvisible && User32.IsWindowVisible(hWnd))
                     {
                         // #239 IsWindowsMoved() detected difference in screen position
-                        if (hWnd == HotKeyWindow.commanderWnd)
-                        {
-                            User32.ShowWindow(hWnd, (int)ShowWindowCommands.Hide);
-                            continue;
-                        }
                         HideWindow(hWnd);
                         Log.Error("keep invisible window {0}", GetWindowTitle(hWnd));
                         continue;
