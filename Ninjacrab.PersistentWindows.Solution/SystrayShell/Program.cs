@@ -563,11 +563,22 @@ if not errorlevel 1 goto wait_to_finish";
 
             try
             {
+                // a zero parent makes FindWindowEx search top-level windows, so stop at the first miss
                 IntPtr taskbar = User32.FindWindowA("Shell_TrayWnd", null);
-                IntPtr hWndTrayNotify = User32.FindWindowEx(taskbar, IntPtr.Zero, "TrayNotifyWnd", null);
-                IntPtr hWndSysPager = User32.FindWindowEx(hWndTrayNotify, IntPtr.Zero, "SysPager", null);
-                IntPtr hWndToolbar = User32.FindWindowEx(hWndSysPager, IntPtr.Zero, "ToolbarWindow32", null);
+                IntPtr hWndTrayNotify = taskbar == IntPtr.Zero ? IntPtr.Zero : User32.FindWindowEx(taskbar, IntPtr.Zero, "TrayNotifyWnd", null);
+                IntPtr hWndSysPager = hWndTrayNotify == IntPtr.Zero ? IntPtr.Zero : User32.FindWindowEx(hWndTrayNotify, IntPtr.Zero, "SysPager", null);
+                IntPtr hWndToolbar = hWndSysPager == IntPtr.Zero ? IntPtr.Zero : User32.FindWindowEx(hWndSysPager, IntPtr.Zero, "ToolbarWindow32", null);
                 if (hWndToolbar != IntPtr.Zero)
+                    return true;
+
+                // Windows 11 build 26300 draws the notification area in XAML: TrayNotifyWnd stays but
+                // never gets a child window, so the chain above cannot resolve and every start ends in
+                // Restart(). The build check keeps older builds, whose legacy tray may still be
+                // half-created at logon, on the chain above.
+                if (Environment.OSVersion.Version.Build >= 26300 && hWndTrayNotify != IntPtr.Zero
+                    && User32.FindWindowEx(hWndTrayNotify, IntPtr.Zero, null, null) == IntPtr.Zero
+                    && User32.IsWindow(hWndTrayNotify)
+                    && User32.FindWindowEx(taskbar, IntPtr.Zero, "Windows.UI.Composition.DesktopWindowContentBridge", null) != IntPtr.Zero)
                     return true;
             }
             catch (Exception )
