@@ -3592,6 +3592,14 @@ namespace PersistentWindows.Common
             return true;
         }
 
+        // new window shows up at the same top-left corner as the killed window, but with different size
+        private static bool IsSelfRestored(RECT cur, RECT prev)
+        {
+            if (cur.Equals(prev))
+                return false;
+            return Math.Abs(cur.Left - prev.Left) <= 2 && Math.Abs(cur.Top - prev.Top) <= 2;
+        }
+
         private bool TryInheritWindow(IntPtr hwnd, IntPtr realHwnd, IntPtr kid, ApplicationDisplayMetrics curDisplayMetrics)
         {
             if (kid == IntPtr.Zero)
@@ -3627,6 +3635,12 @@ namespace PersistentWindows.Common
                         if (IsRectOffScreen(prevDisplayMetrics.ScreenPosition))
                         {
                             Log.Error($"skip inherit off-screen position for {GetWindowTitle(hwnd)}");
+                        }
+                        else if (IsSelfRestored(curDisplayMetrics.ScreenPosition, prevDisplayMetrics.ScreenPosition))
+                        {
+                            // app already put the window back to its last location by itself (e.g. WeChat),
+                            // its own size is more reliable than last captured size, which may be a transient state
+                            Log.Error($"skip restore self-restored window {GetWindowTitle(hwnd)} {curDisplayMetrics.ScreenPosition}");
                         }
                         else
                         {
