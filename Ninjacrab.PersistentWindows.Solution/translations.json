@@ -1,166 +1,272 @@
 {
   "menu.captureDisk": {
     "en": "Capture windows to disk",
-    "zh": "保存窗口布局(&C)"
+    "zh": "保存窗口布局(&C)",
+    "ko": "창 배치를 디스크에 저장(&C)"
   },
   "menu.restoreDisk": {
     "en": "Restore windows from disk",
-    "zh": "恢复窗口布局(&R)"
+    "zh": "恢复窗口布局(&R)",
+    "ko": "디스크에서 창 배치 복원(&R)"
   },
   "menu.restoreMinimized": {
     "en": "Restore all minimized windows",
-    "zh": "展开所有最小化的窗口"
+    "zh": "展开所有最小化的窗口",
+    "ko": "최소화된 창 모두 펼치기"
   },
   "menu.captureSnapshot": {
     "en": "Capture snapshot",
-    "zh": "捕捉布局快照(&S)"
+    "zh": "捕捉布局快照(&S)",
+    "ko": "스냅샷 저장(&S)"
   },
   "menu.restoreSnapshot": {
     "en": "Restore snapshot",
-    "zh": "恢复布局快照(&N)"
+    "zh": "恢复布局快照(&N)",
+    "ko": "스냅샷 복원(&N)"
   },
   "menu.pauseAutoRestore": {
     "en": "Pause auto restore",
-    "zh": "暂停自动恢复(&P)"
+    "zh": "暂停自动恢复(&P)",
+    "ko": "자동 복원 일시중지(&P)"
   },
   "menu.resumeAutoRestore": {
     "en": "Resume auto restore",
-    "zh": "继续自动恢复"
+    "zh": "继续自动恢复",
+    "ko": "자동 복원 다시 시작(&P)"
+  },
+  "menu.pausedByProcess": {
+    "en": "Paused while {0} is running",
+    "zh": "{0} 运行中，已暂停",
+    "ko": "{0} 실행 중 - 일시중지됨"
+  },
+  "menu.rules": {
+    "en": "Pause / exclusion lists...",
+    "zh": "暂停 / 排除列表...",
+    "ko": "일시중지 / 제외 목록(&L)..."
   },
   "menu.tryCustomIcon": {
     "en": "Try customized icon",
-    "zh": "尝试自定义图标"
+    "zh": "尝试自定义图标",
+    "ko": "사용자 지정 아이콘 사용"
   },
   "menu.disableCustomIcon": {
     "en": "Disable customized icon",
-    "zh": "停用自定义图标"
+    "zh": "停用自定义图标",
+    "ko": "사용자 지정 아이콘 해제"
   },
   "menu.enableWebCommander": {
     "en": "Enable webpage commander",
-    "zh": "启用网页控制窗口"
+    "zh": "启用网页控制窗口",
+    "ko": "웹페이지 커맨더 켜기"
   },
   "menu.disableWebCommander": {
     "en": "Disable webpage commander",
-    "zh": "停用网页控制窗口"
+    "zh": "停用网页控制窗口",
+    "ko": "웹페이지 커맨더 끄기"
   },
   "menu.enableUpgradeNotice": {
     "en": "Enable upgrade notice",
-    "zh": "启用升级提醒"
+    "zh": "启用升级提醒",
+    "ko": "업그레이드 알림 켜기"
   },
   "menu.disableUpgradeNotice": {
     "en": "Disable upgrade notice",
-    "zh": "关闭升级提醒"
+    "zh": "关闭升级提醒",
+    "ko": "업그레이드 알림 끄기"
   },
   "menu.upgradeTo": {
     "en": "Upgrade to {0}",
-    "zh": "升级到 {0}"
+    "zh": "升级到 {0}",
+    "ko": "{0} 버전으로 업그레이드"
   },
   "menu.language": {
     "en": "Language",
-    "zh": "语言 / Language"
+    "zh": "语言 / Language",
+    "ko": "언어 / Language"
   },
   "lang.name.en": {
     "en": "English",
-    "zh": "English"
+    "zh": "English",
+    "ko": "English"
   },
   "lang.name.zh": {
     "en": "Chinese (Simplified)",
-    "zh": "简体中文"
+    "zh": "简体中文",
+    "ko": "简体中文"
+  },
+  "lang.name.ko": {
+    "en": "Korean",
+    "zh": "한국어",
+    "ko": "한국어"
   },
   "menu.help": {
     "en": "&Help",
-    "zh": "帮助(&H)"
+    "zh": "帮助(&H)",
+    "ko": "도움말(&H)"
   },
   "menu.exit": {
     "en": "&Exit",
-    "zh": "退出(&X)"
+    "zh": "退出(&X)",
+    "ko": "종료(&X)"
   },
   "balloon.restoring": {
     "en": "Please wait while restoring windows",
-    "zh": "正在恢复窗口布局，请稍候"
+    "zh": "正在恢复窗口布局，请稍候",
+    "ko": "창 배치를 복원하는 중입니다. 잠시 기다려 주세요"
   },
   "balloon.languageSwitched": {
     "en": "Language switched",
-    "zh": "语言已切换"
+    "zh": "语言已切换",
+    "ko": "언어가 변경되었습니다"
   },
   "balloon.languageApplied": {
     "en": "The interface language has been applied.",
-    "zh": "界面语言已即时生效。"
+    "zh": "界面语言已即时生效。",
+    "ko": "인터페이스 언어가 바로 적용되었습니다."
   },
   "balloon.upgradeAvailable": {
     "en": "{0} {1} upgrade is available",
-    "zh": "{0} {1} 有新版本可用"
+    "zh": "{0} {1} 有新版本可用",
+    "ko": "{0} {1} 업그레이드를 사용할 수 있습니다"
   },
   "balloon.upgradeNoticeHint": {
     "en": "The upgrade notice can be disabled in menu",
-    "zh": "可在菜单中关闭升级提醒"
+    "zh": "可在菜单中关闭升级提醒",
+    "ko": "업그레이드 알림은 메뉴에서 끌 수 있습니다"
   },
   "balloon.snapshotCaptured": {
     "en": "snapshot '{0}' is captured",
-    "zh": "快照 '{0}' 已保存"
+    "zh": "快照 '{0}' 已保存",
+    "ko": "스냅샷 '{0}'을(를) 저장했습니다"
   },
   "balloon.snapshotRestoreHint": {
     "en": "click icon then immediately press key '{0}' to restore the snapshot",
-    "zh": "点击图标后立即按数字键 '{0}' 即可恢复该快照"
+    "zh": "点击图标后立即按数字键 '{0}' 即可恢复该快照",
+    "ko": "아이콘을 클릭한 뒤 바로 '{0}' 키를 누르면 이 스냅샷이 복원됩니다"
   },
   "balloon.webCommanderInvoked": {
     "en": "webpage commander is invoked via hotkey",
-    "zh": "已通过热键呼出网页控制窗口"
+    "zh": "已通过热键呼出网页控制窗口",
+    "ko": "단축키로 웹페이지 커맨더를 불러왔습니다"
   },
   "balloon.webCommanderRevoke": {
     "en": "Press the hotkey (Alt + W) again to revoke",
-    "zh": "再按一次热键 (Alt + W) 即可收回"
+    "zh": "再按一次热键 (Alt + W) 即可收回",
+    "ko": "단축키(Alt + W)를 다시 누르면 닫힙니다"
   },
   "msg.alreadyRunning": {
     "en": "Another instance is already running.",
-    "zh": "程序已经在运行中。"
+    "zh": "程序已经在运行中。",
+    "ko": "프로그램이 이미 실행 중입니다."
   },
   "msg.proceedRestore": {
     "en": "Proceed to restore windows",
-    "zh": "即将恢复窗口布局"
+    "zh": "即将恢复窗口布局",
+    "ko": "창 배치 복원을 진행합니다"
   },
   "msg.switchVirtualDesktop": {
     "en": "Switch to another virtual desktop to restore windows",
-    "zh": "请切换到其他虚拟桌面后再恢复窗口"
+    "zh": "请切换到其他虚拟桌面后再恢复窗口",
+    "ko": "다른 가상 데스크톱으로 전환한 뒤 창을 복원하세요"
   },
   "splash.infoLabel": {
     "en": "info",
-    "zh": "关于"
+    "zh": "关于",
+    "ko": "정보"
   },
   "splash.info": {
     "en": "\n    Persistent Windows\n    Version {0}\n                \n    Author:        Min Yong Kim\n    Contributors:  Kang Yu, Sean Aitken\n    ",
-    "zh": "\n    Persistent Windows\n    版本 {0}\n                \n    作者:        Min Yong Kim\n    贡献者:  Kang Yu, Sean Aitken\n    "
+    "zh": "\n    Persistent Windows\n    版本 {0}\n                \n    作者:        Min Yong Kim\n    贡献者:  Kang Yu, Sean Aitken\n    ",
+    "ko": "\n    Persistent Windows\n    버전 {0}\n                \n    제작자:    Min Yong Kim\n    기여자:    Kang Yu, Sean Aitken\n    "
   },
   "splash.contributors": {
     "en": "Recognize All Contributors",
-    "zh": "致谢所有贡献者"
+    "zh": "致谢所有贡献者",
+    "ko": "모든 기여자 보기"
   },
   "dlg.ok": {
     "en": "OK",
-    "zh": "确定"
+    "zh": "确定",
+    "ko": "확인"
   },
   "dlg.cancel": {
     "en": "Cancel",
-    "zh": "取消"
+    "zh": "取消",
+    "ko": "취소"
   },
   "dlg.selectLayout": {
     "en": "Select a desktop layout to restore",
-    "zh": "请选择要恢复的桌面布局"
+    "zh": "请选择要恢复的桌面布局",
+    "ko": "복원할 데스크톱 배치를 선택하세요"
   },
   "dlg.snapshotDigitName": {
     "en": "Enter one digit or a letter to name the snapshot",
-    "zh": "输入一个数字或字母作为快照名称"
+    "zh": "输入一个数字或字母作为快照名称",
+    "ko": "스냅샷 이름으로 쓸 숫자나 영문자 한 글자를 입력하세요"
   },
   "dlg.snapshotName": {
     "en": "Enter the name of snapshot",
-    "zh": "请输入快照名称"
+    "zh": "请输入快照名称",
+    "ko": "스냅샷 이름 입력"
   },
   "dlg.captureDiskName": {
     "en": "Enter the name of capture on disk",
-    "zh": "请输入磁盘布局存档名称"
+    "zh": "请输入磁盘布局存档名称",
+    "ko": "디스크에 저장할 배치 이름 입력"
   },
   "dlg.captureName": {
     "en": "Enter the name of capture",
-    "zh": "请输入布局存档名称"
+    "zh": "请输入布局存档名称",
+    "ko": "저장할 배치 이름을 입력하세요"
+  },
+  "rules.title": {
+    "en": "Pause / exclusion lists",
+    "zh": "暂停 / 排除列表",
+    "ko": "일시중지 / 제외 목록"
+  },
+  "rules.pauseProcess": {
+    "en": "Pause while any of these processes is running",
+    "zh": "以下任一进程运行时暂停",
+    "ko": "이 프로세스가 실행 중이면 일시중지"
+  },
+  "rules.pauseProcessHint": {
+    "en": "Capture and auto restore stop while one is running, and the previous layout is restored when all of them have exited.",
+    "zh": "其中任一进程运行期间停止捕捉和自动恢复，全部退出后恢复之前的布局。",
+    "ko": "하나라도 실행 중인 동안 캡처와 자동 복원을 멈추고, 모두 종료되면 이전 배치로 복원합니다."
+  },
+  "rules.excludeProcess": {
+    "en": "Processes excluded from capture and control",
+    "zh": "不捕捉、不操作的进程",
+    "ko": "캡처·조작에서 제외할 프로세스"
+  },
+  "rules.excludeProcessHint": {
+    "en": "Windows of these processes are never captured, moved or restored.",
+    "zh": "这些进程的窗口不会被捕捉、移动或恢复。",
+    "ko": "이 프로세스의 창은 캡처하지 않고, 옮기거나 복원하지도 않습니다."
+  },
+  "rules.excludeTitle": {
+    "en": "Window titles excluded from capture and control",
+    "zh": "不捕捉、不操作的窗口标题",
+    "ko": "캡처·조작에서 제외할 창 제목"
+  },
+  "rules.excludeTitleHint": {
+    "en": "A window is excluded while its title contains one of these texts (case-insensitive).",
+    "zh": "窗口标题包含其中任一文字时即被排除（不区分大小写）。",
+    "ko": "창 제목에 이 문자열이 들어 있는 동안 제외됩니다 (대소문자 구분 없음)."
+  },
+  "rules.onePerLine": {
+    "en": "One entry per line. Process names work with or without .exe (e.g. notepad).",
+    "zh": "每行一项。进程名可带或不带 .exe（例如 notepad）。",
+    "ko": "한 줄에 하나씩 입력하세요. 프로세스 이름은 .exe를 붙여도 되고 빼도 됩니다 (예: notepad)."
+  },
+  "rules.addRunning": {
+    "en": "Add from running windows",
+    "zh": "从正在运行的窗口添加",
+    "ko": "실행 중인 창에서 추가"
+  },
+  "rules.saveFailed": {
+    "en": "Failed to save the lists: {0}",
+    "zh": "保存列表失败：{0}",
+    "ko": "목록을 저장하지 못했습니다: {0}"
   }
 }

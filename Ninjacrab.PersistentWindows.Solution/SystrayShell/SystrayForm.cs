@@ -29,6 +29,8 @@ namespace PersistentWindows.SystrayShell
         public bool autoUpgrade = false;
 
         private ToolStripMenuItem languageMenuItem;
+        private ToolStripMenuItem rulesMenuItem;
+        private RulesDialog rulesDialog = null;
         private bool upgradeNoticeOn = true;
         private bool webpageCommanderOn = true;
         private string upgradeAvailableVersion = null;
@@ -80,6 +82,15 @@ namespace PersistentWindows.SystrayShell
                 languageMenuItem.DropDownItems.Add(item);
             }
             contextMenuStripSysTray.Items.Insert(contextMenuStripSysTray.Items.IndexOf(aboutToolStripMenuItem), languageMenuItem);
+
+            // editor of the pause / exclusion lists, right below the pause item
+            rulesMenuItem = new ToolStripMenuItem(Lang.T("menu.rules"));
+            rulesMenuItem.Click += EditRules;
+            int rulesIndex = contextMenuStripSysTray.Items.IndexOf(pauseResumeToolStripMenuItem) + 1;
+            contextMenuStripSysTray.Items.Insert(rulesIndex, rulesMenuItem);
+            // set the pause item and its lists apart from the icon / commander items below
+            contextMenuStripSysTray.Items.Insert(rulesIndex + 1, new ToolStripSeparator());
+
             ApplyLanguage();
 
             clickDelayTimer = new System.Timers.Timer(1000);
@@ -406,13 +417,68 @@ namespace PersistentWindows.SystrayShell
             {
                 Program.ResumeAutoRestore();
                 pauseAutoRestore = false;
-                pauseResumeToolStripMenuItem.Text = Lang.T("menu.pauseAutoRestore");
             }
             else
             {
                 pauseAutoRestore = true;
                 Program.PauseAutoRestore();
-                pauseResumeToolStripMenuItem.Text = Lang.T("menu.resumeAutoRestore");
+            }
+            UpdatePauseMenu();
+        }
+
+        // the pause item shows the manual pause state, unless a process of the pause list
+        // is running: then it names that process and cannot be toggled
+        public void UpdatePauseMenu()
+        {
+            string process = Program.PauseProcessName;
+            if (process != null)
+            {
+                pauseResumeToolStripMenuItem.Text = Lang.T("menu.pausedByProcess", process);
+                pauseResumeToolStripMenuItem.Enabled = false;
+            }
+            else
+            {
+                pauseResumeToolStripMenuItem.Text = pauseAutoRestore ?
+                    Lang.T("menu.resumeAutoRestore") : Lang.T("menu.pauseAutoRestore");
+                pauseResumeToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void EditRules(object sender, EventArgs e)
+        {
+            if (rulesDialog != null)
+            {
+                rulesDialog.Activate();
+                return;
+            }
+
+            try
+            {
+                using (rulesDialog = new RulesDialog())
+                {
+                    rulesDialog.Icon = Program.IdleIcon;
+                    if (rulesDialog.ShowDialog(this) != DialogResult.OK)
+                        return;
+
+                    Rules.Set(rulesDialog.PauseProcess, rulesDialog.ExcludeProcess, rulesDialog.ExcludeTitle);
+                }
+
+                try
+                {
+                    Rules.Save(Program.AppdataFolder);
+                }
+                catch (Exception ex)
+                {
+                    Program.LogError(ex.ToString());
+                    MessageBox.Show(Lang.T("rules.saveFailed", ex.Message), Application.ProductName,
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                Program.RulesChanged();
+            }
+            finally
+            {
+                rulesDialog = null;
             }
         }
 
@@ -539,8 +605,8 @@ namespace PersistentWindows.SystrayShell
             restoreAllParkedMenuItem.Text = Lang.T("menu.restoreMinimized");
             captureSnapshotMenuItem.Text = Lang.T("menu.captureSnapshot");
             restoreSnapshotMenuItem.Text = Lang.T("menu.restoreSnapshot");
-            pauseResumeToolStripMenuItem.Text = pauseAutoRestore ?
-                Lang.T("menu.resumeAutoRestore") : Lang.T("menu.pauseAutoRestore");
+            UpdatePauseMenu();
+            rulesMenuItem.Text = Lang.T("menu.rules");
             toggleIconMenuItem.Text = toggleIcon ?
                 Lang.T("menu.disableCustomIcon") : Lang.T("menu.tryCustomIcon");
             invokeWebCommander.Text = webpageCommanderOn ?

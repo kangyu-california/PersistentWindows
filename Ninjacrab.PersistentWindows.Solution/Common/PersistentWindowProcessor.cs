@@ -527,6 +527,9 @@ namespace PersistentWindows.Common
         {
             IntPtr hwnd = foreGroundWindow;
 
+            if (IsExcludedWindow(hwnd))
+                return;
+
             // Occasionaly OS might bring a window to foreground upon sleep
             // If the window move is initiated by OS (before sleep),
             // keep restart capture timer would eventually discard these moves
@@ -1208,6 +1211,85 @@ namespace PersistentWindows.Common
                 });
                 return lst;
             }
+        }
+
+        // process name per window, only for the exclusion lists (see Rules); kept apart from
+        // windowProcessName so the lookup can run on any thread without holding captureLock
+        private Dictionary<IntPtr, string> ruleProcessName = new Dictionary<IntPtr, string>();
+        private Object ruleLock = new object();
+
+        private static string QueryProcessName(IntPtr hwnd)
+        {
+            try
+            {
+                uint pid;
+                User32.GetWindowThreadProcessId(hwnd, out pid);
+                if (pid == 0)
+                    return "";
+                using (var p = Process.GetProcessById((int)pid))
+                    return p.ProcessName;
+            }
+            catch (Exception)
+            {
+                // process might have been terminated
+                return "";
+            }
+        }
+
+        private string GetRuleProcessName(IntPtr hwnd)
+        {
+            string name;
+            lock (ruleLock)
+            {
+                if (ruleProcessName.TryGetValue(hwnd, out name))
+                    return name;
+            }
+
+            name = QueryProcessName(hwnd);
+            lock (ruleLock)
+                ruleProcessName[hwnd] = name;
+            return name;
+        }
+
+        /// <summary>
+        /// true if the user listed the window's process or (part of) its current title as excluded.
+        /// Evaluated on every call, so a window follows its title and edits of the lists take effect at once.
+        /// </summary>
+        public bool IsExcludedWindow(IntPtr hwnd)
+        {
+            if (!Rules.HasExcludeRule || hwnd == IntPtr.Zero)
+                return false;
+
+            try
+            {
+                if (Rules.ExcludeProcess.Length > 0)
+                {
+                    if (Rules.IsExcludedProcess(GetRuleProcessName(hwnd)))
+                        return true;
+
+                    // a store app lives in a core window hosted by ApplicationFrameHost
+                    if (GetWindowClassName(hwnd).Equals("ApplicationFrameWindow"))
+                    {
+                        IntPtr realHwnd = GetCoreAppWindow(hwnd);
+                        if (realHwnd != IntPtr.Zero && realHwnd != hwnd && Rules.IsExcludedProcess(QueryProcessName(realHwnd)))
+                            return true;
+                    }
+                }
+
+                if (Rules.HasExcludeTitleRule)
+                {
+                    const int bufSize = 512;
+                    var title = new StringBuilder(bufSize);
+                    if (User32.InternalGetWindowText(hwnd, title, bufSize) > 0 && Rules.IsExcludedTitle(title.ToString()))
+                        return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+
+            return false;
         }
 
         public void SetIgnoreProcess(string ignore_process)
@@ -2252,6 +2334,8 @@ namespace PersistentWindows.Common
 
             if (eventType == User32Events.EVENT_OBJECT_DESTROY)
             {
+                lock (ruleLock)
+                    ruleProcessName.Remove(hwnd);
                 noRestoreWindows.Remove(hwnd);
                 if (debugWindows.Contains(hwnd))
                 {
@@ -2345,6 +2429,10 @@ namespace PersistentWindows.Common
             {
                 return;
             }
+
+            // user excluded this window from capture and control
+            if (IsExcludedWindow(hwnd))
+                return;
 
 #if DEBUG
             if (title.Contains("Microsoft Visual Studio"))
@@ -3545,12 +3633,18 @@ namespace PersistentWindows.Common
                 if (string.IsNullOrEmpty(GetWindowTitle(hwnd)))
                     continue;
 
+                if (IsExcludedWindow(hwnd))
+                    continue;
+
                 result.Add(hwnd);
             }
 
             foreach (var hwnd in allUserMoveWindows)
             {
                 if (noRestoreWindows.Contains(hwnd))
+                    continue;
+
+                if (IsExcludedWindow(hwnd))
                     continue;
 
                 result.Add(hwnd);
@@ -3676,6 +3770,10 @@ namespace PersistentWindows.Common
             }
 
             if (hwnd == HotKeyWindow.commanderWnd)
+                return false;
+
+            // neither capture nor restore a window the user excluded
+            if (IsExcludedWindow(hwnd))
                 return false;
 
             bool isTaskBar = false;
