@@ -35,6 +35,9 @@ namespace PersistentWindows.Common
         /// <summary>active language name (a key of the entries, e.g. "en" or "zh")</summary>
         public static string CurrentLang = "en";
 
+        /// <summary>true once a saved language choice (display_language.txt) has been read</summary>
+        private static bool languageChosen = false;
+
         public static string LangSelection = "display_language.txt";      // current language
         public static string LangTranslation = "translations.json";   // translation of menu/message for all languages
 
@@ -80,7 +83,19 @@ namespace PersistentWindows.Common
                 if (File.Exists(select_lang))
                 {
                     string v = File.ReadAllText(select_lang).Trim();
-                    if (v.Length > 0) CurrentLang = v;
+                    if (v.Length > 0)
+                    {
+                        CurrentLang = v;
+                        languageChosen = true;
+                    }
+                }
+
+                // no saved choice yet: follow the Windows display language when it is translated
+                if (!languageChosen)
+                {
+                    string ui = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+                    if (Languages.Contains(ui))
+                        CurrentLang = ui;
                 }
             }
             catch (Exception)
