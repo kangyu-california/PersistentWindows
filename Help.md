@@ -1,6 +1,8 @@
 
 
 ## PersistentWindows Quick Help
+**English** | [한국어](Help.ko.md)
+
 ### Command Line Options
   | Command line option | Meaning |
   | --- | --- |
@@ -15,6 +17,9 @@
   | -care_process "notepad.exe;EXCEL" | Only restore windows for notepad.exe and EXCEL.EXE processes
   | -debug_process "notepad.exe;EXCEL" | Print the window positioning event logs in Event Viewer for notepad.exe and EXCEL.EXE processes. To debug all process, specify wildcard value "*"
   | -no_inherit_process "notepad.exe;EXCEL" | Disable auto restore new window for notepad and EXCEL processes
+  | -pause_process "game.exe;mstsc" | Pause capture and auto restore while game.exe or mstsc.exe is running, and restore the previous layout once all of them have exited. The entries are added to the pause list of the tray menu for this run only
+  | -exclude_process "notepad.exe;EXCEL" | Never capture, move or restore windows of notepad.exe and EXCEL.EXE processes. Unlike -ignore_process, the windows are not captured either. The entries are added to the exclusion list of the tray menu for this run only
+  | -exclude_title "Picture in picture;Sticky Notes" | Never capture, move or restore windows whose title contains one of the given texts (case-insensitive). The entries are added to the exclusion list of the tray menu for this run only
   | -foreground_background_dual_position=0 | Turn off dual position switching
   | -swap_window_pos_when_alt_activate=0 | Turn off background window pos swapping with foreground window when Alt+Click the background window
   | -webpage_commander_window=0 | Unregister Alt+W hotkey and turn off the webpage commander feature
@@ -88,6 +93,18 @@
 * To enable/disable auto restore for non-toplevel windows (such as a child or dialog window):
   * To include a child/dialog window for auto capture/restore, move the window once using the mouse
   * To exclude a window from auto capture/restore, Ctrl + Shift + move the window
+
+### Pause / exclusion lists
+* Select "Pause / exclusion lists..." from the PersistentWindows menu to edit three lists, one entry per line. The lists take effect as soon as they are saved.
+  | List | Effect |
+  | --- | --- |
+  | Pause while any of these processes is running | Capture and auto restore are paused while any listed process is running. The previous layout is restored once all of them have exited
+  | Processes excluded from capture and control | Windows of the listed processes are never captured, moved or restored
+  | Window titles excluded from capture and control | Windows whose title contains a listed text are never captured, moved or restored
+* A process name can be entered with or without ".exe" (for example `notepad`), and is not case-sensitive.
+* Use the "Add from running windows" button to pick an entry from the windows that are currently open.
+* While paused by a process, the "Pause auto restore" menu item shows the name of that process. Running processes are checked every 3 seconds.
+* The lists are stored in `C:\Users\[User]\AppData\Local\PersistentWindows\rules.json`. Entries given by the command line options -pause_process, -exclude_process and -exclude_title are added for the current run only and are not shown in the dialog.
 
 ### Webpage commander window
 * A webpage commander window captures command shortcuts (which is carefully designed to be done single handedly) and translates them to the underlying web browser window, maximizing the efficiency of web browsing.

@@ -1264,7 +1264,7 @@ namespace PersistentWindows.Common
 
             try
             {
-                if (Rules.ExcludeProcess.Length > 0)
+                if (Rules.HasExcludeProcessRule)
                 {
                     if (Rules.IsExcludedProcess(GetRuleProcessName(hwnd)))
                         return true;

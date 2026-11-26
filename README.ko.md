@@ -108,6 +108,7 @@ REG ADD "HKCU\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers
 - 각 목록의 **실행 중인 창에서 추가** 단추로 현재 열려 있는 창에서 골라 넣을 수 있습니다.
 - 프로세스 때문에 일시중지된 동안에는 메뉴에 어떤 프로세스 때문인지 표시됩니다. 실행 여부는 3초마다 확인하므로 약간의 지연이 있을 수 있습니다.
 - 목록은 *C:\Users\\[사용자]\AppData\Local\PersistentWindows\rules.json*에 저장됩니다.
+- 명령줄 옵션 `-pause_process`, `-exclude_process`, `-exclude_title`로도 항목을 줄 수 있습니다. 자세한 내용은 [빠른 도움말](Help.ko.md)을 참고하세요.
 
 ### 표시 언어
 저장된 언어 선택이 없으면 Windows 표시 언어를 따르며(번역이 있는 경우), 메뉴에서 언어를 직접 바꿀 수 있습니다.

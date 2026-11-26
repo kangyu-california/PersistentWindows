@@ -15,6 +15,8 @@ namespace PersistentWindows.Common
     ///   exclude_process - windows of these processes are never captured or controlled
     ///   exclude_title   - windows whose title contains one of these texts are never captured or controlled
     /// Process names are compared without ".exe", everything is case-insensitive.
+    /// The command line options -pause_process, -exclude_process and -exclude_title add
+    /// entries for the running instance only; they are not shown in the editor nor saved.
     /// The lists are replaced as a whole on every change, so readers on other threads
     /// always see a complete list without locking.
     /// </summary>
@@ -28,13 +30,20 @@ namespace PersistentWindows.Common
         private static volatile HashSet<string> pauseProcessSet = NewSet(null);
         private static volatile HashSet<string> excludeProcessSet = NewSet(null);
 
+        // entries given on the command line, and the saved + command line titles
+        private static string[] cmdPauseProcess = new string[0];
+        private static string[] cmdExcludeProcess = new string[0];
+        private static string[] cmdExcludeTitle = new string[0];
+        private static volatile string[] excludeTitleAll = new string[0];
+
         public static string[] PauseProcess { get { return pauseProcess; } }
         public static string[] ExcludeProcess { get { return excludeProcess; } }
         public static string[] ExcludeTitle { get { return excludeTitle; } }
 
-        public static bool HasPauseRule { get { return pauseProcess.Length > 0; } }
-        public static bool HasExcludeRule { get { return excludeProcess.Length > 0 || excludeTitle.Length > 0; } }
-        public static bool HasExcludeTitleRule { get { return excludeTitle.Length > 0; } }
+        public static bool HasPauseRule { get { return pauseProcessSet.Count > 0; } }
+        public static bool HasExcludeRule { get { return excludeProcessSet.Count > 0 || excludeTitleAll.Length > 0; } }
+        public static bool HasExcludeProcessRule { get { return excludeProcessSet.Count > 0; } }
+        public static bool HasExcludeTitleRule { get { return excludeTitleAll.Length > 0; } }
 
         private static HashSet<string> NewSet(IEnumerable<string> items)
         {
@@ -86,11 +95,40 @@ namespace PersistentWindows.Common
             var exclude = NormalizeProcessNames(exclude_process);
             var titles = NormalizeTitles(exclude_title);
 
-            pauseProcessSet = NewSet(pause);
-            excludeProcessSet = NewSet(exclude);
             pauseProcess = pause;
             excludeProcess = exclude;
             excludeTitle = titles;
+            Rebuild();
+        }
+
+        // merge the saved lists with the command line entries
+        private static void Rebuild()
+        {
+            var pause = NewSet(pauseProcess);
+            pause.UnionWith(cmdPauseProcess);
+            var exclude = NewSet(excludeProcess);
+            exclude.UnionWith(cmdExcludeProcess);
+            var titles = new List<string>(excludeTitle);
+            titles.AddRange(cmdExcludeTitle);
+
+            pauseProcessSet = pause;
+            excludeProcessSet = exclude;
+            excludeTitleAll = NormalizeTitles(titles);
+        }
+
+        /// <summary>
+        /// entries of the command line options, each a list separated by ';' like -ignore_process.
+        /// null leaves that list unchanged
+        /// </summary>
+        public static void SetCommandLine(string pause_process, string exclude_process, string exclude_title)
+        {
+            if (pause_process != null)
+                cmdPauseProcess = NormalizeProcessNames(pause_process.Split(';'));
+            if (exclude_process != null)
+                cmdExcludeProcess = NormalizeProcessNames(exclude_process.Split(';'));
+            if (exclude_title != null)
+                cmdExcludeTitle = NormalizeTitles(exclude_title.Split(';'));
+            Rebuild();
         }
 
         public static void Load(string dir)
@@ -148,7 +186,7 @@ namespace PersistentWindows.Common
             if (string.IsNullOrEmpty(title))
                 return false;
 
-            var titles = excludeTitle;
+            var titles = excludeTitleAll;
             foreach (var t in titles)
             {
                 if (title.IndexOf(t, StringComparison.OrdinalIgnoreCase) >= 0)
