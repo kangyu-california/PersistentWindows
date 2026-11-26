@@ -953,6 +953,13 @@ if not errorlevel 1 goto wait_to_finish";
             {
                 string name = Rules.FindRunningPauseProcess();
                 bool running = name != null;
+
+                // Resuming restores the layout and turns capture back on. Behind the lock screen
+                // that would record whatever Windows does to the windows there, so stay paused
+                // until the session is unlocked.
+                if (!running && processPause && pwp.SessionLocked)
+                    return;
+
                 if (running != processPause)
                 {
                     if (running)
