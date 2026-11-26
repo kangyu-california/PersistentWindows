@@ -77,6 +77,9 @@ if not errorlevel 1 goto wait_to_finish";
             string ignore_process = "";
             string care_process = "";
             string no_inherit_process = "";
+            string pause_process = "";
+            string exclude_process = "";
+            string exclude_title = "";
             int debug_process = 0;
             bool fix_zorder = false;
             bool fix_zorder_specified = false;
@@ -158,6 +161,24 @@ if not errorlevel 1 goto wait_to_finish";
                 {
                     no_inherit_process = "";
                     pwp.SetNoinheritProcess(arg);
+                    continue;
+                }
+                else if (pause_process.Length > 0)
+                {
+                    pause_process = "";
+                    Rules.SetCommandLine(arg, null, null);
+                    continue;
+                }
+                else if (exclude_process.Length > 0)
+                {
+                    exclude_process = "";
+                    Rules.SetCommandLine(null, arg, null);
+                    continue;
+                }
+                else if (exclude_title.Length > 0)
+                {
+                    exclude_title = "";
+                    Rules.SetCommandLine(null, null, arg);
                     continue;
                 }
                 else if (hotkey == 1)
@@ -251,6 +272,15 @@ if not errorlevel 1 goto wait_to_finish";
                         break;
                     case "-no_inherit_process":
                         no_inherit_process = "_foo_";
+                        break;
+                    case "-pause_process":
+                        pause_process = "_foo_";
+                        break;
+                    case "-exclude_process":
+                        exclude_process = "_foo_";
+                        break;
+                    case "-exclude_title":
+                        exclude_title = "_foo_";
                         break;
                     case "-debug_process":
                         debug_process = 1;
