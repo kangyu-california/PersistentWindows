@@ -1215,41 +1215,43 @@ namespace PersistentWindows.Common
 
         // process name per window, only for the exclusion lists (see Rules); kept apart from
         // windowProcessName so the lookup can run on any thread without holding captureLock
-        private Dictionary<IntPtr, string> ruleProcessName = new Dictionary<IntPtr, string>();
+        // The process id is kept with the name: a window handle can be reused by another
+        // process when the destroy event of its previous owner was missed.
+        private Dictionary<IntPtr, KeyValuePair<uint, string>> ruleProcessName = new Dictionary<IntPtr, KeyValuePair<uint, string>>();
         private Object ruleLock = new object();
 
-        private static string QueryProcessName(IntPtr hwnd)
+        private string GetRuleProcessName(IntPtr hwnd)
         {
+            uint pid;
+            User32.GetWindowThreadProcessId(hwnd, out pid);
+            if (pid == 0)
+                return "";
+
+            KeyValuePair<uint, string> cached;
+            lock (ruleLock)
+            {
+                if (ruleProcessName.TryGetValue(hwnd, out cached) && cached.Key == pid)
+                    return cached.Value;
+            }
+
+            string name = "";
             try
             {
-                uint pid;
-                User32.GetWindowThreadProcessId(hwnd, out pid);
-                if (pid == 0)
-                    return "";
                 using (var p = Process.GetProcessById((int)pid))
-                    return p.ProcessName;
+                    name = p.ProcessName;
             }
             catch (Exception)
             {
                 // process might have been terminated
-                return "";
-            }
-        }
-
-        private string GetRuleProcessName(IntPtr hwnd)
-        {
-            string name;
-            lock (ruleLock)
-            {
-                if (ruleProcessName.TryGetValue(hwnd, out name))
-                    return name;
             }
 
-            name = QueryProcessName(hwnd);
             lock (ruleLock)
-                ruleProcessName[hwnd] = name;
+                ruleProcessName[hwnd] = new KeyValuePair<uint, string>(pid, name);
             return name;
         }
+
+        /// <summary>true while the session is locked (auto restore waits for the unlock)</summary>
+        public bool SessionLocked { get { return sessionLocked; } }
 
         /// <summary>
         /// true if the user listed the window's process or (part of) its current title as excluded.
@@ -1271,7 +1273,7 @@ namespace PersistentWindows.Common
                     if (GetWindowClassName(hwnd).Equals("ApplicationFrameWindow"))
                     {
                         IntPtr realHwnd = GetCoreAppWindow(hwnd);
-                        if (realHwnd != IntPtr.Zero && realHwnd != hwnd && Rules.IsExcludedProcess(QueryProcessName(realHwnd)))
+                        if (realHwnd != IntPtr.Zero && realHwnd != hwnd && Rules.IsExcludedProcess(GetRuleProcessName(realHwnd)))
                             return true;
                     }
                 }
@@ -5270,6 +5272,10 @@ namespace PersistentWindows.Common
                     if (curDisplayMetrics.IsInvisible)
                         continue;
 
+                    // saved to disk before the user excluded it: do not offer to launch it again
+                    if (Rules.IsExcludedProcess(curDisplayMetrics.ProcessName) || Rules.IsExcludedTitle(curDisplayMetrics.Title))
+                        continue;
+
                     if (dbMatchWindow.Contains(curDisplayMetrics.Id))
                         continue;
 
@@ -5561,6 +5567,10 @@ namespace PersistentWindows.Common
                 foreach (var hwnd in monitorApplications[curDisplayKey].Keys.ToArray())
                 {
                     if (!User32.IsWindow(hwnd))
+                        continue;
+
+                    // captured before the user excluded it
+                    if (IsExcludedWindow(hwnd))
                         continue;
 
                     var list = monitorApplications[curDisplayKey][hwnd];
